@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SLMP": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

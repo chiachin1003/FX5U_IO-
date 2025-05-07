@@ -1,0 +1,228 @@
+﻿using FX5U_IOMonitor.Data;
+using System;
+using System.Collections.Generic;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FX5U_IOMonitor.Models
+{
+    internal class MachineInfo
+    {
+        public static class PanelFactory
+        {
+            /// <summary>
+            /// 動態生成標準化 Panel
+            /// </summary>
+            /// <param name="location">Panel 的位置</param>
+            /// <param name="equipmentName">設備名稱</param>
+            /// <param name="lightColor">燈號顏色</param>
+            /// <param name="percent">百分比數值</param>
+            /// <param name="rulPercent">剩餘壽命數值</param>
+            /// <param name="effect">影響數值</param>
+            /// <returns>返回生成的標準化 Panel</returns>
+            /// 
+
+            //需要壽命監控時的按鈕創造
+            public static Panel CreatePanel(Point location, bool Electronic, string equipmentName, string percent, string rulPercent, string effect, string address, bool? state)
+            {
+
+                // 初始化 Panel
+                Panel panel = new Panel
+                {
+                    Location = location,
+                    Size = new Size(200, 100),
+                    BorderStyle = BorderStyle.FixedSingle,
+                };
+
+                // 初始化 lab_equipment
+                Label labEquipment = new Label
+                {
+                    AutoSize = true,
+                    Font = new Font("微軟正黑體", 12F, FontStyle.Bold),
+                    MaximumSize = new System.Drawing.Size(120, 0), // 限制最大寬度為 50px，高度自適應
+                    Location = new Point(9, 11),
+                    Name = "lab_equipment",
+                    Text = equipmentName
+                };
+                panel.Controls.Add(labEquipment);
+
+                // 初始化 lab_effect
+                Label labEffect = new Label
+                {
+                    AutoSize = true,
+                    MaximumSize = new System.Drawing.Size(120, 0), // 限制最大寬度為 50px，高度自適應
+                    TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
+                    Text = effect,
+                    Font = new Font("微軟正黑體", 11F, FontStyle.Bold),
+                    Location = new Point(9, 33),
+                    Name = "lab_effect",
+                };
+                panel.Controls.Add(labEffect);
+
+                //尋找指定的address內的設定值
+                string dbtable = DBfunction.FindTableWithAddress(address);
+                if (dbtable == "") return panel;
+               
+                // 初始化 panel_light
+                Panel panelLight = new Panel
+                {
+                    Location = new Point(133, 11),
+                    Name = "panel_light",
+                    Size = new Size(40, 40),
+                    BackColor = (Color)SetColor(percent, DBfunction.Get_SetG_ByAddress(dbtable, address)
+                    , DBfunction.Get_SetY_ByAddress(dbtable, address)
+                    , DBfunction.Get_SetR_ByAddress(dbtable, address))
+                };
+
+                SetCircularShape(panelLight, 30);
+                panel.Controls.Add(panelLight);
+                panelLight.Tag = address;  // 使用 Tag 屬性來存儲設備名稱(指定對應的列)
+
+                panelLight.Click += (sender, e) => PanelLight_Click(sender, e);
+                Panel panel_ON = new Panel
+                {
+                    Location = new Point(175, 50),
+                    Name = "panel_ON",
+                    Size = new Size(12, 12),
+                    BackColor = (Color)SetPointColor(state)
+                };
+                //SetCircularShape(panel_ON, 20);
+                panel.Controls.Add(panel_ON);
+
+                // 初始化 RUL_precent
+                ProgressBar rulLabel = new ProgressBar
+                {
+                    Location = new Point(125, 50),
+                    Name = "RUL_precent",
+                    Size = new Size(45, 12),
+                    Value = ProgressBarValue(percent)
+                };
+                panel.Controls.Add(rulLabel);
+
+                // 初始化 label_percent
+                Label labelPercent = new Label
+                {
+                    AutoSize = true,
+                    Font = new Font("微軟正黑體", 10F, FontStyle.Bold),
+                    Location = new Point(125, 65),
+                    Name = "label_percent",
+                    Text = $"{percent} %"
+                };
+                panel.Controls.Add(labelPercent);
+
+
+                // 設定 Panel 實際大小（你要的 232x115）
+                panel.Size = new Size(232, 110);
+
+                // 原始設計大小為 200x100
+                float scaleX = panel.Width / 200f;
+                float scaleY = panel.Height / 100f;
+
+                // 套用縮放
+                ResizeControls(panel, scaleX, scaleY);
+                return panel;
+
+            }
+
+
+
+            private static void SetCircularShape(Control control, int num)
+            {
+                // 使用 GraphicsPath 設置圓形區域
+                GraphicsPath path = new GraphicsPath();
+                path.AddEllipse(0, 0, num, num);
+                control.Region = new Region(path);
+            }
+            private static int ProgressBarValue(string percent)
+            {
+                if (string.IsNullOrWhiteSpace(percent))
+                    return 0;
+
+                // 嘗試轉為 double，若失敗 (無法轉型)，也回傳 Color.Gray
+                if (!double.TryParse(percent, out double dPercent))
+                    return 0;
+
+                double value = double.Parse(percent);
+                int intValue = (int)value;
+                if (intValue >= 100) return 100;
+                else if (intValue <= 0) return 0;
+                else return intValue;
+
+            }
+            private static object SetColor(string percent, int Green, int yellow, int red)
+            {
+                // 若沒有傳值進來 (null 或空字串)，直接回傳 Color.Gray
+                if (string.IsNullOrWhiteSpace(percent))
+                    return Color.Gray;
+
+                // 嘗試轉為 double，若失敗 (無法轉型)，也回傳 Color.Gray
+                if (double.TryParse(percent, out double dPercent))
+                {
+                    double roundedValue = Math.Round(dPercent, 3);
+                    // 3. 判斷數值範圍
+                    if (roundedValue < red) return Color.Red;
+                    else if (roundedValue >= red && roundedValue < yellow) return Color.Yellow;
+                    else return Color.Green;
+                }
+                return Color.Gray;
+
+            }
+            private static object SetPointColor(bool? Ture)
+            {
+                // 若沒有傳值進來 (null 或空)，直接回傳 Color.Gray
+                // 若輸入為 null，直接回傳 Color.Gray
+                if (!Ture.HasValue)
+                    return Color.Gray;
+
+                // 若輸入為 true，回傳白色；否則回傳黑色
+                return Ture.Value ? Color.White : Color.Black;
+
+            }
+
+
+            private static void PanelLight_Click(object sender, EventArgs e)
+            {
+
+                Panel panelLight = sender as Panel;
+                if (panelLight != null)
+                {
+                    string equipmentTag = panelLight.Tag.ToString();  // 從 Tag 屬性中獲取設備名稱
+                    ShowDetail detailForm = new ShowDetail(equipmentTag);
+                    detailForm.ShowDialog();
+                }
+            }
+
+            private static void ResizeControls(Control parent, float scaleX, float scaleY)
+            {
+                foreach (Control ctrl in parent.Controls)
+                {
+                    // 位置與大小縮放
+                    ctrl.Location = new Point((int)(ctrl.Left * scaleX), (int)(ctrl.Top * scaleY));
+                    ctrl.Size = new Size((int)(ctrl.Width * scaleX), (int)(ctrl.Height * scaleY));
+
+                    // 字型縮放
+                    if (ctrl.Font != null)
+                    {
+                        float newSize = ctrl.Font.Size * Math.Min(scaleX, scaleY);
+                        ctrl.Font = new Font(ctrl.Font.FontFamily, newSize, ctrl.Font.Style);
+                    }
+                    if (ctrl is Label lbl && lbl.MaximumSize != Size.Empty)
+                    {
+                        int maxWidth = (int)(lbl.MaximumSize.Width * scaleX);
+                        int maxHeight = (int)(lbl.MaximumSize.Height * scaleY);
+                        lbl.MaximumSize = new Size(maxWidth, maxHeight);
+                    }
+                    // 遞迴縮放子控制項
+                    if (ctrl.HasChildren)
+                    {
+                        ResizeControls(ctrl, scaleX, scaleY);
+                    }
+                }
+            }
+
+           
+        }
+    }
+}

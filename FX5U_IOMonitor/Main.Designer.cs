@@ -1,0 +1,243 @@
+﻿namespace FX5U_IOMonitor
+{
+    partial class Main
+    {
+        /// <summary>
+        /// 設計工具所需的變數。
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// 清除任何使用中的資源。
+        /// </summary>
+        /// <param name="disposing">如果應該處置受控資源則為 true，否則為 false。</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form 設計工具產生的程式碼
+
+        /// <summary>
+        /// 此為設計工具支援所需的方法 - 請勿使用程式碼編輯器修改
+        /// 這個方法的內容。
+        /// </summary>
+        private void InitializeComponent()
+        {
+            panel_choose = new Panel();
+            btn_email = new Button();
+            btn_search = new Button();
+            button_swing = new Button();
+            btn_Drill = new Button();
+            btn_connect = new Button();
+            btn_Main = new Button();
+            panel_select = new Panel();
+            btn_log_out = new Button();
+            btn_user = new Button();
+            btn_log_in = new Button();
+            panel_main = new Panel();
+            panel_choose.SuspendLayout();
+            panel_select.SuspendLayout();
+            SuspendLayout();
+            // 
+            // panel_choose
+            // 
+            panel_choose.Controls.Add(btn_email);
+            panel_choose.Controls.Add(btn_search);
+            panel_choose.Controls.Add(button_swing);
+            panel_choose.Controls.Add(btn_Drill);
+            panel_choose.Controls.Add(btn_connect);
+            panel_choose.Controls.Add(btn_Main);
+            panel_choose.Dock = DockStyle.Left;
+            panel_choose.Location = new Point(0, 0);
+            panel_choose.Margin = new Padding(4);
+            panel_choose.Name = "panel_choose";
+            panel_choose.Size = new Size(59, 691);
+            panel_choose.TabIndex = 0;
+            // 
+            // btn_email
+            // 
+            btn_email.Dock = DockStyle.Top;
+            btn_email.FlatStyle = FlatStyle.Flat;
+            btn_email.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_email.Location = new Point(0, 200);
+            btn_email.Margin = new Padding(4);
+            btn_email.Name = "btn_email";
+            btn_email.Size = new Size(59, 50);
+            btn_email.TabIndex = 6;
+            btn_email.Text = "郵件\r\n設定\r\n";
+            btn_email.UseVisualStyleBackColor = true;
+            btn_email.Click += btn_email_Click;
+            // 
+            // btn_search
+            // 
+            btn_search.Dock = DockStyle.Top;
+            btn_search.FlatStyle = FlatStyle.Flat;
+            btn_search.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_search.Location = new Point(0, 150);
+            btn_search.Margin = new Padding(4);
+            btn_search.Name = "btn_search";
+            btn_search.Size = new Size(59, 50);
+            btn_search.TabIndex = 5;
+            btn_search.Text = "故障\r\n排除表";
+            btn_search.UseVisualStyleBackColor = true;
+            btn_search.Click += btn_search_Click;
+            // 
+            // button_swing
+            // 
+            button_swing.Dock = DockStyle.Top;
+            button_swing.FlatStyle = FlatStyle.Flat;
+            button_swing.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            button_swing.Location = new Point(0, 100);
+            button_swing.Margin = new Padding(4);
+            button_swing.Name = "button_swing";
+            button_swing.Size = new Size(59, 50);
+            button_swing.TabIndex = 4;
+            button_swing.Text = "鋸床";
+            button_swing.UseVisualStyleBackColor = true;
+            button_swing.Click += button_swing_Click;
+            // 
+            // btn_Drill
+            // 
+            btn_Drill.Dock = DockStyle.Top;
+            btn_Drill.FlatStyle = FlatStyle.Flat;
+            btn_Drill.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_Drill.Location = new Point(0, 50);
+            btn_Drill.Margin = new Padding(4);
+            btn_Drill.Name = "btn_Drill";
+            btn_Drill.Size = new Size(59, 50);
+            btn_Drill.TabIndex = 3;
+            btn_Drill.Text = "鑽床";
+            btn_Drill.UseVisualStyleBackColor = true;
+            btn_Drill.Click += btn_Drill_Click;
+            // 
+            // btn_connect
+            // 
+            btn_connect.Dock = DockStyle.Bottom;
+            btn_connect.FlatStyle = FlatStyle.Flat;
+            btn_connect.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_connect.Location = new Point(0, 646);
+            btn_connect.Margin = new Padding(4);
+            btn_connect.Name = "btn_connect";
+            btn_connect.Size = new Size(59, 45);
+            btn_connect.TabIndex = 1;
+            btn_connect.Text = "連線";
+            btn_connect.UseVisualStyleBackColor = true;
+            btn_connect.Click += btn_connect_Click;
+            // 
+            // btn_Main
+            // 
+            btn_Main.Dock = DockStyle.Top;
+            btn_Main.FlatStyle = FlatStyle.Flat;
+            btn_Main.Font = new Font("微軟正黑體", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_Main.Location = new Point(0, 0);
+            btn_Main.Margin = new Padding(4);
+            btn_Main.Name = "btn_Main";
+            btn_Main.Size = new Size(59, 50);
+            btn_Main.TabIndex = 0;
+            btn_Main.Text = "主頁面";
+            btn_Main.UseVisualStyleBackColor = true;
+            btn_Main.Click += btn_Main_Click;
+            // 
+            // panel_select
+            // 
+            panel_select.Controls.Add(btn_log_out);
+            panel_select.Controls.Add(btn_user);
+            panel_select.Controls.Add(btn_log_in);
+            panel_select.Dock = DockStyle.Top;
+            panel_select.Location = new Point(59, 0);
+            panel_select.Margin = new Padding(4);
+            panel_select.Name = "panel_select";
+            panel_select.Size = new Size(975, 50);
+            panel_select.TabIndex = 1;
+            // 
+            // btn_log_out
+            // 
+            btn_log_out.Dock = DockStyle.Right;
+            btn_log_out.FlatStyle = FlatStyle.Flat;
+            btn_log_out.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_log_out.Location = new Point(927, 0);
+            btn_log_out.Margin = new Padding(4);
+            btn_log_out.Name = "btn_log_out";
+            btn_log_out.Size = new Size(48, 50);
+            btn_log_out.TabIndex = 11;
+            btn_log_out.Text = "登出";
+            btn_log_out.UseVisualStyleBackColor = true;
+            btn_log_out.Click += btn_log_out_Click;
+            // 
+            // btn_user
+            // 
+            btn_user.Dock = DockStyle.Left;
+            btn_user.FlatStyle = FlatStyle.Flat;
+            btn_user.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_user.Location = new Point(55, 0);
+            btn_user.Margin = new Padding(4);
+            btn_user.Name = "btn_user";
+            btn_user.Size = new Size(59, 50);
+            btn_user.TabIndex = 10;
+            btn_user.Text = "權限\r\n設定";
+            btn_user.UseVisualStyleBackColor = true;
+            btn_user.Click += btn_user_Click;
+            // 
+            // btn_log_in
+            // 
+            btn_log_in.Dock = DockStyle.Left;
+            btn_log_in.FlatStyle = FlatStyle.Flat;
+            btn_log_in.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_log_in.Location = new Point(0, 0);
+            btn_log_in.Margin = new Padding(4);
+            btn_log_in.Name = "btn_log_in";
+            btn_log_in.Size = new Size(55, 50);
+            btn_log_in.TabIndex = 9;
+            btn_log_in.Text = "使用者登錄";
+            btn_log_in.UseVisualStyleBackColor = true;
+            btn_log_in.Click += btn_log_in_Click;
+            // 
+            // panel_main
+            // 
+            panel_main.Dock = DockStyle.Fill;
+            panel_main.Location = new Point(59, 50);
+            panel_main.Margin = new Padding(4);
+            panel_main.Name = "panel_main";
+            panel_main.Size = new Size(975, 641);
+            panel_main.TabIndex = 3;
+            // 
+            // Main
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackgroundImageLayout = ImageLayout.None;
+            ClientSize = new Size(1034, 691);
+            Controls.Add(panel_main);
+            Controls.Add(panel_select);
+            Controls.Add(panel_choose);
+            Margin = new Padding(4);
+            Name = "Main";
+            Text = "視覺化元件監控";
+            Load += Main_Load;
+            panel_choose.ResumeLayout(false);
+            panel_select.ResumeLayout(false);
+            ResumeLayout(false);
+        }
+
+        #endregion
+
+        private System.Windows.Forms.Panel panel_choose;
+        private System.Windows.Forms.Panel panel_select;
+        private System.Windows.Forms.Panel panel_main;
+        private System.Windows.Forms.Button btn_connect;
+        private System.Windows.Forms.Button btn_Main;
+        private System.Windows.Forms.Button btn_Drill;
+        private System.Windows.Forms.Button button_swing;
+        private System.Windows.Forms.Button btn_search;
+        private Button btn_log_in;
+        private Button btn_user;
+        private Button btn_log_out;
+        private Button btn_email;
+    }
+}
+
