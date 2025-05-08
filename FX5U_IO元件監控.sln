@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLMP", "SLMP\SLMP.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FX5U_IOMonitor", "FX5U_IOMonitor\FX5U_IOMonitor.csproj", "{605DAE13-AE5B-4232-9C1F-051014E962BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MachineIO_CRUD", "MachineIO_CRUD\MachineIO_CRUD.csproj", "{C3A833C5-5F9D-4C1F-9F4E-E2856F493F03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{605DAE13-AE5B-4232-9C1F-051014E962BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{605DAE13-AE5B-4232-9C1F-051014E962BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{605DAE13-AE5B-4232-9C1F-051014E962BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3A833C5-5F9D-4C1F-9F4E-E2856F493F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3A833C5-5F9D-4C1F-9F4E-E2856F493F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3A833C5-5F9D-4C1F-9F4E-E2856F493F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3A833C5-5F9D-4C1F-9F4E-E2856F493F03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
