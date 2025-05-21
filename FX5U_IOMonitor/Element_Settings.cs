@@ -62,6 +62,15 @@ namespace FX5U_IOMonitor.Resources
 
             }
 
+            string lang = Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageCSV("language.csv", lang);
+            SwitchLanguage();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
         }
 
         private void btn_add_Click(object sender, EventArgs e)
@@ -73,52 +82,28 @@ namespace FX5U_IOMonitor.Resources
 
             using (var context = new ApplicationDB())
             {
-                if (comb_machine.SelectedIndex == 0)
+                
+                if (context.Machine_IO.Any(d => d.address == fullAddress && d.Machine_name == this.tableName))
                 {
-                    if (context.Drill_IO.Any(d => d.address == fullAddress))
-                    {
-                        MessageBox.Show($"⚠️ 地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    var newDrillIO = new Drill_MachineIO
-                    {
-                        ClassTag = comb_class.Text,
-                        Comment = txb_comment.Text,
-                        Description = txb_description.Text,
-                        IOType = GetSelectedIOState(comb_io),
-                        MaxLife = Convert.ToInt32(txb_max_number.Text),
-                        MountTime = DateTime.Now,
-                        RelayType = GetSelectedRelayType(comb_type),
-                        Setting_red = Convert.ToInt32(txb_red_light.Text),
-                        Setting_yellow = Convert.ToInt32(txb_yellow_light.Text),
-                        UnmountTime = DateTime.Now.AddDays(10),
-                        address = fullAddress
-                    };
-                    context.Drill_IO.Add(newDrillIO);
+                    MessageBox.Show($"⚠️ 地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
-                else if (comb_machine.SelectedIndex == 1)
+                var newDrillIO = new MachineIO
                 {
-                    if (context.Sawing_IO.Any(d => d.address == fullAddress))
-                    {
-                        MessageBox.Show($"⚠️ 地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                    var newIO = new Sawing_MachineIO
-                    {
-                        ClassTag = comb_class.Text,
-                        Comment = txb_comment.Text,
-                        Description = txb_description.Text,
-                        IOType = GetSelectedIOState(comb_io),
-                        MaxLife = Convert.ToInt32(txb_max_number.Text),
-                        MountTime = DateTime.Now,
-                        RelayType = GetSelectedRelayType(comb_type),
-                        Setting_red = Convert.ToInt32(txb_red_light.Text),
-                        Setting_yellow = Convert.ToInt32(txb_yellow_light.Text),
-                        UnmountTime = DateTime.Now.AddDays(10),
-                        address = fullAddress
-                    };
-                    context.Sawing_IO.Add(newIO);
-                }
+                    ClassTag = comb_class.Text,
+                    Comment = txb_comment.Text,
+                    Description = txb_description.Text,
+                    IOType = GetSelectedIOState(comb_io),
+                    MaxLife = Convert.ToInt32(txb_max_number.Text),
+                    MountTime = (DateTime.UtcNow),
+                    RelayType = GetSelectedRelayType(comb_type),
+                    Setting_red = Convert.ToInt32(txb_red_light.Text),
+                    Setting_yellow = Convert.ToInt32(txb_yellow_light.Text),
+                    UnmountTime = DateTime.UtcNow.AddDays(10),
+                    address = fullAddress
+                };
+                context.Machine_IO.Add(newDrillIO);
+               
                 context.SaveChanges();
                 MessageBox.Show("✅ 新增成功！");
                 OnDataUpdated?.Invoke(); // ✅ 呼叫刷新事件
@@ -229,40 +214,22 @@ namespace FX5U_IOMonitor.Resources
         {
             using (var context = new ApplicationDB())
             {
-                if (table == "Drill")
+              
+                var data = context.Machine_IO.FirstOrDefault(d => d.address == address && d.Machine_name == tableName);
+                if (data != null)
                 {
-                    var data = context.Drill_IO.FirstOrDefault(d => d.address == address);
-                    if (data != null)
-                    {
-                        comb_machine.SelectedIndex = 0;
-                        comb_io.Text = data.IOType ? "X" : "Y";
-                        comb_type.SelectedIndex = data.RelayType == RelayType.Electronic ? 0 : data.RelayType == RelayType.Machanical ? 1 : -1;
-                        comb_class.Text = data.ClassTag;
-                        txb_address.Text = address.Substring(1);
-                        txb_description.Text = data.Description;
-                        txb_comment.Text = data.Comment;
-                        txb_max_number.Text = data.MaxLife.ToString();
-                        txb_yellow_light.Text = data.Setting_yellow.ToString();
-                        txb_red_light.Text = data.Setting_green.ToString();
-                    }
+                    comb_machine.SelectedIndex = 0;
+                    comb_io.Text = data.IOType ? "X" : "Y";
+                    comb_type.SelectedIndex = data.RelayType == RelayType.Electronic ? 0 : data.RelayType == RelayType.Machanical ? 1 : -1;
+                    comb_class.Text = data.ClassTag;
+                    txb_address.Text = address.Substring(1);
+                    txb_description.Text = data.Description;
+                    txb_comment.Text = data.Comment;
+                    txb_max_number.Text = data.MaxLife.ToString();
+                    txb_yellow_light.Text = data.Setting_yellow.ToString();
+                    txb_red_light.Text = data.Setting_green.ToString();
                 }
-                else if (table == "Sawing")
-                {
-                    var data = context.Sawing_IO.FirstOrDefault(s => s.address == address);
-                    if (data != null)
-                    {
-                        comb_machine.SelectedIndex = 1;
-                        comb_io.Text = data.IOType ? "X" : "Y";
-                        comb_type.SelectedIndex = data.RelayType == RelayType.Electronic ? 0 : data.RelayType == RelayType.Machanical ? 1 : -1;
-                        comb_class.Text = data.ClassTag;
-                        txb_address.Text = address.Substring(1);
-                        txb_description.Text = data.Description;
-                        txb_comment.Text = data.Comment;
-                        txb_max_number.Text = data.MaxLife.ToString();
-                        txb_yellow_light.Text = data.Setting_yellow.ToString();
-                        txb_red_light.Text = data.Setting_green.ToString();
-                    }
-                }
+              
             };
          
         }
@@ -274,78 +241,66 @@ namespace FX5U_IOMonitor.Resources
             string fullAddress = comb_io.Text.Trim() + txb_address.Text.Trim();
             using (var context = new ApplicationDB()) 
             {
-                if (this.tableName == "Drill")
+               
+                var data = context.Machine_IO.FirstOrDefault(d => d.address == fullAddress && d.Machine_name== this.tableName);
+                if (data != null)
                 {
-                    var data = context.Drill_IO.FirstOrDefault(d => d.address == fullAddress);
-                    if (data != null)
+                    // ✅ 防呆：若修改後的新地址與其他筆資料重複
+                    if (fullAddress != viewAddress &&
+                        context.Machine_IO.Any(d => d.address == fullAddress && d.Machine_name == this.tableName))
                     {
-                        // ✅ 防呆：若修改後的新地址與其他筆資料重複
-                        if (fullAddress != viewAddress &&
-                            context.Drill_IO.Any(d => d.address == fullAddress))
-                        {
-                            MessageBox.Show($"⚠️ 新地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return;
-                        }
+                        MessageBox.Show($"⚠️ 新地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
 
-                        data.ClassTag = comb_class.Text;
-                        data.Comment = txb_comment.Text;
-                        data.Description = txb_description.Text;
-                        data.IOType = GetSelectedIOState(comb_io);
-                        data.MaxLife = Convert.ToInt32(txb_max_number.Text);
-                        data.MountTime = DateTime.Now;
-                        data.RelayType = GetSelectedRelayType(comb_type);
-                        data.Setting_red = Convert.ToInt32(txb_red_light.Text);
-                        data.Setting_yellow = Convert.ToInt32(txb_yellow_light.Text);
-                        data.UnmountTime = DateTime.Now.AddDays(10);
-                        data.address = fullAddress;
+                    data.ClassTag = comb_class.Text;
+                    data.Comment = txb_comment.Text;
+                    data.Description = txb_description.Text;
+                    data.IOType = GetSelectedIOState(comb_io);
+                    data.MaxLife = Convert.ToInt32(txb_max_number.Text);
+                    data.MountTime = (DateTime.UtcNow);
+                    data.RelayType = GetSelectedRelayType(comb_type);
+                    data.Setting_red = Convert.ToInt32(txb_red_light.Text);
+                    data.Setting_yellow = Convert.ToInt32(txb_yellow_light.Text);
+                    data.UnmountTime = DateTime.UtcNow.AddDays(10);
+                    data.address = fullAddress;
                       
 
-                        context.SaveChanges(); //  儲存
-                        OnDataUpdated?.Invoke(); 
-                        MessageBox.Show("✅鑽床資料已成功更新！");
-                        this.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("⚠️ 找不到要更新的鑽床資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    context.SaveChanges(); //  儲存
+                    OnDataUpdated?.Invoke(); 
+                    MessageBox.Show("✅資料已成功更新！");
+                    this.Close();
                 }
-                else if (this.tableName == "Sawing")
+                else
                 {
-                    var data = context.Sawing_IO.FirstOrDefault(s => s.address == fullAddress);
-                    if (data != null)
-                    {
-                        // ✅ 防呆：若修改後的新地址與其他筆資料重複
-                        if (fullAddress != viewAddress &&
-                            context.Sawing_IO.Any(d => d.address == fullAddress))
-                        {
-                            MessageBox.Show($"⚠️ 新地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            return;
-                        }
-                        data.ClassTag = comb_class.Text;
-                        data.Comment = txb_comment.Text;
-                        data.Description = txb_description.Text;
-                        data.IOType = GetSelectedIOState(comb_io);
-                        data.MaxLife = Convert.ToInt32(txb_max_number.Text);
-                        data.MountTime = DateTime.Now;
-                        data.RelayType = GetSelectedRelayType(comb_type);
-                        data.Setting_red = Convert.ToInt32(txb_red_light.Text);
-                        data.Setting_yellow = Convert.ToInt32(txb_yellow_light.Text);
-                        data.UnmountTime = DateTime.Now.AddDays(10);
-                        data.address = fullAddress;
-                        context.SaveChanges(); // 儲存
-                        OnDataUpdated?.Invoke(); // 
-                        MessageBox.Show("✅鋸床資料已成功更新！");
-                        this.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("⚠️ 找不到要更新的鋸床資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("⚠️ 找不到要更新的資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+               
             };
           
         }
 
+
+         private void SwitchLanguage()
+        {
+            string lang = Properties.Settings.Default.LanguageSetting;
+
+            lab_machineType.Text = LanguageManager.Translate("Element_lab_machineType");
+            lab_elementType.Text = LanguageManager.Translate("Element_lab_elementType");
+            lab_elementLocal.Text = LanguageManager.Translate("Element_lab_elementLocal");
+            lab_class.Text = LanguageManager.Translate("Element_lab_class");
+            lab_equipment.Text = LanguageManager.Translate("Element_lab_equipment");
+            lab_describe.Text = LanguageManager.Translate("Element_lab_describe");
+            lab_maxlifesetting.Text = LanguageManager.Translate("Element_lab_maxlifesetting");
+            lab_green.Text = LanguageManager.Translate("Element_lab_green");
+            lab_yellow.Text = LanguageManager.Translate("Element_lab_yellow");
+            lab_yellowText.Text = LanguageManager.Translate("Element_lab_yellowText");
+            lab_red.Text = LanguageManager.Translate("Element_lab_red");
+            lab_redText.Text = LanguageManager.Translate("Element_lab_redText");
+            btn_update.Text = LanguageManager.Translate("Element_btn_update");
+            btn_add.Text = LanguageManager.Translate("Element_btn_add");
+
+           
+        }
     }
 }

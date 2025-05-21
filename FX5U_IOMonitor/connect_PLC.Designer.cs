@@ -30,7 +30,6 @@ namespace FX5U_IOMonitor
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             label1 = new Label();
             control_choose = new ComboBox();
             connect_choose = new ComboBox();
@@ -52,13 +51,15 @@ namespace FX5U_IOMonitor
             button1 = new Button();
             textBox1 = new TextBox();
             textBox2 = new TextBox();
-            comboBox1 = new ComboBox();
+            comb_language = new ComboBox();
             label2 = new Label();
             label5 = new Label();
             panel1 = new Panel();
             button_FILE = new Button();
             button2 = new Button();
-            timer1 = new System.Windows.Forms.Timer(components);
+            txb_machine = new TextBox();
+            label6 = new Label();
+            btn_addmachine = new Button();
             panel_Ethernet.SuspendLayout();
             panel_RS485.SuspendLayout();
             panel1.SuspendLayout();
@@ -68,11 +69,11 @@ namespace FX5U_IOMonitor
             // 
             label1.AutoSize = true;
             label1.Font = new Font("微軟正黑體", 18F, FontStyle.Bold);
-            label1.Location = new Point(137, 40);
+            label1.Location = new Point(81, 99);
             label1.Name = "label1";
-            label1.Size = new Size(134, 31);
+            label1.Size = new Size(182, 31);
             label1.TabIndex = 0;
-            label1.Text = "型號選擇：";
+            label1.Text = "連線機台選擇：";
             // 
             // control_choose
             // 
@@ -80,7 +81,7 @@ namespace FX5U_IOMonitor
             control_choose.Font = new Font("微軟正黑體", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             control_choose.FormattingEnabled = true;
             control_choose.Items.AddRange(new object[] { "R16ENCPU(鑽床)", "FX5U_(鋸床)", "M800W" });
-            control_choose.Location = new Point(265, 37);
+            control_choose.Location = new Point(269, 96);
             control_choose.Name = "control_choose";
             control_choose.Size = new Size(364, 39);
             control_choose.TabIndex = 13;
@@ -92,7 +93,7 @@ namespace FX5U_IOMonitor
             connect_choose.Font = new Font("微軟正黑體", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             connect_choose.FormattingEnabled = true;
             connect_choose.Items.AddRange(new object[] { "乙太網路", "RS 485", "RS 422" });
-            connect_choose.Location = new Point(265, 101);
+            connect_choose.Location = new Point(269, 160);
             connect_choose.Name = "connect_choose";
             connect_choose.Size = new Size(364, 39);
             connect_choose.TabIndex = 15;
@@ -102,11 +103,11 @@ namespace FX5U_IOMonitor
             // 
             label4.AutoSize = true;
             label4.Font = new Font("微軟正黑體", 18F, FontStyle.Bold);
-            label4.Location = new Point(137, 104);
+            label4.Location = new Point(81, 163);
             label4.Name = "label4";
-            label4.Size = new Size(134, 31);
+            label4.Size = new Size(182, 31);
             label4.TabIndex = 14;
-            label4.Text = "連線機制：";
+            label4.Text = "連線方式設定：";
             // 
             // panel_Ethernet
             // 
@@ -116,9 +117,9 @@ namespace FX5U_IOMonitor
             panel_Ethernet.Controls.Add(txb_IP);
             panel_Ethernet.Controls.Add(label3);
             panel_Ethernet.Controls.Add(label_IP);
-            panel_Ethernet.Location = new Point(126, 169);
+            panel_Ethernet.Location = new Point(81, 228);
             panel_Ethernet.Name = "panel_Ethernet";
-            panel_Ethernet.Size = new Size(342, 387);
+            panel_Ethernet.Size = new Size(552, 363);
             panel_Ethernet.TabIndex = 16;
             panel_Ethernet.Visible = false;
             // 
@@ -126,9 +127,9 @@ namespace FX5U_IOMonitor
             // 
             btn_disconnect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_disconnect_ethernet.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_disconnect_ethernet.Location = new Point(173, 235);
+            btn_disconnect_ethernet.Location = new Point(435, 289);
             btn_disconnect_ethernet.Name = "btn_disconnect_ethernet";
-            btn_disconnect_ethernet.Size = new Size(142, 43);
+            btn_disconnect_ethernet.Size = new Size(93, 43);
             btn_disconnect_ethernet.TabIndex = 6;
             btn_disconnect_ethernet.Text = "斷線";
             btn_disconnect_ethernet.UseVisualStyleBackColor = true;
@@ -138,9 +139,9 @@ namespace FX5U_IOMonitor
             // 
             btn_connect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_connect_ethernet.Location = new Point(24, 235);
+            btn_connect_ethernet.Location = new Point(322, 289);
             btn_connect_ethernet.Name = "btn_connect_ethernet";
-            btn_connect_ethernet.Size = new Size(143, 43);
+            btn_connect_ethernet.Size = new Size(94, 43);
             btn_connect_ethernet.TabIndex = 5;
             btn_connect_ethernet.Text = "連線";
             btn_connect_ethernet.UseVisualStyleBackColor = true;
@@ -149,26 +150,28 @@ namespace FX5U_IOMonitor
             // txb_port
             // 
             txb_port.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            txb_port.Location = new Point(24, 169);
+            txb_port.Location = new Point(24, 201);
             txb_port.Name = "txb_port";
-            txb_port.Size = new Size(291, 38);
+            txb_port.Size = new Size(504, 38);
             txb_port.TabIndex = 4;
             txb_port.Text = "2000";
+            txb_port.TextAlign = HorizontalAlignment.Center;
             // 
             // txb_IP
             // 
             txb_IP.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            txb_IP.Location = new Point(24, 73);
+            txb_IP.Location = new Point(24, 80);
             txb_IP.Name = "txb_IP";
-            txb_IP.Size = new Size(291, 38);
+            txb_IP.Size = new Size(504, 38);
             txb_IP.TabIndex = 3;
             txb_IP.Text = "192.168.9.1";
+            txb_IP.TextAlign = HorizontalAlignment.Center;
             // 
             // label3
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label3.Location = new Point(24, 136);
+            label3.Location = new Point(24, 151);
             label3.Name = "label3";
             label3.Size = new Size(133, 30);
             label3.TabIndex = 2;
@@ -192,9 +195,9 @@ namespace FX5U_IOMonitor
             panel_RS485.Controls.Add(txb_COM);
             panel_RS485.Controls.Add(label_BaudRate);
             panel_RS485.Controls.Add(label_COM);
-            panel_RS485.Location = new Point(502, 169);
+            panel_RS485.Location = new Point(130, 228);
             panel_RS485.Name = "panel_RS485";
-            panel_RS485.Size = new Size(335, 387);
+            panel_RS485.Size = new Size(503, 296);
             panel_RS485.TabIndex = 17;
             panel_RS485.Visible = false;
             // 
@@ -202,9 +205,9 @@ namespace FX5U_IOMonitor
             // 
             btn_disconnect_RS485.FlatStyle = FlatStyle.Flat;
             btn_disconnect_RS485.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_disconnect_RS485.Location = new Point(181, 235);
+            btn_disconnect_RS485.Location = new Point(397, 223);
             btn_disconnect_RS485.Name = "btn_disconnect_RS485";
-            btn_disconnect_RS485.Size = new Size(129, 42);
+            btn_disconnect_RS485.Size = new Size(82, 42);
             btn_disconnect_RS485.TabIndex = 6;
             btn_disconnect_RS485.Text = "斷線";
             btn_disconnect_RS485.UseVisualStyleBackColor = true;
@@ -213,9 +216,9 @@ namespace FX5U_IOMonitor
             // 
             btn_connect_RS485.FlatStyle = FlatStyle.Flat;
             btn_connect_RS485.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_connect_RS485.Location = new Point(18, 235);
+            btn_connect_RS485.Location = new Point(314, 223);
             btn_connect_RS485.Name = "btn_connect_RS485";
-            btn_connect_RS485.Size = new Size(143, 42);
+            btn_connect_RS485.Size = new Size(77, 42);
             btn_connect_RS485.TabIndex = 5;
             btn_connect_RS485.Text = "連線";
             btn_connect_RS485.UseVisualStyleBackColor = true;
@@ -226,18 +229,20 @@ namespace FX5U_IOMonitor
             txb_BaudRate.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
             txb_BaudRate.Location = new Point(18, 169);
             txb_BaudRate.Name = "txb_BaudRate";
-            txb_BaudRate.Size = new Size(292, 38);
+            txb_BaudRate.Size = new Size(461, 38);
             txb_BaudRate.TabIndex = 4;
             txb_BaudRate.Text = "115200";
+            txb_BaudRate.TextAlign = HorizontalAlignment.Center;
             // 
             // txb_COM
             // 
             txb_COM.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
             txb_COM.Location = new Point(18, 73);
             txb_COM.Name = "txb_COM";
-            txb_COM.Size = new Size(292, 38);
+            txb_COM.Size = new Size(461, 38);
             txb_COM.TabIndex = 3;
             txb_COM.Text = "COM6";
+            txb_COM.TextAlign = HorizontalAlignment.Center;
             // 
             // label_BaudRate
             // 
@@ -291,17 +296,17 @@ namespace FX5U_IOMonitor
             textBox2.Text = "100";
             textBox2.Visible = false;
             // 
-            // comboBox1
+            // comb_language
             // 
-            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBox1.Font = new Font("微軟正黑體", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "資料暫存器寫入(D)", "輔助繼電器寫入(M)" });
-            comboBox1.Location = new Point(3, 8);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(142, 23);
-            comboBox1.TabIndex = 20;
-            comboBox1.Visible = false;
+            comb_language.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_language.Font = new Font("微軟正黑體", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            comb_language.FormattingEnabled = true;
+            comb_language.Items.AddRange(new object[] { "資料暫存器寫入(D)", "輔助繼電器寫入(M)" });
+            comb_language.Location = new Point(3, 8);
+            comb_language.Name = "comb_language";
+            comb_language.Size = new Size(142, 23);
+            comb_language.TabIndex = 20;
+            comb_language.Visible = false;
             // 
             // label2
             // 
@@ -327,7 +332,7 @@ namespace FX5U_IOMonitor
             // 
             // panel1
             // 
-            panel1.Controls.Add(comboBox1);
+            panel1.Controls.Add(comb_language);
             panel1.Controls.Add(label5);
             panel1.Controls.Add(button1);
             panel1.Controls.Add(label2);
@@ -365,14 +370,48 @@ namespace FX5U_IOMonitor
             button2.UseVisualStyleBackColor = true;
             button2.Visible = false;
             // 
+            // txb_machine
+            // 
+            txb_machine.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            txb_machine.Location = new Point(269, 36);
+            txb_machine.Name = "txb_machine";
+            txb_machine.Size = new Size(252, 38);
+            txb_machine.TabIndex = 24;
+            txb_machine.TextAlign = HorizontalAlignment.Center;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("微軟正黑體", 18F, FontStyle.Bold);
+            label6.Location = new Point(81, 43);
+            label6.Name = "label6";
+            label6.Size = new Size(182, 31);
+            label6.TabIndex = 25;
+            label6.Text = "監控機台型號：";
+            // 
+            // btn_addmachine
+            // 
+            btn_addmachine.FlatStyle = FlatStyle.Flat;
+            btn_addmachine.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            btn_addmachine.Location = new Point(539, 34);
+            btn_addmachine.Name = "btn_addmachine";
+            btn_addmachine.Size = new Size(94, 43);
+            btn_addmachine.TabIndex = 26;
+            btn_addmachine.Text = "新增";
+            btn_addmachine.UseVisualStyleBackColor = true;
+            btn_addmachine.Click += btn_addmachine_Click;
+            // 
             // connect_PLC
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(972, 664);
-            Controls.Add(button2);
-            Controls.Add(panel_RS485);
+            Controls.Add(btn_addmachine);
+            Controls.Add(label6);
+            Controls.Add(txb_machine);
             Controls.Add(panel_Ethernet);
+            Controls.Add(panel_RS485);
+            Controls.Add(button2);
             Controls.Add(button_FILE);
             Controls.Add(connect_choose);
             Controls.Add(label4);
@@ -415,12 +454,15 @@ namespace FX5U_IOMonitor
         private Button button1;
         private TextBox textBox1;
         private TextBox textBox2;
-        private ComboBox comboBox1;
+        private ComboBox comb_language;
         private Label label2;
         private Label label5;
         private Panel panel1;
         private Button button_FILE;
         private Button button2;
         private System.Windows.Forms.Timer timer1;
+        private TextBox txb_machine;
+        private Label label6;
+        private Button btn_addmachine;
     }
 }

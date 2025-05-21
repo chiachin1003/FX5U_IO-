@@ -63,11 +63,12 @@ namespace FX5U_IO元件監控
             Sawing
         }
 
-        private object GetDrillData()
+        private object Get_IO_Data(string datatable)
         {
             using var context = new ApplicationDB();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var data = context.Drill_IO
+            var data = context.Machine_IO
+            .Where(a => a.Machine_name == datatable)
             .Select(d => new
             {
                 地址 = d.address,
@@ -76,39 +77,17 @@ namespace FX5U_IO元件監控
                 描述 = d.Comment,
                 紅燈 = d.Setting_red,
                 黃燈 = d.Setting_yellow,
-                綠燈 = d.Setting_green
 
             })
             .ToList();
             return data;
         }
-
-        private object GetSawingData()
+        private object Get_IO_Class(string classTag, string datatable)
         {
             using var context = new ApplicationDB();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var data = context.Sawing_IO
-            .Select(d => new
-            {
-                地址 = d.address,
-                料件 = d.Description,
-                描述 = d.Comment,
-                最大壽命 = d.MaxLife,
-                紅燈 = d.Setting_red,
-                黃燈 = d.Setting_yellow,
-                綠燈 = d.Setting_green
-
-            })
-            .ToList();
-            return data;
-        }
-
-        private object GetDrillClass(string classTag)
-        {
-            using var context = new ApplicationDB();
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var data = context.Drill_IO
-                .Where(d => d.ClassTag != null &&
+            var data = context.Machine_IO
+                .Where(d => d.ClassTag != null && d.Machine_name == datatable &&
                 d.ClassTag.ToLower().Contains(classTag.ToLower())) // 模糊+忽略大小寫
             .Select(d => new
             {
@@ -124,59 +103,21 @@ namespace FX5U_IO元件監控
             .ToList();
             return data;
         }
-
-        private object GetSawingClass(string classTag)
-        {
-            using var context = new ApplicationDB();
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var data = context.Sawing_IO
-                .Where(d => d.ClassTag != null &&
-                d.ClassTag.ToLower().Contains(classTag.ToLower())) // 模糊+忽略大小寫
-            .Select(d => new
-            {
-                地址 = d.address,
-                料件 = d.Description,
-                描述 = d.Comment,
-                最大壽命 = d.MaxLife,
-                紅燈 = d.Setting_red,
-                黃燈 = d.Setting_yellow,
-                綠燈 = d.Setting_green
-
-            })
-            .ToList();
-            return data;
-        }
-
+        
 
 
         private void comb_class_SelectedIndexChanged(object sender, EventArgs e)
         {
             object data;
 
-            if (datatable == "Drill")
-            {
-                data = GetDrillData();
+            data = Get_IO_Data(datatable);
 
-                if (comb_class.SelectedIndex > 0)
-                {
-                    string selectedClass = comb_class.SelectedItem?.ToString() ?? "";
-                    data = GetDrillClass(selectedClass);
-                }
-            }
-            else if (datatable == "Sawing")
+            if (comb_class.SelectedIndex > 0)
             {
-                data = GetSawingData();
+                string selectedClass = comb_class.SelectedItem?.ToString() ?? "";
+                data = Get_IO_Class(selectedClass, datatable);
+            }
 
-                if (comb_class.SelectedIndex > 0)
-                {
-                    string selectedClass = comb_class.SelectedItem?.ToString() ?? "";
-                    data = GetSawingClass(selectedClass);
-                }
-            }
-            else
-            {
-                data = null;
-            }
 
             dataGridView1.DataSource = data;
 
@@ -194,14 +135,14 @@ namespace FX5U_IO元件監控
             if (e.RowIndex < 0 || e.ColumnIndex < 0)
                 return;
 
-          
+
             var selectedRow = dataGridView1.Rows[e.RowIndex];
             var addressValue = selectedRow.Cells["地址"].Value?.ToString(); // ✅ 中文欄位名稱對應 Select 時的名稱
 
             if (!string.IsNullOrEmpty(addressValue))
             {
                 // 直接開啟詳細頁面，從 DB 查
-                ShowDetail detailForm = new ShowDetail(addressValue, ShowDetailPage.LifeSetting);
+                ShowDetail detailForm = new ShowDetail(datatable, addressValue, ShowDetailPage.LifeSetting);
                 detailForm.ShowDialog();
             }
 
@@ -215,54 +156,30 @@ namespace FX5U_IO元件監控
 
             searchText = searchText.ToLower(); // ✅ 強制轉小寫以比對
 
-            if (datatable == "Drill")
-            {
-                var result = context.Drill_IO
-                    .Where(d =>
-                        (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText))
-                    )
-                    .Select(d => new
-                    {
-                        地址 = d.address,
-                        料件 = d.Description,
-                        描述 = d.Comment,
-                        最大壽命 = d.MaxLife,
-                        紅燈 = d.Setting_red,
-                        黃燈 = d.Setting_yellow,
-                        綠燈 = d.Setting_green
-                    })
-                    .ToList();
 
-                return result;
-            }
-            else if (datatable == "Sawing")
-            {
-                var result = context.Sawing_IO
-                    .Where(d =>
-                        (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText))
-                    )
-                    .Select(d => new
-                    {
-                        地址 = d.address,
-                        料件 = d.Description,
-                        描述 = d.Comment,
-                        最大壽命 = d.MaxLife,
-                        紅燈 = d.Setting_red,
-                        黃燈 = d.Setting_yellow,
-                        綠燈 = d.Setting_green
-                    })
-                    .ToList();
+            var result = context.Machine_IO
+                .Where(a => a.Machine_name == datatable)
+                .ToList()
+                .Where(d =>
+                    (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText))
+                )
+                .Select(d => new
+                {
+                    地址 = d.address,
+                    料件 = d.Description,
+                    描述 = d.Comment,
+                    最大壽命 = d.MaxLife,
+                    紅燈 = d.Setting_red,
+                    黃燈 = d.Setting_yellow,
+                    綠燈 = d.Setting_green
+                })
+                .ToList();
 
-                return result;
-            }
+            return result;
 
-            return null;
         }
 
         private void btn_add_element_Click(object sender, EventArgs e)
@@ -281,43 +198,23 @@ namespace FX5U_IO元件監控
             {
                 using (var context = new ApplicationDB())
                 {
-                    if (datatable == "Drill")
+                   
+                    var item = context.Machine_IO.FirstOrDefault(d => d.address == addressValue && d.Machine_name == datatable);
+                    if (item != null)
                     {
-                        var item = context.Drill_IO.FirstOrDefault(d => d.address == addressValue);
-                        if (item != null)
+                        using (var form = new Element_Settings(ElementMode.ViewOnly, datatable, item.address))
                         {
-                            using (var form = new Element_Settings(ElementMode.ViewOnly, datatable, item.address))
-                            {
-                                form.StartPosition = FormStartPosition.CenterParent;
-                               
-                                form.OnDataUpdated = () =>
-                                {
-                                    RefreshData();
-                                };
-                                form.ShowDialog(this);
-                            }
-                            return; 
-                        }
-                    }
-                    else if (datatable == "Sawing")
-                    {
-                        var item = context.Sawing_IO.FirstOrDefault(s => s.address == addressValue);
-                        if (item != null)
-                        {
-                            using (var form = new Element_Settings(ElementMode.ViewOnly, datatable, item.address))
-                            {
-                                form.StartPosition = FormStartPosition.CenterParent;
-                               
-                                form.OnDataUpdated = () =>
-                                {
-                                    RefreshData();
-                                };
-                                form.ShowDialog(this);
-                            }
-                            return; // ✅ 顯示完畢就結束
-                        }
-                    }
+                            form.StartPosition = FormStartPosition.CenterParent;
 
+                            form.OnDataUpdated = () =>
+                            {
+                                RefreshData();
+                            };
+                            form.ShowDialog(this);
+                        }
+                        return;
+                    }
+                  
                     MessageBox.Show("⚠️ 找不到資料，無法開啟詳細資料。", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -363,34 +260,19 @@ namespace FX5U_IO元件監控
             // 開始刪除
             using (var context = new ApplicationDB())
             {
-                if (datatable == "Drill")
+
+                var item = context.Machine_IO.FirstOrDefault(d => d.address == addressValue && d.Machine_name == datatable);
+                if (item != null)
                 {
-                    var item = context.Drill_IO.FirstOrDefault(d => d.address == addressValue);
-                    if (item != null)
-                    {
-                        context.Drill_IO.Remove(item);
-                        context.SaveChanges();
-                        MessageBox.Show("✅ 資料刪除成功！");
-                    }
-                    else
-                    {
-                        MessageBox.Show("⚠️ 找不到資料，刪除失敗！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    context.Machine_IO.Remove(item);
+                    context.SaveChanges();
+                    MessageBox.Show("✅ 資料刪除成功！");
                 }
-                else if (datatable == "Sawing")
+                else
                 {
-                    var item = context.Sawing_IO.FirstOrDefault(d => d.address == addressValue);
-                    if (item != null)
-                    {
-                        context.Sawing_IO.Remove(item);
-                        context.SaveChanges();
-                        MessageBox.Show("✅ 資料刪除成功！");
-                    }
-                    else
-                    {
-                        MessageBox.Show("⚠️ 找不到資料，刪除失敗！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("⚠️ 找不到資料，刪除失敗！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+
             }
 
             RefreshData();
@@ -398,19 +280,14 @@ namespace FX5U_IO元件監控
 
         private void RefreshData()
         {
-            if (datatable == "Drill")
-            {
-                dataGridView1.DataSource = GetDrillData();
-            }
-            else if (datatable == "Sawing")
-            {
-                dataGridView1.DataSource = GetSawingData();
-            }
+
+            dataGridView1.DataSource = Get_IO_Data(datatable);
+
             dataGridView1.Refresh();          // ✅ 強制刷新顯示
             dataGridView1.ClearSelection();   // ✅ 清除舊選擇（避免看起來沒變）
         }
 
-       
+
     }
 }
 

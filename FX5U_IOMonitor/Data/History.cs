@@ -13,7 +13,7 @@ namespace FX5U_IOMonitor.Data
         [Key]
         public int Id { get; set; }
 
-        public string SourceDbName { get; set; }  // "Drill_IO" or "Sawing_IO"
+        public string SourceDbName { get; set; }  // "Drill" or "Sawing" or else
         public string Address { get; set; }       // X31A 這類地址
 
         public DateTime StartTime { get; set; }

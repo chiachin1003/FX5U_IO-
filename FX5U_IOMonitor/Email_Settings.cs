@@ -20,20 +20,19 @@ namespace FX5U_IOMonitor.Resources
         public Email_Settings(ElementMode mode = ElementMode.Add, string? table = null, string? address = null)
         {
             InitializeComponent();
-          ;
+            ;
 
             currentMode = mode;
             viewAddress = address;
             tableName = table;
-            // 設定 comb_machine 的 SelectedIndex
-         
 
-
+            // 隱藏密碼
+            txb_senderPassword.PasswordChar = '*';
         }
 
         private void btn_add_Click(object sender, EventArgs e)
         {
-           
+
         }
 
         private void txb_address_KeyPress(object sender, KeyPressEventArgs e)
@@ -69,28 +68,9 @@ namespace FX5U_IOMonitor.Resources
 
         private void comb_machine_SelectedIndexChanged(object sender, EventArgs e)
         {
-           
+
         }
 
-      
-
-        private bool GetSelectedIOState(ComboBox comb_io) => comb_io.SelectedIndex == 0;
-
-        private RelayType GetSelectedRelayType(ComboBox comb_type) =>
-            comb_type.SelectedIndex switch
-            {
-                0 => RelayType.Electronic,
-                1 => RelayType.Machanical,
-                _ => throw new InvalidOperationException("❗請選擇有效的 RelayType 項目！")
-            };
-
-        private void SetupCenteredComboBox(ComboBox comboBox)
-        {
-            comboBox.DrawMode = DrawMode.OwnerDrawFixed;
-            comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBox.DrawItem -= ComboBox_DrawItem_Custom;
-            comboBox.DrawItem += ComboBox_DrawItem_Custom;
-        }
 
         private void ComboBox_DrawItem_Custom(object sender, DrawItemEventArgs e)
         {
@@ -105,15 +85,9 @@ namespace FX5U_IOMonitor.Resources
             e.DrawFocusRectangle();
         }
 
-        private void LoadDataFromDatabase(string address, string table)
+        private void button1_Click(object sender, EventArgs e)
         {
-            
-        }
 
-        private void btn_update_Click(object sender, EventArgs e) 
-        {
-            
         }
-
     }
 }

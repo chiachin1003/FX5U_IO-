@@ -17,6 +17,23 @@ using System.Xml.Linq;
 using System.Net;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Reflection.PortableExecutable;
+using CsvHelper.Configuration;
+using CsvHelper;
+using System.Runtime.CompilerServices;
+using Newtonsoft.Json.Linq;
+using System.Drawing;
+using static FX5U_IOMonitor.Models.MonitorFunction;
+using static FX5U_IOMonitor.Models.MonitoringService;
+using System.Threading;
+using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System;
+using System.Text.RegularExpressions;
+using System.IO.Pipelines;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
+using System.Reflection.Emit;
+using FX5U_IO元件監控;
 
 
 
@@ -27,8 +44,6 @@ namespace FX5U_IOMonitor
     {
         private connect_PLC plcForm; // 連接介面
 
-        private Drill_choose Drill_setting; //鑽床監控轉換介面
-        private swing_setting Swing_setting;
         private Swing_main swing_main;
         private Drill_main drill_main;
         private Search_main search_main;
@@ -62,83 +77,60 @@ namespace FX5U_IOMonitor
 
             this.panel_main.Controls.Add(newContent);
         }
+        private readonly Dictionary<string, RuntimewordTimer> timer_word = new();
 
         public Main()
         {
 
             InitializeComponent();
+            InitLanguageComboBox();
 
-            //SlmpConfig cfg = new("192.168.9.1", 2000);
-            //cfg.ConnTimeout = 3000;
-            //SlmpClient plc = new(cfg);
-            //plc.Connect();
-            //string dbtable = DBfunction.FindTableWithAddress("L0");
-            //if (dbtable == "") return;
-
-            //// 移除警告通知時間更新
-            //DBfunction.SetCurrentTimeAsUnmountTime(dbtable, "L0");
-
-            //// 寫入警告通知進歷史資料
-            //DBfunction.SetCurrentTimeAsMountTime(dbtable, "L0");
-            //DBfunction.SetAlarmStartTime(dbtable, "L0","alarm");
-
-            //// 寫入警告移除時間進歷史資料
-            //DBfunction.SetAlarmEndTime(dbtable, "L0");
-            //DBfunction.SetCurrentTimeAsUnmountTime(dbtable, "L0");
+            //using (var form = new UserLoginForm())
+            //{
+            //    form.StartPosition = FormStartPosition.CenterParent;
+            //    var result = form.ShowDialog(this);
+            //    if (result == DialogResult.OK)
+            //    {
 
 
-            // 寫入警告歷史資料
-            //DBfunction.SetMachineIOToHistory(dbtable, "L0", "alarm");
+            //        if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
+            //        {
+            //            btn_search.Enabled = true;
+            //            //btn_connect.Enabled = true;
 
+            //        }
+            //        else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)
+            //        {
 
+            //        }
+            //        else if (UserService<ApplicationDB>.CurrentRole == SD.Role_User)
+            //        {
 
+            //        }
+            //        LoginSucceeded?.Invoke(this, EventArgs.Empty);
+
+            //        MessageBox.Show($"{LanguageManager.Translate("UserManageForm_Msg_Welcome")} {UserService<ApplicationDB>.CurrentRole}: {UserService<ApplicationDB>.CurrentUser.UserName}");
+            //    }
+            //}
+
+            InitMachineInfoDatabase();
+            Initialization_BladeTPIFromCSV("鋸帶齒數 ID 定義.csv");
+            Initialization_BladeBrandFromCSV("鋸帶廠牌、材質 ID 定義.csv");
+            Initialization_AlarmFromCSV("alarm.csv");
+            Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
 
             _instance = this;  // 確保單例指向目前的主視窗
-
             plcForm = new connect_PLC(this);
-            Drill_setting = new Drill_choose(this);
-            Swing_setting = new swing_setting(this);
+
             swing_main = new Swing_main(this);
             drill_main = new Drill_main(this);
+
             search_main = new Search_main();
             this.Shown += MainForm_Shown;
 
             btn_search.Enabled = false;
-            //btn_connect.Enabled = false;
-
-
-            // 實體元件資料初始化(excel轉DB)
-            //string filePath = @"Drill_Data.csv";
-            //List<IO_DataBase> Drill_DataList = Csv2Db.Initiali_Data(filePath); //資料初始化→資料庫初始化
-            //string filePath2 = @"Swing_Data.csv";
-            //List<IO_DataBase> Swing_DataList = Csv2Db.Initiali_Data(filePath2); //資料初始化→資料庫初始化
-            //using (var context = new ApplicationDB())
-            //{
-            //    context.Database.EnsureCreated();
-            //}
-            //using (var context = new ApplicationDB())
-            //{
-            //    var allAlarms = context.Drill_IO.ToList(); // 取得所有資料
-            //    context.Drill_IO.RemoveRange(allAlarms);   // 移除全部
-
-            //    context.SaveChanges();                   // 寫入資料庫
-            //}
-            //UpdateData.SaveMachineIODb(Drill_DataList, "Drill");
-
-            //using (var context = new ApplicationDB())
-            //{
-            //    var allAlarms = context.alarm.ToList(); // 取得所有資料
-            //    context.alarm.RemoveRange(allAlarms);   // 移除全部
-            //    context.SaveChanges();                   // 寫入資料庫
-            //}
-            //// 警告資料初始化(excel轉DB)
-            //AlarmImporter.ImportFromCSV("arlam.csv");
-
 
             DBfunction.Initiali_current_single();
-
-            connect_isOK.Drill_total.disconnect = DBfunction.GetTableRowCount("Drill");
-            connect_isOK.Swing_total.disconnect = DBfunction.GetTableRowCount("Sawing");
 
             main_Form = new Main_form();
             main_Form.TopLevel = false; // 禁止作為獨立窗口
@@ -149,7 +141,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear(); // 清空 Panel
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
-
+            
 
         }
 
@@ -184,45 +176,28 @@ namespace FX5U_IOMonitor
             main_Form.Show(); // 顯示子窗體
             panel_select.Visible = true;  // 🔴 隱藏整個 panel_select
 
+
+            panel_language.Visible = true;
+            panel_select.Controls.Add(panel_language);
+
             panel_select.Controls.Add(btn_user);
             panel_select.Controls.Add(btn_log_in);
             panel_select.Controls.Add(btn_log_out);
 
+            panel_language.Controls.Add(comb_language);
+            panel_language.Controls.Add(btn_language);
+
 
             btn_user.Visible = true;
             btn_log_in.Visible = true;
-
-
+            panel_language.Visible = true;
         }
 
 
         private void btn_Drill_Click(object sender, EventArgs e)
         {
-            // 設置子窗體屬性以嵌入 Panel
-            Drill_setting.TopLevel = false; // 禁止作為獨立窗口
-            Drill_setting.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            Drill_setting.Dock = DockStyle.Fill; // 填滿 Panel
 
-            // 將子窗體添加到 Panel 並顯示
-            //panel_select.Controls.Clear(); // 清空 Panel
-            //panel_select.Controls.Add(Drill_setting); // 添加子窗體
-            //Drill_setting.Show(); // 顯示子窗體
-            Drill_setting.UpdateTotal_label();
-            Drill_setting.Updateconnect_label(DataStore.Drill_connect_Summary);
-
-            //if( connect_PLC.connect_isOK.Ethernet.isOK == false ) {
-            //	int totalCount = DataStore.Drill_connect_Summary.connect + DataStore.Drill_connect_Summary.disconnect;
-            //	var isconnect = new connect_Summary
-            //	{
-            //		total_number = totalCount
-            //	};
-
-            //	DataStore.Drill_connect_Summary = isconnect;
-            //	Drill_setting.Updateconnect_label( DataStore.Drill_connect_Summary );
-            //}
-            //else { return; }
-
-            // 設置子窗體屬性以嵌入 Panel
+            //設置子窗體屬性以嵌入 Panel
             drill_main.TopLevel = false; // 禁止作為獨立窗口
             drill_main.FormBorderStyle = FormBorderStyle.None; // 移除邊框
             drill_main.Dock = DockStyle.Fill; // 填滿 Panel
@@ -232,17 +207,13 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Add(drill_main); // 添加子窗體
             drill_main.Show(); // 顯示子窗體
 
+
         }
-
-
-
-
 
 
 
         private void Main_Load(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
         }
 
 
@@ -254,28 +225,8 @@ namespace FX5U_IOMonitor
 
         private void button_swing_Click(object sender, EventArgs e)
         {
-            // 設置子窗體屬性以嵌入 Panel
-            Swing_setting.TopLevel = false; // 禁止作為獨立窗口
-            Swing_setting.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            Swing_setting.Dock = DockStyle.Fill; // 填滿 Panel
 
-            // 將子窗體添加到 Panel 並顯示
-            //panel_select.Controls.Clear(); // 清空 Panel
-            //panel_select.Controls.Add(Swing_setting); // 添加子窗體
-            //Swing_setting.Show(); // 顯示子窗體
-            Swing_setting.UpdateTotal_label();
-            Swing_setting.Updateconnect_label(DataStore.Swing_connect_Summary);
-            //if( connect_PLC.connect_isOK.Ethernet.isOK == false ) {
-            //	int totalCount = DataStore.Swing_connect_Summary.connect + DataStore.Swing_connect_Summary.disconnect;
-            //	var isconnect = new connect_Summary
-            //	{
-            //		total_number = totalCount
-            //	};
 
-            //	DataStore.Swing_connect_Summary = isconnect;
-            //	Drill_setting.Updateconnect_label( DataStore.Swing_connect_Summary);
-            //}
-            //else { return; }
 
             // 設置子窗體屬性以嵌入 Panel
             swing_main.TopLevel = false; // 禁止作為獨立窗口
@@ -327,35 +278,40 @@ namespace FX5U_IOMonitor
             }
         }
 
+        /// <summary>
+        /// 登入機能的設定尚未完成
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_log_in_Click(object sender, EventArgs e)
         {
-            using (var form = new UserLoginForm())
-            {
-                form.StartPosition = FormStartPosition.CenterParent;
-                var result = form.ShowDialog(this);
-                if (result == DialogResult.OK)
-                {
+            //using (var form = new UserLoginForm())
+            //{
+            //    form.StartPosition = FormStartPosition.CenterParent;
+            //    var result = form.ShowDialog(this);
+            //    if (result == DialogResult.OK)
+            //    {
 
 
-                    if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
-                    {
-                        btn_search.Enabled = true;
-                        //btn_connect.Enabled = true;
+            //        if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
+            //        {
+            //            btn_search.Enabled = true;
+            //            //btn_connect.Enabled = true;
 
-                    }
-                    else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)
-                    {
+            //        }
+            //        else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)
+            //        {
 
-                    }
-                    else if (UserService<ApplicationDB>.CurrentRole == SD.Role_User)
-                    {
+            //        }
+            //        else if (UserService<ApplicationDB>.CurrentRole == SD.Role_User)
+            //        {
 
-                    }
-                    LoginSucceeded?.Invoke(this, EventArgs.Empty);
+            //        }
+            //        LoginSucceeded?.Invoke(this, EventArgs.Empty);
 
-                    MessageBox.Show($"{ResMapper.GetLocalizedString("MainForm::Msg::Welcome")} {UserService<ApplicationDB>.CurrentRole}: {UserService<ApplicationDB>.CurrentUser.UserName}");
-                }
-            }
+            //        MessageBox.Show($"{ResMapper.GetLocalizedString("MainForm::Msg::Welcome")} {UserService<ApplicationDB>.CurrentRole}: {UserService<ApplicationDB>.CurrentUser.UserName}");
+            //    }
+            //}
         }
 
         private void btn_log_out_Click(object sender, EventArgs e)
@@ -373,11 +329,61 @@ namespace FX5U_IOMonitor
         private void btn_email_Click(object sender, EventArgs e)
         {
 
-            using (var form = new Email_Settings())
+            using (var form = new Alarm_Notify())
             {
                 form.StartPosition = FormStartPosition.CenterParent;
                 var result = form.ShowDialog(this);
 
+            }
+        }
+
+        void InitMachineInfoDatabase()
+        {
+            using (var context = new ApplicationDB())
+            {
+                context.Database.EnsureCreated();
+            }
+        }
+
+        private void InitLanguageComboBox()
+        {
+            comb_language.DataSource = new BindingSource(LanguageManager.LanguageMap, null);
+            comb_language.DisplayMember = "Value"; // 顯示語言名稱
+            comb_language.ValueMember = "Key";     // 實際語系代碼
+            string lang = Properties.Settings.Default.LanguageSetting;
+            comb_language.SelectedValue = lang;
+            LanguageManager.LoadLanguageCSV("language.csv", lang);
+
+            SwitchLanguage();
+
+
+        }
+
+        private void SwitchLanguage()
+        {
+
+            btn_log_in.Text = LanguageManager.Translate("Mainform_UserLogin");
+            btn_Main.Text = LanguageManager.Translate("Mainform_main");
+            btn_Drill.Text = LanguageManager.Translate("Mainform_Drill");
+            button_swing.Text = LanguageManager.Translate("Mainform_Saw");
+            btn_search.Text = LanguageManager.Translate("Mainform_Troubleshooting");
+            btn_email.Text = LanguageManager.Translate("Mainform_EmailSetting");
+            btn_connect.Text = LanguageManager.Translate("Mainform_Connect");
+            btn_user.Text = LanguageManager.Translate("Mainform_Permission");
+            btn_log_out.Text = LanguageManager.Translate("Mainform_Logout");
+            btn_language.Text = LanguageManager.Translate("Mainform_language");
+            this.Text = LanguageManager.Translate("Mainform_title");
+
+        }
+
+        private void btn_language_Click(object sender, EventArgs e)
+        {
+            if (comb_language.SelectedValue is string selectedLang)
+            {
+                LanguageManager.LoadLanguageCSV("language.csv", selectedLang);
+                Properties.Settings.Default.LanguageSetting = selectedLang;
+                Properties.Settings.Default.Save(); // ✅ 寫入設定檔
+                SwitchLanguage();
             }
         }
     }

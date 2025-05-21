@@ -53,28 +53,28 @@
         {
             panel1 = new Panel();
             tableLayoutPanel1 = new TableLayoutPanel();
-            lab_feeder = new Label();
-            label12 = new Label();
-            lab_clamping = new Label();
-            label11 = new Label();
-            lab_measurement = new Label();
-            label10 = new Label();
-            lab_loose_tools = new Label();
-            label9 = new Label();
-            lab_origin = new Label();
-            label8 = new Label();
-            lab_Runtime = new Label();
-            label7 = new Label();
-            lab_Frequency_Converter_usetime = new Label();
-            label6 = new Label();
-            lab_PLC_usetime = new Label();
-            label5 = new Label();
-            lab_Spindle_usetime = new Label();
-            label4 = new Label();
-            lab_Servo_drives_usetime = new Label();
-            label3 = new Label();
-            label2 = new Label();
-            label1 = new Label();
+            lab_Drill_feeder = new Label();
+            lab_Drill_feederText = new Label();
+            lab_Drill_clamping = new Label();
+            lab_Drill_clampingText = new Label();
+            lab_Drill_measurement = new Label();
+            lab_Drill_measurementText = new Label();
+            lab_Drill_loose_tools = new Label();
+            lab_Drill_loose_toolsText = new Label();
+            lab_Drill_origin = new Label();
+            lab_Drill_originText = new Label();
+            lab_Drill_total_Time = new Label();
+            lab_Drill_total_TimeText = new Label();
+            lab_Drill_inverter = new Label();
+            lab_Drill_inverterText = new Label();
+            lab_Drill_plc_usetime = new Label();
+            lab_Drill_plc_usetimeText = new Label();
+            lab_Drill_spindle_usetime = new Label();
+            lab_Drill_spindle_usetimeText = new Label();
+            lab_Drill_servo_usetime = new Label();
+            lab_Drill_servo_usetimeText = new Label();
+            lab_title = new Label();
+            lab_titleText = new Label();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -93,28 +93,28 @@
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.Controls.Add(lab_feeder, 1, 10);
-            tableLayoutPanel1.Controls.Add(label12, 0, 10);
-            tableLayoutPanel1.Controls.Add(lab_clamping, 1, 9);
-            tableLayoutPanel1.Controls.Add(label11, 0, 9);
-            tableLayoutPanel1.Controls.Add(lab_measurement, 1, 8);
-            tableLayoutPanel1.Controls.Add(label10, 0, 8);
-            tableLayoutPanel1.Controls.Add(lab_loose_tools, 1, 7);
-            tableLayoutPanel1.Controls.Add(label9, 0, 7);
-            tableLayoutPanel1.Controls.Add(lab_origin, 1, 6);
-            tableLayoutPanel1.Controls.Add(label8, 0, 6);
-            tableLayoutPanel1.Controls.Add(lab_Runtime, 1, 5);
-            tableLayoutPanel1.Controls.Add(label7, 0, 5);
-            tableLayoutPanel1.Controls.Add(lab_Frequency_Converter_usetime, 1, 4);
-            tableLayoutPanel1.Controls.Add(label6, 0, 4);
-            tableLayoutPanel1.Controls.Add(lab_PLC_usetime, 1, 3);
-            tableLayoutPanel1.Controls.Add(label5, 0, 3);
-            tableLayoutPanel1.Controls.Add(lab_Spindle_usetime, 1, 2);
-            tableLayoutPanel1.Controls.Add(label4, 0, 2);
-            tableLayoutPanel1.Controls.Add(lab_Servo_drives_usetime, 1, 1);
-            tableLayoutPanel1.Controls.Add(label3, 0, 1);
-            tableLayoutPanel1.Controls.Add(label2, 1, 0);
-            tableLayoutPanel1.Controls.Add(label1, 0, 0);
+            tableLayoutPanel1.Controls.Add(lab_Drill_feeder, 1, 10);
+            tableLayoutPanel1.Controls.Add(lab_Drill_feederText, 0, 10);
+            tableLayoutPanel1.Controls.Add(lab_Drill_clamping, 1, 9);
+            tableLayoutPanel1.Controls.Add(lab_Drill_clampingText, 0, 9);
+            tableLayoutPanel1.Controls.Add(lab_Drill_measurement, 1, 8);
+            tableLayoutPanel1.Controls.Add(lab_Drill_measurementText, 0, 8);
+            tableLayoutPanel1.Controls.Add(lab_Drill_loose_tools, 1, 7);
+            tableLayoutPanel1.Controls.Add(lab_Drill_loose_toolsText, 0, 7);
+            tableLayoutPanel1.Controls.Add(lab_Drill_origin, 1, 6);
+            tableLayoutPanel1.Controls.Add(lab_Drill_originText, 0, 6);
+            tableLayoutPanel1.Controls.Add(lab_Drill_total_Time, 1, 5);
+            tableLayoutPanel1.Controls.Add(lab_Drill_total_TimeText, 0, 5);
+            tableLayoutPanel1.Controls.Add(lab_Drill_inverter, 1, 4);
+            tableLayoutPanel1.Controls.Add(lab_Drill_inverterText, 0, 4);
+            tableLayoutPanel1.Controls.Add(lab_Drill_plc_usetime, 1, 3);
+            tableLayoutPanel1.Controls.Add(lab_Drill_plc_usetimeText, 0, 3);
+            tableLayoutPanel1.Controls.Add(lab_Drill_spindle_usetime, 1, 2);
+            tableLayoutPanel1.Controls.Add(lab_Drill_spindle_usetimeText, 0, 2);
+            tableLayoutPanel1.Controls.Add(lab_Drill_servo_usetime, 1, 1);
+            tableLayoutPanel1.Controls.Add(lab_Drill_servo_usetimeText, 0, 1);
+            tableLayoutPanel1.Controls.Add(lab_title, 1, 0);
+            tableLayoutPanel1.Controls.Add(lab_titleText, 0, 0);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(0, 0);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -133,265 +133,266 @@
             tableLayoutPanel1.Size = new Size(655, 549);
             tableLayoutPanel1.TabIndex = 1;
             // 
-            // lab_feeder
+            // lab_Drill_feeder
             // 
-            lab_feeder.BackColor = Color.Transparent;
-            lab_feeder.Dock = DockStyle.Fill;
-            lab_feeder.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_feeder.Location = new Point(330, 495);
-            lab_feeder.Name = "lab_feeder";
-            lab_feeder.Size = new Size(322, 54);
-            lab_feeder.TabIndex = 21;
-            lab_feeder.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_feeder.BackColor = Color.Transparent;
+            lab_Drill_feeder.Dock = DockStyle.Fill;
+            lab_Drill_feeder.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_feeder.Location = new Point(330, 495);
+            lab_Drill_feeder.Name = "lab_Drill_feeder";
+            lab_Drill_feeder.Size = new Size(322, 54);
+            lab_Drill_feeder.TabIndex = 21;
+            lab_Drill_feeder.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // label12
+            // lab_Drill_feederText
             // 
-            label12.BackColor = Color.Transparent;
-            label12.Dock = DockStyle.Fill;
-            label12.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label12.Location = new Point(3, 495);
-            label12.Name = "label12";
-            label12.Size = new Size(321, 54);
-            label12.TabIndex = 20;
-            label12.Text = "送料機夾鬆次數";
-            label12.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_feederText.BackColor = Color.Transparent;
+            lab_Drill_feederText.Dock = DockStyle.Fill;
+            lab_Drill_feederText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_feederText.Location = new Point(3, 495);
+            lab_Drill_feederText.Name = "lab_Drill_feederText";
+            lab_Drill_feederText.Size = new Size(321, 54);
+            lab_Drill_feederText.TabIndex = 20;
+            lab_Drill_feederText.Text = "送料機夾鬆次數";
+            lab_Drill_feederText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_clamping
+            // lab_Drill_clamping
             // 
-            lab_clamping.BackColor = Color.Transparent;
-            lab_clamping.Dock = DockStyle.Fill;
-            lab_clamping.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_clamping.Location = new Point(330, 446);
-            lab_clamping.Name = "lab_clamping";
-            lab_clamping.Size = new Size(322, 49);
-            lab_clamping.TabIndex = 19;
-            lab_clamping.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_clamping.BackColor = Color.Transparent;
+            lab_Drill_clamping.Dock = DockStyle.Fill;
+            lab_Drill_clamping.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_clamping.Location = new Point(330, 446);
+            lab_Drill_clamping.Name = "lab_Drill_clamping";
+            lab_Drill_clamping.Size = new Size(322, 49);
+            lab_Drill_clamping.TabIndex = 19;
+            lab_Drill_clamping.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // label11
+            // lab_Drill_clampingText
             // 
-            label11.BackColor = Color.Transparent;
-            label11.Dock = DockStyle.Fill;
-            label11.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label11.Location = new Point(3, 446);
-            label11.Name = "label11";
-            label11.Size = new Size(321, 49);
-            label11.TabIndex = 18;
-            label11.Text = "送料台夾料檢知次數";
-            label11.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_clampingText.BackColor = Color.Transparent;
+            lab_Drill_clampingText.Dock = DockStyle.Fill;
+            lab_Drill_clampingText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_clampingText.Location = new Point(3, 446);
+            lab_Drill_clampingText.Name = "lab_Drill_clampingText";
+            lab_Drill_clampingText.Size = new Size(321, 49);
+            lab_Drill_clampingText.TabIndex = 18;
+            lab_Drill_clampingText.Text = "送料台夾料檢知次數";
+            lab_Drill_clampingText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_measurement
+            // lab_Drill_measurement
             // 
-            lab_measurement.BackColor = Color.Transparent;
-            lab_measurement.Dock = DockStyle.Fill;
-            lab_measurement.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_measurement.Location = new Point(330, 397);
-            lab_measurement.Name = "lab_measurement";
-            lab_measurement.Size = new Size(322, 49);
-            lab_measurement.TabIndex = 17;
-            lab_measurement.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_measurement.BackColor = Color.Transparent;
+            lab_Drill_measurement.Dock = DockStyle.Fill;
+            lab_Drill_measurement.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_measurement.Location = new Point(330, 397);
+            lab_Drill_measurement.Name = "lab_Drill_measurement";
+            lab_Drill_measurement.Size = new Size(322, 49);
+            lab_Drill_measurement.TabIndex = 17;
+            lab_Drill_measurement.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // label10
+            // lab_Drill_measurementText
             // 
-            label10.BackColor = Color.Transparent;
-            label10.Dock = DockStyle.Fill;
-            label10.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label10.Location = new Point(3, 397);
-            label10.Name = "label10";
-            label10.Size = new Size(321, 49);
-            label10.TabIndex = 16;
-            label10.Text = "刀具量測次數";
-            label10.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_measurementText.BackColor = Color.Transparent;
+            lab_Drill_measurementText.Dock = DockStyle.Fill;
+            lab_Drill_measurementText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_measurementText.Location = new Point(3, 397);
+            lab_Drill_measurementText.Name = "lab_Drill_measurementText";
+            lab_Drill_measurementText.Size = new Size(321, 49);
+            lab_Drill_measurementText.TabIndex = 16;
+            lab_Drill_measurementText.Text = "刀具量測次數";
+            lab_Drill_measurementText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_loose_tools
+            // lab_Drill_loose_tools
             // 
-            lab_loose_tools.BackColor = Color.Transparent;
-            lab_loose_tools.Dock = DockStyle.Fill;
-            lab_loose_tools.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_loose_tools.Location = new Point(330, 348);
-            lab_loose_tools.Name = "lab_loose_tools";
-            lab_loose_tools.Size = new Size(322, 49);
-            lab_loose_tools.TabIndex = 15;
-            lab_loose_tools.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_loose_tools.BackColor = Color.Transparent;
+            lab_Drill_loose_tools.Dock = DockStyle.Fill;
+            lab_Drill_loose_tools.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_loose_tools.Location = new Point(330, 348);
+            lab_Drill_loose_tools.Name = "lab_Drill_loose_tools";
+            lab_Drill_loose_tools.Size = new Size(322, 49);
+            lab_Drill_loose_tools.TabIndex = 15;
+            lab_Drill_loose_tools.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // label9
+            // lab_Drill_loose_toolsText
             // 
-            label9.BackColor = Color.Transparent;
-            label9.Dock = DockStyle.Fill;
-            label9.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label9.Location = new Point(3, 348);
-            label9.Name = "label9";
-            label9.Size = new Size(321, 49);
-            label9.TabIndex = 14;
-            label9.Text = "主軸鬆刀次數";
-            label9.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_loose_toolsText.BackColor = Color.Transparent;
+            lab_Drill_loose_toolsText.Dock = DockStyle.Fill;
+            lab_Drill_loose_toolsText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_loose_toolsText.Location = new Point(3, 348);
+            lab_Drill_loose_toolsText.Name = "lab_Drill_loose_toolsText";
+            lab_Drill_loose_toolsText.Size = new Size(321, 49);
+            lab_Drill_loose_toolsText.TabIndex = 14;
+            lab_Drill_loose_toolsText.Text = "主軸鬆刀次數";
+            lab_Drill_loose_toolsText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_origin
+            // lab_Drill_origin
             // 
-            lab_origin.BackColor = Color.Transparent;
-            lab_origin.Dock = DockStyle.Fill;
-            lab_origin.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_origin.Location = new Point(330, 299);
-            lab_origin.Name = "lab_origin";
-            lab_origin.Size = new Size(322, 49);
-            lab_origin.TabIndex = 13;
-            lab_origin.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_origin.BackColor = Color.Transparent;
+            lab_Drill_origin.Dock = DockStyle.Fill;
+            lab_Drill_origin.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_origin.Location = new Point(330, 299);
+            lab_Drill_origin.Name = "lab_Drill_origin";
+            lab_Drill_origin.Size = new Size(322, 49);
+            lab_Drill_origin.TabIndex = 13;
+            lab_Drill_origin.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // label8
+            // lab_Drill_originText
             // 
-            label8.BackColor = Color.Transparent;
-            label8.Dock = DockStyle.Fill;
-            label8.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label8.Location = new Point(3, 299);
-            label8.Name = "label8";
-            label8.Size = new Size(321, 49);
-            label8.TabIndex = 12;
-            label8.Text = "機台回原點次數";
-            label8.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_originText.BackColor = Color.Transparent;
+            lab_Drill_originText.Dock = DockStyle.Fill;
+            lab_Drill_originText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_originText.Location = new Point(3, 299);
+            lab_Drill_originText.Name = "lab_Drill_originText";
+            lab_Drill_originText.Size = new Size(321, 49);
+            lab_Drill_originText.TabIndex = 12;
+            lab_Drill_originText.Text = "機台回原點次數";
+            lab_Drill_originText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_Runtime
+            // lab_Drill_total_Time
             // 
-            lab_Runtime.BackColor = Color.Transparent;
-            lab_Runtime.Dock = DockStyle.Fill;
-            lab_Runtime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Runtime.Location = new Point(330, 250);
-            lab_Runtime.Name = "lab_Runtime";
-            lab_Runtime.Size = new Size(322, 49);
-            lab_Runtime.TabIndex = 11;
-            lab_Runtime.Text = " 天  時  分  秒";
-            lab_Runtime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_total_Time.BackColor = Color.Transparent;
+            lab_Drill_total_Time.Dock = DockStyle.Fill;
+            lab_Drill_total_Time.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_total_Time.Location = new Point(330, 250);
+            lab_Drill_total_Time.Name = "lab_Drill_total_Time";
+            lab_Drill_total_Time.Size = new Size(322, 49);
+            lab_Drill_total_Time.TabIndex = 11;
+            lab_Drill_total_Time.Text = " 天  時  分  秒";
+            lab_Drill_total_Time.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // label7
+            // lab_Drill_total_TimeText
             // 
-            label7.BackColor = Color.Transparent;
-            label7.Dock = DockStyle.Fill;
-            label7.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label7.Location = new Point(3, 250);
-            label7.Name = "label7";
-            label7.Size = new Size(321, 49);
-            label7.TabIndex = 10;
-            label7.Text = "機器使用時間";
-            label7.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_total_TimeText.BackColor = Color.Transparent;
+            lab_Drill_total_TimeText.Dock = DockStyle.Fill;
+            lab_Drill_total_TimeText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_total_TimeText.Location = new Point(3, 250);
+            lab_Drill_total_TimeText.Name = "lab_Drill_total_TimeText";
+            lab_Drill_total_TimeText.Size = new Size(321, 49);
+            lab_Drill_total_TimeText.TabIndex = 10;
+            lab_Drill_total_TimeText.Text = "機器使用時間";
+            lab_Drill_total_TimeText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_Frequency_Converter_usetime
+            // lab_Drill_inverter
             // 
-            lab_Frequency_Converter_usetime.BackColor = Color.Transparent;
-            lab_Frequency_Converter_usetime.Dock = DockStyle.Fill;
-            lab_Frequency_Converter_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Frequency_Converter_usetime.Location = new Point(330, 201);
-            lab_Frequency_Converter_usetime.Name = "lab_Frequency_Converter_usetime";
-            lab_Frequency_Converter_usetime.Size = new Size(322, 49);
-            lab_Frequency_Converter_usetime.TabIndex = 9;
-            lab_Frequency_Converter_usetime.Text = " 天  時  分  秒";
-            lab_Frequency_Converter_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_inverter.BackColor = Color.Transparent;
+            lab_Drill_inverter.Dock = DockStyle.Fill;
+            lab_Drill_inverter.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_inverter.Location = new Point(330, 201);
+            lab_Drill_inverter.Name = "lab_Drill_inverter";
+            lab_Drill_inverter.Size = new Size(322, 49);
+            lab_Drill_inverter.TabIndex = 9;
+            lab_Drill_inverter.Text = " 天  時  分  秒";
+            lab_Drill_inverter.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // label6
+            // lab_Drill_inverterText
             // 
-            label6.BackColor = Color.Transparent;
-            label6.Dock = DockStyle.Fill;
-            label6.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label6.Location = new Point(3, 201);
-            label6.Name = "label6";
-            label6.Size = new Size(321, 49);
-            label6.TabIndex = 8;
-            label6.Text = "變頻器使用時間";
-            label6.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_inverterText.BackColor = Color.Transparent;
+            lab_Drill_inverterText.Dock = DockStyle.Fill;
+            lab_Drill_inverterText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_inverterText.Location = new Point(3, 201);
+            lab_Drill_inverterText.Name = "lab_Drill_inverterText";
+            lab_Drill_inverterText.Size = new Size(321, 49);
+            lab_Drill_inverterText.TabIndex = 8;
+            lab_Drill_inverterText.Text = "變頻器使用時間";
+            lab_Drill_inverterText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_PLC_usetime
+            // lab_Drill_plc_usetime
             // 
-            lab_PLC_usetime.BackColor = Color.Transparent;
-            lab_PLC_usetime.Dock = DockStyle.Fill;
-            lab_PLC_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_PLC_usetime.Location = new Point(330, 152);
-            lab_PLC_usetime.Name = "lab_PLC_usetime";
-            lab_PLC_usetime.Size = new Size(322, 49);
-            lab_PLC_usetime.TabIndex = 7;
-            lab_PLC_usetime.Text = " 天  時  分  秒";
-            lab_PLC_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_plc_usetime.BackColor = Color.Transparent;
+            lab_Drill_plc_usetime.Dock = DockStyle.Fill;
+            lab_Drill_plc_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_plc_usetime.Location = new Point(330, 152);
+            lab_Drill_plc_usetime.Name = "lab_Drill_plc_usetime";
+            lab_Drill_plc_usetime.Size = new Size(322, 49);
+            lab_Drill_plc_usetime.TabIndex = 7;
+            lab_Drill_plc_usetime.Text = " 天  時  分  秒";
+            lab_Drill_plc_usetime.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // label5
+            // lab_Drill_plc_usetimeText
             // 
-            label5.BackColor = Color.Transparent;
-            label5.Dock = DockStyle.Fill;
-            label5.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label5.Location = new Point(3, 152);
-            label5.Name = "label5";
-            label5.Size = new Size(321, 49);
-            label5.TabIndex = 6;
-            label5.Text = "PLC總使用時間";
-            label5.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_plc_usetimeText.BackColor = Color.Transparent;
+            lab_Drill_plc_usetimeText.Dock = DockStyle.Fill;
+            lab_Drill_plc_usetimeText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_plc_usetimeText.Location = new Point(3, 152);
+            lab_Drill_plc_usetimeText.Name = "lab_Drill_plc_usetimeText";
+            lab_Drill_plc_usetimeText.Size = new Size(321, 49);
+            lab_Drill_plc_usetimeText.TabIndex = 6;
+            lab_Drill_plc_usetimeText.Text = "PLC總使用時間";
+            lab_Drill_plc_usetimeText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_Spindle_usetime
+            // lab_Drill_spindle_usetime
             // 
-            lab_Spindle_usetime.BackColor = Color.Transparent;
-            lab_Spindle_usetime.Dock = DockStyle.Fill;
-            lab_Spindle_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Spindle_usetime.Location = new Point(330, 103);
-            lab_Spindle_usetime.Name = "lab_Spindle_usetime";
-            lab_Spindle_usetime.Size = new Size(322, 49);
-            lab_Spindle_usetime.TabIndex = 5;
-            lab_Spindle_usetime.Text = " 天  時  分  秒";
-            lab_Spindle_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_spindle_usetime.BackColor = Color.Transparent;
+            lab_Drill_spindle_usetime.Dock = DockStyle.Fill;
+            lab_Drill_spindle_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_spindle_usetime.Location = new Point(330, 103);
+            lab_Drill_spindle_usetime.Name = "lab_Drill_spindle_usetime";
+            lab_Drill_spindle_usetime.Size = new Size(322, 49);
+            lab_Drill_spindle_usetime.TabIndex = 5;
+            lab_Drill_spindle_usetime.Text = " 天  時  分  秒";
+            lab_Drill_spindle_usetime.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // label4
+            // lab_Drill_spindle_usetimeText
             // 
-            label4.BackColor = Color.Transparent;
-            label4.Dock = DockStyle.Fill;
-            label4.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label4.Location = new Point(3, 103);
-            label4.Name = "label4";
-            label4.Size = new Size(321, 49);
-            label4.TabIndex = 4;
-            label4.Text = "主軸啟動累積時間";
-            label4.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_spindle_usetimeText.BackColor = Color.Transparent;
+            lab_Drill_spindle_usetimeText.Dock = DockStyle.Fill;
+            lab_Drill_spindle_usetimeText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_spindle_usetimeText.Location = new Point(3, 103);
+            lab_Drill_spindle_usetimeText.Name = "lab_Drill_spindle_usetimeText";
+            lab_Drill_spindle_usetimeText.Size = new Size(321, 49);
+            lab_Drill_spindle_usetimeText.TabIndex = 4;
+            lab_Drill_spindle_usetimeText.Text = "主軸啟動累積時間";
+            lab_Drill_spindle_usetimeText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_Servo_drives_usetime
+            // lab_Drill_servo_usetime
             // 
-            lab_Servo_drives_usetime.BackColor = Color.Transparent;
-            lab_Servo_drives_usetime.Dock = DockStyle.Fill;
-            lab_Servo_drives_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Servo_drives_usetime.Location = new Point(330, 54);
-            lab_Servo_drives_usetime.Name = "lab_Servo_drives_usetime";
-            lab_Servo_drives_usetime.Size = new Size(322, 49);
-            lab_Servo_drives_usetime.TabIndex = 3;
-            lab_Servo_drives_usetime.Text = " 天  時  分  秒";
-            lab_Servo_drives_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_servo_usetime.BackColor = Color.Transparent;
+            lab_Drill_servo_usetime.Dock = DockStyle.Fill;
+            lab_Drill_servo_usetime.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_servo_usetime.Location = new Point(330, 54);
+            lab_Drill_servo_usetime.Name = "lab_Drill_servo_usetime";
+            lab_Drill_servo_usetime.Size = new Size(322, 49);
+            lab_Drill_servo_usetime.TabIndex = 3;
+            lab_Drill_servo_usetime.Text = " 天  時  分  秒";
+            lab_Drill_servo_usetime.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // label3
+            // lab_Drill_servo_usetimeText
             // 
-            label3.AutoSize = true;
-            label3.BackColor = Color.Transparent;
-            label3.Dock = DockStyle.Fill;
-            label3.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label3.Location = new Point(3, 54);
-            label3.Name = "label3";
-            label3.Size = new Size(321, 49);
-            label3.TabIndex = 2;
-            label3.Text = "伺服驅動器介面使用時間";
-            label3.TextAlign = ContentAlignment.MiddleLeft;
+            lab_Drill_servo_usetimeText.AutoSize = true;
+            lab_Drill_servo_usetimeText.BackColor = Color.Transparent;
+            lab_Drill_servo_usetimeText.Dock = DockStyle.Fill;
+            lab_Drill_servo_usetimeText.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Drill_servo_usetimeText.Location = new Point(3, 54);
+            lab_Drill_servo_usetimeText.Name = "lab_Drill_servo_usetimeText";
+            lab_Drill_servo_usetimeText.Size = new Size(321, 49);
+            lab_Drill_servo_usetimeText.TabIndex = 2;
+            lab_Drill_servo_usetimeText.Text = "伺服驅動器介面使用時間";
+            lab_Drill_servo_usetimeText.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // label2
+            // lab_title
             // 
-            label2.BackColor = Color.Transparent;
-            label2.Dock = DockStyle.Fill;
-            label2.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label2.Location = new Point(330, 0);
-            label2.Name = "label2";
-            label2.Size = new Size(322, 54);
-            label2.TabIndex = 1;
-            label2.Text = "目前累積時間";
-            label2.TextAlign = ContentAlignment.MiddleCenter;
+            lab_title.BackColor = Color.Transparent;
+            lab_title.Dock = DockStyle.Fill;
+            lab_title.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_title.Location = new Point(330, 0);
+            lab_title.Name = "lab_title";
+            lab_title.Size = new Size(322, 54);
+            lab_title.TabIndex = 1;
+            lab_title.Text = "目前累積時間";
+            lab_title.TextAlign = ContentAlignment.MiddleCenter;
+            lab_title.Click += label2_Click;
             // 
-            // label1
+            // lab_titleText
             // 
-            label1.BackColor = Color.Transparent;
-            label1.Dock = DockStyle.Fill;
-            label1.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label1.Location = new Point(3, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(321, 54);
-            label1.TabIndex = 0;
-            label1.Text = "設備與周邊元件壽命總表";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
+            lab_titleText.BackColor = Color.Transparent;
+            lab_titleText.Dock = DockStyle.Fill;
+            lab_titleText.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_titleText.Location = new Point(3, 0);
+            lab_titleText.Name = "lab_titleText";
+            lab_titleText.Size = new Size(321, 54);
+            lab_titleText.TabIndex = 0;
+            lab_titleText.Text = "設備與周邊元件壽命總表";
+            lab_titleText.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // Drill_Info
             // 
@@ -415,28 +416,28 @@
 
         private Panel panel1;
         private TableLayoutPanel tableLayoutPanel1;
-        private Label label3;
-        private Label label2;
-        private Label label1;
-        private Label lab_PLC_usetime;
-        private Label label5;
-        private Label lab_Spindle_usetime;
-        private Label label4;
-        private Label lab_Servo_drives_usetime;
-        private Label lab_feeder;
-        private Label label12;
-        private Label lab_clamping;
-        private Label label11;
-        private Label lab_measurement;
-        private Label label10;
-        private Label lab_loose_tools;
-        private Label label9;
-        private Label lab_origin;
-        private Label label8;
-        private Label lab_Runtime;
-        private Label label7;
-        private Label lab_Frequency_Converter_usetime;
-        private Label label6;
+        private Label lab_Drill_servo_usetimeText;
+        private Label lab_title;
+        private Label lab_titleText;
+        private Label lab_Drill_plc_usetime;
+        private Label lab_Drill_plc_usetimeText;
+        private Label lab_Drill_spindle_usetime;
+        private Label lab_Drill_spindle_usetimeText;
+        private Label lab_Drill_servo_usetime;
+        private Label lab_Drill_feeder;
+        private Label lab_Drill_feederText;
+        private Label lab_Drill_clamping;
+        private Label lab_Drill_clampingText;
+        private Label lab_Drill_measurement;
+        private Label lab_Drill_measurementText;
+        private Label lab_Drill_loose_tools;
+        private Label lab_Drill_loose_toolsText;
+        private Label lab_Drill_origin;
+        private Label lab_Drill_originText;
+        private Label lab_Drill_total_Time;
+        private Label lab_Drill_total_TimeText;
+        private Label lab_Drill_inverter;
+        private Label lab_Drill_inverterText;
     }
 }
 

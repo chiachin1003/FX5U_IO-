@@ -16,6 +16,8 @@ namespace FX5U_IOMonitor
     {
 
         Main main;
+        private CancellationTokenSource? _cts;
+        private string machine;
 
         public Drill_main(Main main)
         {
@@ -27,15 +29,55 @@ namespace FX5U_IOMonitor
             tableLayoutPanel4.BorderStyle = BorderStyle.FixedSingle;
             tableLayoutPanel5.BorderStyle = BorderStyle.FixedSingle;
             tableLayoutPanel6.BorderStyle = BorderStyle.FixedSingle;
+            this.Load += Drill_main_Load;
+            this.FormClosing += Drill_FormClosing;
+            string lang = Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageCSV("language.csv", lang);
+            SwitchLanguage();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
 
         }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+        }
+        private void Drill_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            _cts?.Cancel(); // 關閉時自動取消背景任務
+        }
+        private async Task AutoUpdateAsync(CancellationToken token)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    // 主執行緒呼叫 UI 更新
+                    if (this.IsHandleCreated && !this.IsDisposed)
+                    {
+                        this.Invoke(() =>
+                        {
+                            reset_labText(); // 每次自動更新畫面數值
+                        });
+                    }
 
+                    await Task.Delay(900, token); // 每900毫秒更新一次
+                }
+                catch (OperationCanceledException)
+                {
+                    break; // 正常取消任務
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("背景更新錯誤：" + ex.Message);
+                }
+            }
+        }
 
 
         private void btn_SP1_Click(object sender, EventArgs e)
         {
 
-            List<string> search = DBfunction.GetAllClassTags("Drill", "SP1");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "SP1");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -44,7 +86,7 @@ namespace FX5U_IOMonitor
 
         private void btn_SP2_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "SP2");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "SP2");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -52,7 +94,7 @@ namespace FX5U_IOMonitor
 
         private void btn_SP3_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "SP3");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "SP3");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -60,7 +102,7 @@ namespace FX5U_IOMonitor
 
         private void btn_SP4_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "SP4");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "SP4");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -68,7 +110,7 @@ namespace FX5U_IOMonitor
 
         private void btn_common_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "COMMON");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "COMMON");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -76,7 +118,7 @@ namespace FX5U_IOMonitor
 
         private void btn_Panel_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Panel");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Panel");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -84,7 +126,7 @@ namespace FX5U_IOMonitor
 
         private void btn_Peripheral_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Peripheral");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Peripheral");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -92,16 +134,16 @@ namespace FX5U_IOMonitor
 
         private void btn_Cabinet_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Cabinet");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Cabinet");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
-          
+
         }
 
         private void button11_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Infeed_PNL");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Infeed_PNL");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -110,7 +152,7 @@ namespace FX5U_IOMonitor
 
         private void btn_Infeed_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "INFEED");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "INFEED");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -118,7 +160,7 @@ namespace FX5U_IOMonitor
 
         private void btn_InfeedBox_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Infeed_BOX");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Infeed_BOX");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -126,7 +168,7 @@ namespace FX5U_IOMonitor
 
         private void btn_Outfeed_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "OUTFEED");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "OUTFEED");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -134,7 +176,7 @@ namespace FX5U_IOMonitor
 
         private void btn_OutfeedBox_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Outfeed_box");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Outfeed_box");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -142,7 +184,7 @@ namespace FX5U_IOMonitor
 
         private void btn_OutfeedPnl_Click(object sender, EventArgs e)
         {
-            List<string> search = DBfunction.GetAllClassTags("Drill", "Outfeed_PNL");
+            List<string> search = DBfunction.GetClassTag_address("Drill", "Outfeed_PNL");
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(search, "Drill");          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -150,14 +192,12 @@ namespace FX5U_IOMonitor
         }
 
 
-
-
         private void Drill_main_Load(object sender, EventArgs e)
         {
 
-            reset_labText();
             //輸入當前顯示的不同數值
-            List<float[]> chartValues = update_class();
+            chartValues = update_class();
+            reset_labText();
 
 
             // 總數量
@@ -165,7 +205,7 @@ namespace FX5U_IOMonitor
             int chartsPerRow = 7;
             int spacingX = 130, spacingY = 220;
             int startX = 35, startY = 40;
-            int lab_start_x = 30 ,lab_start_y = 150;
+            int lab_start_x = 30, lab_start_y = 150;
 
             for (int i = 0; i < totalCharts; i++)
             {
@@ -187,17 +227,23 @@ namespace FX5U_IOMonitor
                                        values,
                                        new Color[] { Color.LightGreen, Color.Yellow, Color.Red });
                 chartPanel.Location = new Point(x, y);
+                chartPanel.Name = $"Color_{i}";
+
                 this.Controls.Add(chartPanel);
 
                 int table_x = lab_start_x + (col * spacingX);
                 int table_y = lab_start_y + (row * spacingY);
 
                 TableLayoutPanel tableLayoutPanel = panel_design.CreateColorLegendPanel(number[0].ToString(), number[1].ToString(), number[2].ToString());
+                tableLayoutPanel.Name = $"ColorLegend_{i}";
                 tableLayoutPanel.Location = new Point(table_x, table_y);
                 this.Controls.Add(tableLayoutPanel);
             }
 
-            Monitor_alarm();
+
+            _cts = new CancellationTokenSource();
+            _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
+            //Monitor_alarm();
             //if (connect_isOK.Drill_connect == true)
             //{
             //    //開啟監控
@@ -218,7 +264,8 @@ namespace FX5U_IOMonitor
                     bool connected = connect_isOK.Drill_connect;
                     this.Invoke(() =>
                     {
-                        var DB_update = MonitorHub.GetMonitor("Drill");
+                        var DB_update = MachineHub.GetMonitor("Drill");
+                        //var DB_update = MonitorHub.GetMonitor("Drill");
                         if (DB_update == null)
                         {
                             Console.WriteLine("⚠️ MonitorHub 尚未註冊 Drill 監控對象");
@@ -230,16 +277,17 @@ namespace FX5U_IOMonitor
                             DB_update.alarm_event += Warning_signs;
                             isEventRegistered = true;
                         }
-                        else if (!connected && isEventRegistered )
+                        else if (!connected && isEventRegistered)
                         {
                             DB_update.alarm_event -= Warning_signs;
                             isEventRegistered = false;
                         }
-                       
+
                     });
                 }
             });
         }
+        private List<float[]> chartValues;
 
         private void lab_red_Click(object sender, EventArgs e)
         {
@@ -253,34 +301,51 @@ namespace FX5U_IOMonitor
         }
         private void reset_labText()//更新主頁面連接狀況
         {
+            chartValues = update_class();
+            for (int i = 0; i < chartValues.Count; i++)
+            {
+                string panelName = $"ColorLegend_{i}";
+                var legendPanel = this.Controls.Find(panelName, true).FirstOrDefault() as TableLayoutPanel;
+                if (legendPanel != null)
+                {
+                    float[] values = chartValues[i];
+                    int[] number = values.Select(v => Convert.ToInt32(v)).ToArray();
 
+                    var lblRed = legendPanel.Controls.Find("lblRed", true).FirstOrDefault() as Label;
+                    var lblYellow = legendPanel.Controls.Find("lblYellow", true).FirstOrDefault() as Label;
+                    var lblGreen = legendPanel.Controls.Find("lblGreen", true).FirstOrDefault() as Label;
+
+                    if (lblRed != null) lblRed.Text = number[0].ToString();
+                    if (lblYellow != null) lblYellow.Text = number[1].ToString();
+                    if (lblGreen != null) lblGreen.Text = number[2].ToString();
+                }
+            }
 
             lab_green.Text = DBfunction.Get_Green_number("Drill").ToString();
             lab_yellow.Text = DBfunction.Get_Yellow_number("Drill").ToString();
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
-            lab_sum.Text = DBfunction.GetTableRowCount("Drill").ToString();
+            lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
 
-
-            if (connect_isOK.Drill_connect == false)
+            var existingContext = MachineHub.Get("Drill");
+            if (existingContext != null && existingContext.IsConnected)
             {
+                lab_connectOK.Text = "已連接";
+                lab_connectOK.ForeColor = Color.Green;
+
+                lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
+                List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part("Drill");
+                lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts("Drill", drill_breakdowm_part).Count.ToString();
+
+            }
+            else
+            {
+
                 lab_connectOK.Text = "未連接";
                 lab_connectOK.ForeColor = Color.Red;
 
                 lab_connect.Text = "0";
                 lab_partalarm.Text = "0";
-
-                //lab_partalarm.Text = DataStore.Drill_DataList.Count.ToString();
             }
-            else
-            {
-                lab_connectOK.Text = "已連接";
-                lab_connectOK.ForeColor = Color.Green;
-
-                lab_connect.Text = connect_isOK.Drill_total.connect.ToString();
-                List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part("Drill");
-                lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts("Drill", drill_breakdowm_part).Count.ToString(); ;
-            }
-
 
         }
         private List<float[]> update_class()
@@ -296,7 +361,7 @@ namespace FX5U_IOMonitor
             foreach (string classTag in classTags)
             {
 
-                List<string> search_number = DBfunction.GetAllClassTags("Drill", classTag);
+                List<string> search_number = DBfunction.GetClassTag_address("Drill", classTag);
 
                 int Green = DBfunction.Get_Green_classnumber("Drill", classTag, search_number);
                 int yellow = DBfunction.Get_Yellow_classnumber("Drill", classTag, search_number);
@@ -331,16 +396,7 @@ namespace FX5U_IOMonitor
 
         private void lab_connect_Click(object sender, EventArgs e)
         {
-            if (connect_isOK.Drill_connect == false)
-            {
-                MessageBox.Show("未連線");
 
-            }
-            else
-            {
-                MessageBox.Show(connect_isOK.Swing_total.read_time);
-
-            }
         }
 
 
@@ -352,17 +408,18 @@ namespace FX5U_IOMonitor
 
         private void lab_sum_Click(object sender, EventArgs e)
         {
-            if (connect_isOK.Drill_connect == false)
+            var existingContext = MachineHub.Get("Drill");
+            if (existingContext != null && existingContext.IsConnected)
             {
-                MessageBox.Show("當前無資料更新");
-                reset_labText();
+
+
+                MessageBox.Show("當前監控總數更新時間" + existingContext.ConnectSummary.read_time.ToString());
 
 
             }
             else
             {
-                MessageBox.Show(connect_isOK.Drill_total.read_time);
-                reset_labText();
+                MessageBox.Show("當前無資料監控與更新");
 
             }
         }
@@ -380,13 +437,17 @@ namespace FX5U_IOMonitor
                 // 顯示變化
                 MessageBox.Show($"📡 偵測到 I/O 變化：{e.Address} from {e.OldValue} ➜ {e.NewValue}");
 
+
+                //// 比對查出 Alarm 表中對應的 address & table（Drill/Swing）
+                //(string matchedAddress, string table) = DBfunction.FindIOByAlarmDescription(des);
+
                 // 查出這個 address 對應的 Description
                 string des = DBfunction.Get_Description_ByAddress(e.Address);
+                // 比對
+                (string table, string Description) = DBfunction.Get_AlarmInfo_ByAddress(e.Address);
+                string matchedAddress = DBfunction.Get_Address_ByDecription(table, Description);
 
-                // 比對查出 Alarm 表中對應的 address & table（Drill/Swing）
-                (string matchedAddress, string table) = DBfunction.FindIOByAlarmDescription(des);
-
-                if (!string.IsNullOrEmpty(matchedAddress) && !string.IsNullOrEmpty(table))
+                if (!string.IsNullOrEmpty(Description) && !string.IsNullOrEmpty(table))
                 {
                     string Possible = DBfunction.Get_Possible_ByAddress(e.Address);
                     string error = DBfunction.Get_Error_ByDescription(des);
@@ -432,8 +493,10 @@ namespace FX5U_IOMonitor
 
         private void lab_partalarm_Click(object sender, EventArgs e)
         {
-            if (connect_isOK.Drill_connect == true)
+            var existingContext = MachineHub.Get("Drill");
+            if (existingContext != null && existingContext.IsConnected)
             {
+
                 List<string> breakdown_part = DBfunction.Get_breakdown_part("Drill");
                 if (breakdown_part.Count != 0)
                 {
@@ -447,12 +510,36 @@ namespace FX5U_IOMonitor
                     MessageBox.Show("目前料件未出現異常");
                 }
             }
-            else 
+            else
             {
                 MessageBox.Show("請連線機台");
             }
-            
 
+        }
+        private void SwitchLanguage()
+        {
+            btn_SP1.Text = LanguageManager.Translate("Drillmain_SP1");
+            btn_SP2.Text = LanguageManager.Translate("Drillmain_SP2");
+            btn_SP3.Text = LanguageManager.Translate("Drillmain_SP3");
+            btn_SP4.Text = LanguageManager.Translate("Drillmain_SP4");
+            btn_common.Text = LanguageManager.Translate("Drillmain_common");
+            btn_Panel.Text = LanguageManager.Translate("Drillmain_Panel");
+            btn_Peripheral.Text = LanguageManager.Translate("Drillmain_Peripheral");
+            btn_Cabinet.Text = LanguageManager.Translate("Drillmain_Cabinet");
+            btn_Infeed.Text = LanguageManager.Translate("Drillmain_Infeed");
+            btn_InfeedBox.Text = LanguageManager.Translate("Drillmain_InfeedBox");
+            btn_infeed_PNL.Text = LanguageManager.Translate("Drillmain_infeed_PNL");
+            btn_Outfeed.Text = LanguageManager.Translate("Drillmain_Outfeed");
+            btn_OutfeedPnl.Text = LanguageManager.Translate("Drillmain_OutfeedPnl");
+            btn_OutfeedBox.Text = LanguageManager.Translate("Drillmain_OutfeedBox");
+            label1.Text = LanguageManager.Translate("Mainform_RedLights");
+            label2.Text = LanguageManager.Translate("Mainform_YellowLights");
+            label3.Text = LanguageManager.Translate("Mainform_GreenLights");
+            label4.Text = LanguageManager.Translate("Mainform_ComponentFaults");
+            label5.Text = LanguageManager.Translate("Mainform_Connections");
+            label6.Text = LanguageManager.Translate("Mainform_MonitoredItems");
+            label_txt.Text = LanguageManager.Translate("Mainform_TextSearch");
+            btn_search.Text = LanguageManager.Translate("Mainform_Search");
 
         }
     }

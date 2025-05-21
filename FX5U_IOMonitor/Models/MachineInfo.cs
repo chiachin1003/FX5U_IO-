@@ -10,6 +10,8 @@ namespace FX5U_IOMonitor.Models
 {
     internal class MachineInfo
     {
+        private static string machine_name = "";
+
         public static class PanelFactory
         {
             /// <summary>
@@ -23,11 +25,10 @@ namespace FX5U_IOMonitor.Models
             /// <param name="effect">影響數值</param>
             /// <returns>返回生成的標準化 Panel</returns>
             /// 
-
             //需要壽命監控時的按鈕創造
-            public static Panel CreatePanel(Point location, bool Electronic, string equipmentName, string percent, string rulPercent, string effect, string address, bool? state)
+            public static Panel CreatePanel(Point location,string dbtable, bool Electronic, string equipmentName, string percent, string rulPercent, string effect, string address, bool? state)
             {
-
+                machine_name = dbtable;
                 // 初始化 Panel
                 Panel panel = new Panel
                 {
@@ -61,10 +62,6 @@ namespace FX5U_IOMonitor.Models
                 };
                 panel.Controls.Add(labEffect);
 
-                //尋找指定的address內的設定值
-                string dbtable = DBfunction.FindTableWithAddress(address);
-                if (dbtable == "") return panel;
-               
                 // 初始化 panel_light
                 Panel panelLight = new Panel
                 {
@@ -114,7 +111,7 @@ namespace FX5U_IOMonitor.Models
 
 
                 // 設定 Panel 實際大小（你要的 232x115）
-                panel.Size = new Size(232, 110);
+                panel.Size = new Size(228, 110);
 
                 // 原始設計大小為 200x100
                 float scaleX = panel.Width / 200f;
@@ -135,7 +132,7 @@ namespace FX5U_IOMonitor.Models
                 path.AddEllipse(0, 0, num, num);
                 control.Region = new Region(path);
             }
-            private static int ProgressBarValue(string percent)
+            public static int ProgressBarValue(string percent)
             {
                 if (string.IsNullOrWhiteSpace(percent))
                     return 0;
@@ -151,7 +148,7 @@ namespace FX5U_IOMonitor.Models
                 else return intValue;
 
             }
-            private static object SetColor(string percent, int Green, int yellow, int red)
+            public static object SetColor(string percent, int Green, int yellow, int red)
             {
                 // 若沒有傳值進來 (null 或空字串)，直接回傳 Color.Gray
                 if (string.IsNullOrWhiteSpace(percent))
@@ -163,7 +160,7 @@ namespace FX5U_IOMonitor.Models
                     double roundedValue = Math.Round(dPercent, 3);
                     // 3. 判斷數值範圍
                     if (roundedValue < red) return Color.Red;
-                    else if (roundedValue >= red && roundedValue < yellow) return Color.Yellow;
+                    else if (roundedValue >= red && roundedValue <= yellow) return Color.Yellow;
                     else return Color.Green;
                 }
                 return Color.Gray;
@@ -189,7 +186,7 @@ namespace FX5U_IOMonitor.Models
                 if (panelLight != null)
                 {
                     string equipmentTag = panelLight.Tag.ToString();  // 從 Tag 屬性中獲取設備名稱
-                    ShowDetail detailForm = new ShowDetail(equipmentTag);
+                    ShowDetail detailForm = new ShowDetail(machine_name,equipmentTag);
                     detailForm.ShowDialog();
                 }
             }

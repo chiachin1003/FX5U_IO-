@@ -9,7 +9,7 @@ namespace FX5U_IOMonitor.Models
 {
     internal class Calculate
     {
-
+ 
         /// <summary>
         /// 更新plc讀取的資料(8進制)僅限FX5U
         /// </summary>
@@ -18,7 +18,7 @@ namespace FX5U_IOMonitor.Models
         /// <param name="startIndex"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static List<now_single> ConvertPlcToNowSingle(bool[] plc, string InorOut, int startIndex)
+        public static List<now_single> ConvertPlcToNowSingle(bool[] plc, string InorOut, int startIndex, string radix = "oct")
         {
             if (plc == null || plc.Length == 0 || string.IsNullOrEmpty(InorOut))
             {
@@ -28,11 +28,28 @@ namespace FX5U_IOMonitor.Models
             {
                 throw new ArgumentException("startIndex 不能為負數.");
             }
-
-            return plc.Select((value, index) => new now_single
+            int baseNum = radix.ToLower() switch
             {
-                address = InorOut + Convert.ToString(startIndex + index, 8).PadLeft(2, '0'), // 轉換索引為 8 進制並補 0
-                current_single = value
+                "hex" => 16,
+                "dec" => 10,
+                _ => 8 // 預設為八進位
+            };
+
+            return plc.Select((value, index) =>
+            {
+                // 根據指定進位 (例如 8, 10, 16) 轉換 index
+                string numberPart = Convert.ToString(startIndex + index, baseNum);
+
+                // 如果是 16 進位 → 轉為大寫
+                if (baseNum == 16)
+                    numberPart = numberPart.ToUpper();
+
+                // 最後組合位址字串
+                return new now_single
+                {
+                    address = InorOut + numberPart.PadLeft(2, '0'),
+                    current_single = value
+                };
             }).ToList();
         }
         /// <summary>
@@ -65,7 +82,6 @@ namespace FX5U_IOMonitor.Models
         /// </summary>
         /// <param name="nowList"></param>
         /// <param name="ioList"></param>
-       
         public static int UpdateIOCurrentSingleToDB(List<now_single> nowList, string tableName)
         {
             if (nowList == null || nowList.Count == 0)
@@ -77,37 +93,38 @@ namespace FX5U_IOMonitor.Models
             using var context = new ApplicationDB();
 
             int updatedCount = 0;
+            var ioList = context.Machine_IO.ToList();
+            foreach (var now in nowList)
+            {
+                var io = ioList.FirstOrDefault(d =>d.Machine_name == tableName && d.address == now.address);
+                if (io != null)
+                {
+                    io.current_single = now.current_single;
+                    updatedCount++;
+                }
+            }
+
+        
+            context.SaveChanges(); // ✅ 寫入資料庫
+            Console.WriteLine($"✅ 成功更新 {updatedCount} 筆 current_single 至資料表 {tableName}。");
+
+            return updatedCount;
+        }
+        public static int UpdatealarmCurrentSingleToDB(List<now_single> nowList, string tableName)
+        {
+            if (nowList == null || nowList.Count == 0)
+            {
+                Console.WriteLine("⚠️ nowList 為空，未更新資料庫。");
+                return 0;
+            }
+
+            using var context = new ApplicationDB();
+
+            int updatedCount = 0;
+
 
             switch (tableName)
             {
-                case "Drill":
-                    {
-                        var ioList = context.Drill_IO.ToList();
-                        foreach (var now in nowList)
-                        {
-                            var io = ioList.FirstOrDefault(d => d.address == now.address);
-                            if (io != null)
-                            {
-                                io.current_single = now.current_single;
-                                updatedCount++;
-                            }
-                        }
-                        break;
-                    }
-                case "Sawing":
-                    {
-                        var ioList = context.Sawing_IO.ToList();
-                        foreach (var now in nowList)
-                        {
-                            var io = ioList.FirstOrDefault(d => d.address == now.address);
-                            if (io != null)
-                            {
-                                io.current_single = now.current_single;
-                                updatedCount++;
-                            }
-                        }
-                        break;
-                    }
                 case "alarm":
                     {
                         var ioList = context.alarm.ToList();
@@ -167,66 +184,64 @@ namespace FX5U_IOMonitor.Models
             }).ToList();
         }
 
+        public static List<now_number> Convert_wordsingle(ushort[] plcWords, string prefix, int startIndex)
+        {
+            if (plcWords == null || plcWords.Length == 0 || string.IsNullOrEmpty(prefix))
+            {
+                throw new ArgumentException("plcWords 或 prefix 不能為空.");
+            }
+            if (startIndex < 0)
+            {
+                throw new ArgumentException("startIndex 不能為負數.");
+            }
 
+            return plcWords.Select((value, index) => new now_number
+            {
+                address = prefix + (startIndex + index),   // 例：D100、ZR500
+                current_number = value                         // 擴充欄位：數值型
+            }).ToList();
+        }
+
+        public static List<IOSectionInfo> AnalyzeIOSections(string Machine_Name, string format)
+        {
+            using var context = new ApplicationDB();
+
+            // 根據來源選擇對應的表
+            var ioList = context.Machine_IO
+                .Where(a => a.Machine_name == Machine_Name)
+                .ToList();
+          
+
+            // 根據格式選擇進位制轉換方式
+            int radix = format.ToLower() switch
+            {
+                "hex" => 16,
+                "oct" => 8,
+                _ => throw new ArgumentException("Invalid format. Use 'hex' or 'oct'.")
+            };
+
+            var result = new List<IOSectionInfo>();
+
+            foreach (var prefix in new[] { "X", "Y" })
+            {
+               
+                var list = ioList
+                    .Where(d => d.address.StartsWith(prefix))
+                    .Select(d => SafeParseAddressStrictly(d.address, prefix[0], radix))
+                    .Where(val => val.HasValue)
+                    .Select(val => val.Value)
+                    .ToList();
+
+                if (list.Any())
+                {
+                    result.Add(BuildSectionFormatted(prefix, list, format));
+                }
+            }
+
+            return result;
+        }
        
-
-        public static List<IOSectionInfo> AnalyzeIOSections_16()
-        {
-            using var context = new ApplicationDB();
-            var drillList = context.Drill_IO.ToList();
-
-            var result = new List<IOSectionInfo>();
-
-            var xList = drillList
-                .Where(d => d.address.StartsWith("X"))
-                .Select(d => Convert.ToInt32(d.address.TrimStart('X'), 16))
-                .OrderBy(a => a)
-                .ToList();
-
-            if (xList.Any())
-                result.Add(BuildSectionFormatted("X", xList, "hex"));
-
-            var yList = drillList
-                .Where(d => d.address.StartsWith("Y"))
-                .Select(d => Convert.ToInt32(d.address.TrimStart('Y'), 16))
-                .OrderBy(a => a)
-                .ToList();
-
-            if (yList.Any())
-                result.Add(BuildSectionFormatted("Y", yList, "hex"));
-
-            return result;
-        }
-
-        public static List<IOSectionInfo> AnalyzeIOSections_8()
-        {
-            using var context = new ApplicationDB();
-            var SawingList = context.Sawing_IO.ToList();
-
-            var result = new List<IOSectionInfo>();
-
-            var xList = SawingList
-                .Where(d => d.address.StartsWith("X"))
-                .Select(d => Convert.ToInt32(d.address.TrimStart('X'), 8))
-                .OrderBy(a => a)
-                .ToList();
-
-            if (xList.Any())
-                result.Add(BuildSectionFormatted("X", xList, "oct"));
-
-            var yList = SawingList
-                .Where(d => d.address.StartsWith("Y"))
-                .Select(d => Convert.ToInt32(d.address.TrimStart('Y'), 8))
-                .OrderBy(a => a)
-                .ToList();
-
-            if (yList.Any())
-                result.Add(BuildSectionFormatted("Y", yList, "oct"));
-
-            return result;
-        }
-
-        public static List<IOSectionInfo> alarm_trans()
+        public static List<IOSectionInfo> Alarm_trans()
         {
             using (var context = new ApplicationDB())
             {
@@ -248,6 +263,57 @@ namespace FX5U_IOMonitor.Models
             };
            
         }
+        /// <summary>
+        /// 地址數值轉換及切割
+        /// </summary>
+        /// <param name="addresses"></param>
+        /// <param name="numberBase"></param>
+        /// <returns></returns>
+        public static List<IOSectionInfo> SplitAddressSections(List<string> addresses, string numberBase = "dec") // dec / hex / oct
+        {
+            var result = new List<IOSectionInfo>();
+
+            // 依 prefix 分組（用所有開頭字母）
+            var prefixGroups = addresses
+                .GroupBy(a => new string(a.TakeWhile(char.IsLetter).ToArray()));  // 可處理 ZR類型
+
+            foreach (var group in prefixGroups)
+            {
+                string prefix = group.Key;
+
+                // 去除 prefix，保留數字部分（如 D100 → 100）
+                var numericList = group
+                    .Select(addr =>
+                    {
+                        var numPart = new string(addr.SkipWhile(char.IsLetter).ToArray());
+                        return numberBase switch
+                        {
+                            "hex" => Convert.ToInt32(numPart, 16),
+                            "oct" => Convert.ToInt32(numPart, 8),
+                            _ => Convert.ToInt32(numPart)
+                        };
+                    })
+                    .Distinct()
+                    .OrderBy(val => val)
+                    .ToList();
+
+                // 每 256 筆一段
+                for (int i = 0; i < numericList.Count; i += 256)
+                {
+                    var segment = numericList.Skip(i).Take(256).ToList();
+                    result.Add(BuildSectionFormatted(prefix, segment, numberBase));
+                }
+            }
+            return result;
+        }
+      
+        /// <summary>
+        /// 取實體元件單次循環讀取需要多少個迴圈
+        /// </summary>
+        /// <param name="prefix"></param>
+        /// <param name="addrList"></param>
+        /// <param name="baseType"></param>
+        /// <returns></returns>
         private static IOSectionInfo BuildSectionFormatted(string prefix, List<int> addrList, string baseType)
         {
             int start = addrList.Min();
@@ -328,7 +394,7 @@ namespace FX5U_IOMonitor.Models
         public static List<IOSectionInfo> Drill_test() ///測試用(實機測試不用)
         {
             using var context = new ApplicationDB();
-            var drillList = context.Drill_IO.ToList();
+            var drillList = context.Machine_IO.Where(d => d.Machine_name == "Drill").ToList();
 
 
             var result = new List<IOSectionInfo>();
@@ -356,7 +422,7 @@ namespace FX5U_IOMonitor.Models
 
             return result;
         }
-        public static int? SafeParseAddressStrictly(string address, char prefix, int baseFormat) ///測試用(實機測試不用)
+        public static int? SafeParseAddressStrictly(string address, char prefix, int baseFormat) 
         {
             if (string.IsNullOrWhiteSpace(address) || !address.StartsWith(prefix))
                 return null;

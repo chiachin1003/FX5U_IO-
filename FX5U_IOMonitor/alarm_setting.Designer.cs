@@ -61,7 +61,7 @@
             panel1.Controls.Add(lab_Repair_step);
             panel1.Location = new Point(59, 28);
             panel1.Name = "panel1";
-            panel1.Size = new Size(355, 644);
+            panel1.Size = new Size(342, 644);
             panel1.TabIndex = 0;
             // 
             // lab_Description
@@ -77,7 +77,7 @@
             // btn_update
             // 
             btn_update.Anchor = AnchorStyles.None;
-            btn_update.Location = new Point(277, 593);
+            btn_update.Location = new Point(271, 593);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(61, 39);
             btn_update.TabIndex = 2;

@@ -36,12 +36,16 @@
             btn_connect = new Button();
             btn_Main = new Button();
             panel_select = new Panel();
+            panel_language = new Panel();
+            comb_language = new ComboBox();
+            btn_language = new Button();
             btn_log_out = new Button();
             btn_user = new Button();
             btn_log_in = new Button();
             panel_main = new Panel();
             panel_choose.SuspendLayout();
             panel_select.SuspendLayout();
+            panel_language.SuspendLayout();
             SuspendLayout();
             // 
             // panel_choose
@@ -145,6 +149,7 @@
             // 
             // panel_select
             // 
+            panel_select.Controls.Add(panel_language);
             panel_select.Controls.Add(btn_log_out);
             panel_select.Controls.Add(btn_user);
             panel_select.Controls.Add(btn_log_in);
@@ -155,15 +160,45 @@
             panel_select.Size = new Size(975, 50);
             panel_select.TabIndex = 1;
             // 
+            // panel_language
+            // 
+            panel_language.Controls.Add(comb_language);
+            panel_language.Controls.Add(btn_language);
+            panel_language.Dock = DockStyle.Right;
+            panel_language.Location = new Point(822, 0);
+            panel_language.Name = "panel_language";
+            panel_language.Size = new Size(87, 50);
+            panel_language.TabIndex = 15;
+            // 
+            // comb_language
+            // 
+            comb_language.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comb_language.FormattingEnabled = true;
+            comb_language.Location = new Point(9, 3);
+            comb_language.Name = "comb_language";
+            comb_language.Size = new Size(75, 23);
+            comb_language.TabIndex = 16;
+            // 
+            // btn_language
+            // 
+            btn_language.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            btn_language.Location = new Point(9, 28);
+            btn_language.Name = "btn_language";
+            btn_language.Size = new Size(75, 22);
+            btn_language.TabIndex = 15;
+            btn_language.Text = "語系切換";
+            btn_language.UseVisualStyleBackColor = true;
+            btn_language.Click += btn_language_Click;
+            // 
             // btn_log_out
             // 
             btn_log_out.Dock = DockStyle.Right;
             btn_log_out.FlatStyle = FlatStyle.Flat;
             btn_log_out.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_log_out.Location = new Point(927, 0);
+            btn_log_out.Location = new Point(909, 0);
             btn_log_out.Margin = new Padding(4);
             btn_log_out.Name = "btn_log_out";
-            btn_log_out.Size = new Size(48, 50);
+            btn_log_out.Size = new Size(66, 50);
             btn_log_out.TabIndex = 11;
             btn_log_out.Text = "登出";
             btn_log_out.UseVisualStyleBackColor = true;
@@ -177,7 +212,7 @@
             btn_user.Location = new Point(55, 0);
             btn_user.Margin = new Padding(4);
             btn_user.Name = "btn_user";
-            btn_user.Size = new Size(59, 50);
+            btn_user.Size = new Size(79, 50);
             btn_user.TabIndex = 10;
             btn_user.Text = "權限\r\n設定";
             btn_user.UseVisualStyleBackColor = true;
@@ -195,6 +230,7 @@
             btn_log_in.TabIndex = 9;
             btn_log_in.Text = "使用者登錄";
             btn_log_in.UseVisualStyleBackColor = true;
+            btn_log_in.Visible = false;
             btn_log_in.Click += btn_log_in_Click;
             // 
             // panel_main
@@ -221,6 +257,7 @@
             Load += Main_Load;
             panel_choose.ResumeLayout(false);
             panel_select.ResumeLayout(false);
+            panel_language.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -238,6 +275,9 @@
         private Button btn_user;
         private Button btn_log_out;
         private Button btn_email;
+        private Panel panel_language;
+        private Button btn_language;
+        private ComboBox comb_language;
     }
 }
 

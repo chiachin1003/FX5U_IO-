@@ -5,11 +5,15 @@ using FX5U_IOMonitor.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Net;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace FX5U_IOMonitor.Models
@@ -39,19 +43,12 @@ namespace FX5U_IOMonitor.Models
                     string equipmentDescription = row["設備描述"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["設備描述"].ToString()) ? row["設備描述"].ToString() : "無描述";
                     string Name = row["更換料號"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["更換料號"].ToString()) ? row["更換料號"].ToString() : "未設定";
 
-                    int equipment_use = row["當前使用次數"] != DBNull.Value && int.TryParse(row["當前使用次數"].ToString(), out int useValue) ? useValue : 0;
                     int MaxLife = row["最大壽命"] != DBNull.Value && int.TryParse(row["最大壽命"].ToString(), out int maxValue) ? maxValue : 100;
                     string equipmentTag = row["分類"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["分類"].ToString()) ? row["分類"].ToString() : "未分類";
 
-                    int green = row["綠燈登錄"] != DBNull.Value && int.TryParse(row["綠燈登錄"].ToString(), out int Green) ? Green : 80;
                     int yellow = row["黃燈登錄"] != DBNull.Value && int.TryParse(row["黃燈登錄"].ToString(), out int Yellow) ? Yellow : 20;
                     int red = row["紅燈登錄"] != DBNull.Value && int.TryParse(row["紅燈登錄"].ToString(), out int Red) ? Red : 10;
                     double rul = row["剩餘壽命"] != DBNull.Value && double.TryParse(row["剩餘壽命"].ToString(), out double RUL) ? RUL : 100;
-
-                    string Part_InstallationTime = row["當前零件安裝時間"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["當前零件安裝時間"].ToString()) ? row["當前零件安裝時間"].ToString() : "未設定";
-                    string Part_RemovalTime = row["當前零件卸除時間"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["當前零件卸除時間"].ToString()) ? row["當前零件卸除時間"].ToString() : "未設定";
-                    string use = row["歷史使用次數"] != DBNull.Value && !string.IsNullOrWhiteSpace(row["歷史使用次數"].ToString()) ? row["歷史使用次數"].ToString() : "";
-
 
 
                     var ioData = new IO_DataBase
@@ -61,14 +58,9 @@ namespace FX5U_IOMonitor.Models
                         IsMechanical = machine,
                         equipmentDescription = Name,
                         MaxLife = MaxLife,
-                        equipment_use = equipment_use,
-                        Part_InstallationTime = Part_InstallationTime,
-                        Part_RemovalTime = Part_RemovalTime,
-                        Setting_green = green,
                         Setting_yellow = yellow,
                         Setting_red = red,
                         ClassTag = equipmentTag,
-                        Historical_usage = use,
                         RUL = rul,
                         Comment = equipmentDescription,
 
@@ -141,7 +133,7 @@ namespace FX5U_IOMonitor.Models
 
         }
 
-       
+
         private static string DetectDelimiter(string filePath)
         {
             string firstLine = File.ReadLines(filePath, Encoding.UTF8).FirstOrDefault();
@@ -149,91 +141,10 @@ namespace FX5U_IOMonitor.Models
 
             return firstLine.Contains(";") ? ";" : ",";
         }
-        //更新整個Database
-        public static void SaveToCsv(string filePath, List<IO_DataBase> dataList)
-        {
-            using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
-            using (StreamWriter writer = new StreamWriter(fs, Encoding.UTF8))
-            {
-                // 寫入 CSV 標題
-                writer.WriteLine("資料地址,點位輸出入,機械式/電子式,分類,更換料號,設備描述,最大壽命,當前使用次數,剩餘壽命,綠燈登錄,黃燈登錄,紅燈登錄,當前零件安裝時間,當前零件卸除時間,歷史使用時間,歷史使用次數");
 
-                foreach (var item in dataList)
-                {
-                    string line = $"{item.address},{item.IO},{item.IsMechanical},{item.ClassTag},{item.equipmentDescription},{item.Comment}," +
-                                  $"{item.MaxLife},{item.equipment_use},{item.RUL}," +
-                                  $"{item.Setting_green},{item.Setting_yellow},{item.Setting_red}," +
-                                  $"{item.Part_InstallationTime},{item.Part_RemovalTime}," +
-                                  $"{item.Historical_usage_times},{item.Historical_usage}";
 
-                    writer.WriteLine(line);
-                }
-            }
 
-            Console.WriteLine($"已成功寫入 CSV: {filePath}");
-        }
 
-        //更新單資料地址資料
-        public static void UpdateCsv(string filePath, List<IO_DataBase> dataList, string targetAddress)
-        {
-            if (!File.Exists(filePath))
-            {
-                Console.WriteLine("CSV 檔案不存在，無法更新");
-                return;
-            }
-
-            // 讀取整個 CSV 檔案
-            List<string> lines = File.ReadAllLines(filePath, Encoding.UTF8).ToList();
-
-            // 確保 CSV 至少有標題
-            if (lines.Count < 2)
-            {
-                Console.WriteLine("CSV 檔案內容異常");
-                return;
-            }
-
-            // 找到對應 Address 的資料
-            for (int i = 1; i < lines.Count; i++) // 跳過標題行，從第 2 行開始遍歷
-            {
-                string[] columns = lines[i].Split(',');
-
-                if (columns.Length > 0 && columns[0] == targetAddress) // 確保有欄位且 Address 匹配
-                {
-                    var item = dataList.FirstOrDefault(d => d.address == targetAddress);
-                    if (item != null)
-                    {
-                        // 更新該行
-                        lines[i] = $"{item.address},{item.IO},{item.IsMechanical},{item.ClassTag},{item.equipmentDescription},{item.Comment}," +
-                       $"{item.MaxLife},{item.equipment_use},{item.RUL}," +
-                       $"{item.Setting_green},{item.Setting_yellow},{item.Setting_red}," +
-                       $"{item.Part_InstallationTime},{item.Part_RemovalTime}," +
-                       $"{item.Historical_usage_times} ," +
-                       $"\"{item.Historical_usage.Replace("\"", "\"\"")}\"";
-
-                        Console.WriteLine($"已更新 {targetAddress} 的數據");
-                        break; // 找到並更新後跳出迴圈
-                    }
-                }
-            }
-
-            // 將更新後的內容寫回 CSV
-            File.WriteAllLines(filePath, lines, Encoding.UTF8);
-        }
-
-        // 將 List<HistoryRecord> 轉換成 XML 字串
-        public static string SerializeToXml(List<HistoryRecord> records)
-        {
-            XmlSerializer serializer = new XmlSerializer(typeof(List<HistoryRecord>));
-
-            XmlSerializerNamespaces ns = new XmlSerializerNamespaces();
-            ns.Add("", ""); // 移除 xmlns:xsi 和 xmlns:xsd
-
-            using (StringWriter writer = new StringWriter())
-            {
-                serializer.Serialize(writer, records, ns); // 序列化時不加入 xmlns
-                return writer.ToString();
-            }
-        }
         //轉換Historical_usage_times 到 Historical_usage
         public static List<HistoryRecord> ConvertToHistoryRecords(string[] data)
         {
@@ -276,103 +187,44 @@ namespace FX5U_IOMonitor.Models
 
 
 
-        /// 將csv檔資料轉譯成DB格式
-        public static void SaveMachineIODb(List<IO_DataBase> machineData, string tableName)
+        /// <summary>
+        /// 警告資料初始化(excel轉DB)
+        /// </summary>
+
+        public static void Initialization_AlarmFromCSV(string csvPath)
         {
-            using (var context = new ApplicationDB())
+            using var reader = new StreamReader(csvPath, Encoding.UTF8);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            try
             {
-                context.Database.EnsureCreated();
-                switch (tableName)
-                {
-                    case "Drill":
-
-
-                        foreach (var item in machineData)
-                        {
-                            var newIO = new Drill_MachineIO
-                            {
-                                address = item.address,
-                                IOType = item.IO,
-                                RelayType = item.IsMechanical ? RelayType.Machanical : RelayType.Electronic,
-                                Description = item.equipmentDescription,
-                                Comment = item.Comment,
-                                ClassTag = item.ClassTag,
-                                MaxLife = item.MaxLife,
-                                equipment_use = item.equipment_use,
-                                Setting_green = item.Setting_green,
-                                Setting_yellow = item.Setting_yellow,
-                                Setting_red = item.Setting_red,
-                                percent = item.percent,
-                                MountTime = DateTime.TryParse(item.Part_InstallationTime, out DateTime mountTime)
-                                    ? mountTime : DateTime.Now,
-                                UnmountTime = DateTime.TryParse(item.Part_RemovalTime, out DateTime unmountTime)
-                                    ? unmountTime : DateTime.Now.AddDays(30)
-                            };
-
-                            context.Drill_IO.Add(newIO);
-                        }
-                        break;
-                    case "Swing":
-
-
-                        foreach (var item in machineData)
-                        {
-                            var newSwing = new Sawing_MachineIO
-                            {
-                                address = item.address,
-                                IOType = item.IO,  // 明確轉換
-                                RelayType = item.IsMechanical ? RelayType.Machanical : RelayType.Electronic,
-                                Description = item.equipmentDescription,
-                                Comment = item.Comment,
-                                ClassTag = item.ClassTag,
-                                MaxLife = item.MaxLife,
-                                equipment_use = item.equipment_use,
-                                Setting_green = item.Setting_green,
-                                Setting_yellow = item.Setting_yellow,
-                                Setting_red = item.Setting_red,
-                                percent = item.percent,
-                                MountTime = DateTime.TryParse(item.Part_InstallationTime, out DateTime mountTime)
-                                    ? mountTime : DateTime.Now,
-                                UnmountTime = DateTime.TryParse(item.Part_RemovalTime, out DateTime unmountTime)
-                                    ? unmountTime : DateTime.Now.AddDays(30)
-                            };
-                            context.Sawing_IO.Add(newSwing);
-                        }
-                        break;
-                    default:
-                        throw new ArgumentException($"未知的表格名稱: {tableName}");
-                }
-                context.SaveChanges();
-
-            }
-
-
-
-        }
-
-
-        public static class AlarmImporter
-        {
-            public static void ImportFromCSV(string csvPath)
-            {
-                using var reader = new StreamReader(csvPath, Encoding.UTF8);
-                using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-               
-
                 var records = csv.GetRecords<AlarmCsvRow>().ToList();
 
                 using var context = new ApplicationDB();
+
+                // 先取得已存在的 M_Address + SourceDbName 組合
+                var existingKeys = context.alarm
+                    .Select(a => new { a.M_Address, a.SourceDbName })
+                    .ToHashSet();
+
+                int addCount = 0;
                 foreach (var row in records)
                 {
-                    if (string.IsNullOrWhiteSpace(row.M_CODE)) continue;
+                    if (string.IsNullOrWhiteSpace(row.M_CODE))
+                        continue;
 
                     string drillType = row.SawingDrill?.Trim().ToLower();
-                    string sourceDb = drillType == "drill" ? "Drill_IO" :
-                                      drillType == "sawing" ? "Sawing_IO" :
-                                      row.M_CODE.StartsWith("L8") ? "Drill_IO" :
-                                      row.M_CODE.StartsWith("L9") ? "Sawing_IO" :
-                                      "Unknown_IO";
+                    string sourceDb = drillType == "drill" ? "Drill" :
+                                      drillType == "sawing" ? "Sawing" :
+                                      row.M_CODE.StartsWith("L8") ? "Drill" :
+                                      row.M_CODE.StartsWith("L9") ? "Sawing" :
+                                      "Unknown";
+
+                    // 防呆：若此 M_Address + SourceDbName 已存在，就跳過
+                    var key = new { M_Address = row.M_CODE, SourceDbName = sourceDb };
+                    if (existingKeys.Contains(key))
+                        continue;
+
                     var alarm = new Alarm
                     {
                         SourceDbName = sourceDb,
@@ -381,42 +233,369 @@ namespace FX5U_IOMonitor.Models
                         Error = row.故障內容,
                         Possible = row.可能原因,
                         Repair_steps = row.維修步驟,
-                        MountTime = DateTime.Now,
-                        UnmountTime = DateTime.Now.AddMinutes(1),
+                        MountTime = DateTime.UtcNow,
+                        UnmountTime = DateTime.UtcNow.AddMinutes(1),
                         classTag = row.ClassTag
                     };
 
                     context.alarm.Add(alarm);
+                    addCount++;
                 }
 
                 context.SaveChanges();
-                Console.WriteLine("✅ Alarm 資料已成功匯入！");
+
+                Console.WriteLine(addCount > 0
+                    ? $"✅ 新增 {addCount} 筆 Alarm 資料。"
+                    : "🟡 所有 Alarm 資料已存在，未新增任何資料。");
             }
-
-            private class AlarmCsvRow
+            catch (HeaderValidationException ex)
             {
-                public string SawingDrill { get; set; }
-                public string M_CODE { get; set; }
-
-                [Name("IPC table")]
-                public string IPC_table { get; set; }
-
-                public string 料號 { get; set; }
-                public string 故障內容 { get; set; }
-                public string 可能原因 { get; set; }
-                public string 維修步驟 { get; set; }
-                public string ClassTag { get; set; }
-
-
-                [Name("發生時間(M_BIT ON)")]
-                public string 發生時間 { get; set; }
-
-                [Name("結束時間(M_BIT OFF)")]
-                public string 結束時間 { get; set; }
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
             }
         }
 
+        private class AlarmCsvRow
+        {
+            public string SawingDrill { get; set; }
+            public string M_CODE { get; set; }
+
+            [Name("IPC table")]
+            public string IPC_table { get; set; }
+
+            public string 料號 { get; set; }
+            public string 故障內容 { get; set; }
+            public string 可能原因 { get; set; }
+            public string 維修步驟 { get; set; }
+            public string ClassTag { get; set; }
 
 
+            [Name("發生時間(M_BIT ON)")]
+            public string 發生時間 { get; set; }
+
+            [Name("結束時間(M_BIT OFF)")]
+            public string 結束時間 { get; set; }
+        }
+
+
+        /// <summary>
+        /// 初始化鋸帶齒數資料
+        /// </summary>
+        /// <param name="csvPath"></param>
+        public static void Initialization_BladeTPIFromCSV(string csvPath)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Encoding = System.Text.Encoding.UTF8
+            };
+
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, config);
+            try
+            {
+                var records = csv.GetRecords<BladeTpiCsv>().ToList();
+
+                using var context = new ApplicationDB();
+
+                // 先抓出已存在的 TPI_Id 清單
+                var existingTpiIds = context.Blade_brand_TPI.Select(t => t.TPI_Id).ToHashSet();
+
+                int addCount = 0;
+                foreach (var row in records)
+                {
+                    if (!existingTpiIds.Contains(row.blade_TPI_id))
+                    {
+                        var tpi = new Blade_brand_TPI
+                        {
+                            TPI_Id = row.blade_TPI_id,
+                            Name = row.blade_TPI_name,
+                            Machine_Number = 1
+                        };
+
+                        context.Blade_brand_TPI.Add(tpi);
+                        addCount++;
+                    }
+                }
+
+                context.SaveChanges();
+
+                Console.WriteLine(addCount > 0
+                    ? $"✅ 新增 {addCount} 筆 Blade_brand_TPI 資料。"
+                    : "🟡 所有 Blade_brand_TPI 資料已存在，未新增任何資料。");
+            }
+            catch (HeaderValidationException ex)
+            {
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+        }
+        private class BladeTpiCsv
+        {
+            public int blade_TPI_id { get; set; }
+            public string blade_TPI_name { get; set; }
+        }
+        /// <summary>
+        /// 初始化鋸帶廠牌型號資料
+        /// </summary>
+        /// <param name="csvPath"></param>
+        public static void Initialization_BladeBrandFromCSV(string csvPath)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Encoding = System.Text.Encoding.UTF8,
+                PrepareHeaderForMatch = args => args.Header.Trim(), // 🔥 去除首尾空白
+                MissingFieldFound = null,
+                HeaderValidated = null
+            };
+
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, config);
+            try
+            {
+                var records = csv.GetRecords<Bladebrandcsv>().ToList();
+
+                using var context = new ApplicationDB();
+
+                // 防呆：先查出已存在的品牌 ID
+                var existingIds = context.Blade_brand.Select(b => b.Brand_Id).ToHashSet();
+
+                int addCount = 0;
+                foreach (var row in records)
+                {
+                    if (!existingIds.Contains(row.blade_brand_id))
+                    {
+                        var brand = new Blade_brand
+                        {
+                            Brand_Id = row.blade_brand_id,
+                            Brand_Name = row.blade_brand_name,
+                            Material_Id = row.blade_material_id,
+                            Material_Name = row.blade_material_name,
+                            Type_Id = row.blade_Type_id,
+                            Type_Name = row.blade_Type_name,
+                            Machine_Number = 1
+                        };
+
+                        context.Blade_brand.Add(brand);
+                        addCount++;
+                    }
+                }
+
+                context.SaveChanges();
+
+                Console.WriteLine(addCount > 0
+                    ? $"✅ 新增 {addCount} 筆 Blade_brand 資料。"
+                    : "🟡 所有 Blade_brand 資料已存在，未新增任何資料。");
+            }
+            catch (HeaderValidationException ex)
+            {
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+        }
+        private class Bladebrandcsv
+        {
+            public int blade_brand_id { get; set; }
+            public string blade_brand_name { get; set; } = "";
+            public int blade_material_id { get; set; }
+            public string blade_material_name { get; set; } = "";
+            public int blade_Type_id { get; set; }
+            public string blade_Type_name { get; set; } = "";
+        }
+
+        /// <summary>
+        /// 初始化監控參數資料
+        /// </summary>
+        /// <param name="csvPath"></param>
+        public static void Initialization_MachineprameterFromCSV(string csvPath)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Encoding = System.Text.Encoding.UTF8,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                PrepareHeaderForMatch = args => args.Header.Trim(),
+                IgnoreBlankLines = true
+            };
+
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, config);
+            try
+            {
+                var records = csv.GetRecords<MachineParameter>().ToList();
+
+                using var context = new ApplicationDB();
+
+                // 先取出資料庫中已有的 Machine_Name + Name 組合
+                var existingKeys = context.MachineParameters
+                    .Select(p => new { p.Machine_Name, p.Name })
+                    .ToHashSet();
+
+                int addCount = 0;
+                foreach (var row in records)
+                {
+                    var key = new { row.Machine_Name, row.Name };
+                    if (existingKeys.Contains(key))
+                        continue;
+
+                    var tpi = new MachineParameter
+                    {
+                        Machine_Name = row.Machine_Name,
+                        Name = row.Name,
+                        Calculate = row.Calculate,
+                        Calculate_type = row.Calculate_type,
+                        Unit_transfer = row.Unit_transfer,
+                        Read_type = row.Read_type,
+                        Read_view = row.Read_view,
+                        Read_address = row.Read_address,
+                        Read_address_index = row.Read_address_index,
+                        Write_address = row.Write_address,
+                        Write_address_index = row.Write_address_index,
+                        History_NumericValue = row.History_NumericValue
+                    };
+
+                    context.MachineParameters.Add(tpi);
+                    addCount++;
+                }
+
+                context.SaveChanges();
+
+                Console.WriteLine(addCount > 0
+                    ? $"✅ 新增 {addCount} 筆 MachineParameters 資料。"
+                    : "🟡 所有 MachineParameters 資料已存在，未新增任何資料。");
+            }
+            catch (HeaderValidationException ex)
+            {
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+        }
+        /// <summary>
+        /// 初始化監控實體元件
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="tableName"></param>
+        public static void Initialization_MachineElementFromCSV(string targetMachine, string filePath)
+        {
+
+
+            DataTable excelData = LoadCsv(filePath);
+            using (var context = new ApplicationDB())
+            {
+                // 確認目標機台是否已經存在
+                Machine_number? machine = context.index.FirstOrDefault(m => m.Name == targetMachine);
+                if (machine == null)
+                {
+                    machine = new() { Name = targetMachine };
+                    context.index.Add(machine);
+                    context.SaveChanges();
+                }
+                // 確認監控元件的輸出及輸入繼電器屬於哪一個型態
+                var allAddresses = excelData.Rows.Cast<DataRow>()
+                                .Select(row => row["資料地址"]?.ToString()?.Trim() ?? "")
+                                .ToList();
+
+                // 全部地址統一偵測進位格式
+                string unifiedBaseType = DetectUnifiedAddressBase(allAddresses);
+
+                int rowIndex = 0;
+                foreach (DataRow row in excelData.Rows)
+                {
+
+                    rowIndex++;
+                    // 檢查所有必須欄位是否存在
+                    string[] requiredColumns = new[]
+                    {
+                        "機械式/電子式", "點位輸出入", "資料地址", "設備描述", "分類", "更換料號",
+                        "最大壽命",  "黃燈登錄", "紅燈登錄"
+                    };
+
+                    foreach (var colName in requiredColumns)
+                    {
+                        if (!excelData.Columns.Contains(colName))
+                        {
+                            MessageBox.Show($"❌ 第 {rowIndex} 行資料錯誤：找不到必要欄位「{colName}」");
+                        }
+                    }
+
+                    try
+                    {
+                        bool Type = bool.TryParse(row["機械式/電子式"]?.ToString(), out var temp) ? temp : false;
+                        int ioInt = int.TryParse(row["點位輸出入"]?.ToString(), out var i) ? i : 0;
+                        string machine_name = targetMachine;
+                        bool IO = ioInt == 1;
+                        string address = row["資料地址"]?.ToString()?.Trim() ?? "未知地址";
+
+                        bool isDuplicate = context.Machine_IO.Any(io => io.address == address);
+                       
+                        string description = row["設備描述"]?.ToString()?.Trim() ?? "無描述";
+                        string comment = description;
+                        string classTag = row["分類"]?.ToString()?.Trim() ?? "未分類";
+                        string name = row["更換料號"]?.ToString()?.Trim() ?? "未設定";
+
+                        int maxLife = int.TryParse(row["最大壽命"]?.ToString(), out int maxVal) ? maxVal : 100;
+                        int yellow = int.TryParse(row["黃燈登錄"]?.ToString(), out int y) ? y : 20;
+                        int red = int.TryParse(row["紅燈登錄"]?.ToString(), out int r) ? r : 10;
+
+
+                        var _IO = new MachineIO
+                        {
+                            address = address,
+                            IOType = IO,
+                            RelayType = Type ? RelayType.Machanical : RelayType.Electronic,
+                            Machine_name = machine_name,
+                            Description = name,
+                            baseType = unifiedBaseType,
+                            Comment = comment,
+                            ClassTag = classTag,
+                            MaxLife = maxLife,
+                        
+                            Setting_yellow = yellow,
+                            Setting_red = red
+                       
+                        };
+
+                        context.Machine_IO.Add(_IO);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"❌ 第 {rowIndex} 行處理資料時發生錯誤：{ex.Message}");
+                    }
+                }
+            
+
+                context.SaveChanges();
+                Console.WriteLine("✅ 資料已成功匯入資料庫。");
+            };
+
+
+        }
+        private static string DetectUnifiedAddressBase(IEnumerable<string> allAddresses)
+        {
+            bool hasHex = false;
+            bool hasDec = false;
+
+            foreach (var addr in allAddresses)
+            {
+                if (string.IsNullOrWhiteSpace(addr)) continue;
+
+                string raw = new string(addr
+                    .Where(char.IsLetterOrDigit)
+                    .SkipWhile(char.IsLetter)
+                    .ToArray());
+
+                if (raw.Any(c => "ABCDEFabcdef".Contains(c)))
+                    hasHex = true;
+                else if (raw.Any(c => "89".Contains(c)))
+                    hasDec = true;
+            }
+
+            if (hasHex) return "hex";
+            if (hasDec) return "dec";
+            return "oct"; // 全部只含 0-7 的話視為八進位
+        }
     }
+
+
+
+
+
 }

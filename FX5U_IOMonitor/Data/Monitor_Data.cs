@@ -7,14 +7,7 @@ using System.Threading.Tasks;
 
 namespace FX5U_IOMonitor.Data
 {
-    public class DataStore 
-    {
-
-        public static connect_Summary Drill_connect_Summary = new connect_Summary();
-        public static connect_Summary Swing_connect_Summary = new connect_Summary();
-        public static List<now_single> alarm = new List<now_single>();
-
-    }
+   
   
     public class connect_Summary //總連接數介面
     {
@@ -93,9 +86,6 @@ namespace FX5U_IOMonitor.Data
         public int origin { get; set; }  // 回原點次數
         public int loose_tools { get; set; }    // 主軸鬆刀次數
         public int measurement { get; set; }    // 刀具量測次數
-        public int clamping { get; set; }  // 送料台夾料檢知次數
-        public int feeder { get; set; }    // 送料機夾鬆次數
-
         // 主頁面資料
 
         public string Current { get; set; }    // 電流
@@ -116,13 +106,6 @@ namespace FX5U_IOMonitor.Data
 
         public string power { get; set; }  // 鋸帶馬達鋸切馬力
         public string Maximum_current { get; set; }    // 鋸帶馬達鋸切最大電流
-        public string area { get; set; }    // 鋸切累積面積
-        public string saw_blade_life { get; set; }  // 鋸帶壽命
-        public string usage { get; set; }    // 鋸帶張力使用累計
-
-        public string Average { get; set; }    // 鋸帶電流
-        public string Voltage { get; set; }    // 鋸帶電壓
-        public string total_time { get; set; }    // 鋸帶電壓
 
     }
     //public class alarm_single //元件監控時間說明
@@ -135,6 +118,12 @@ namespace FX5U_IOMonitor.Data
     {
         public string address { get; set; }
         public bool current_single { get; set; }
+
+    }
+    public class now_number // 當前連接總數
+    {
+        public string address { get; set; }
+        public ushort current_number { get; set; }
 
     }
     // 監控資料庫是否更新用參數

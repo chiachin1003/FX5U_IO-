@@ -4,11 +4,13 @@ using FX5U_IOMonitor.Migrations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -23,15 +25,13 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                if (context.Drill_IO.Any(m => m.address == address))
-                    return "Drill";
-                if (context.Sawing_IO.Any(m => m.address == address))
-                    return "Sawing";
                 if (context.alarm.Any(m => m.M_Address == address))
                     return "alarm";
                 return ""; // 沒找到
             }
         }
+
+      
         //-----------尋找資料表內容-------------------------//
 
         public static int GetTableRowCount(string tableName)
@@ -40,21 +40,17 @@ namespace FX5U_IOMonitor.Models
             {
                 return tableName switch
                 {
-                    "Drill" => context.Drill_IO.Count(),
-                    "Sawing" => context.Sawing_IO.Count(),
                     "History" => context.Histories.Count(),
                     "Alarm" => context.alarm.Count(),
                     _ => throw new ArgumentException($"未知資料表名稱：{tableName}")
                 };
             }
         }
-
-        public static int Get_currentsingle_ByAddress(string tableName, string address)
+        public static int GetMachineRowCount(string machineName)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.current_single ?? "";
+                return context.Machine_IO.Where(a=>a.Machine_name==machineName).Count();
             }
         }
 
@@ -64,8 +60,9 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.MountTime;
+                var io = context.Machine_IO
+                       .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
+                return io?.MountTime;
             }
         }
 
@@ -73,10 +70,12 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO
+                    .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
+
                 if (machine != null)
                 {
-                    machine.MountTime = DateTime.Now;
+                    machine.MountTime = DateTime.UtcNow;
                     context.SaveChanges();
                     Console.WriteLine($"已將 {address} 的啟用時間設為現在：{machine.MountTime:yyyy-MM-dd HH:mm:ss}");
                 }
@@ -92,8 +91,9 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.UnmountTime;
+                var io = context.Machine_IO
+                        .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
+                return io?.UnmountTime;
             }
         }
 
@@ -101,10 +101,11 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO
+                                .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
-                    machine.UnmountTime = DateTime.Now;
+                    machine.UnmountTime = DateTime.UtcNow;
                     context.SaveChanges();
                     Console.WriteLine($"已將 {address} 的卸除時間設為現在：{machine.UnmountTime:yyyy-MM-dd HH:mm:ss}");
                 }
@@ -114,16 +115,16 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-       
+
         //---------------------歷史資料-----------------------
-        public static void SetMachineIOToHistory(string tableName, string address, int use_time )
+        public static void SetMachineIOToHistory(string tableName, string address, int use_time)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine == null)
                 {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");
+                    Console.WriteLine($"找不到 address 為 {address} 的元件");      
                     return;
                 }
 
@@ -136,7 +137,7 @@ namespace FX5U_IOMonitor.Models
                     StartTime = machine.MountTime,
                     EndTime = machine.UnmountTime
                 };
-               
+
                 context.Histories.Add(history);
                 context.SaveChanges();
 
@@ -224,10 +225,7 @@ namespace FX5U_IOMonitor.Models
         {
             switch (tableName)
             {
-                case "Drill":
-                    return context.Drill_IO.FirstOrDefault(m => m.address == address);
-                case "Sawing":
-                    return context.Sawing_IO.FirstOrDefault(m => m.address == address);
+               
                 case "alarm":
                     return context.alarm.FirstOrDefault(m => m.M_Address == address);
                 default:
@@ -236,71 +234,35 @@ namespace FX5U_IOMonitor.Models
         }
 
 
-        // 讀取指定資料表內的特定欄
-
-        private static dynamic GetMachineClassTag(string tableName, string classtag)
-        {
-            using var context = new ApplicationDB();
-
-            switch (tableName)
-            {
-                case "Drill":
-                    return context.Drill_IO.FirstOrDefault(m => m.ClassTag == classtag);
-                case "Sawing":
-                    return context.Sawing_IO.FirstOrDefault(m => m.ClassTag == classtag);
-                default:
-                    throw new ArgumentException($"未知的資料表名稱：{tableName}");
-            }
-        }
-
         //查詢表內的class有多少個class類別
-        public static List<string> GetAllClassTags(string tableName, string keyword)
+        public static List<string> GetClassTag_address(string tableName, string keyword)
         {
             using var context = new ApplicationDB();
             keyword = keyword?.Trim().ToLower();
 
-            IQueryable<string> query = tableName switch
-            {
-                "Drill" => context.Drill_IO
-                    .Where(d => !string.IsNullOrEmpty(d.ClassTag) &&
+            List<string> list = context.Machine_IO
+                .Where(d => !string.IsNullOrEmpty(d.ClassTag) &&
+                                d.Machine_name == tableName &&
                                 d.ClassTag.ToLower().Contains(keyword) &&
                         d.ClassTag.Length == keyword.Length)
-                    .Select(d => d.address),
-
-                "Sawing" => context.Sawing_IO
-                    .Where(s => !string.IsNullOrEmpty(s.ClassTag) &&
-                                s.ClassTag.ToLower().Contains(keyword) &&
-                        s.ClassTag.Length == keyword.Length)
-                    .Select(s => s.address),
-
-                _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-            };
-
-            return query.ToList();
+                    .Select(d => d.address)
+                    .ToList();
+           
+            return list.ToList();
         }
 
         public static List<string> GetAllClassTags(string tableName)
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                    .Where(d => !string.IsNullOrEmpty(d.ClassTag))
+                return context.Machine_IO
+                                    .Where(d => !string.IsNullOrEmpty(d.ClassTag) && d.Machine_name == tableName)
                                     .Select(d => d.ClassTag)
                                     .ToList() // 先拉進記憶體
                                     .Distinct(StringComparer.OrdinalIgnoreCase)
                                     .OrderBy(tag => tag)
-                                    .ToList(),
-                    "Sawing" => context.Sawing_IO
-                                    .Where(s => !string.IsNullOrEmpty(s.ClassTag))
-                                    .Select(s => s.ClassTag)
-                                    .ToList() // 先拉進記憶體
-                                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                                    .OrderBy(tag => tag)
-                                    .ToList(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                                    .ToList();
+               
             }
         }
         //------尋找綠燈數量--------------
@@ -308,16 +270,9 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow)
-                                .Count(),
-                    "Sawing" => context.Sawing_IO
-                                .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow)
-                                .Count(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                        .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && io.Machine_name ==tableName)
+                        .Count();
             }
         }
 
@@ -325,32 +280,18 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                .Where(io => io.RUL < io.Setting_red)
-                                .Count(),
-                    "Sawing" => context.Sawing_IO
-                                .Where(io => io.RUL < io.Setting_red)
-                                .Count(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                        .Where(io => io.RUL < io.Setting_red && io.Machine_name == tableName)
+                        .Count();
             }
         }
         public static int Get_Green_number(string tableName)
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                .Where(io => io.RUL > io.Setting_yellow)
-                                .Count(),
-                    "Sawing" => context.Sawing_IO
-                                .Where(io => io.RUL > io.Setting_yellow)
-                                .Count(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                        .Where(io => io.RUL > io.Setting_yellow && io.Machine_name == tableName)
+                        .Count();
             }
         }
 
@@ -358,105 +299,67 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                .Where(io => io.RUL > io.Setting_yellow && stringaddress.Contains(io.address))
-                                .Count(),
-                    "Sawing" => context.Sawing_IO
-                                .Where(io => io.RUL > io.Setting_yellow && stringaddress.Contains(io.address))
-                                .Count(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                                .Where(io => io.RUL > io.Setting_yellow && stringaddress.Contains(io.address) && io.Machine_name == tableName)
+                                .Count();
             }
         }
         public static int Get_Yellow_search(string tableName, List<string> stringaddress)
         {
+
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && stringaddress.Contains(io.address))
-                                .Count(),
-                    "Sawing" => context.Sawing_IO
-                                .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && stringaddress.Contains(io.address))
-                                .Count(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                                .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && stringaddress.Contains(io.address) && io.Machine_name == tableName)
+                                .Count();
             }
         }
         public static int Get_Red_search(string tableName, List<string> stringaddress)
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                .Where(io => io.RUL < io.Setting_red && stringaddress.Contains(io.address))
-                                .Count(),
-                    "Sawing" => context.Sawing_IO
-                                .Where(io => io.RUL < io.Setting_red && stringaddress.Contains(io.address))
-                                .Count(),
-                    _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                                .Where(io => io.RUL < io.Setting_red && stringaddress.Contains(io.address) && io.Machine_name == tableName)
+                               .Count();
+                    
             }
         }
 
-        public static int Get_Green_classnumber(string tableName, string classTag, List<string> classaddress)
+        public static int Get_Green_classnumber(string machineName, string classTag, List<string> classaddress)
         {
-            using var context = new ApplicationDB();
-
-            string normalizedTag = classTag?.Trim().ToLower() ?? "";
-
-            return tableName switch
+            using (var context = new ApplicationDB())
             {
-                "Drill" => context.Drill_IO
-                            .Where(io =>
-                                !string.IsNullOrEmpty(io.ClassTag) &&
-                                io.ClassTag.ToLower() == normalizedTag &&
-                                classaddress.Contains(io.address)
-                            )
-                            .AsEnumerable()
-                            .Count(io => io.RUL > io.Setting_yellow),
+                string normalizedTag = classTag?.Trim().ToLower() ?? "";
 
-                "Sawing" => context.Sawing_IO
-                            .Where(io =>
-                                !string.IsNullOrEmpty(io.ClassTag) &&
-                                io.ClassTag.ToLower() == normalizedTag &&
-                                classaddress.Contains(io.address)
-                            )
-                            .AsEnumerable()
-                            .Count(io => io.RUL > io.Setting_yellow),
-
-                _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-            };
+                int number = context.Machine_IO
+                                .Where(io =>
+                                    !string.IsNullOrEmpty(io.ClassTag) &&
+                                    io.Machine_name== machineName &&
+                                    io.ClassTag.ToLower() == normalizedTag &&
+                                    classaddress.Contains(io.address)
+                                )
+                                .AsEnumerable()
+                                .Count(io => io.RUL > io.Setting_yellow);
+                return number;
+            }
         }
         public static int Get_Red_classnumber(string tableName, string classTag, List<string> classaddress)
         {
-            using var context = new ApplicationDB();
-            string normalizedTag = classTag?.Trim().ToLower() ?? "";
-
-            return tableName switch
+            using (var context = new ApplicationDB())
             {
-                "Drill" => context.Drill_IO
-                            .Where(io =>
-                                !string.IsNullOrEmpty(io.ClassTag) &&
-                                io.ClassTag.ToLower() == normalizedTag &&
-                                classaddress.Contains(io.address))
-                            .AsEnumerable()
-                            .Count(io => io.RUL < io.Setting_red),
+                string normalizedTag = classTag?.Trim().ToLower() ?? "";
 
-                "Sawing" => context.Sawing_IO
-                            .Where(io =>
-                                !string.IsNullOrEmpty(io.ClassTag) &&
-                                io.ClassTag.ToLower() == normalizedTag &&
-                                classaddress.Contains(io.address))
-                            .AsEnumerable()
-                            .Count(io => io.RUL < io.Setting_red),
+                return context.Machine_IO
+                                .Where(io =>
+                                    !string.IsNullOrEmpty(io.ClassTag) &&
+                                    io.Machine_name == tableName &&
+                                    io.ClassTag.ToLower() == normalizedTag &&
+                                    classaddress.Contains(io.address))
+                                .AsEnumerable()
+                                .Count(io => io.RUL < io.Setting_red);
 
-                _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-            };
+            }
+            
         }
 
         public static int Get_Yellow_classnumber(string tableName, string classTag, List<string> classaddress)
@@ -464,42 +367,36 @@ namespace FX5U_IOMonitor.Models
             using var context = new ApplicationDB();
             string normalizedTag = classTag?.Trim().ToLower() ?? "";
 
-            return tableName switch
-            {
-                "Drill" => context.Drill_IO
-                            .Where(io =>
-                                !string.IsNullOrEmpty(io.ClassTag) &&
-                                io.ClassTag.ToLower() == normalizedTag &&
-                                classaddress.Contains(io.address))
-                            .AsEnumerable()
-                            .Count(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow),
+            return context.Machine_IO
+                                .Where(io =>
+                             !string.IsNullOrEmpty(io.ClassTag) &&
+                             io.Machine_name == tableName &&
+                             io.ClassTag.ToLower() == normalizedTag &&
+                             classaddress.Contains(io.address))
+                         .AsEnumerable()
+                         .Count(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow);
 
-                "Sawing" => context.Sawing_IO
-                            .Where(io =>
-                                !string.IsNullOrEmpty(io.ClassTag) &&
-                                io.ClassTag.ToLower() == normalizedTag &&
-                                classaddress.Contains(io.address))
-                            .AsEnumerable()
-                            .Count(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow),
-
-                _ => throw new ArgumentException($"未知的資料表名稱：{tableName}")
-            };
         }
         //-----獲取元件壽命
         public static double Get_RUL_ByAddress(string tableName, string address)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.RUL ?? "";
+                var value = context.Machine_IO
+                  .Where(m => m.Machine_name == tableName && m.address == address)
+                  .Select(m => m.RUL)  // 轉成 nullable int
+                  .FirstOrDefault();
+
+                return value;
             }
         }
         public static void Set_RUL_ByAddress(string tableName, string address, double number)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                if (machine != null)
+                var machine = context.Machine_IO
+                   .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
+                 if (machine != null)
                 {
                     machine.RUL = number;
                     context.SaveChanges();
@@ -517,15 +414,24 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.Setting_green ?? "";
+                var value = context.Machine_IO
+                        .Where(m => m.Machine_name == tableName && m.address == address)
+                        .Select(m => m.Setting_green)  // 轉成 nullable int
+                        .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return -1;
+                }
+
+                return value;
             }
         }
         public static void Set_SetG_ByAddress(string tableName, string address, int number)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.Setting_green = number;
@@ -543,15 +449,24 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.Setting_yellow ?? "";
+                var value = context.Machine_IO
+                       .Where(m => m.Machine_name == tableName && m.address == address)
+                       .Select(m => m.Setting_yellow)  // 轉成 nullable int
+                       .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return -1;
+                }
+
+                return value;
             }
         }
         public static void Set_SetY_ByAddress(string tableName, string address, int number)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.Setting_yellow = number;
@@ -569,15 +484,24 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.Setting_red ?? "";
+                var value = context.Machine_IO
+                       .Where(m => m.Machine_name == tableName && m.address == address)
+                       .Select(m => m.Setting_red)  // 轉成 nullable int
+                       .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return -1;
+                }
+
+                return value;
             }
         }
         public static void Set_SetR_ByAddress(string tableName, string address, int number)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.Setting_red = number;
@@ -590,20 +514,47 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+        //
+        public static string Get_Element_baseType(string tableName)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var value = context.Machine_IO
+                       .Where(m => m.Machine_name == tableName)
+                       .Select(m => m.baseType)  // 轉成 nullable int
+                       .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return "";
+                }
+
+                return value;
+            }
+        }
         //----------獲取使用者設定最大壽命數量---------
         public static int Get_MaxLife_ByAddress(string tableName, string address)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.MaxLife ?? "";
+                var value = context.Machine_IO
+                       .Where(m => m.Machine_name == tableName && m.address == address)
+                       .Select(m => m.MaxLife)  // 轉成 nullable int
+                       .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return -1;
+                }
+
+                return value;
             }
         }
         public static void Set_MaxLife_ByAddress(string tableName, string address, int number)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.MaxLife = number;
@@ -620,15 +571,19 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.current_single ?? "";
+                bool? result = context.Machine_IO
+                            .Where(m => m.Machine_name == tableName && m.address == address)
+                            .Select(m => m.current_single)
+                            .FirstOrDefault();
+
+                return result ?? false;  // 或 return result.GetValueOrDefault();
             }
         }
         public static void Set_current_single_ByAddress(string tableName, string address, bool current_single)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.current_single = current_single;
@@ -646,15 +601,25 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.equipment_use ?? "";
+                var value = context.Machine_IO
+                      .Where(m => m.Machine_name == tableName && m.address == address)
+                      .Select(m => m.equipment_use)  // 轉成 nullable int
+                      .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return -1;
+                }
+
+                return value;
+
             }
         }
         public static void Set_use_ByAddress(string tableName, string address, int equipment_use)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.equipment_use = equipment_use;
@@ -672,15 +637,43 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.Description ?? "";
+                var value = context.Machine_IO
+                      .Where(m => m.Machine_name == tableName && m.address == address)
+                      .Select(m => m.Description)  // 轉成 nullable int
+                      .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return "";
+                }
+
+                return value;
+               
+            }
+        }
+        public static string Get_Address_ByDecription(string tableName, string decription)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var value = context.Machine_IO
+                      .Where(m => m.Machine_name == tableName && m.Description == decription)
+                      .Select(m => m.address)  // 轉成 nullable int
+                      .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return "";
+                }
+
+                return value;
+
             }
         }
         public static void Set_Decription_ByAddress(string tableName, string address, string description)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.Description = description;
@@ -699,15 +692,24 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
-                return machine?.Comment ?? "";
+                var value = context.Machine_IO
+                     .Where(m => m.Machine_name == tableName && m.address == address)
+                     .Select(m => m.Comment)  // 轉成 nullable int
+                     .FirstOrDefault();
+                if (value == null)
+                {
+                    Console.WriteLine("找不到指定 address");
+                    return "";
+                }
+
+                return value;
             }
         }
         public static void Set_Comment_ByAddress(string tableName, string address, string Comment)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = GetMachineByAddress(context, tableName, address);
+                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine != null)
                 {
                     machine.Comment = Comment;
@@ -720,6 +722,7 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+
 
         /// <summary>
         ///  警告維護表用到的
@@ -738,13 +741,43 @@ namespace FX5U_IOMonitor.Models
         }
 
         //-----------找到alarm資料表中的料件(用於後續比對)--------//
-
+        public static List<string> Get_alarm_class(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarmClasses = context.alarm.Where(a =>a.SourceDbName == machine_name)
+                    .Select(a => string.IsNullOrWhiteSpace(a.classTag) ? "other" : a.classTag)
+                    .Distinct() // 2. 去除重複
+                    .ToList();
+                return alarmClasses;
+            }
+        }
+        public static List<string> Get_alarm_error_by_class(string machine_name, string className)
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.alarm
+                    .Where(a => a.SourceDbName == machine_name &&
+                                (string.IsNullOrWhiteSpace(a.classTag) ? "other" : a.classTag) == className)
+                    .Select(a => a.Error) 
+                    .Distinct()
+                    .ToList();
+            }
+        }
         public static string Get_Description_ByAddress(string address)
         {
             using (var context = new ApplicationDB())
             {
                 var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
                 return alarm?.Description ?? "";
+            }
+        }
+        public static (string SourceDbName ,string Description) Get_AlarmInfo_ByAddress(string address)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                return (alarm?.SourceDbName ?? "",alarm?.Description ?? "");
             }
         }
         public static List<string>? Get_Addresses_ByCurrentSingle(string description)
@@ -793,26 +826,7 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.Repair_steps ?? "無對應說明";
             }
         }
-        //--------找到警告的錯誤料件-----------//
 
-        public static (string? Address, string? TableName) FindIOByAlarmDescription(string alarmDescription)
-        {
-            using (var context = new ApplicationDB())
-            {
-                // 先查 Drill_IO
-                var drillMatch = context.Drill_IO.FirstOrDefault(io => io.Description == alarmDescription);
-                if (drillMatch != null)
-                    return (drillMatch.address, "Drill");
-
-                // 再查 Sawing
-                var sawingMatch = context.Sawing_IO.FirstOrDefault(io => io.Description == alarmDescription);
-                if (sawingMatch != null)
-                    return (sawingMatch.address, "Sawing");
-
-                return (null, null); // 沒有找到
-            }
-        }
-      
         public static List<string> Get_address_ByBreakdownParts(string database, List<string> breakdownParts_address) // 取得所有故障料件名稱
         {
             using (var context = new ApplicationDB())
@@ -823,30 +837,15 @@ namespace FX5U_IOMonitor.Models
                                                 .Select(a => a.Description)
                                                 .Distinct()
                                                 .ToList();
-                if (database == "Drill")
-                {
-                    var matchedDrillAddresses = context.Drill_IO
-                                                  .Where(d => alarmDescriptions.Contains(d.Description))
+              
+                    var matchedDrillAddresses = context.Machine_IO
+                                                  .Where(d => alarmDescriptions.Contains(d.Description) &&d.Machine_name == database)
                                                   .Select(d => d.address)
                                                   .Distinct()
                                                   .ToList();
                     return matchedDrillAddresses;
-                }
-                // 2. 比對 Drill_IO 中相同的 Description，取 address
-                else if (database == "Sawing")
-                {
-                    var matchedDrillAddresses = context.Sawing_IO
-                                                  .Where(d => alarmDescriptions.Contains(d.Description))
-                                                  .Select(d => d.address)
-                                                  .Distinct()
-                                                  .ToList();
-                    return matchedDrillAddresses;
-                }
-                else 
-                { 
-                    return new(); 
-                }
             }
+               
         }
 
         //--------找到警告中的故障料件-----------//
@@ -854,24 +853,14 @@ namespace FX5U_IOMonitor.Models
         {
             using (var db = new ApplicationDB())
             {
-                if (datatable == "Drill")
-                {
-                    var query = db.alarm
-                             .Where(a => a.current_single == true && a.SourceDbName == "Drill_IO")   
-                             .Select(a => a.M_Address);
 
-                    return distinct ? query.Distinct().ToList() : query.ToList();
-                }
-                else if (datatable == "Sawing")
-                {
-                    var query = db.alarm
-                             .Where(a => a.current_single == true && a.SourceDbName == "Sawing_IO")  
-                             .Select(a => a.M_Address);
+                var query = db.alarm
+                             .Where(a => a.current_single == true && !string.IsNullOrEmpty(a.M_Address) && a.SourceDbName == datatable)
+                             .Select(a => a.M_Address)
+                             .Distinct().ToList();
+                return query;
 
-                    return distinct ? query.Distinct().ToList() : query.ToList();
-                }
             }
-            return new();
         }
         public static string Get_Error_ByDescription(string description)
         {
@@ -945,29 +934,23 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        public static List<now_single> Get_Sawing_current_single_all()
+
+        public static List<now_single> Get_Machine_current_single_all(string tablename)
         {
-            using var context = new ApplicationDB();
-            return context.Sawing_IO
-                .Select(a => new now_single
-                {
-                    address = a.address,
-                    current_single = (bool)a.current_single
-                })
-                .ToList();
-        }
-        public static List<now_single> Get_Drill_current_single_all()
-        {
-            using var context = new ApplicationDB();
-            return context.Drill_IO
-            .Where(a => a.current_single != null)
-            .Select(a => new now_single
+            using (var context = new ApplicationDB())
             {
-                address = a.address,
-                current_single = (bool)a.current_single.Value
-            })
-            .ToList();
+                return context.Machine_IO.Where(a => a.Machine_name == tablename && a.current_single.HasValue).ToList()
+                    .Select(a => new now_single
+                    {
+                        address = a.address,
+                        current_single = (bool)a.current_single
+                    })
+                    .ToList();
+            }
         }
+       
+
+       
         public static List<now_single> Get_alarm_current_single_all()
         {
             using var context = new ApplicationDB();
@@ -984,121 +967,56 @@ namespace FX5U_IOMonitor.Models
         public static void Initiali_current_single()
         {
 
-            using (var context = new ApplicationDB())
+            using ( var context = new ApplicationDB())
             {
+                var io = context.Machine_IO.ToList();
 
-                // 取得整個 Drill_IO 清單
-                var Drill_io = context.Drill_IO.ToList();
-
-                foreach (var drill_io in Drill_io)
+                foreach (var IO in io)
                 {
-                    drill_io.current_single = null; // ✅ 對模型屬性設值
+                    IO.current_single = null;
                 }
-                var Sawing_io = context.Sawing_IO.ToList();
-
-                foreach (var sawing_io in Sawing_io)
-                {
-                    sawing_io.current_single = null; // ✅ 對模型屬性設值
-                }
+              
                 var Alarm_io = context.alarm.ToList();
 
                 foreach (var alarm_io in Alarm_io)
                 {
-                    alarm_io.current_single = false; // ✅ 對模型屬性設值
+                    alarm_io.current_single = false;
                 }
                 context.SaveChanges(); // ✅ 儲存變更
             }
 
 
         }
-
-        public static object Get_Class_IO(string tableName, string classtag)
-        {
-            if (string.IsNullOrWhiteSpace(tableName))
-                throw new ArgumentException("資料表名稱不得為空");
-
-            using (var context = new ApplicationDB())
-            {
-                try
-                {
-                    return tableName switch
-                    {
-                        "Drill" => string.IsNullOrWhiteSpace(classtag)
-                            ? context.Drill_IO.ToList()
-                            : context.Drill_IO
-                                .Where(d => d.ClassTag != null && d.ClassTag.ToLower().Contains(classtag.ToLower()))
-                                .ToList(),
-
-                        "Sawing" => string.IsNullOrWhiteSpace(classtag)
-                            ? context.Sawing_IO.ToList()
-                            : context.Sawing_IO
-                                .Where(d => d.ClassTag != null && d.ClassTag.ToLower().Contains(classtag.ToLower()))
-                                .ToList(),
-
-                        _ => throw new ArgumentException($"❌ 未知的資料表名稱：{tableName}")
-                    };
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"⚠️ 查詢時發生錯誤：{ex.Message}");
-                    return new List<object>(); // 或 return null; 看你系統如何設計
-                }
-            }
-
-        }
-
-
-
-
-        public static List<string> Search_IOFromDB(string table, string searchText)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="searchText"></param>
+        /// <returns></returns>
+        public static List<string> Search_IOFromDB(string tableName, string searchText)
         {
             using var context = new ApplicationDB();
             searchText = searchText?.Trim().ToLower() ?? "";
 
-            if (table == "Drill")
-            {
-                return context.Drill_IO
-                    .Where(d =>
-                        (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText)))
-                    .Select(d => d.address)
-                    .ToList();
-            }
-            else if (table == "Sawing")
-            {
-                return context.Sawing_IO
-                    .Where(s =>
-                        (!string.IsNullOrEmpty(s.address) && s.address.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(s.ClassTag) && s.ClassTag.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(s.Comment) && s.Comment.ToLower().Contains(searchText)) ||
-                        (!string.IsNullOrEmpty(s.Description) && s.Description.ToLower().Contains(searchText)))
-                    .Select(d => d.address)
-                    .ToList();
-            }
-
-            return new List<string>();
+            return context.Machine_IO
+                .Where(d => d.Machine_name== tableName &&
+                    (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
+                    (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText)))
+                .Select(d => d.address)
+                .ToList();
+           
         }
 
         public static List<string> Get_Green_addressList(string tableName)
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                    .Where(io => io.RUL > io.Setting_yellow)
-                                    .Select(io => io.address)
-                                    .ToList(),
-
-                    "Sawing" => context.Sawing_IO
-                                    .Where(io => io.RUL > io.Setting_yellow)
-                                    .Select(io => io.address)
-                                    .ToList(),
-
-                    _ => throw new ArgumentException($"❌ 未知的資料表名稱：{tableName}")
-                };
+                return context.Machine_IO
+                                .Where(io => io.RUL > io.Setting_yellow && io.Machine_name ==tableName)
+                                .Select(io => io.address)
+                                .ToList();
             }
         }
 
@@ -1106,20 +1024,11 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                    .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow)
+                return context.Machine_IO
+                                    .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && io.Machine_name == tableName)
                                     .Select(io => io.address)
-                                    .ToList(),
+                                    .ToList();
 
-                    "Sawing" => context.Sawing_IO
-                                    .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow)
-                                    .Select(io => io.address)
-                                    .ToList(),
-
-                    _ => throw new ArgumentException($"❌ 未知的資料表名稱：{tableName}")
-                };
             }
         }
 
@@ -1127,26 +1036,14 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                return tableName switch
-                {
-                    "Drill" => context.Drill_IO
-                                    .Where(io => io.RUL < io.Setting_red)
+                return context.Machine_IO
+                                    .Where(io => io.RUL < io.Setting_red && io.Machine_name == tableName)
                                     .Select(io => io.address)
-                                    .ToList(),
+                                    .ToList();
 
-                    "Sawing" => context.Sawing_IO
-                                    .Where(io => io.RUL < io.Setting_red)
-                                    .Select(io => io.address)
-                                    .ToList(),
-
-                    _ => throw new ArgumentException($"❌ 未知的資料表名稱：{tableName}")
-                };
             }
         }
 
-        ///
-        /// 修改機台狀態的資料表
-        ///
 
         public static void Set_Machine_string(string name, string number)
         {
@@ -1172,101 +1069,43 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.now_TextValue ?? "無對應說明";
-            }
-        }
-        public static void Set_Machine_now_number(string name, ushort number)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-
-                if (machine != null)
-                {
-                    machine.now_NumericValue = number;
-                    context.SaveChanges();
-                    Console.WriteLine($"已將 {name} 的說明欄位更新為：{number}");
-                }
-                else
-                {
-                    Console.WriteLine($"找不到 name 為 {number} 的元件");
-                }
-            }
-        }
-        public static void Set_Machine_now_string(string name, string text)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-
-                if (machine != null)
-                {
-                    machine.now_TextValue = text;
-                    context.SaveChanges();
-                }
-                else
-                {
-                    Console.WriteLine($"找不到 name 為 {text} 的元件");
-                }
+                return machine?.now_TextValue ?? "未連線";
             }
         }
 
-        public static ushort Get_Machine_number(string name)
+        public static string Get_Machine_now_string(string machine ,string name)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.now_NumericValue ?? 0;
+                var machine_single = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machine);
+                return machine_single?.now_TextValue ?? "未連線";
             }
         }
 
 
-        public static string Get_Machine_read_address(string name)
+        public static List<string> Get_total_part(string tableName)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.read_address ?? "0";
+                return context.Machine_IO.Where(io => io.Machine_name == tableName).Select(io => io.address).ToList();
             }
-        }
-     
-    
-
-        public static List<string> Get_total_part(string datatable)
-        {
-            using (var context = new ApplicationDB())
-            {
-                if (datatable == "Drill")
-                {
-                    List<string> query = context.Drill_IO.Select(io => io.address).ToList();
-
-
-                    return query;
-                }
-                else if (datatable == "Sawing")
-                {
-                    var query = context.Sawing_IO.Select(io => io.address).ToList();
-
-                    return query;
-                }
-            }
-            return new();
         }
 
 
         //取得重複的地址
-        public static List<Drill_MachineIO> GetDuplicateDrillRowsByAddress()
+        public static List<MachineIO> GetDuplicateDrillRowsByAddress(string talbename)
         {
             using var context = new ApplicationDB();
 
-            var duplicateAddresses = context.Drill_IO
+            var duplicateAddresses = context.Machine_IO
+                .Where(a =>a.Machine_name== talbename)
                 .GroupBy(d => d.address)
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
                 .ToList();
 
             // 把這些重複地址的資料都撈出來
-            return context.Drill_IO
+            return context.Machine_IO
                 .Where(d => duplicateAddresses.Contains(d.address))
                 .ToList();
         }
@@ -1295,10 +1134,338 @@ namespace FX5U_IOMonitor.Models
                 Console.WriteLine($"{typeof(T).Name}.{columnName} 欄位已清除 ({list.Count} 筆資料)");
             }
         }
+        /// <summary>
+        ///  Machineparameter 相關database使用
+        /// </summary>
+        /// <param name="machine_name"></param>
+        /// <returns></returns>
+        public static List<string> Get_Machine_montion(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                // 取得所有鋸床或鑽床的變數
+                List<string> Machineprameter = context.MachineParameters.Where(io => io.Machine_Name == machine_name)
+                                                    .Select(io => io.Name)
+                                                    .ToList();
+                return Machineprameter;
 
+            }
+        }
+
+        public static List<string> Get_Machine_read_view(int read_view, string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                    .Where(io => io.Read_view == read_view && io.Machine_Name == machine_name)
+                    .Select(io => io.Name)
+                    .ToList();
+
+                return result;
+            }
+        }
+        public static List<string> Get_Machine_write_view(string machine_name, int write_type)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                    .Where(io => io. Calculate== true && io.Machine_Name == machine_name && io.Calculate_type == write_type)
+                    .Select(io => io.Name)
+                    .ToList();
+
+                return result;
+            }
+        }
+        public static int Get_Machine_NowValue(string machine_name, string parameterName)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                    .Where(io => io.Machine_Name == machine_name && io.Name == parameterName)
+                    .Select(io => io.now_NumericValue)
+                    .FirstOrDefault();
+
+                return result.HasValue ? result.Value : 0;
+            }
+        }
+
+        public static int[] Get_Machine_Calculate_type(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                    .Where(io => io.Machine_Name == machine_name && io.Calculate == true)
+                    .Select(io => io.Calculate_type)
+                    .ToArray();
+
+                return result;
+            }
+        }
+        public static int[] Get_Machine_Readview_type(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                    .Where(io => io.Machine_Name == machine_name )
+                    .Select(io => io.Read_view)
+                    .ToArray();
+
+                return result;
+            }
+        }
+        public static List<(string, string, ushort)> Get_Read_word_machineparameter_address(string machine_name, List<string> Machineprameter_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                            .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
+                            .Select(m => new { m.Name, m.Read_address, m.Read_address_index })
+                            .ToList()
+                            .Select(x => (x.Name, x.Read_address, (ushort)x.Read_address_index))
+                            .ToList();
+
+                return result;
+            }
+        }
+        public static List<(string, string, int?)> Get_Write_word_machineparameter_address(string machine_name, List<string> Machineprameter_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                            .Where(m => Machineprameter_name.Contains(m.Name) && m.Calculate == true && m.Machine_Name == machine_name)
+                            .Select(m => new { m.Name, m.Write_address, m.Write_address_index })
+                            .ToList()
+                            .Select(x => (x.Name, x.Write_address, x.Write_address_index))
+                            .ToList();
+
+                return result;
+            }
+        }
+        public static List<(string,int)> Get_None_machineparameter_Name(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                            .Where(m =>  m.Read_type == "None" && m.Machine_Name == machine_name)
+                            .Select(m => new { m.Name, m.Calculate_type })
+                            .ToList()
+                            .Select(x => (x.Name,x.Calculate_type))
+                            .ToList();
+
+                return result;
+            }
+        }
+        public static List<string> Get_Read_bit_machineparameter(List<string> Machineprameter)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                            .Where(m => Machineprameter.Contains(m.Name) && m.Read_type == "bit")
+                            .Select(m => new { m.Read_address, m.Read_address_index })
+                            .ToList()
+                            .Select(x => (x.Read_address))
+                            .ToList();
+
+                return result;
+            }
+        }
+        public static void Inital_MachineParameters_number(string machine_name, string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machine_name);
+                if (machine != null)
+                {
+                    machine.History_NumericValue = (machine.now_NumericValue + machine.History_NumericValue);
+                    machine.now_NumericValue = 0;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到元件");
+                }
+            }
+        }
+        public static void Set_Machine_now_number(string machine_name,string name, int number)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name==machine_name);
+
+                if (machine != null)
+                {
+                    machine.now_NumericValue = number;
+                    context.SaveChanges();
+                    Console.WriteLine($"已將 {name} 的說明欄位更新為：{number}");
+                }
+                else
+                {
+                    Console.WriteLine($"找不到的元件");
+                }
+            }
+        }
+
+
+        public static void Set_Machine_now_string(string name, string text)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+
+                if (machine != null)
+                {
+                    machine.now_TextValue = text;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 name 為 {text} 的元件");
+                }
+            }
+        }
+        public static void Set_Machine_now_string(string machine_name, string name, string text)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name &&a.Machine_Name== machine_name);
+
+                if (machine != null)
+                {
+                    machine.now_TextValue = text;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 name 為 {text} 的元件");
+                }
+            }
+        }
+       
+        public static void Set_Machine_History_NumericValue(string machine_name, string name, int number)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machine_name);
+
+                if (machine != null)
+                {
+                    machine.History_NumericValue = number;
+                    context.SaveChanges();
+                    Console.WriteLine($"已將 {name} 的說明欄位更新為：{number}");
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 name 為 {number} 的元件");
+                }
+            }
+        }
+        public static int Get_Machine_number(string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+                return machine?.now_NumericValue ?? 0;
+            }
+        }
+        public static string Get_Machine_text(string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+                return machine?.now_TextValue ?? "無當前資訊";
+            }
+        }
+        public static double Get_Unit_transfer(string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+                return machine?.Unit_transfer ?? 0;
+            }
+        }
+
+        public static string Get_Blade_brand_name(int brand_id)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var name = context.Blade_brand.FirstOrDefault(a => a.Brand_Id == (int)brand_id);
+                return name?.Brand_Name ?? "無比對資料";
+            }
+        }
+
+        public static string Get_Blade_brand_material(int material_id)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var name = context.Blade_brand.FirstOrDefault(a => a.Material_Id == (int)material_id);
+                return name?.Material_Name ?? "無比對資料";
+            }
+        }
+        public static string Get_Blade_brand_type(int brand_id, int material_id, int type_id)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var name = context.Blade_brand.FirstOrDefault(a => a.Brand_Id == brand_id && a.Material_Id == material_id && a.Type_Id == type_id);
+                return name?.Type_Name ?? "無比對資料";
+            }
+        }
+
+        public static string Get_Blade_TPI_type(int TPI_id)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var name = context.Blade_brand_TPI.FirstOrDefault(a => a.TPI_Id == (int)TPI_id);
+                return name?.Name ?? "無比對資料";
+            }
+        }
+        public static List<string> Get_Machine_Calculate_type(int calculate_type, string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                    .Where(io => io.Calculate_type == calculate_type && io.Calculate == true)
+                    .Select(io => io.Name)
+                    .ToList();
+
+                return result;
+            }
+        }
+      
+        public static List<(string, string)> Get_Calculate_Readbit_address(List<string> Machineprameter_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameters
+                            .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "bit")
+                            .Select(m => new { m.Name, m.Read_address })
+                            .ToList()
+                            .Select(x => (x.Name, x.Read_address))
+                            .ToList();
+
+                return result;
+            }
+        }
+        public static int Get_History_NumericValue(string Machineprameter_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var name = context.MachineParameters.FirstOrDefault(a => a.Name == Machineprameter_name).History_NumericValue;
+                return name ?? 0;
+
+            }
+        }
+        public static int Get_History_NumericValue(string Machine_Name,string Machineprameter_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var name = context.MachineParameters.FirstOrDefault(a => a.Name == Machineprameter_name && a.Machine_Name == Machine_Name).History_NumericValue;
+                return name ?? 0;
+
+            }
+        }
     }
 
 
-  
-  
+
+
 }

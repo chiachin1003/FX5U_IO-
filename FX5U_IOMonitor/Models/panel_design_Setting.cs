@@ -8,11 +8,11 @@ namespace FX5U_IOMonitor.Models
     public static class panel_design_Setting
     {
         static string datatable = "";
-        public static Panel CreateSettingPanel(string address)
+        public static Panel CreateSettingPanel( string machine ,string address)
         {
-            
+            datatable = machine;
 
-            datatable = DBfunction.FindTableWithAddress(address);
+           
             // 主容器 Panel
             Panel mainPanel = new Panel
             {
@@ -33,8 +33,10 @@ namespace FX5U_IOMonitor.Models
             Label label_detail = new Label
             {
                 AutoSize = true,
-                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
+                Font = new Font("Microsoft JhengHei", 14, FontStyle.Bold),
+                MaximumSize = new Size(560, 0),                   // ✅ 限制最大寬度（會自動換行）
                 Location = new Point(15, 25)
+
             };
 
             label_detail.Text =
@@ -57,146 +59,169 @@ namespace FX5U_IOMonitor.Models
             mainPanel.Controls.Add(line);
 
             // 3️ 下方設定區（呼叫你之前定義的 CreateSettingTable 函式）
-            Panel settingTable = CreateSettingTableWithScale(address, 1.0f);
+            //Panel settingTable = CreateSettingTableWithScale(address, 1.0f);
+            Panel settingTable = CreateSettingPanelWithCoordinates(address, 1.0f);
+
             settingTable.Location = new Point(10, 160);
             mainPanel.Controls.Add(settingTable);
 
             return mainPanel;
         }
 
-
-
-        private static Panel CreateSettingTableWithScale(string address ,float scale )
+        private static Panel CreateSettingPanelWithCoordinates(string address, float scale)
         {
-            int baseWidth = 520;
-            int baseHeight = 225;
-            List<NumericUpDown> numBoxes = new List<NumericUpDown>();  // 儲存所有欄位控制項
-
-            int Setting_green = DBfunction.Get_SetG_ByAddress(datatable, address);
-            int Setting_yellow = DBfunction.Get_SetY_ByAddress(datatable, address);
-            int Setting_red = DBfunction.Get_SetR_ByAddress(datatable, address);
+            // 資料初始化
             int maxvalue = DBfunction.Get_MaxLife_ByAddress(datatable, address);
+            int yellowValue = DBfunction.Get_SetY_ByAddress(datatable, address);
+            int redValue = DBfunction.Get_SetR_ByAddress(datatable, address);
 
-
-            int[] thresholds = { Setting_green, Setting_yellow, Setting_red };
-
-
-            Panel outerPanel = new Panel
+            // 建立 Panel，背景白色
+            Panel panel = new Panel
             {
-                Size = new Size((int)(baseWidth * scale), (int)(baseHeight * scale)),
-                BorderStyle = BorderStyle.FixedSingle,
-                Padding = new Padding((int)(10 * scale)),
-                BackColor = Color.White
+                Size = new Size((int)(520 * scale), (int)(225 * scale)),
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.FixedSingle
             };
 
-            TableLayoutPanel table = new TableLayoutPanel
-            {
-                ColumnCount = 3,
-                RowCount = 4,
-                Dock = DockStyle.Fill,
-                CellBorderStyle = TableLayoutPanelCellBorderStyle.None,
-                GrowStyle = TableLayoutPanelGrowStyle.FixedSize,
+            Font labelFont = new Font("Microsoft JhengHei UI", 15.75F * scale, FontStyle.Bold);
+            Font smallFont = new Font("Microsoft JhengHei UI", 9.75F * scale, FontStyle.Bold);
+            Font inputFont = new Font("微軟正黑體", 14.25F * scale, FontStyle.Bold);
 
+            // label2：最大壽命
+            Label label2 = new Label
+            {
+                Text = "當前最大壽命設定(次)：",
+                Font = labelFont,
+                Location = new Point((int)(15 * scale), (int)(15 * scale)),
+                AutoSize = true
             };
+            panel.Controls.Add(label2);
 
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 260F * scale)); // Label 欄寬
-            table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 180F * scale)); // 控制欄寬
-            int rowCount = 4;
-
-            string[] labels = {
-                "當前最大壽命設定(次)：",
-                "黃燈警告狀態設定(%)：",
-                "黃燈警告狀態設定(%)：",
-                "紅燈異常狀態設定(%)："
-                };
-
-            for (int i = 0; i < 4; i++)
+            // txb_max_number
+            NumericUpDown txb_max_number = new NumericUpDown
             {
-                //table.RowStyles.Add(new RowStyle(SizeType.Absolute, 45F * scale)); // 每列依 scale 縮放
-                table.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / rowCount));
+                Font = inputFont,
+                Location = new Point((int)(253 * scale), (int)(15 * scale)),
+                Size = new Size((int)(176 * scale), (int)(33 * scale)),
+                Maximum = 10000000000,
+                Value = maxvalue,
+                TextAlign = HorizontalAlignment.Center
+            };
+            panel.Controls.Add(txb_max_number);
 
-                Label lbl = new Label
-                {
-                    Text = labels[i],
-                    Font = new Font("微軟正黑體", 16F * scale, FontStyle.Bold),
-                    AutoSize = false,
-                    Size = new Size((int)(260 * scale), (int)(45 * scale)),
-                    TextAlign = ContentAlignment.MiddleRight,
-                    Anchor = AnchorStyles.Right,
-                    Margin = new Padding((int)(5 * scale)),
-                };
+            // lab_Repair_step
+            Label lab_Repair_step = new Label
+            {
+                Text = "綠燈健康狀態為黃燈設定值以上",
+                Font = labelFont,
+                Location = new Point((int)(15 * scale), (int)(60 * scale)),
+                AutoSize = true
+            };
+            panel.Controls.Add(lab_Repair_step);
 
-                NumericUpDown num = new NumericUpDown
-                {
-                    Font = new Font("微軟正黑體", 16F * scale, FontStyle.Bold),
-                    Maximum = (i == 0) ? 100000000 : 100,
-                    Value = (i == 0) ? maxvalue : thresholds[i - 1],
-                    Size = new Size((int)(160 * scale), (int)(35 * scale)),  // 固定大小
-                    Anchor = AnchorStyles.Left,
-                    TextAlign = HorizontalAlignment.Center,
-                    Margin = new Padding((int)(5 * scale))
-                };
-                numBoxes.Add(num);  // 儲存這個欄位
+            // label3：黃燈設定
+            Label label3 = new Label
+            {
+                Text = "黃燈健康狀態設定(%)：",
+                Font = labelFont,
+                Location = new Point((int)(15 * scale), (int)(100 * scale)),
+                AutoSize = true
+            };
+            panel.Controls.Add(label3);
 
-                // 第 0 行放「重置」、第 2 行放「儲存」
-                System.Windows.Forms.Button? btn = null;
-                if (i == 0)
-                {
-                    btn = new System.Windows.Forms.Button
-                    {
-                        Text = "重置",
-                        Font = new Font("微軟正黑體", 12F * scale, FontStyle.Bold),
-                        Size = new Size((int)(50 * scale), (int)(35 * scale)),
-                        Anchor = AnchorStyles.None,
-                        BackColor = Color.White,
-                        Margin = new Padding((int)(5 * scale))
-                    };
-                    btn.Click += (s, e) =>
-                    {
-                        for (int j = 0; j < numBoxes.Count; j++)
-                        {
-                          
-                            if (j == 0)
-                                numBoxes[0].Value = DBfunction.Get_MaxLife_ByAddress(datatable, address);
-                            else if (j == 1)
-                                numBoxes[1].Value = DBfunction.Get_SetG_ByAddress(datatable, address);
-                            else if (j == 2)
-                                numBoxes[2].Value = DBfunction.Get_SetY_ByAddress(datatable, address);
-                            else if (j == 3)
-                                numBoxes[3].Value = DBfunction.Get_SetR_ByAddress(datatable, address);
-                        }
-                        //MessageBox.Show("已重置為預設值！");
-                    };
-                }
-                else if (i == 2)
-                {
-                    btn = new System.Windows.Forms.Button
-                    {
-                        Text = "更新",
-                        Font = new Font("微軟正黑體", 12F * scale, FontStyle.Bold),
-                        Size = new Size((int)(50 * scale), (int)(35 * scale)),
-                        Anchor = AnchorStyles.None,
-                        BackColor = Color.White,
-                        Margin = new Padding((int)(5 * scale))
-                    };
-                    btn.Click += (s, e) =>
-                    {
-                        DBfunction.Set_MaxLife_ByAddress(datatable, address, (int)numBoxes[0].Value);
-                        DBfunction.Set_SetG_ByAddress(datatable, address, (int)numBoxes[1].Value);
-                        DBfunction.Set_SetY_ByAddress(datatable, address, (int)numBoxes[2].Value);
-                        DBfunction.Set_SetR_ByAddress(datatable, address, (int)numBoxes[3].Value);
+            // txb_yellow_light
+            NumericUpDown txb_yellow_light = new NumericUpDown
+            {
+                Font = inputFont,
+                Location = new Point((int)(253 * scale), (int)(100 * scale)),
+                Size = new Size((int)(176 * scale), (int)(33 * scale)),
+                Maximum = 100,
+                Value = yellowValue,
+                TextAlign = HorizontalAlignment.Center
+            };
+            panel.Controls.Add(txb_yellow_light);
 
-                    };
-                }
-                table.Controls.Add(lbl, 0, i);
-                table.Controls.Add(num, 1, i);
-                if (btn != null)
-                    table.Controls.Add(btn, 2, i);
-            }
-            
-            outerPanel.Controls.Add(table);
-            return outerPanel;
+            // label8
+            Label label8 = new Label
+            {
+                Text = "設定值以下時觸發黃燈警報",
+                Font = smallFont,
+                Location = new Point((int)(62 * scale), (int)(130 * scale)),
+                AutoSize = true
+            };
+            panel.Controls.Add(label8);
+
+            // label4：紅燈設定
+            Label label4 = new Label
+            {
+                Text = "紅燈健康狀態設定(%)：",
+                Font = labelFont,
+                Location = new Point((int)(15 * scale), (int)(160 * scale)),
+                AutoSize = true
+            };
+            panel.Controls.Add(label4);
+
+            // txb_red_light
+            NumericUpDown txb_red_light = new NumericUpDown
+            {
+                Font = inputFont,
+                Location = new Point((int)(253 * scale), (int)(160 * scale)),
+                Size = new Size((int)(176 * scale), (int)(33 * scale)),
+                Maximum = 100,
+                Value = redValue,
+                TextAlign = HorizontalAlignment.Center
+            };
+            panel.Controls.Add(txb_red_light);
+
+            // label9
+            Label label9 = new Label
+            {
+                Text = "設定值以下時觸發紅燈警報",
+                Font = smallFont,
+                Location = new Point((int)(62 * scale), (int)(190 * scale)),
+                AutoSize = true
+            };
+            panel.Controls.Add(label9);
+
+            // btn_update
+            System.Windows.Forms.Button btn_update = new System.Windows.Forms.Button
+            {
+                Text = "重置",
+                Font = inputFont,
+                Location = new Point((int)(450 * scale), (int)(100 * scale)),
+                Size = new Size((int)(61 * scale), (int)(36 * scale))
+            };
+            btn_update.Click += (s, e) =>
+            {
+                txb_max_number.Value = DBfunction.Get_MaxLife_ByAddress(datatable, address);
+                txb_yellow_light.Value = DBfunction.Get_SetY_ByAddress(datatable, address);
+                txb_red_light.Value = DBfunction.Get_SetR_ByAddress(datatable, address);
+
+                MessageBox.Show("設定已重置");
+            };
+            panel.Controls.Add(btn_update);
+
+            // btn_add
+            System.Windows.Forms.Button btn_add = new System.Windows.Forms.Button
+            {
+                Text = "更新",
+                Font = inputFont,
+                Location = new Point((int)(450 * scale), (int)(160 * scale)),
+                Size = new Size((int)(61 * scale), (int)(36 * scale))
+            };
+            btn_add.Click += (s, e) =>
+            {
+                DBfunction.Set_MaxLife_ByAddress(datatable, address, (int)txb_max_number.Value);
+                DBfunction.Set_SetY_ByAddress(datatable, address, (int)txb_yellow_light.Value);
+                DBfunction.Set_SetR_ByAddress(datatable, address, (int)txb_red_light.Value);
+                MessageBox.Show("資料已更新");
+            };
+            panel.Controls.Add(btn_add);
+
+            return panel;
         }
 
+
+       
     }
 }

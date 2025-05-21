@@ -3,6 +3,7 @@ using System;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FX5U_IOMonitor.Migrations
 {
     [DbContext(typeof(ApplicationDB))]
-    partial class ApplicationDBModelSnapshot : ModelSnapshot
+    [Migration("20250508024814_update_brand")]
+    partial class update_brand
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -234,51 +237,36 @@ namespace FX5U_IOMonitor.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("Calculate")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Calculate_type")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<ushort?>("History_NumericValue")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Machine_Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Read_address")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Read_address_index")
+                    b.Property<bool>("calculate")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Read_type")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("Read_view")
+                    b.Property<ushort>("history_NumericValue")
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("Unit_transfer")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("Write_address")
+                    b.Property<string>("history_TextValue")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("Write_address_index")
-                        .HasColumnType("INTEGER");
 
                     b.Property<ushort?>("now_NumericValue")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("now_TextValue")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("read_address")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("write_address")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("write_type")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

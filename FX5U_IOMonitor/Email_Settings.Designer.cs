@@ -35,14 +35,15 @@
             txb_senderEmail = new TextBox();
             txb_senderPassword = new TextBox();
             btn_add = new Button();
-            label6 = new Label();
             txb_comment = new TextBox();
             label7 = new Label();
             button1 = new Button();
             button2 = new Button();
             button3 = new Button();
-            comboBox1 = new ComboBox();
             dataGridView1 = new DataGridView();
+            label6 = new Label();
+            textBox1 = new TextBox();
+            button4 = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -55,6 +56,7 @@
             label1.Size = new Size(138, 26);
             label1.TabIndex = 11;
             label1.Text = "預設收件人：";
+            label1.Visible = false;
             // 
             // lab_Possible
             // 
@@ -75,6 +77,7 @@
             lab_Error.Size = new Size(138, 26);
             lab_Error.TabIndex = 9;
             lab_Error.Text = "新增收件人：";
+            lab_Error.Visible = false;
             // 
             // comb_class
             // 
@@ -85,24 +88,25 @@
             comb_class.Name = "comb_class";
             comb_class.Size = new Size(266, 32);
             comb_class.TabIndex = 18;
+            comb_class.Visible = false;
             // 
             // txb_senderEmail
             // 
-            txb_senderEmail.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            txb_senderEmail.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             txb_senderEmail.Location = new Point(164, 18);
             txb_senderEmail.Name = "txb_senderEmail";
-            txb_senderEmail.Size = new Size(266, 32);
+            txb_senderEmail.Size = new Size(266, 27);
             txb_senderEmail.TabIndex = 19;
-            txb_senderEmail.Text = "itrid400itri@gmail.com";
+            txb_senderEmail.Text = "webform@mechalogix.com";
             // 
             // txb_senderPassword
             // 
-            txb_senderPassword.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            txb_senderPassword.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             txb_senderPassword.Location = new Point(164, 58);
             txb_senderPassword.Name = "txb_senderPassword";
-            txb_senderPassword.Size = new Size(266, 32);
+            txb_senderPassword.Size = new Size(266, 27);
             txb_senderPassword.TabIndex = 24;
-            txb_senderPassword.Text = "wmfisqognlhnhcsc";
+            txb_senderPassword.Text = "jvvswkymcyokcvug";
             txb_senderPassword.KeyPress += txb_address_KeyPress;
             // 
             // btn_add
@@ -114,17 +118,8 @@
             btn_add.TabIndex = 25;
             btn_add.Text = "選擇收件人";
             btn_add.UseVisualStyleBackColor = true;
+            btn_add.Visible = false;
             btn_add.Click += btn_add_Click;
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label6.Location = new Point(12, 99);
-            label6.Name = "label6";
-            label6.Size = new Size(159, 26);
-            label6.TabIndex = 28;
-            label6.Text = "郵件發送頻率：";
             // 
             // txb_comment
             // 
@@ -133,6 +128,7 @@
             txb_comment.Name = "txb_comment";
             txb_comment.Size = new Size(266, 32);
             txb_comment.TabIndex = 29;
+            txb_comment.Visible = false;
             // 
             // label7
             // 
@@ -153,6 +149,8 @@
             button1.TabIndex = 33;
             button1.Text = "新增收件人";
             button1.UseVisualStyleBackColor = true;
+            button1.Visible = false;
+            button1.Click += button1_Click;
             // 
             // button2
             // 
@@ -163,6 +161,7 @@
             button2.TabIndex = 34;
             button2.Text = "移除選中";
             button2.UseVisualStyleBackColor = true;
+            button2.Visible = false;
             // 
             // button3
             // 
@@ -173,18 +172,7 @@
             button3.TabIndex = 35;
             button3.Text = "信件發送";
             button3.UseVisualStyleBackColor = true;
-            // 
-            // comboBox1
-            // 
-            comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBox1.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "每天", "每二天", "每週", "每月" });
-            comboBox1.Location = new Point(164, 99);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(266, 32);
-            comboBox1.TabIndex = 36;
-            comboBox1.TabStop = false;
+            button3.Visible = false;
             // 
             // dataGridView1
             // 
@@ -193,14 +181,45 @@
             dataGridView1.Name = "dataGridView1";
             dataGridView1.Size = new Size(418, 150);
             dataGridView1.TabIndex = 37;
+            dataGridView1.Visible = false;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            label6.Location = new Point(95, 101);
+            label6.Name = "label6";
+            label6.Size = new Size(76, 26);
+            label6.TabIndex = 28;
+            label6.Text = "Port：";
+            // 
+            // textBox1
+            // 
+            textBox1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            textBox1.Location = new Point(164, 101);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(266, 27);
+            textBox1.TabIndex = 38;
+            textBox1.Text = "465";
+            // 
+            // button4
+            // 
+            button4.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            button4.Location = new Point(348, 134);
+            button4.Name = "button4";
+            button4.Size = new Size(82, 36);
+            button4.TabIndex = 39;
+            button4.Text = "設定";
+            button4.UseVisualStyleBackColor = true;
             // 
             // Email_Settings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(455, 512);
+            ClientSize = new Size(455, 183);
+            Controls.Add(button4);
+            Controls.Add(textBox1);
             Controls.Add(dataGridView1);
-            Controls.Add(comboBox1);
             Controls.Add(button3);
             Controls.Add(button2);
             Controls.Add(button1);
@@ -230,13 +249,14 @@
         private TextBox txb_senderEmail;
         private TextBox txb_senderPassword;
         private Button btn_add;
-        private Label label6;
         private TextBox txb_comment;
         private Label label7;
         private Button button1;
         private Button button2;
         private Button button3;
-        private ComboBox comboBox1;
         private DataGridView dataGridView1;
+        private Label label6;
+        private TextBox textBox1;
+        private Button button4;
     }
 }

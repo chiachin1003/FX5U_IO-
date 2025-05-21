@@ -2,6 +2,8 @@
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using SLMP;
+using System.IO.Ports;
+using Modbus.Device; // 來自 NModbus4
 using static FX5U_IOMonitor.Models.MonitoringService;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -10,25 +12,19 @@ using System.Xml.Linq;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using System.Threading;
+using System.Net;
+using System.Timers;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace FX5U_IOMonitor
 {
     public partial class connect_PLC : Form
     {
-        SlmpClient Drill_PLC_Device;
-        SlmpClient Swing_PLC_Device;
-
+   
         public class connect_isOK //提供各介面共用的X_IO監控數據
         {
-            public static connect_Summary Drill_total = new connect_Summary();
-            public static connect_Summary Swing_total = new connect_Summary();
-
+            public static bool Sawing_connect =false;
             public static bool Drill_connect = false;
-            public static bool Swing_connect = false;
-
-            public static Swing_Status swingstatus = new Swing_Status();
-            public static Drill_status drillstatus = new Drill_status();
-            public static SawBand_Status sawband = new SawBand_Status();
 
         }
 
@@ -44,9 +40,10 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
-            control_choose.SelectedIndex = 0;
-            connect_choose.SelectedIndex = 0;
-            comboBox1.SelectedIndex = 0;
+            UpdateConnectmachinComboBox();
+            //control_choose.SelectedIndex = 0;
+            //connect_choose.SelectedIndex = 0;
+            //comb_language.SelectedIndex = 0;
 
         }
 
@@ -105,131 +102,65 @@ namespace FX5U_IOMonitor
 
 
         }
-        // 確認連線機制
-        private CancellationTokenSource? Sawing_CancelToken;
-        private Task? Sawing_open_task;
-        private CancellationTokenSource? Drill_CancelToken;
-        private Task? Drill_IO_task;
-        private Task? Drill_status_task;
-        private Task? swing_lab_task;
-        private Task? Alarm_task;
+
 
         private void btn_connect_ethernet_Click(object sender, EventArgs e)
         {
+            string connect_machine = control_choose.Text;
 
-            if (control_choose.SelectedIndex == 0)
+            // 先判斷 Drill 是否已經連線
+            var existingContext = MachineHub.Get(connect_machine);
+            if (existingContext != null && existingContext.IsConnected)
             {
-                if (connect_isOK.Drill_connect == true)
-                {
-                    return;
-                }
-                Drill_PLC_Device = SLMP_connect(txb_IP.Text.ToString(), int.Parse(txb_port.Text.ToString()));
-
-                if (Drill_PLC_Device != null)
-                {
-                    connect_isOK.Drill_connect = true;
-
-                    if (connect_isOK.Drill_connect == true)
-                    {
-                        // 初始化資料庫內的信號值
-                        InitializeDrillMonitoring(Drill_PLC_Device); //元件當前狀態更新
-
-                        // 初始化機械當前警告值
-                        Initialize_Aalarm(Drill_PLC_Device); //警告信息
-
-
-                        // 初始化機械當前連線數值
-                        Initialize_machine_prameter(Drill_PLC_Device);
-                        //connect_isOK.drillstatus = Status.update_drill_Status(Drill_PLC_Device);   //10種鑽床狀態更新
-                        //connect_isOK.swingstatus = Status.update_swing_Status(Drill_PLC_Device); //10種鋸床狀態更新
-                        //connect_isOK.sawband = Status.update_SawBand_Status(Drill_PLC_Device);  //10種鋸帶狀態更新
-
-
-                        //// 定義監控 monitor 
-                        MonitorHub.AddMonitor("Drill", Drill_PLC_Device);
-
-                        var Drilll_monitor = MonitorHub.GetMonitor("Drill");
-                        if (Drilll_monitor != null)
-                        {
-                            Drill_CancelToken = new CancellationTokenSource();
-                            Drill_IO_task = Task.Run(() => Drilll_monitor.FX5U_Drill_MonitoringLoop(Drill_CancelToken.Token, DBfunction.Get_Drill_current_single_all()));
-                            Alarm_task = Task.Run(() => Drilll_monitor.alarm_MonitoringLoop(Drill_CancelToken.Token, DBfunction.Get_alarm_current_single_all()));
-
-                            Drill_status_task = Task.Run(() => Drilll_monitor.DrillMonitoring(Drill_CancelToken.Token));
-                            swing_lab_task = Task.Run(() => Drilll_monitor.StartSawingMonitoringLoop(Drill_CancelToken.Token));
-
-
-                            var DB_update = MonitorHub.GetMonitor("Drill");
-                            DB_update.IOUpdated += DB_update_change;
-
-
-                        }
-                        else
-                        {
-                            MessageBox.Show("找不到名稱為 'Drill' 的監控器！");
-                        }
-
-
-                    }
-                    else
-                    {
-                        connect_isOK.Swing_connect = false;
-                        MessageBox.Show($"連線失敗，請檢查硬體IP及位置後重新連線");
-
-                    }
-                }
+                return;
 
             }
-       
-            if (control_choose.SelectedIndex == 1)
+            var plc = SLMP_connect(txb_IP.Text.Trim(), int.Parse(txb_port.Text));
+            if (plc == null)
             {
-                if (connect_isOK.Swing_connect == true)
-                {
-                    return;
-                }
-                Swing_PLC_Device = SLMP_connect(txb_IP.Text.ToString(), int.Parse(txb_port.Text.ToString()));
-                if (Swing_PLC_Device != null)
-                {
-                    connect_isOK.Swing_connect = true;
-
-
-                    if (connect_isOK.Swing_connect == true)
-                    {
-
-
-                        // 初始化資料庫內的信號值
-                        InitializeSawingMonitoring(Swing_PLC_Device);
-
-                        // 定義監控 monitor 
-                        MonitorHub.AddMonitor("Sawing", Swing_PLC_Device);
-
-
-                        var monitor = MonitorHub.GetMonitor("Sawing");
-                        if (monitor != null)
-                        {
-                            Sawing_CancelToken = new CancellationTokenSource();
-                            Sawing_open_task = Task.Run(() => monitor.FX5U_MonitoringLoop(Sawing_CancelToken.Token, DBfunction.Get_Sawing_current_single_all()));
-                            var DB_update1 = MonitorHub.GetMonitor("Sawing");
-                            DB_update1.IOUpdated += DB_update_change;
-
-                        }
-                        else
-                        {
-                            MessageBox.Show("找不到名稱為 'Swing' 的監控器！");
-                        }
-
-                    }
-                    else
-                    {
-                        connect_isOK.Swing_connect = false;
-                        MessageBox.Show($"連線失敗，請檢查硬體IP及位置後重新連線");
-
-                    }
-                }
+                MessageBox.Show($"連線失敗，請檢查硬體IP及位置後重新連線");
+                return;
             }
+
+            // 註冊機台與自動掛上監控器
+            MachineHub.RegisterMachine(connect_machine, plc);
+
+            // 取得註冊後的 context
+            var context = MachineHub.Get(connect_machine);
+            if (context == null || !context.IsConnected)
+            {
+                MessageBox.Show($"註冊後讀取 {connect_machine} 資訊失敗");
+                return;
+            }
+
+            // 告知 Monitor 要使用對應 Lock
+            context.Monitor.SetExternalLock(context.LockObject);
+
+            // 啟動監控任務
+            _ = Task.Run(() => context.Monitor.MonitoringLoop(context.TokenSource.Token, context.MachineName));
+            if (context.IsMaster) // 只針對主機執行 alarm 監控
+            {
+                _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(
+                    context.TokenSource.Token));
+            }
+
+            int[] writemodes = DBfunction.Get_Machine_Calculate_type(context.MachineName);
+            int[] read_modes = DBfunction.Get_Machine_Readview_type(context.MachineName);
+
+            _ = Task.Run(() => context.Monitor.Read_Bit_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
+            _ = Task.Run(() => context.Monitor.Read_Word_Monitor_AllModesAsync(context.MachineName, read_modes, context.TokenSource.Token));
+            _ = Task.Run(() => context.Monitor.Write_Word_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
+            _ = Task.Run(() => context.Monitor.Read_None_Monitor_AllModesAsync(context.MachineName, context.TokenSource.Token));
+
+            // 註冊變更事件
+            context.Monitor.IOUpdated += DB_update_change;
 
         }
-       
+        /// <summary>
+        /// 監控及記錄當前實體元件的使用次數
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DB_update_change(object? sender, IOUpdateEventArgs e)
         {
             if (this.InvokeRequired)
@@ -238,12 +169,11 @@ namespace FX5U_IOMonitor
                 return;
             }
 
-            // 這裡才安全顯示 UI（主執行緒）
-            //MessageBox.Show($"📡 偵測到 I/O 變化：{e.Address} from {e.OldValue} ➜ {e.NewValue}");
-
             try
             {
-                string? datatable = DBfunction.FindTableWithAddress(e.Address);
+                var monitor = sender as MonitorService;
+                string? datatable = monitor?.MachineName;
+
                 if (string.IsNullOrWhiteSpace(datatable))
                     return;
 
@@ -266,67 +196,14 @@ namespace FX5U_IOMonitor
 
         private void btn_disconnect_ethernet_Click(object sender, EventArgs e)
         {
-            if (control_choose.SelectedIndex == 0)
-            {
+            string connect_machine = control_choose.Text;
 
-                if (connect_isOK.Drill_connect == true)
-                {
-                    connect_isOK.Drill_connect = false;
-                    // 停止監控任務
-                    Drill_CancelToken?.Cancel();
-                    Drill_IO_task?.Wait();              // 等待任務結束
-                    Drill_status_task?.Wait();
-                    swing_lab_task?.Wait();
-                    Alarm_task?.Wait();
-                    Drill_CancelToken?.Dispose();
-                    Drill_CancelToken = null;
-                    Sawing_open_task = null;
-                    // 關閉 PLC
-                    Drill_PLC_Device.Disconnect();
-                    connect_isOK.Drill_total.connect = 0;
-                    //移除監控器
-                    MonitorHub.RemoveMonitor("Drill");
-
-                    //UpdateData.ResetCurrentSingle(DataStore.Drill_DataList);
-                    return;
-                }
-                else
-                {
-                    return;
-                }
-
-            }
-            if (control_choose.SelectedIndex == 1)
-            {
-                if (connect_isOK.Swing_connect == true)
-                {
-                    connect_isOK.Swing_connect = false;
-
-                    // 停止監控任務
-                    Sawing_CancelToken?.Cancel();
-                    Sawing_open_task?.Wait();              // 等待任務結束
-                    Sawing_CancelToken?.Dispose();
-                    Sawing_CancelToken = null;
-                    Sawing_open_task = null;
-
-                    // 關閉 PLC
-                    Swing_PLC_Device.Disconnect();
-                    connect_isOK.Swing_total.connect = 0;
-
-                    // 移除監控器
-                    MonitorHub.RemoveMonitor("Swing");
-
-                    // 清空畫面資料
-                    //UpdateData.ResetCurrentSingle(DataStore.Swing_DataList);
-                    return;
-                }
-
-
-
-            }
+            // 註冊機台與自動掛上監控器
+            MachineHub.UnregisterMachine(connect_machine);
 
         }
-
+        private SerialPort serialPort;
+        private IModbusSerialMaster modbusMaster;
         private void btn_connect_RS485_Click(object sender, EventArgs e)
         {
             if (control_choose.SelectedIndex == 0)
@@ -387,6 +264,7 @@ namespace FX5U_IOMonitor
 
             if (control_choose.SelectedIndex == 0)
             {
+
                 panel1.Visible = true;
             }
             if (control_choose.SelectedIndex == 1)
@@ -413,101 +291,13 @@ namespace FX5U_IOMonitor
         }
 
 
-
-
-
-        private void InitializeSawingMonitoring(SlmpClient plc)
-        {
-
-            // 載入區段資訊後依照區段(X/Y)分組，並同時初始化所有區塊資料
-            var Sawing = Calculate.AnalyzeIOSections_8();
-            var sectionGroups = Sawing
-                .GroupBy(s => s.Prefix)
-                .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-            foreach (var prefix in sectionGroups.Keys)
-            {
-                var blocks = sectionGroups[prefix];
-                stopwatch = Stopwatch.StartNew();
-                foreach (var block in blocks)
-                {
-                    // ✅ 格式化位址為八進位補0，例如 X010
-                    string device = prefix + block.Start;
-
-                    bool[] plc_result = plc.ReadBitDevice(device, 256);
-
-
-                    var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start);
-
-                    int updated = Calculate.UpdateIOCurrentSingleToDB(result, "Sawing");
-
-                    connect_isOK.Swing_total.connect += updated;
-                }
-
-                // ✅ 顯示第一個切割點起始值
-                var firstBlock = blocks.FirstOrDefault();
-                stopwatch.Stop();
-            }
-
-            // ✅ 更新斷線數與耗時資訊
-            int disconnect = DBfunction.GetTableRowCount("Sawing") - connect_isOK.Swing_total.connect;
-            connect_isOK.Swing_total.disconnect = disconnect;
-            connect_isOK.Swing_total.read_time = $"讀取時間: {stopwatch.ElapsedMilliseconds} ms";
-            Debug.WriteLine($"讀取時間: {stopwatch.ElapsedMilliseconds} ms");
-            Debug.WriteLine($"✅ Sawing 監控完成，連線 {connect_isOK.Swing_total.connect} 筆，斷線 {disconnect} 筆");
-
-        }
-        private void InitializeDrillMonitoring(SlmpClient plc)
-        {
-
-            // 載入區段資訊後依照區段(X/Y)分組，並同時初始化所有區塊資料
-            var Drill = Calculate.Drill_test(); //這邊是八進制，實測時要改成16進制
-            var sectionGroups = Drill
-                .GroupBy(s => s.Prefix)
-                .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            foreach (var prefix in sectionGroups.Keys)
-            {
-                var blocks = sectionGroups[prefix];
-               
-                foreach (var block in blocks)
-                {
-                    // ✅ 格式化位址為八進位補0，例如 X010
-                    string device = prefix + block.Start;
-
-                    bool[] plc_result = plc.ReadBitDevice(device, 256);
-
-                    var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start);
-
-                    int updated = Calculate.UpdateIOCurrentSingleToDB(result, "Drill");
-
-                    connect_isOK.Drill_total.connect += updated;
-                }
-                stopwatch.Stop();
-
-                // ✅ 顯示第一個切割點起始值
-                var firstBlock = blocks.FirstOrDefault();
-            }
-
-            // ✅ 更新斷線數與耗時資訊
-            int disconnect = DBfunction.GetTableRowCount("Drill") - connect_isOK.Drill_total.connect;
-            connect_isOK.Drill_total.disconnect = disconnect;
-            connect_isOK.Drill_total.read_time = $"讀取時間: {stopwatch.ElapsedMilliseconds} ms";
-            Debug.WriteLine($"讀取時間: {stopwatch.ElapsedMilliseconds} ms");
-            Debug.WriteLine($"✅ Drill 監控完成，連線 {connect_isOK.Drill_total.connect} 筆，斷線 {disconnect} 筆");
-
-        }
-
-
         private void Initialize_Aalarm(SlmpClient plcdevice)
         {
-            var alarm = Calculate.alarm_trans();
+            var alarm = Calculate.Alarm_trans();
             var sectionGroups = alarm
                 .GroupBy(s => s.Prefix)
                 .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-         
+
             foreach (var prefix in sectionGroups.Keys)
             {
                 var blocks = sectionGroups[prefix];
@@ -521,68 +311,71 @@ namespace FX5U_IOMonitor
 
                     var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
 
-                    int updated = Calculate.UpdateIOCurrentSingleToDB(result, "alarm");
+                    int updated = Calculate.UpdatealarmCurrentSingleToDB(result, "alarm");
+                    return;
 
                 }
 
-                // ✅ 顯示第一個切割點起始值
-                var firstBlock = blocks.FirstOrDefault();
             }
         }
 
-        private void Initialize_machine_prameter(SlmpClient plc)
+        private void btn_addmachine_Click(object sender, EventArgs e)
         {
-            //初始化machine參數
+            if (string.IsNullOrEmpty(txb_machine.Text))
+            {
+                MessageBox.Show("請為需監控的機台進行命名後得以匯入實體元件");
+                return;
+            }
+            string targetMachineName = txb_machine.Text.Trim();
+
+            // 檢查是否已存在重複名稱
             using (var context = new ApplicationDB())
             {
-                var parameters_read = context.MachineParameters.ToList();
-                foreach (var param in parameters_read)
+                bool isDuplicate = context.Machine_IO.Any(m => m.Machine_name == targetMachineName);
+                if (isDuplicate)
                 {
-                    if (param.Name == "Sawband_brand")
-                    {
-                        string address = DBfunction.Get_Machine_read_address(param.Name);
-                        ushort[] rawValue = plc.ReadWordDevice(address, 20);
-                        string Sawband_brand = Status.ConvertUShortArrayToAsciiString(rawValue);
-                        DBfunction.Set_Machine_string("Sawband_brand", Sawband_brand);
-                        continue;
-                    }
-                    if (param.Name == "Sawblade_material")
-                    {
-                        string address = DBfunction.Get_Machine_read_address(param.Name);
-                        ushort[] rawValue = plc.ReadWordDevice(address, 10);
-                        string Saw_blade_material = Status.ConvertUShortArrayToAsciiString(rawValue);
-                        DBfunction.Set_Machine_string("Sawband_brand", Saw_blade_material);
-                        continue;
-                    }
-                    if (param.Name == "Sawblade_teeth")
-                    {
-                        string address = DBfunction.Get_Machine_read_address(param.Name);
-                        ushort[] rawValue = plc.ReadWordDevice(address, 2);
-                        DBfunction.Set_Machine_string("Sawblade_teeth", rawValue[0].ToString() + " / " + rawValue[1].ToString());
-                        continue;
-                    }
-
-                    try
-                    {
-                        string address = DBfunction.Get_Machine_read_address(param.Name);
-                        ushort rawValue = plc.ReadWordDevice(address);
-                        DBfunction.Set_Machine_now_number(param.Name, rawValue);
-
-                        if (string.IsNullOrWhiteSpace(address))
-                        {
-                            continue;
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"❌ 錯誤：參數 {param.Name} 發生例外：{ex.Message}");
-                    }
+                    MessageBox.Show($"❌ 機台名稱「{targetMachineName}」已存在，請重新命名後再匯入。");
+                    return;
                 }
-               
+            }
+            // Select file through OpenFileDialog
+            OpenFileDialog openFileDialog = new();
+            openFileDialog.Filter = "Csv Files|*.csv";
+            openFileDialog.Multiselect = false;
+            openFileDialog.Title = "Select a Machine IO Csv file";
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
             }
 
+            Csv2Db.Initialization_MachineElementFromCSV(txb_machine.Text, openFileDialog.FileName);
+            UpdateConnectmachinComboBox();
+
         }
+        private void UpdateConnectmachinComboBox()
+        {
+            using (var context = new ApplicationDB())
+            {
+                //var machineNames = context.Machine_IO
+                //                    .Select(io => io.Machine_name)  // 只取 Machine_name 欄位
+                //                    .Distinct()                     // 過濾重複值
+                //                    .ToList();                      // 轉成 List<string>
+                var machineNames = context.index
+                                   .Select(io => io.Name);
+                           
+                control_choose.Items.Clear();
+
+                foreach (var machine in machineNames)
+                {
+                    control_choose.Items.Add(machine);
+                }
+                control_choose.SelectedIndex = -1;
+            }
+
+
+        }
+
+      
     }
 }
 

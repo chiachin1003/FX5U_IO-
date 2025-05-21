@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,7 +14,9 @@ using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Migrations;
 using FX5U_IOMonitor.Models;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Newtonsoft.Json.Linq;
 using static FX5U_IOMonitor.Models.MonitoringService;
 
 namespace FX5U_IOMonitor.panel_control
@@ -22,28 +25,39 @@ namespace FX5U_IOMonitor.panel_control
     {
         private bool isUpdating = false;
         private string source_table;
+        private List<string> DataList;
         private Dictionary<string, Panel> panelMap = new();
         private MonitorService? monitor;
         private bool isEventRegistered = false;
         public UserSearchControl()
         {
             InitializeComponent();
+            string lang = Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageCSV("language.csv", lang);
+            SwitchLanguage();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+
         }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+        }
+
         public void LoadData(List<string> io_DataList, string datatable)
         {
             if (io_DataList == null) return;
             source_table = datatable;
-
+            DataList = io_DataList;
             List<string> breakdown_part = DBfunction.Get_breakdown_part(source_table);
             List<string> breakdown_address = new();
 
             if (source_table == "Drill")
             {
-                 breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
+                breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
             }
-            else if (source_table == "Sawing")        
+            else if (source_table == "Sawing")
             {
-                breakdown_address = DBfunction.Get_address_ByBreakdownParts("Sawing",breakdown_part);
+                breakdown_address = DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
             }
 
 
@@ -55,7 +69,6 @@ namespace FX5U_IOMonitor.panel_control
                 if (panelMap.TryGetValue(addr, out var panel))
                 {
                     HighlightPanel(panel, breakdown_part);
-                    Update_Flow(io_DataList);
                 }
             }
 
@@ -64,18 +77,25 @@ namespace FX5U_IOMonitor.panel_control
             tableLayoutPanel6.BorderStyle = BorderStyle.FixedSingle;
             lab_green.Text = DBfunction.Get_Green_search(datatable, io_DataList).ToString();
             lab_yellow.Text = DBfunction.Get_Yellow_search(datatable, io_DataList).ToString();
-            lab_red.Text = DBfunction.Get_Red_search(datatable,  io_DataList).ToString();
+            lab_red.Text = DBfunction.Get_Red_search(datatable, io_DataList).ToString();
 
-            monitor = MonitorHub.GetMonitor(datatable);
+            //var context = MachineHub.Get("Drill");
+
+            monitor = MachineHub.GetMonitor(datatable);
             if (monitor != null)
             {
                 monitor.IOUpdated += OnIOChanged;
 
                 isEventRegistered = true;
-
             }
 
+
         }
+        /// <summary>
+        /// 綁定故障元件功能
+        /// </summary>
+        /// <param name="panel"></param>
+        /// <param name="breakdown_part_address"></param>
         private void HighlightPanel(Panel panel, List<string> breakdown_part_address)
         {
             var labEquipment = panel.Controls.Find("lab_equipment", true).FirstOrDefault() as Label;
@@ -95,6 +115,14 @@ namespace FX5U_IOMonitor.panel_control
 
             }
         }
+
+        /// <summary>
+        /// 新增元件點擊後關閉的異常標準
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <param name="breakdown_part_address"></param>
+        /// <param name="description"></param>
         private void LabEquipment_Click(object? sender, EventArgs e, List<string> breakdown_part_address, string description)
         {
             if (sender is Label lbl)
@@ -139,6 +167,10 @@ namespace FX5U_IOMonitor.panel_control
 
         const int MaxPanelCount = 1000;
 
+        /// <summary>
+        /// 更新實體監控元件總數
+        /// </summary>
+        /// <param name="DataList"></param>
         public void Update_Flow(List<string> DataList)
         {
             if (this.InvokeRequired)
@@ -158,21 +190,17 @@ namespace FX5U_IOMonitor.panel_control
                     Console.WriteLine("傳入的資料為空！");
                     return;
                 }
-                foreach (Control ctrl in flowLayoutPanel1.Controls)
+                foreach (Control ctrl in flowLayoutPanel2.Controls)
                 {
                     ctrl.Dispose();
                 }
-                flowLayoutPanel1.Controls.Clear();
+                flowLayoutPanel2.Controls.Clear();
                 panelMap.Clear();
 
 
-                using var context = new ApplicationDB();
-
-
-                if (source_table == "Drill")
+                using (var context = new ApplicationDB())
                 {
-                    var driilIOList = context.Drill_IO.ToList();
-                    var filteredList = driilIOList.Where(io =>
+                    var filteredList = context.Machine_IO.Where(io => io.Machine_name == source_table &&
                                     DataList.Contains(io.address))
                                     .ToList();
                     foreach (var item in filteredList.Take(MaxPanelCount))
@@ -181,10 +209,11 @@ namespace FX5U_IOMonitor.panel_control
 
                         Panel panel = MachineInfo.PanelFactory.CreatePanel(
                             location: new Point(0, 0),
+                            source_table,
                             Electronic: item.IOType,
                             equipmentName: item.Description,
-                            percent: item.RUL.ToString(),
-                            rulPercent: item.RUL.ToString(),
+                            percent: item.RUL.ToString("F2"),
+                            rulPercent: item.RUL.ToString("F2"),
                             effect: item.Comment,
                             address: item.address,
                             state: item.current_single
@@ -192,37 +221,11 @@ namespace FX5U_IOMonitor.panel_control
 
                         panel.Tag = item.address;
                         panelMap[item.address] = panel;
-                        flowLayoutPanel1.Controls.Add(panel);
+                        flowLayoutPanel2.Controls.Add(panel);
+
                     }
-                }
-                else if (source_table == "Sawing")
-                {
+                };
 
-                    var SawingIOList = context.Sawing_IO.ToList();
-                    var filteredList = SawingIOList.Where(io =>
-                                    DataList.Contains(io.address))
-                                    .ToList();
-
-                    foreach (var item in filteredList.Take(MaxPanelCount))
-                    {
-                        if (this.IsDisposed) break;
-
-                        Panel panel = MachineInfo.PanelFactory.CreatePanel(
-                            location: new Point(0, 0),
-                            Electronic: item.IOType,
-                            equipmentName: item.Description,
-                            percent: item.RUL.ToString(),
-                            rulPercent: item.RUL.ToString(),
-                            effect: item.Comment,
-                            address: item.address,
-                            state: item.current_single
-                        );
-
-                        panel.Tag = item.address;
-                        panelMap[item.address] = panel;
-                        flowLayoutPanel1.Controls.Add(panel);
-                    }
-                }
             }
             finally
             {
@@ -230,6 +233,11 @@ namespace FX5U_IOMonitor.panel_control
             }
         }
 
+        /// <summary>
+        /// 訂閱實體元件監控事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnIOChanged(object? sender, IOUpdateEventArgs e)
         {
             if (InvokeRequired)
@@ -241,13 +249,23 @@ namespace FX5U_IOMonitor.panel_control
             // 顯示更新內容
             //MessageBox.Show($"[{e.Address}] {e.OldValue} → {e.NewValue}");
             bool NewValue = DBfunction.Get_current_single_ByAddress(source_table, e.Address);
+            double percent = DBfunction.Get_RUL_ByAddress(source_table, e.Address);
+            int green = DBfunction.Get_SetG_ByAddress(source_table, e.Address);
+            int yellow = DBfunction.Get_SetY_ByAddress(source_table, e.Address);
+            int red = DBfunction.Get_SetR_ByAddress(source_table, e.Address);
+
             //更新元件顯示方式
             if (panelMap.TryGetValue(e.Address, out var panel))
             {
                 UpdatePanelState(panel, NewValue);
+                Update_searchPercentPanel(panel, percent.ToString("F2"), green, yellow, red);
             }
         }
-
+        /// <summary>
+        /// 更新實體元件當前狀態
+        /// </summary>
+        /// <param name="panel"></param>
+        /// <param name="newValue"></param>
         private void UpdatePanelState(Panel panel, bool newValue)
         {
 
@@ -261,7 +279,75 @@ namespace FX5U_IOMonitor.panel_control
                 labelStatus.BackColor = newValue ? Color.White : Color.Black;
             }
         }
-        
+        /// <summary>
+        /// 更新實體元件監控壽命百分比
+        /// </summary>
+        /// <param name="panel"></param>
+        /// <param name="percent"></param>
+        /// <param name="green"></param>
+        /// <param name="yellow"></param>
+        /// <param name="red"></param>
+        private void Update_searchPercentPanel(Panel panel, string percent, int green, int yellow, int red)
+        {
 
+            // ✅ 方法二：找裡面的 label 或 control 更新文字
+            var labelpercent = panel.Controls
+                .OfType<Label>()
+                .FirstOrDefault(l => l.Name == "label_percent");
+
+            if (labelpercent != null)
+            {
+                if (!string.IsNullOrEmpty(percent))
+                {
+
+                    if (labelpercent.Name == "label_percent")
+                    {
+                        labelpercent.Text = percent + "%";
+
+                    }
+                }
+            }
+            var labelRUL = panel.Controls
+               .OfType<ProgressBar>()
+               .FirstOrDefault(l => l.Name == "RUL_precent");
+
+            if (labelRUL != null)
+            {
+                if (!string.IsNullOrEmpty(percent))
+                {
+
+                    if (labelRUL.Name == "RUL_precent")
+                    {
+                        labelRUL.Value = MachineInfo.PanelFactory.ProgressBarValue(percent);
+
+                    }
+                }
+            }
+            var panel_light = panel.Controls
+              .OfType<Panel>()
+              .FirstOrDefault(l => l.Name == "panel_light");
+            if (panel_light != null)
+            {
+                if (!string.IsNullOrEmpty(percent))
+                {
+
+                    if (panel_light.Name == "panel_light")
+                    {
+                        labelRUL.BackColor = (Color)MachineInfo.PanelFactory.SetColor(percent, green, yellow, red);
+                    }
+                }
+            }
+
+
+
+        }
+        private void SwitchLanguage()
+        {
+            label1.Text = LanguageManager.Translate("Mainform_RedLights");
+            label2.Text = LanguageManager.Translate("Mainform_YellowLights");
+            label3.Text = LanguageManager.Translate("Mainform_GreenLights");
+        }
+
+       
     }
 }

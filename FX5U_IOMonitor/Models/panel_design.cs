@@ -69,11 +69,11 @@ namespace FX5U_IOMonitor.Models
             table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
 
             string[] labels = {
-        "當前最大壽命設定：",
-        "綠燈健康狀態設定(%)：",
-        "黃燈警告狀態設定(%)：",
-        "紅燈異常狀態設定(%)："
-    };
+                "當前最大壽命設定：",
+                "綠燈健康狀態設定(%)：",
+                "黃燈警告狀態設定(%)：",
+                "紅燈異常狀態設定(%)："
+            };
 
             for (int i = 0; i < 4; i++)
             {
@@ -239,8 +239,7 @@ namespace FX5U_IOMonitor.Models
           
             return pictureBox;
         }
-
-       
+     
 
         //private static void DrawDoughnutChart(Graphics g, Rectangle bounds, float[] values, Color[] colors, float total)
         //{
@@ -364,7 +363,7 @@ namespace FX5U_IOMonitor.Models
             Panel topPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 150,
+                Height = 160,
                 //BackColor = Color.White
             };
 
@@ -391,7 +390,8 @@ namespace FX5U_IOMonitor.Models
             {
                 AutoSize = true,
                 Font = new Font("Microsoft JhengHei", 12, FontStyle.Bold),
-                Location = new Point(150, 10)
+                Location = new Point(150, 10),
+                MaximumSize = new Size(400, 0)
             };
 
             label_detail.Text =
@@ -518,25 +518,74 @@ namespace FX5U_IOMonitor.Models
                 Padding = new Padding(10)
             };
 
-            // ▶▶ 資訊 Label（微軟正黑體，整合為一個 label）
-            Label label_detail = new Label
+            int y = 20;
+
+            void AddLabel(string title, string value)
             {
+                Label lbl = new Label
+                {
+                    AutoSize = true,
+                    Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
+                    Location = new Point(8, y),
+                    Text = $"{title.PadRight(10)}：{value}"
+                };
+                mainPanel.Controls.Add(lbl);
+                y += 35;
+            }
+
+            AddLabel("元件儲存器地址", address);
+            AddLabel("更換料號　　　", equipmentDescription);
+            AddLabel("預計可觸發次數", maxLife.ToString()+"次");
+
+            // 加入可更新的 currentUse Label
+            Label lbl_useCount = new Label
+            {
+                Name = "lb_useCount",
                 AutoSize = true,
                 Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
-                Location = new Point(15, 25)
+                Location = new Point(8, y),
+                Text=$"目前已觸發次數   ：{currentUse} 次"
+            };
+            mainPanel.Controls.Add(lbl_useCount);
+            y += 35;
+            Label lbl_remainCount = new Label
+            {
+                Name = "lb_remainCount",
+                AutoSize = true,
+                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
+                Location = new Point(8, y),
+                Text = $"剩餘可使用次數   ：" + (maxLife - currentUse).ToString() + " 次"
+            }; 
+            mainPanel.Controls.Add(lbl_remainCount);
+            y += 35;
+
+            Label lbl_comment = new Label
+            {
+                Name = "lb_useCount",
+                AutoSize = true,
+                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
+                Location = new Point(8, y),
+                Text = $"設備細節描述　   ："
+            };
+            mainPanel.Controls.Add(lbl_comment);
+
+            Label lbl_comment_string = new Label
+            {
+                Name = "lbl_comment_string",
+                AutoSize = true,                                  // ✅ 自動展開高度
+                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
+                Location = new Point(200, y),
+                MaximumSize = new Size(300, 0),                   // ✅ 限制最大寬度（會自動換行）
+                Text = comment,
+                TextAlign = ContentAlignment.TopLeft,
             };
 
-            label_detail.Text =
-                $"{"元件儲存器地址：".PadRight(10)} {address}\n" +
-                $"{"更換料號　　　：".PadRight(10)} {equipmentDescription}\n" +
-                $"{"預計可觸發次數：".PadRight(10)} {maxLife}\n" +
-                $"{"目前已觸發次數：".PadRight(10)} {currentUse} 次\n" +
-                $"{"剩餘可使用次數：".PadRight(10)} {maxLife - currentUse} 次\n" +
-                $"{"設備細節描述　：".PadRight(10)} {comment}\n\n\n\n\n\n\n" +
-                $"{"設備啟用時間：".PadRight(10)}{equipmentStartTime}\n";
+            mainPanel.Controls.Add(lbl_comment_string);
+            lbl_comment_string.BringToFront();
 
+            y += 125;
 
-            mainPanel.Controls.Add(label_detail);
+            AddLabel("設備啟用時間", equipmentStartTime);
 
             return mainPanel;
         }
@@ -544,12 +593,10 @@ namespace FX5U_IOMonitor.Models
 
         public static TableLayoutPanel CreateColorLegendPanel(string redText, string yellowText, string greenText)
         {
-            // 建立 TableLayoutPanel
             TableLayoutPanel legendPanel = new TableLayoutPanel
             {
                 ColumnCount = 6,
                 RowCount = 1,
-                //AutoSize = true,
                 Size = new Size(115, 22),
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 Margin = new Padding(0),
@@ -557,15 +604,14 @@ namespace FX5U_IOMonitor.Models
                 BackColor = Color.Transparent
             };
 
-            // 每欄固定寬度（手動分配像素，不使用百分比）
-            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 13));  // red square
-            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 27));  // red label
-            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 13));  // yellow square
-            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25));  // yellow label
-            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 13));  // green square
-            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25));  // green label
+            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 13));
+            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 27));
+            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 13));
+            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25));
+            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 13));
+            legendPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 25));
             legendPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            // 公用函式建立方塊
+
             Panel CreateBox(Color color) => new Panel
             {
                 BackColor = color,
@@ -575,9 +621,9 @@ namespace FX5U_IOMonitor.Models
                 Anchor = AnchorStyles.None
             };
 
-            // 公用函式建立 Label
-            Label CreateLabel(string text) => new Label
+            Label CreateLabel(string text, string name) => new Label
             {
+                Name = name,
                 Text = text,
                 Font = new Font("Microsoft JhengHei", 10f, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -588,17 +634,17 @@ namespace FX5U_IOMonitor.Models
                 Anchor = AnchorStyles.Left
             };
 
-            // 加入內容（紅、黃、綠）
             legendPanel.Controls.Add(CreateBox(Color.LightGreen), 0, 0);
-            legendPanel.Controls.Add(CreateLabel(redText), 1, 0);
+            legendPanel.Controls.Add(CreateLabel(redText, "lblRed"), 1, 0);
+
             legendPanel.Controls.Add(CreateBox(Color.Yellow), 2, 0);
-            legendPanel.Controls.Add(CreateLabel(yellowText), 3, 0);
+            legendPanel.Controls.Add(CreateLabel(yellowText, "lblYellow"), 3, 0);
+
             legendPanel.Controls.Add(CreateBox(Color.Red), 4, 0);
-            legendPanel.Controls.Add(CreateLabel(greenText), 5, 0);
+            legendPanel.Controls.Add(CreateLabel(greenText, "lblGreen"), 5, 0);
 
             return legendPanel;
 
-            return legendPanel;
         }
 
 

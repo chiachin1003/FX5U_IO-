@@ -22,6 +22,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NModbus4" Version="2.1.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="System.IO.Ports" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,20 +32,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Alarm_Notify.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Sawingband_Info.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Drill_Info.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Email_setting.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Saw_band.cs">
+    <Compile Update="Email_Settings.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Main_form.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="panel_control\ClassControl.cs">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -60,6 +68,13 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 
 </Project>
