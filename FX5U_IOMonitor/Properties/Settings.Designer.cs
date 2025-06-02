@@ -46,5 +46,53 @@ namespace FX5U_IOMonitor.Properties {
                 this["LanguageSetting"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("itrid400itri@gmail.com")]
+        public string senderEmail {
+            get {
+                return ((string)(this["senderEmail"]));
+            }
+            set {
+                this["senderEmail"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("wmfisqognlhnhcsc")]
+        public string senderPassword {
+            get {
+                return ((string)(this["senderPassword"]));
+            }
+            set {
+                this["senderPassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("smtp.gmail.com")]
+        public string Gmail_SMTP_server {
+            get {
+                return ((string)(this["Gmail_SMTP_server"]));
+            }
+            set {
+                this["Gmail_SMTP_server"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("587")]
+        public int TLS_port {
+            get {
+                return ((int)(this["TLS_port"]));
+            }
+            set {
+                this["TLS_port"] = value;
+            }
+        }
     }
 }

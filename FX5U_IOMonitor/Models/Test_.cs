@@ -18,6 +18,8 @@ namespace FX5U_IOMonitor.Models
 {
     internal class Test_
     {
+       
+      
         void read_view0()
         {
             SlmpConfig cfg = new("192.168.9.1", 2000);

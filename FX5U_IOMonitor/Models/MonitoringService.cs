@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Collections.Specialized.BitVector32;
@@ -51,7 +51,7 @@ namespace FX5U_IOMonitor.Models
             private SlmpClient plc;
             private object? externalLock;
             private bool isFirstRead = true; // 實體元件監控是否初始化
-
+            private bool alarmFirstRead = true;
 
             public void SetExternalLock(object locker)
             {
@@ -65,21 +65,23 @@ namespace FX5U_IOMonitor.Models
                 this.plc = PLC;
                 this.MachineName = machineName;
                 bool isFirstRead = true;
-            }
-        
-          /// <summary>
-          /// 
-          /// </summary>
-          /// <param name="token"></param>
-          /// <param name=""></param>
-          /// <returns></returns>
-            public async Task MonitoringLoop(CancellationToken token, string machinname)
+                bool alarmFirstRead = true; // 實體元件監控是否初始化
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public async Task MonitoringLoop(CancellationToken token, string machinname)
             {
                 
                 while (!token.IsCancellationRequested)
                 {
                     Monitoring(machinname);
-                    await Task.Delay(50); // 每 500 毫秒執行一次
+                    await Task.Delay(500); // 每 500 毫秒執行一次
                 }
             }
 
@@ -192,7 +194,6 @@ namespace FX5U_IOMonitor.Models
             }
 
 
-            private bool alarmFirstRead = true; // 實體元件監控是否初始化
 
             /// <summary>
             /// 警告監控輪詢與延遲
@@ -214,12 +215,13 @@ namespace FX5U_IOMonitor.Models
             /// <param name="old_single"></param>
             public void Alarm_Monitoring()
             {
+                List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
+
                 var alarm = Calculate.Alarm_trans();
                 var sectionGroups = alarm
                     .GroupBy(s => s.Prefix)
                     .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
 
-                List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
 
                 lock (externalLock ?? new object())
                 {
@@ -236,11 +238,11 @@ namespace FX5U_IOMonitor.Models
                                 var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
                                 if (isFirstRead)
                                 {
-                                    int updated = Calculate.UpdatealarmCurrentSingleToDB(result, "alarm");
-
+                                   Calculate.UpdatealarmCurrentSingleToDB(result);
                                 }
                                 else
                                 {
+
                                     alarm_NowSingle(result, old_single);
                                 }
 

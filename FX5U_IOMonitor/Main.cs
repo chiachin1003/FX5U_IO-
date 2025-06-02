@@ -3,7 +3,7 @@ using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Login;
 
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -34,6 +34,8 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolBar;
 using System.Reflection.Emit;
 using FX5U_IO元件監控;
+using System.ComponentModel;
+using CheckedComboBoxDemo;
 
 
 
@@ -42,7 +44,7 @@ namespace FX5U_IOMonitor
 {
     public partial class Main : Form
     {
-        private connect_PLC plcForm; // 連接介面
+        private Connect_PLC plcForm; // 連接介面
 
         private Swing_main swing_main;
         private Drill_main drill_main;
@@ -85,6 +87,7 @@ namespace FX5U_IOMonitor
             InitializeComponent();
             InitLanguageComboBox();
 
+
             //using (var form = new UserLoginForm())
             //{
             //    form.StartPosition = FormStartPosition.CenterParent;
@@ -119,8 +122,29 @@ namespace FX5U_IOMonitor
             Initialization_AlarmFromCSV("alarm.csv");
             Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
 
+            // 檢查是否已初始化
+            using (var context = new ApplicationDB())
+            {
+                string[] targetMachines = { "Drill", "Sawing" };
+                var duplicated = context.Machine_IO
+                                         .Where(m => targetMachines.Contains(m.Machine_name))
+                                         .Select(m => m.Machine_name)
+                                         .ToList();
+
+                if (duplicated.Any())
+                {
+                    string duplicatedNames = string.Join("、", duplicated.Distinct());
+                    Debug.WriteLine($"❌ 機台已初始化，請重新命名後再匯入。");
+                }
+                else
+                {
+                    Csv2Db.Initialization_MachineElementFromCSV("Drill", "Drill_Data.csv");
+                    Csv2Db.Initialization_MachineElementFromCSV("Sawing", "Sawing_Data.csv");
+                }
+            }
+
             _instance = this;  // 確保單例指向目前的主視窗
-            plcForm = new connect_PLC(this);
+            plcForm = new Connect_PLC(this);
 
             swing_main = new Swing_main(this);
             drill_main = new Drill_main(this);
@@ -141,7 +165,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear(); // 清空 Panel
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
-            
+
 
         }
 
@@ -328,13 +352,20 @@ namespace FX5U_IOMonitor
 
         private void btn_email_Click(object sender, EventArgs e)
         {
+            var form = new Alarm_Notify();
 
-            using (var form = new Alarm_Notify())
-            {
-                form.StartPosition = FormStartPosition.CenterParent;
-                var result = form.ShowDialog(this);
+            panel_select.Controls.Clear(); // 清空 Panel
+                                           // 設置子窗體屬性以嵌入 Panel
+            form.TopLevel = false; // 禁止作為獨立窗口
+            form.FormBorderStyle = FormBorderStyle.None; // 移除邊框
+            form.Dock = DockStyle.Fill; // 填滿 Panel
 
-            }
+            // 將子窗體添加到 Panel 並顯示
+            panel_main.Controls.Clear(); // 清空 Panel
+            panel_main.Controls.Add(form); // 添加子窗體
+            form.Show(); // 顯示子窗體
+
+
         }
 
         void InitMachineInfoDatabase()
@@ -372,6 +403,8 @@ namespace FX5U_IOMonitor
             btn_user.Text = LanguageManager.Translate("Mainform_Permission");
             btn_log_out.Text = LanguageManager.Translate("Mainform_Logout");
             btn_language.Text = LanguageManager.Translate("Mainform_language");
+            btn_setting.Text = LanguageManager.Translate("Mainform_Settings");
+
             this.Text = LanguageManager.Translate("Mainform_title");
 
         }
@@ -384,6 +417,15 @@ namespace FX5U_IOMonitor
                 Properties.Settings.Default.LanguageSetting = selectedLang;
                 Properties.Settings.Default.Save(); // ✅ 寫入設定檔
                 SwitchLanguage();
+            }
+        }
+
+        private void btn_setting_Click(object sender, EventArgs e)
+        {
+            using (var form = new Email_Settings())
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
             }
         }
     }

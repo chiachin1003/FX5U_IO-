@@ -1,24 +1,16 @@
-﻿using static FX5U_IOMonitor.Main;
-using FX5U_IOMonitor.Data;
+﻿
 using FX5U_IOMonitor.Models;
 using SLMP;
 using System.IO.Ports;
 using Modbus.Device; // 來自 NModbus4
 using static FX5U_IOMonitor.Models.MonitoringService;
-using Newtonsoft.Json.Linq;
-using System.Diagnostics;
-using System.Reflection.PortableExecutable;
-using System.Xml.Linq;
-using System.Windows.Forms;
-using Microsoft.VisualBasic;
-using System.Threading;
-using System.Net;
-using System.Timers;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using static FX5U_IOMonitor.Models.ModbusMonitorService;
+
+
 
 namespace FX5U_IOMonitor
 {
-    public partial class connect_PLC : Form
+    public partial class Connect_PLC : Form
     {
    
         public class connect_isOK //提供各介面共用的X_IO監控數據
@@ -29,18 +21,15 @@ namespace FX5U_IOMonitor
         }
 
 
-        public class Connect_Rs485
-        {
-            public string PortName { get; set; }
-            public int BaudRate { get; set; }
-
-        }
-
-        public connect_PLC(Main main)
+        public Connect_PLC(Main main)
         {
 
             InitializeComponent();
             UpdateConnectmachinComboBox();
+            comb_Baudrate.SelectedItem = "115200";
+            comb_Bits.SelectedItem = "8";
+            comb_Parity.SelectedItem = "None";
+            comb_StopBits.SelectedItem = "One";
             //control_choose.SelectedIndex = 0;
             //connect_choose.SelectedIndex = 0;
             //comb_language.SelectedIndex = 0;
@@ -138,10 +127,12 @@ namespace FX5U_IOMonitor
 
             // 啟動監控任務
             _ = Task.Run(() => context.Monitor.MonitoringLoop(context.TokenSource.Token, context.MachineName));
+
             if (context.IsMaster) // 只針對主機執行 alarm 監控
             {
                 _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(
                     context.TokenSource.Token));
+                context.Monitor.alarm_event += FailureAlertMail;
             }
 
             int[] writemodes = DBfunction.Get_Machine_Calculate_type(context.MachineName);
@@ -171,8 +162,12 @@ namespace FX5U_IOMonitor
 
             try
             {
-                var monitor = sender as MonitorService;
-                string? datatable = monitor?.MachineName;
+                string? datatable = sender switch
+                {
+                    MonitorService slmp => slmp.MachineName,
+                    ModbusMonitorService modbus => modbus.MachineName,
+                    _ => null
+                };
 
                 if (string.IsNullOrWhiteSpace(datatable))
                     return;
@@ -202,58 +197,52 @@ namespace FX5U_IOMonitor
             MachineHub.UnregisterMachine(connect_machine);
 
         }
-        private SerialPort serialPort;
-        private IModbusSerialMaster modbusMaster;
+
+        private void btn_disconnect_RS485_Click(object sender, EventArgs e)
+        {
+            string connect_machine = control_choose.Text;
+
+            // 註冊機台與自動掛上監控器
+            ModbusMachineHub.UnregisterModbusMachine(connect_machine);
+        }
+
         private void btn_connect_RS485_Click(object sender, EventArgs e)
         {
-            if (control_choose.SelectedIndex == 0)
+
+            var baudRate = int.Parse(comb_Baudrate.SelectedItem?.ToString() ?? "115200");
+            var dataBits = int.Parse(comb_Bits.SelectedItem?.ToString() ?? "8");
+            // 同位元轉換字串 → Enum
+            var parity = Enum.TryParse<Parity>(comb_Parity.SelectedItem?.ToString(), out var parsedParity)
+                         ? parsedParity : Parity.None;
+
+            // 停止位元轉換字串 → Enum
+            var stopBits = Enum.TryParse<StopBits>(comb_StopBits.SelectedItem?.ToString(), out var parsedStopBits)
+                           ? parsedStopBits : StopBits.One;
+
+
+            //var port = new SerialPort(txb_comport.Text, 115200, Parity.None, 8, StopBits.One);
+            var port = new SerialPort(txb_comport.Text, baudRate, parity, dataBits, stopBits);
+
+            port.Open();
+
+            // 建立 Modbus 主站
+            var master = ModbusSerialMaster.CreateRtu(port);
+
+            string connect_machine = control_choose.Text;
+
+            // 註冊機台到 ModbusMachineHub
+            ModbusMachineHub.RegisterModbusMachine(connect_machine, master, slaveId: 1);
+
+            // 啟動監控
+            var monitor = ModbusMachineHub.GetModbusMonitor(connect_machine);
+            var token = ModbusMachineHub.Get(connect_machine)?.TokenSource.Token;
+            if (monitor != null && token.HasValue)
             {
+                _ = monitor.MonitoringLoop(token.Value);
 
-
+                // 註冊變更事件
+                monitor.IOUpdated += DB_update_change;
             }
-            if (control_choose.SelectedIndex == 1)
-            {
-
-
-
-            }
-
-            //try
-            //{
-            //    // 1. 建立 Modbus TCP 客戶端，指定伺服器 IP 和埠號
-            //    ModbusClient modbusClient = new ModbusClient("192.168.9.136", 502); // 替換為伺服器的 IP 和埠
-            //    modbusClient.Connect(); // 連接到 Modbus TCP 伺服器
-
-            //    // 判斷是否連接成功
-            //    if (modbusClient.Connected)
-            //    {
-            //        Console.WriteLine("成功連接到 Modbus TCP 伺服器！");
-
-            //        // 2. 讀取保持暫存器（功能碼 0x03）
-            //        int startAddress = 0;       // 起始暫存器地址
-            //        int numberOfRegisters = 5; // 要讀取的暫存器數量
-            //        int[] holdingRegisters = modbusClient.ReadHoldingRegisters(startAddress, numberOfRegisters);
-
-            //        // 3. 顯示讀取到的暫存器數值
-            //        Console.WriteLine("讀取保持暫存器的數值：");
-            //        for (int i = 0; i < holdingRegisters.Length; i++)
-            //        {
-            //            Console.WriteLine($"Register {startAddress + i}: {holdingRegisters[i]}");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("無法連接到 Modbus TCP 伺服器，請檢查連線設定！");
-            //    }
-
-            //    // 4. 斷開連接
-            //    modbusClient.Disconnect();
-            //    Console.WriteLine("已斷開與 Modbus TCP 伺服器的連接。");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"錯誤：{ex.Message}");
-            //}
 
         }
 
@@ -290,34 +279,6 @@ namespace FX5U_IOMonitor
             //WriteFile();
         }
 
-
-        private void Initialize_Aalarm(SlmpClient plcdevice)
-        {
-            var alarm = Calculate.Alarm_trans();
-            var sectionGroups = alarm
-                .GroupBy(s => s.Prefix)
-                .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-
-            foreach (var prefix in sectionGroups.Keys)
-            {
-                var blocks = sectionGroups[prefix];
-
-                foreach (var block in blocks)
-                {
-                    // ✅ 格式化位址為八進位補0，例如 X010
-                    string device = prefix + block.Start;
-
-                    bool[] plc_result = plcdevice.ReadBitDevice(device, 256);
-
-                    var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
-
-                    int updated = Calculate.UpdatealarmCurrentSingleToDB(result, "alarm");
-                    return;
-
-                }
-
-            }
-        }
 
         private void btn_addmachine_Click(object sender, EventArgs e)
         {
@@ -375,7 +336,77 @@ namespace FX5U_IOMonitor
 
         }
 
-      
+        /// <summary>
+        /// 監控及記錄當前實體元件的使用次數
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FailureAlertMail(object? sender, IOUpdateEventArgs e)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => FailureAlertMail(sender, e)));
+                return;
+            }
+            try
+            {
+                string? datatable = sender switch
+                {
+                    MonitorService slmp => slmp.MachineName,
+                    ModbusMonitorService modbus => modbus.MachineName,
+                    _ => null
+                };
+
+                if (string.IsNullOrWhiteSpace(datatable))
+                {
+                    return;
+                }
+                DBfunction.Set_alarm_current_single_ByAddress(e.Address, e.NewValue);
+                MessageBox.Show($"📡 偵測到 I/O 變化：{e.Address} from {e.OldValue} ➜ {e.NewValue}");
+
+                if (e.NewValue == true)
+                {
+                    MessageBox.Show("警告");
+                    _ = HandleAlarmAndSendEmailAsync(e);
+                  
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Monitor_DBuse_Updated 發生例外：{ex.Message}");
+            }
+
+
+
+
+        }
+        private async Task HandleAlarmAndSendEmailAsync(IOUpdateEventArgs e)
+        {
+            string notifyUsers = Alarm_sendmail.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
+            var alarm = new Alarm_sendmail();
+            List<string> receivers = await alarm.GetAlarmNotifyEmails(notifyUsers);
+            string machineName = Alarm_sendmail.Get_Machine_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
+            string partNumber = Alarm_sendmail.Get_Description_ByAddress(e.Address);
+            string addressList = e.Address;
+            string faultLocation = Alarm_sendmail.Get_Error_ByAddress(e.Address);
+            string possibleReasons = Alarm_sendmail.Get_Possible_ByAddress(e.Address);
+            string suggestions = Alarm_sendmail.Get_Repair_steps_ByAddress(e.Address);
+
+            if (receivers.Count == 0)
+                return;
+
+            Email.SendFailureAlertMail(
+                receivers,
+                machineName,
+                partNumber ,
+                addressList: new List<string> { e.Address },
+                faultLocation,
+                possibleReasons: new List<string> { possibleReasons },
+                suggestions: new List<string> { suggestions, "檢查接線", "更換模組" }
+            );
+        }
     }
 }
 

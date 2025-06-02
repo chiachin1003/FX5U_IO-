@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor.Migrations;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -21,6 +20,7 @@ using static FX5U_IOMonitor.Models.MonitoringService;
 
 namespace FX5U_IOMonitor.panel_control
 {
+   
     public partial class UserSearchControl : UserControl
     {
         private bool isUpdating = false;
@@ -57,7 +57,7 @@ namespace FX5U_IOMonitor.panel_control
             }
             else if (source_table == "Sawing")
             {
-                breakdown_address = DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
+                breakdown_address =DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
             }
 
 
@@ -79,15 +79,23 @@ namespace FX5U_IOMonitor.panel_control
             lab_yellow.Text = DBfunction.Get_Yellow_search(datatable, io_DataList).ToString();
             lab_red.Text = DBfunction.Get_Red_search(datatable, io_DataList).ToString();
 
-            //var context = MachineHub.Get("Drill");
+            //設定哪個監控
+            var monitor = GlobalMachineHub.GetMonitor(datatable);
 
-            monitor = MachineHub.GetMonitor(datatable);
-            if (monitor != null)
+            if (monitor is MonitorService slmp)
             {
-                monitor.IOUpdated += OnIOChanged;
-
+                slmp.IOUpdated += OnIOChanged;
                 isEventRegistered = true;
+
+
             }
+            else if (monitor is ModbusMonitorService modbus)
+            {
+                modbus.IOUpdated += OnIOChanged;
+                isEventRegistered = true;
+
+            }
+
 
 
         }

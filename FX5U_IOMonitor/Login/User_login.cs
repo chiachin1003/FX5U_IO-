@@ -4,6 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.VisualBasic.ApplicationServices;
+using System.Diagnostics;
 
 
 namespace FX5U_IOMonitor.Login
@@ -28,16 +30,22 @@ namespace FX5U_IOMonitor.Login
         public const string Role_User = "User";
 
         public const string Default_Schedule_Tag = "None";
+
+        public const string Default_Email = "jenny963200@hotmail.com";
+
     }
+
     public enum UserErrorCode
     {
         None,
         NotExist,
         PasswordError,
     }
+
     public class ApplicationUser
     {
         public string UserName { get; set; }
+        public string Email { get; set; }
     }
     public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<IdentityUser>
     {
@@ -65,7 +73,8 @@ namespace FX5U_IOMonitor.Login
         {
             // Check if the admin user already exists
             var adminUser = await _userManager.FindByNameAsync(SD.Admin_Account);
-
+                  
+            
             if (adminUser is not null)
             {
                 return;
@@ -80,7 +89,7 @@ namespace FX5U_IOMonitor.Login
                 await _roleManager.CreateAsync(new IdentityRole(SD.Role_User));
             }
 
-            await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin);
+            await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin ,SD.Default_Email);
         }
 
         public async Task<UserErrorCode> LoginAsync(string userName, string password)
@@ -123,11 +132,23 @@ namespace FX5U_IOMonitor.Login
                 bool isInRole = await _userManager.IsInRoleAsync(user, role);
                 if (isInRole)
                 {
-                    result.Add(new ApplicationUser { UserName = user.UserName });
+                    result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email });
                 }
             }
             return result;
         }
+
+        public async Task<List<ApplicationUser>> GetAllUser()
+        {
+            var users = _userManager.Users.ToList(); // Fetch users from the database
+            var result = new List<ApplicationUser>();
+            foreach (var user in users)
+            {
+                result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email });
+            }
+            return result;
+        }
+
 
         public bool CheckUserExist(string userName)
         {
@@ -136,12 +157,14 @@ namespace FX5U_IOMonitor.Login
             return user != null;
         }
 
-        public async Task CreateUserAsync(string userName, string password, string role)
+        public async Task CreateUserAsync(string userName, string password, string role ,string email)
         {
             // Create the admin user
             var user = new IdentityUser
             {
-                UserName = userName
+                UserName = userName,
+                Email = email,        // ✅ 設定 email
+                EmailConfirmed = true               // ✅ 若你不需要驗證流程，可以直接標記已驗證
             };
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)

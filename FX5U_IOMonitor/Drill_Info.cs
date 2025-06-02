@@ -1,7 +1,7 @@
 ﻿using SLMP;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Data;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Threading;

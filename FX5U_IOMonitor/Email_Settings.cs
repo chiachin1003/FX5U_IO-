@@ -3,91 +3,96 @@ using FX5U_IOMonitor.Data;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
+using System.Net.Mail;
+using FX5U_IOMonitor.Properties;
 
 namespace FX5U_IOMonitor.Resources
 {
     public partial class Email_Settings : Form
     {
-        private string? viewAddress;
-        private string? tableName;
-        private AddressInputMode currentInputMode = AddressInputMode.Hexadecimal;
-        private ElementMode currentMode;
-        public Action? OnDataUpdated; // ✅ 刷新資料事件
 
-        public enum ElementMode { Add, ViewOnly }
-        public enum AddressInputMode { Hexadecimal, Octal }
 
-        public Email_Settings(ElementMode mode = ElementMode.Add, string? table = null, string? address = null)
+        public Email_Settings()
         {
             InitializeComponent();
-            ;
-
-            currentMode = mode;
-            viewAddress = address;
-            tableName = table;
-
-            // 隱藏密碼
-            txb_senderPassword.PasswordChar = '*';
-        }
-
-        private void btn_add_Click(object sender, EventArgs e)
-        {
+            txb_senderPassword.PasswordChar = '*';  // 隱藏密碼
+            comboBox1.SelectedIndex = 0;  
 
         }
 
-        private void txb_address_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            char keyChar = e.KeyChar;
-            if (char.IsControl(keyChar)) return;
 
-            switch (currentInputMode)
+
+        private void SendEmail()
+        {
+            try
             {
-                case AddressInputMode.Octal:
-                    e.Handled = !(keyChar >= '0' && keyChar <= '7');
-                    break;
-                case AddressInputMode.Hexadecimal:
-                    e.KeyChar = char.ToUpper(keyChar);
-                    e.Handled = !((e.KeyChar >= '0' && e.KeyChar <= '9') ||
-                                  (e.KeyChar >= 'A' && e.KeyChar <= 'F'));
-                    break;
+
+                string Gmail_SMTP_server = Properties.Settings.Default.Gmail_SMTP_server;
+                int TLS_port = Properties.Settings.Default.TLS_port;
+                string senderEmail = Properties.Settings.Default.senderEmail;
+                string senderPassword = Properties.Settings.Default.senderPassword;
+
+                // 設定 Gmail SMTP 伺服器
+                SmtpClient smtpClient = new SmtpClient(Gmail_SMTP_server);
+                smtpClient.Port = TLS_port;  // 使用 TLS 通訊埠
+                smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+                smtpClient.EnableSsl = true;
+
+                // 建立郵件內容
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress(senderEmail);
+                //mail.To.Add(receiverEmail);
+                mail.Subject = "測試 Email";
+                mail.Body = "這是一封由 WinForms 程式發送的測試郵件。";
+
+                // 發送郵件
+                smtpClient.Send(mail);
+
+                Console.WriteLine("郵件發送成功！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("發送郵件時發生錯誤：" + ex.Message);
+                if (ex.InnerException != null)
+                    Console.WriteLine("內部錯誤：" + ex.InnerException.Message);
             }
         }
 
-        private void txb_max_number_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = !char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar);
-        }
 
-        private void Update_combobox(string datatable)
+        private void btn_setting_Click(object sender, EventArgs e)
         {
-            var classTags = DBfunction.GetAllClassTags(datatable);
-            comb_class.Items.Clear();
-            comb_class.Items.AddRange(classTags.ToArray());
-            if (comb_class.Items.Count > 0) comb_class.SelectedIndex = 0;
-        }
 
-        private void comb_machine_SelectedIndexChanged(object sender, EventArgs e)
-        {
+            // 設定寄件人 Email 與密碼 (注意：若使用 Gmail，請確認帳戶已開啟「低安全性應用程式存取」或使用應用程式密碼)
+            Properties.Settings.Default.senderEmail = txb_senderEmail.Text;
+            Properties.Settings.Default.senderPassword = txb_senderPassword.Text; // 建議使用應用程式專用密碼
+
+            Properties.Settings.Default.Gmail_SMTP_server = "smtp.gmail.com"; // 建議使用應用程式專用密碼
+            Properties.Settings.Default.TLS_port = Convert.ToInt32(txb_TLS_port.Text); // 建議使用應用程式專用密碼
+            Properties.Settings.Default.Save(); // ✅ 寫入設定檔
 
         }
 
-
-        private void ComboBox_DrawItem_Custom(object sender, DrawItemEventArgs e)
+        private void Email_Settings_Load(object sender, EventArgs e)
         {
-            if (e.Index < 0) return;
-            var comboBox = (ComboBox)sender;
-            string text = comboBox.Items[e.Index].ToString();
-            e.DrawBackground();
-            e.Graphics.FillRectangle(new SolidBrush((e.State & DrawItemState.Selected) == DrawItemState.Selected ? Color.FromArgb(30, 144, 255) : Color.White), e.Bounds);
-            e.Graphics.DrawString(text, e.Font, new SolidBrush((e.State & DrawItemState.Selected) == DrawItemState.Selected ? Color.White : Color.Black),
-                e.Bounds.Left + (e.Bounds.Width - e.Graphics.MeasureString(text, e.Font).Width) / 2,
-                e.Bounds.Top + (e.Bounds.Height - e.Graphics.MeasureString(text, e.Font).Height) / 2);
-            e.DrawFocusRectangle();
-        }
+            comboBox1.DrawItem += (s, e) =>
+            {
+                e.DrawBackground();
 
-        private void button1_Click(object sender, EventArgs e)
-        {
+                if (e.Index >= 0)
+                {
+                    string text = comboBox1.Items[e.Index].ToString();
 
+                    using (StringFormat sf = new StringFormat())
+                    {
+                        sf.Alignment = StringAlignment.Center;        // 水平置中
+                        sf.LineAlignment = StringAlignment.Center;    // 垂直置中
+
+                        e.Graphics.DrawString(text, comboBox1.Font, Brushes.Black, e.Bounds, sf);
+                    }
+                }
+
+                e.DrawFocusRectangle();
+            };
         }
     }
 }

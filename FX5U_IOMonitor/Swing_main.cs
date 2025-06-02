@@ -2,8 +2,10 @@
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
+using System.Data;
 using System.Windows.Forms;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
 
 namespace FX5U_IOMonitor
@@ -77,8 +79,8 @@ namespace FX5U_IOMonitor
             lab_red.Text = DBfunction.Get_Red_number("Sawing").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
 
-
-            var existingContext = MachineHub.Get("Sawing");
+            var existingContext = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+            //var existingContext = MachineHub.Get("Sawing");
             if (existingContext != null && existingContext.IsConnected)
             {
                 lab_connectOK.Text = "已連接";
@@ -320,20 +322,18 @@ namespace FX5U_IOMonitor
 
         private void lab_sum_Click(object sender, EventArgs e)
         {
-            var existingContext = MachineHub.Get("Sawing");
-            if (existingContext != null && existingContext.IsConnected)
+
+            var context = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+
+            if (context != null && context.IsConnected)
             {
-
-
-                MessageBox.Show("當前監控總數更新時間" + existingContext.ConnectSummary.read_time.ToString());
-
-
+                MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time.ToString());
             }
             else
             {
                 MessageBox.Show("當前無資料監控與更新");
-
             }
+
         }
 
         private void SwitchLanguage()

@@ -235,7 +235,9 @@ namespace FX5U_IOMonitor.Models
                         Repair_steps = row.維修步驟,
                         MountTime = DateTime.UtcNow,
                         UnmountTime = DateTime.UtcNow.AddMinutes(1),
-                        classTag = row.ClassTag
+                        classTag = row.ClassTag,
+                        AlarmNotifyClass = 1,
+                        AlarmNotifyuser = ""
                     };
 
                     context.alarm.Add(alarm);
@@ -547,7 +549,8 @@ namespace FX5U_IOMonitor.Models
                             Comment = comment,
                             ClassTag = classTag,
                             MaxLife = maxLife,
-                        
+                            MountTime = DateTime.UtcNow,
+                            UnmountTime = DateTime.UtcNow.AddMinutes(1),
                             Setting_yellow = yellow,
                             Setting_red = red
                        

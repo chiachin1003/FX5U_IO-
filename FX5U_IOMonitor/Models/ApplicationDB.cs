@@ -9,6 +9,7 @@ using Npgsql;
 using Microsoft.VisualBasic.ApplicationServices;
 using Newtonsoft.Json;
 using System.Runtime.Intrinsics.X86;
+using System.Timers;
 
 namespace FX5U_IOMonitor.Models
 {
@@ -20,13 +21,14 @@ namespace FX5U_IOMonitor.Models
         {
             //var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\.."));
             //_dbFullName = Path.Combine(projectRoot, "Database", "element.db");
-            _dbFullName = "element";
+            _dbFullName = "element.db";
         }
         public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<Machine_number> index { get; set; }
-
         public DbSet<History> Histories { get; set; }
+       
         public DbSet<Alarm> alarm { get; set; }
+
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }
@@ -37,6 +39,8 @@ namespace FX5U_IOMonitor.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ScheduleTag>().HasData(
                 new ScheduleTag { Id = 1, Name = SD.Default_Schedule_Tag });
+
+           
         }
 
         //public static string IpAddress = "ssiopgsql.postgres.database.azure.com";
@@ -51,7 +55,6 @@ namespace FX5U_IOMonitor.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            //optionsBuilder.UseNpgsql($"ssiopgsql.postgres.database.azure.com; Database = ssio; Port = 5432; User Id = itritus; Password = Itrics687912O@; Ssl Mode = Require");
             optionsBuilder.UseNpgsql($"Host={IpAddress};Port={Port};Database={_dbFullName};Username={UserName};Password={Password};TrustServerCertificate=True");
 
             //// Set database directory
@@ -62,6 +65,8 @@ namespace FX5U_IOMonitor.Models
             //}
             //optionsBuilder.UseSqlite($"Data Source={_dbFullName}");
         }
+
+       
 
     }
 }

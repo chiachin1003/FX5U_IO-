@@ -1,6 +1,5 @@
 ﻿using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor.Migrations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -166,6 +165,7 @@ namespace FX5U_IOMonitor.Models
                 context.SaveChanges();
             }
         }
+      
         public static void SetAlarmEndTime(string tableName, string address)
         {
             using (var context = new ApplicationDB())
@@ -752,6 +752,19 @@ namespace FX5U_IOMonitor.Models
                 return alarmClasses;
             }
         }
+        public static int Get_alarm_Notifyclass(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarmClass = context.alarm
+                    .Where(a => a.SourceDbName == machine_name)
+                    .Select(a => a.AlarmNotifyClass)
+                    .Distinct()
+                    .FirstOrDefault(); // 取第一筆，若沒有資料回傳 0
+
+                return alarmClass;
+            }
+        }
         public static List<string> Get_alarm_error_by_class(string machine_name, string className)
         {
             using (var context = new ApplicationDB())
@@ -870,7 +883,7 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.Error ?? "";
             }
         }
-
+       
         public static string Get_Description_ByAddress(string address, string description)
         {
             using (var context = new ApplicationDB())
@@ -895,6 +908,15 @@ namespace FX5U_IOMonitor.Models
                 {
                     Console.WriteLine($"找不到 address 為 {address} 的元件");
                 }
+            }
+        }
+        public static void SetAlarmNotifyType(int AlarmNotify)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.AlarmNotifyClass == AlarmNotify);
+                alarm.AlarmNotifyClass = AlarmNotify;
+                context.SaveChanges();
             }
         }
         public static void Set_RepairStep_ByAddress(string address, string steps)
@@ -933,7 +955,7 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-
+        
 
         public static List<now_single> Get_Machine_current_single_all(string tablename)
         {
@@ -963,7 +985,22 @@ namespace FX5U_IOMonitor.Models
                 .ToList();
         }
 
-
+        public static void Set_alarm_current_single_ByAddress(string address, bool current_single)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.alarm.FirstOrDefault(m =>m.M_Address == address);
+                if (machine != null)
+                {
+                    machine.current_single = current_single;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 address 為 {address} 的元件");
+                }
+            }
+        }
         public static void Initiali_current_single()
         {
 

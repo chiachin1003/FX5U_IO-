@@ -252,6 +252,7 @@
             btn_Sawing_lifesetting.TabIndex = 57;
             btn_Sawing_lifesetting.Text = "設定";
             btn_Sawing_lifesetting.UseVisualStyleBackColor = false;
+            btn_Sawing_lifesetting.Click += btn_Sawing_lifesetting_Click;
             // 
             // lab_Drill_lifesetting
             // 

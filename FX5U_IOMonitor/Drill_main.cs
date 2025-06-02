@@ -4,7 +4,8 @@ using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 
 using System.Windows.Forms;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.AxHost;
 
@@ -243,50 +244,10 @@ namespace FX5U_IOMonitor
 
             _cts = new CancellationTokenSource();
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
-            //Monitor_alarm();
-            //if (connect_isOK.Drill_connect == true)
-            //{
-            //    //開啟監控
-            //    var DB_update = MonitorHub.GetMonitor("Drill");
-            //    DB_update.alarm_event += Warning_signs;
-            //}
-
+          
         }
         private bool isEventRegistered = false;
-        private void Monitor_alarm()
-        {
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(1000); // 每秒檢查一次
-
-                    bool connected = connect_isOK.Drill_connect;
-                    this.Invoke(() =>
-                    {
-                        var DB_update = MachineHub.GetMonitor("Drill");
-                        //var DB_update = MonitorHub.GetMonitor("Drill");
-                        if (DB_update == null)
-                        {
-                            Console.WriteLine("⚠️ MonitorHub 尚未註冊 Drill 監控對象");
-                            return;
-                        }
-
-                        if (connected && !isEventRegistered)
-                        {
-                            DB_update.alarm_event += Warning_signs;
-                            isEventRegistered = true;
-                        }
-                        else if (!connected && isEventRegistered)
-                        {
-                            DB_update.alarm_event -= Warning_signs;
-                            isEventRegistered = false;
-                        }
-
-                    });
-                }
-            });
-        }
+       
         private List<float[]> chartValues;
 
         private void lab_red_Click(object sender, EventArgs e)
@@ -326,7 +287,11 @@ namespace FX5U_IOMonitor
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
 
-            var existingContext = MachineHub.Get("Drill");
+
+
+            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+
+            //var existingContext = MachineHub.Get("Drill");
             if (existingContext != null && existingContext.IsConnected)
             {
                 lab_connectOK.Text = "已連接";
@@ -408,19 +373,15 @@ namespace FX5U_IOMonitor
 
         private void lab_sum_Click(object sender, EventArgs e)
         {
-            var existingContext = MachineHub.Get("Drill");
-            if (existingContext != null && existingContext.IsConnected)
+            var context = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+
+            if (context != null && context.IsConnected)
             {
-
-
-                MessageBox.Show("當前監控總數更新時間" + existingContext.ConnectSummary.read_time.ToString());
-
-
+                MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time.ToString());
             }
             else
             {
                 MessageBox.Show("當前無資料監控與更新");
-
             }
         }
 
