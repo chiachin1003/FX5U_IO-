@@ -1,10 +1,13 @@
-﻿using FX5U_IOMonitor.Data;
+﻿using CsvHelper.Configuration;
+using CsvHelper;
+using FX5U_IOMonitor.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SLMP;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -13,11 +16,16 @@ using System.Xml.Linq;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Npgsql.Internal;
+using Npgsql;
+using System.Windows.Forms;
 
 namespace FX5U_IOMonitor.Models
 {
     internal class Test_
     {
+
+
         void read_view0()
         {
             SlmpConfig cfg = new("192.168.9.1", 2000);
@@ -87,7 +95,7 @@ namespace FX5U_IOMonitor.Models
             plc.Connect();
 
             List<string> machine_output = DBfunction.Get_Machine_read_view(2, "Sawing");
-            List<(string, string, ushort)> a = DBfunction.Get_Read_word_machineparameter_address("Sawing",machine_output);
+            List<(string, string, ushort)> a = DBfunction.Get_Read_word_machineparameter_address("Sawing", machine_output);
 
             foreach (var (name, address, index) in a)
             {
@@ -172,7 +180,7 @@ namespace FX5U_IOMonitor.Models
         {
             using var context = new ApplicationDB();
 
-            var driilIOList = context.Machine_IO.Where(d=>d.Machine_name=="Drill").ToList( );
+            var driilIOList = context.Machine_IO.Where(d => d.Machine_name == "Drill").ToList();
             var inputStartAddr = driilIOList
                 .Select(d => d.address)
                 .Where(a => a.StartsWith("X"))
@@ -451,7 +459,7 @@ namespace FX5U_IOMonitor.Models
 
                                 int historyVal = DBfunction.Get_History_NumericValue(name);
                                 int newValue = historyVal + 1;
-                                DBfunction.Set_Machine_History_NumericValue(table,name, (ushort)newValue);
+                                DBfunction.Set_Machine_History_NumericValue(table, name, (ushort)newValue);
 
                             }
                             else
@@ -516,8 +524,8 @@ namespace FX5U_IOMonitor.Models
             {
                 MessageBox.Show($"尚未支援初始化 {typeof(T).Name} 的對應 CSV 方法！");
             }
-            
-           
+
+
         }
         // 警告寫入的開發階段
         //string dbtable = DBfunction.FindTableWithAddress("L0");
@@ -537,6 +545,96 @@ namespace FX5U_IOMonitor.Models
 
         // 寫入警告歷史資料
         //DBfunction.SetMachineIOToHistory(dbtable, "L0", "alarm");
+
+
+
+        public void importcsv()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV 檔案 (*.csv)|*.csv",
+                Title = "選擇要匯入的 CSV 檔案"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        HasHeaderRecord = true,
+                        Encoding = System.Text.Encoding.UTF8,
+                        PrepareHeaderForMatch = args => args.Header.Trim(),
+                        MissingFieldFound = null,
+                        HeaderValidated = null
+                    };
+
+                    using var reader = new StreamReader(openFileDialog.FileName);
+                    using var csv = new CsvReader(reader, config);
+                    var records = csv.GetRecords<Bladebrandcsv>().ToList();
+
+                    using var context = new ApplicationDB();
+                    var existingData = context.Blade_brand.ToDictionary(b => b.blade_brand_id);
+
+                    int insertCount = 0, updateCount = 0;
+                    
+                    foreach (var row in records)
+                    {
+                        if (existingData.TryGetValue(row.blade_brand_id, out var existing))
+                        {
+                            bool updated = false;
+                            if (existing.blade_brand_name != row.blade_brand_name) { existing.blade_brand_name = row.blade_brand_name; updated = true; }
+                            if (existing.blade_material_id != row.blade_material_id) { existing.blade_material_id = row.blade_material_id; updated = true; }
+                            if (existing.blade_material_name != row.blade_material_name) { existing.blade_material_name = row.blade_material_name; updated = true; }
+                            if (existing.blade_Type_id != row.blade_Type_id) { existing.blade_Type_id = row.blade_Type_id; updated = true; }
+                            if (existing.blade_Type_name != row.blade_Type_name) { existing.blade_Type_name = row.blade_Type_name; updated = true; }
+                            if (updated) updateCount++;
+                        }
+                        else
+                        {
+                            context.Blade_brand.Add(new Blade_brand
+                            {
+                                blade_brand_id = row.blade_brand_id,
+                                blade_brand_name = row.blade_brand_name,
+                                blade_material_id = row.blade_material_id,
+                                blade_material_name = row.blade_material_name,
+                                blade_Type_id = row.blade_Type_id,
+                                blade_Type_name = row.blade_Type_name,
+                                Machine_Number = 1
+                            });
+                            insertCount++;
+                        }
+                    }
+
+                    context.SaveChanges();
+
+                    MessageBox.Show($"✅ 匯入完成：新增 {insertCount} 筆、更新 {updateCount} 筆！");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("❌ 匯入失敗：" + ex.Message);
+                }
+            }
+        }
+        private class Bladebrandcsv
+        {
+            public int blade_brand_id { get; set; }
+            public string blade_brand_name { get; set; } = "";
+            public int blade_material_id { get; set; }
+            public string blade_material_name { get; set; } = "";
+            public int blade_Type_id { get; set; }
+            public string blade_Type_name { get; set; } = "";
+        }
+      
+
+
     }
+
+
+
+
+
+
+
 }
 

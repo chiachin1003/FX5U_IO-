@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FX5U_IOMonitor.Data
 {
    
-  
     public class connect_Summary //總連接數介面
     {
         public int connect { get; set; }
@@ -46,7 +45,6 @@ namespace FX5U_IOMonitor.Data
 
         public double RUL { get; set; } //剩餘使用壽命
 
-
     }
 
     public class HistoryRecord
@@ -56,64 +54,6 @@ namespace FX5U_IOMonitor.Data
         public int UsageCount { get; set; }    // 該元件總使用次數
     }
 
- 
-    public class Swing_Status //鋸床10種狀態監控
-    {
-        public string motorcurrent { get; set; }  //馬達電流
-        public string cuttingspeed { get; set; }    // 切削速度
-        public string avg_V { get; set; }    // 電壓平均
-        public string avg_mA { get; set; }    // 電流平均
-        public string oil_pressure { get; set; }   // 油壓張力
-
-        public string power { get; set; }// 消耗功率
-        public string power_consumption { get; set; }// 累積用電度數
-        public string Sawing_countdown_time { get; set; }// 鋸切倒數
-        public string Remaining_Dutting_tools { get; set; }  // 加工剩餘刀數
-
-        public string Runtime { get; set; }  // 總運轉時間
-
-    }
-
-    public class Drill_status //鑽床10種狀態監控
-    {
-        // 10種鑽床顯示介面
-        public string Runtime { get; set; }  // 機器使用時間
-        public string Frequency_Converter_usetime { get; set; }  // 變頻器使用時間
-        public string PLC_usetime { get; set; }  // PLC使用時間
-        public string Spindle_usetime { get; set; }  // 主軸啟動累積時間
-        public string Servo_drives_usetime { get; set; }  // 伺服驅動器介面累積時間
-
-        public int origin { get; set; }  // 回原點次數
-        public int loose_tools { get; set; }    // 主軸鬆刀次數
-        public int measurement { get; set; }    // 刀具量測次數
-        // 主頁面資料
-
-        public string Current { get; set; }    // 電流
-
-        public string Voltage { get; set; }    // 切削速度
-        public string power { get; set; } //消耗功率
-        public string du { get; set; } //度電
-
-
-    }
-    public class SawBand_Status //鋸帶10種狀態監控
-    {
-        public string Sawband_brand { get; set; }  // 鋸帶廠牌
-        public string Saw_teeth { get; set; }  // 鋸帶齒數
-        public string Saw_blade_material { get; set; }  // 鋸帶材質
-        public string Sawband_speed { get; set; }  // 鋸帶速度
-        public string saw_motors_usetime { get; set; }  // 鋸帶馬達使用累積時間
-
-        public string power { get; set; }  // 鋸帶馬達鋸切馬力
-        public string Maximum_current { get; set; }    // 鋸帶馬達鋸切最大電流
-
-    }
-    //public class alarm_single //元件監控時間說明
-    //{
-    //    public string address { get; set; }
-    //    public bool value { get; set; }
-
-    //}
     public class now_single // 當前連接總數
     {
         public string address { get; set; }
@@ -141,11 +81,5 @@ namespace FX5U_IOMonitor.Data
         public int BlockCount { get; set; }             // 區塊總數
         public List<string> SplitPoints { get; set; } = new(); // 切斷點（已格式化字串）
     }
-    public class MachineStatus
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-        public DateTime LastUpdate { get; set; }
-    }
+  
 }

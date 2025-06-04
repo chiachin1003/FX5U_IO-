@@ -143,6 +143,7 @@
             lab_Drill_feeder.Size = new Size(322, 54);
             lab_Drill_feeder.TabIndex = 21;
             lab_Drill_feeder.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_feeder.Click += lab_Drill_feeder_Click;
             // 
             // lab_Drill_feederText
             // 
@@ -166,6 +167,7 @@
             lab_Drill_clamping.Size = new Size(322, 49);
             lab_Drill_clamping.TabIndex = 19;
             lab_Drill_clamping.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_clamping.Click += lab_Drill_clamping_Click;
             // 
             // lab_Drill_clampingText
             // 
@@ -189,6 +191,7 @@
             lab_Drill_measurement.Size = new Size(322, 49);
             lab_Drill_measurement.TabIndex = 17;
             lab_Drill_measurement.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_measurement.Click += lab_Drill_measurement_Click;
             // 
             // lab_Drill_measurementText
             // 
@@ -212,6 +215,7 @@
             lab_Drill_loose_tools.Size = new Size(322, 49);
             lab_Drill_loose_tools.TabIndex = 15;
             lab_Drill_loose_tools.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_loose_tools.Click += lab_Drill_loose_tools_Click;
             // 
             // lab_Drill_loose_toolsText
             // 
@@ -235,6 +239,7 @@
             lab_Drill_origin.Size = new Size(322, 49);
             lab_Drill_origin.TabIndex = 13;
             lab_Drill_origin.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_origin.Click += lab_Drill_origin_Click;
             // 
             // lab_Drill_originText
             // 
@@ -259,6 +264,7 @@
             lab_Drill_total_Time.TabIndex = 11;
             lab_Drill_total_Time.Text = " 天  時  分  秒";
             lab_Drill_total_Time.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_total_Time.Click += lab_Drill_total_Time_Click;
             // 
             // lab_Drill_total_TimeText
             // 
@@ -283,6 +289,7 @@
             lab_Drill_inverter.TabIndex = 9;
             lab_Drill_inverter.Text = " 天  時  分  秒";
             lab_Drill_inverter.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_inverter.Click += lab_Drill_inverter_Click;
             // 
             // lab_Drill_inverterText
             // 
@@ -307,6 +314,7 @@
             lab_Drill_plc_usetime.TabIndex = 7;
             lab_Drill_plc_usetime.Text = " 天  時  分  秒";
             lab_Drill_plc_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_plc_usetime.Click += lab_Drill_plc_usetime_Click;
             // 
             // lab_Drill_plc_usetimeText
             // 
@@ -331,6 +339,7 @@
             lab_Drill_spindle_usetime.TabIndex = 5;
             lab_Drill_spindle_usetime.Text = " 天  時  分  秒";
             lab_Drill_spindle_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_spindle_usetime.Click += lab_Drill_spindle_usetime_Click;
             // 
             // lab_Drill_spindle_usetimeText
             // 
@@ -355,6 +364,7 @@
             lab_Drill_servo_usetime.TabIndex = 3;
             lab_Drill_servo_usetime.Text = " 天  時  分  秒";
             lab_Drill_servo_usetime.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Drill_servo_usetime.Click += lab_Drill_servo_usetime_Click;
             // 
             // lab_Drill_servo_usetimeText
             // 

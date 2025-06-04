@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
 
 namespace FX5U_IOMonitor.Models
@@ -116,7 +117,7 @@ namespace FX5U_IOMonitor.Models
     /// <summary>
     /// 每台機台的監控環境與資源統整
     /// </summary>
-    public class MachineContext
+    public class MachineContext : IMachineContext
     {
         public string MachineName { get; set; } = string.Empty;
         public SlmpClient Plc { get; set; }
@@ -126,6 +127,7 @@ namespace FX5U_IOMonitor.Models
         public connect_Summary ConnectSummary { get; set; }
         public bool IsConnected => Plc != null;
         public bool IsMaster { get; set; } = false;  // 新增主機標記(產線主機台，鑽床)
+
 
     }
 }

@@ -1,6 +1,5 @@
 ﻿using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor.Migrations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -166,6 +165,7 @@ namespace FX5U_IOMonitor.Models
                 context.SaveChanges();
             }
         }
+      
         public static void SetAlarmEndTime(string tableName, string address)
         {
             using (var context = new ApplicationDB())
@@ -752,6 +752,32 @@ namespace FX5U_IOMonitor.Models
                 return alarmClasses;
             }
         }
+        public static int Get_alarm_Notifyclass(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarmClass = context.alarm
+                    .Where(a => a.SourceDbName == machine_name)
+                    .Select(a => a.AlarmNotifyClass)
+                    .Distinct()
+                    .FirstOrDefault(); // 取第一筆，若沒有資料回傳 0
+
+                return alarmClass;
+            }
+        }
+        public static string Get_alarm_AlarmNotifyuser(string machine_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var AlarmNotifyuser = context.alarm
+                    .Where(a => a.SourceDbName == machine_name)
+                    .Select(a => a.AlarmNotifyuser)
+                    .Distinct()
+                    .FirstOrDefault(); // 取第一筆，若沒有資料回傳 0
+
+                return AlarmNotifyuser;
+            }
+        }
         public static List<string> Get_alarm_error_by_class(string machine_name, string className)
         {
             using (var context = new ApplicationDB())
@@ -870,7 +896,7 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.Error ?? "";
             }
         }
-
+       
         public static string Get_Description_ByAddress(string address, string description)
         {
             using (var context = new ApplicationDB())
@@ -895,6 +921,15 @@ namespace FX5U_IOMonitor.Models
                 {
                     Console.WriteLine($"找不到 address 為 {address} 的元件");
                 }
+            }
+        }
+        public static void SetAlarmNotifyType(int AlarmNotify)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.AlarmNotifyClass == AlarmNotify);
+                alarm.AlarmNotifyClass = AlarmNotify;
+                context.SaveChanges();
             }
         }
         public static void Set_RepairStep_ByAddress(string address, string steps)
@@ -933,7 +968,7 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-
+        
 
         public static List<now_single> Get_Machine_current_single_all(string tablename)
         {
@@ -963,7 +998,22 @@ namespace FX5U_IOMonitor.Models
                 .ToList();
         }
 
-
+        public static void Set_alarm_current_single_ByAddress(string address, bool current_single)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.alarm.FirstOrDefault(m =>m.M_Address == address);
+                if (machine != null)
+                {
+                    machine.current_single = current_single;
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 address 為 {address} 的元件");
+                }
+            }
+        }
         public static void Initiali_current_single()
         {
 
@@ -1069,7 +1119,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.now_TextValue ?? "未連線";
+                return machine?.now_TextValue ?? "0";
             }
         }
 
@@ -1078,7 +1128,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var machine_single = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machine);
-                return machine_single?.now_TextValue ?? "未連線";
+                return machine_single?.now_TextValue ?? "0";
             }
         }
 
@@ -1359,6 +1409,7 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+       
         public static int Get_Machine_number(string name)
         {
             using (var context = new ApplicationDB())
@@ -1388,8 +1439,8 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var name = context.Blade_brand.FirstOrDefault(a => a.Brand_Id == (int)brand_id);
-                return name?.Brand_Name ?? "無比對資料";
+                var name = context.Blade_brand.FirstOrDefault(a => a.blade_brand_id == (int)brand_id);
+                return name?.blade_brand_name ?? "無比對資料";
             }
         }
 
@@ -1397,16 +1448,16 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var name = context.Blade_brand.FirstOrDefault(a => a.Material_Id == (int)material_id);
-                return name?.Material_Name ?? "無比對資料";
+                var name = context.Blade_brand.FirstOrDefault(a => a.blade_material_id == (int)material_id);
+                return name?.blade_material_name ?? "無比對資料";
             }
         }
         public static string Get_Blade_brand_type(int brand_id, int material_id, int type_id)
         {
             using (var context = new ApplicationDB())
             {
-                var name = context.Blade_brand.FirstOrDefault(a => a.Brand_Id == brand_id && a.Material_Id == material_id && a.Type_Id == type_id);
-                return name?.Type_Name ?? "無比對資料";
+                var name = context.Blade_brand.FirstOrDefault(a => a.blade_brand_id == brand_id && a.blade_material_id == material_id && a.blade_Type_id == type_id);
+                return name?.blade_Type_name ?? "無比對資料";
             }
         }
 
@@ -1414,8 +1465,8 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var name = context.Blade_brand_TPI.FirstOrDefault(a => a.TPI_Id == (int)TPI_id);
-                return name?.Name ?? "無比對資料";
+                var name = context.Blade_brand_TPI.FirstOrDefault(a => a.blade_TPI_id == (int)TPI_id);
+                return name?.blade_TPI_name ?? "無比對資料";
             }
         }
         public static List<string> Get_Machine_Calculate_type(int calculate_type, string machine_name)

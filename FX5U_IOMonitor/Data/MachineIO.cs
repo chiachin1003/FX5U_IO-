@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FX5U_IOMonitor.Models;
 
 namespace FX5U_IOMonitor.Data
 {
 
-    public class MachineIO
+    public class MachineIO : SyncableEntity
     {
         [Key]
         public int Id { get; set; }
@@ -73,15 +74,17 @@ namespace FX5U_IOMonitor.Data
 
         //連動歷史資料
         public ICollection<History> Histories { get; set; } = new List<History>();
+     
 
     }
 
-    public class Machine_number
+    public class Machine_number : SyncableEntity
     {
         public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
+
     }
 
     public enum RelayType

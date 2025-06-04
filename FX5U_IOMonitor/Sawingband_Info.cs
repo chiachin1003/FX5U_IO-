@@ -1,7 +1,7 @@
 ﻿using SLMP;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Data;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Threading;
@@ -21,7 +21,7 @@ namespace FX5U_IOMonitor
             this.Load += sawband_Info_Load;
             this.FormClosing += Sawingband_Info_FormClosing;
             string lang = Properties.Settings.Default.LanguageSetting;
-            LanguageManager.LoadLanguageCSV("language.csv", lang);
+            LanguageManager.LoadLanguageFromDatabase(lang);
             
             SwitchLanguage();
         }
@@ -39,6 +39,11 @@ namespace FX5U_IOMonitor
 
                 _cts = new CancellationTokenSource();
                 _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
+
+            }
+            else
+            {
+                reset_lab_connectText(); // 初始顯示一次
 
             }
         }

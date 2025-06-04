@@ -40,6 +40,8 @@
             _btnDelete = new Button();
             _cbSelectedRole = new ComboBox();
             _lblSelectedRole = new Label();
+            label1 = new Label();
+            _txtEmail = new TextBox();
             ((System.ComponentModel.ISupportInitialize)_dgvUsers).BeginInit();
             SuspendLayout();
             // 
@@ -129,7 +131,7 @@
             // _btnAdd
             // 
             _btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _btnAdd.Location = new Point(486, 158);
+            _btnAdd.Location = new Point(486, 220);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(75, 33);
             _btnAdd.TabIndex = 9;
@@ -140,7 +142,7 @@
             // _btnDelete
             // 
             _btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _btnDelete.Location = new Point(486, 197);
+            _btnDelete.Location = new Point(486, 259);
             _btnDelete.Name = "_btnDelete";
             _btnDelete.Size = new Size(75, 33);
             _btnDelete.TabIndex = 10;
@@ -168,11 +170,30 @@
             _lblSelectedRole.TabIndex = 11;
             _lblSelectedRole.Text = "權限:";
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(313, 164);
+            label1.Name = "label1";
+            label1.Size = new Size(70, 15);
+            label1.TabIndex = 13;
+            label1.Text = "使用者信箱:";
+            // 
+            // _txtEmail
+            // 
+            _txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _txtEmail.Location = new Point(422, 161);
+            _txtEmail.Name = "_txtEmail";
+            _txtEmail.Size = new Size(139, 23);
+            _txtEmail.TabIndex = 14;
+            // 
             // UserManageForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(585, 381);
+            Controls.Add(_txtEmail);
+            Controls.Add(label1);
             Controls.Add(_cbSelectedRole);
             Controls.Add(_lblSelectedRole);
             Controls.Add(_btnDelete);
@@ -209,5 +230,7 @@
 		private Button _btnDelete;
 		private ComboBox _cbSelectedRole;
 		private Label _lblSelectedRole;
-	}
+        private Label label1;
+        private TextBox _txtEmail;
+    }
 }

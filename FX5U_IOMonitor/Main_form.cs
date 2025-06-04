@@ -1,7 +1,7 @@
 ﻿using SLMP;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Data;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using FX5U_IO元件監控;
 using static FX5U_IO元件監控.Part_Search;
@@ -126,6 +126,8 @@ namespace FX5U_IOMonitor
             {
                 lab_connect.Text = "0";
                 lab_disconnect.Text = "0";
+                Drill_main_update();
+
             }
 
             existingContext = MachineHub.Get("Sawing");
@@ -133,12 +135,12 @@ namespace FX5U_IOMonitor
             {
                 swing_main_update();
                 lab_connect_swing.Text = existingContext.ConnectSummary.connect.ToString();
-
             }
             else
             {
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
+                swing_main_update();
             }
 
 
@@ -290,7 +292,7 @@ namespace FX5U_IOMonitor
                 List<string> breakdown_part = DBfunction.Get_breakdown_part("Drill");
                 if (breakdown_part.Count != 0)
                 {
-                    List<string> breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
+                    List<string> breakdown_address =DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
                     var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
                     searchControl.LoadData(breakdown_address, "Drill");          //  將資料傳入模組
                     Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -379,6 +381,19 @@ namespace FX5U_IOMonitor
         private void panel11_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void btn_Sawing_lifesetting_Click(object sender, EventArgs e)
+        {
+            if (part_Search == null || part_Search.IsDisposed)
+            {
+                part_Search = new Part_Search(ShowPage.Sawing);
+                part_Search.Show();
+            }
+            else
+            {
+                part_Search.BringToFront();
+            }
         }
     }
 }

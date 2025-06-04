@@ -7,7 +7,7 @@ namespace FX5U_IOMonitor.Login
 
 	public class Language
 	{
-		[JsonPropertyName( "Name" )]
+		[JsonPropertyName( "blade_TPI_name" )]
 		public string Name { get; set; } = string.Empty;
 
 		[JsonPropertyName( "Code" )]

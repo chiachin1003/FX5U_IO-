@@ -6,6 +6,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Login;
+using Microsoft.EntityFrameworkCore;
 
 namespace FX5U_IOMonitor.Models
 {
@@ -18,8 +21,8 @@ namespace FX5U_IOMonitor.Models
 
         public static Dictionary<string, string> LanguageMap = new Dictionary<string, string>
         {
-            { "zh-TW", "繁體中文" },
-            { "en-US", "English" }
+            { "TW", "繁體中文" },
+            { "US", "English" }
         };
 
         public static void LoadLanguageCSV(string csvPath, string cultureName)
@@ -92,5 +95,51 @@ namespace FX5U_IOMonitor.Models
         {
             return _currentLanguageMap.TryGetValue(key, out var value) ? value : key;
         }
+        /// <summary>
+        /// 從資料庫載入語言對應表
+        /// </summary>
+        /// <param name="cultureCode">TW, US, JP, KR...等語言代碼</param>
+        public static void LoadLanguageFromDatabase(string cultureCode)
+        {
+            try
+            {
+                using var context = new ApplicationDB();
+
+                // 確認資料表中是否有該語系欄位
+                var supportedColumns = typeof(Language)
+                    .GetProperties()
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                if (!supportedColumns.Contains(cultureCode))
+                {
+                    MessageBox.Show($"❌ 不支援的語言代碼：{cultureCode}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 從資料庫載入語言資料
+                var languageData = context.Language
+                    .AsNoTracking()
+                    .ToList()
+                    .Where(l => !string.IsNullOrWhiteSpace(l.Key)) // 避免空Key
+                    .ToDictionary(
+                        l => l.Key,
+                        l =>
+                        {
+                            var prop = typeof(Language).GetProperty(cultureCode);
+                            return prop?.GetValue(l)?.ToString() ?? l.Key;
+                        });
+
+                _currentLanguageMap = languageData;
+
+                LanguageChanged?.Invoke(cultureCode);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ 載入語系失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
     }
 }

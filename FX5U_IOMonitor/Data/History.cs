@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FX5U_IOMonitor.Models;
 
 namespace FX5U_IOMonitor.Data
 {
-    public class History
+    public class History : SyncableEntity
     {
         [Key]
         public int Id { get; set; }
@@ -23,8 +24,8 @@ namespace FX5U_IOMonitor.Data
 
         public int MachineIOId { get; set; }
 
+    
 
-     
 
     }
 }

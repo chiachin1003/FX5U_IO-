@@ -63,7 +63,7 @@ namespace FX5U_IOMonitor.Resources
             }
 
             string lang = Properties.Settings.Default.LanguageSetting;
-            LanguageManager.LoadLanguageCSV("language.csv", lang);
+            LanguageManager.LoadLanguageFromDatabase(lang);
             SwitchLanguage();
             LanguageManager.LanguageChanged += OnLanguageChanged;
 

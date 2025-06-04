@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace FX5U_IOMonitor.Data
 {
    
-    public class MachineParameter
+    public class MachineParameter : SyncableEntity
     {
         [Key]
         public int Id { get; set; }
@@ -35,39 +35,43 @@ namespace FX5U_IOMonitor.Data
         public int? now_NumericValue { get; set; } // 數值型
         public string? now_TextValue { get; set; } // 文字型（如果是 string 類型）
 
+       
+
 
     }
 
 
 
-    public class Blade_brand
+    public class Blade_brand : SyncableEntity
     {
 
         [Key]
         public int Id { get; set; }
 
-        public int Brand_Id { get; set; }
-        public string Brand_Name { get; set; } = "";// 是否需要計算
+        public int blade_brand_id { get; set; }
+        public string blade_brand_name { get; set; } = "";// 是否需要計算
 
-        public int Material_Id { get; set; } 
-        public string Material_Name { get; set; } = "";
+        public int blade_material_id { get; set; } 
+        public string blade_material_name { get; set; } = "";
 
-        public int Type_Id { get; set; }
+        public int blade_Type_id { get; set; }
 
-        public string Type_Name { get; set; } = ""; 
+        public string blade_Type_name { get; set; } = ""; 
 
-        public int Machine_Number { get; set; } 
-
-    }
-    public class Blade_brand_TPI
-    {
-
-        [Key]
-        public int Id { get; set; }
-        public int TPI_Id { get; set; }
-
-        public string Name { get; set; } = "";
         public int Machine_Number { get; set; }
+       
+
+    }
+    public class Blade_brand_TPI : SyncableEntity
+    {
+
+        [Key]
+        public int Id { get; set; }
+        public int blade_TPI_id { get; set; }
+
+        public string blade_TPI_name { get; set; } = "";
+        public int Machine_Number { get; set; }
+
 
     }
 

@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using static FX5U_IOMonitor.connect_PLC;
+using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Collections.Specialized.BitVector32;
@@ -51,7 +51,7 @@ namespace FX5U_IOMonitor.Models
             private SlmpClient plc;
             private object? externalLock;
             private bool isFirstRead = true; // 實體元件監控是否初始化
-
+            private bool alarmFirstRead = true;
 
             public void SetExternalLock(object locker)
             {
@@ -65,21 +65,23 @@ namespace FX5U_IOMonitor.Models
                 this.plc = PLC;
                 this.MachineName = machineName;
                 bool isFirstRead = true;
-            }
-        
-          /// <summary>
-          /// 
-          /// </summary>
-          /// <param name="token"></param>
-          /// <param name=""></param>
-          /// <returns></returns>
-            public async Task MonitoringLoop(CancellationToken token, string machinname)
+                bool alarmFirstRead = true; // 實體元件監控是否初始化
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public async Task MonitoringLoop(CancellationToken token, string machinname)
             {
                 
                 while (!token.IsCancellationRequested)
                 {
                     Monitoring(machinname);
-                    await Task.Delay(50); // 每 500 毫秒執行一次
+                    await Task.Delay(500); // 每 500 毫秒執行一次
                 }
             }
 
@@ -192,7 +194,6 @@ namespace FX5U_IOMonitor.Models
             }
 
 
-            private bool alarmFirstRead = true; // 實體元件監控是否初始化
 
             /// <summary>
             /// 警告監控輪詢與延遲
@@ -214,12 +215,13 @@ namespace FX5U_IOMonitor.Models
             /// <param name="old_single"></param>
             public void Alarm_Monitoring()
             {
+                List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
+
                 var alarm = Calculate.Alarm_trans();
                 var sectionGroups = alarm
                     .GroupBy(s => s.Prefix)
                     .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
 
-                List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
 
                 lock (externalLock ?? new object())
                 {
@@ -236,11 +238,11 @@ namespace FX5U_IOMonitor.Models
                                 var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
                                 if (isFirstRead)
                                 {
-                                    int updated = Calculate.UpdatealarmCurrentSingleToDB(result, "alarm");
-
+                                   Calculate.UpdatealarmCurrentSingleToDB(result);
                                 }
                                 else
                                 {
+
                                     alarm_NowSingle(result, old_single);
                                 }
 
@@ -485,8 +487,7 @@ namespace FX5U_IOMonitor.Models
                                         // 從 result 中找出對應位址的值
                                         var match = result.FirstOrDefault(r => r.address == address);
                                         if (match == null) continue;
-
-                                        DBfunction.Inital_MachineParameters_number(machine_name, name);
+                                       
 
                                         bool newVal = match.current_single;
                                         bool oldVal = lastStates.ContainsKey(name) ? lastStates[name] : false;
@@ -520,6 +521,7 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     HistoryValue = historyVal
                                                 };
+
                                             }
 
                                             var timer = timer_bit[name];
@@ -529,23 +531,31 @@ namespace FX5U_IOMonitor.Models
                                                 timer.IsCounting = true;
 
                                                 // 實際經過的秒數
-                                                TimeSpan elapsed = (DateTime.UtcNow) - timer.LastUpdateTime;
-
+                                                TimeSpan elapsed = DateTime.UtcNow - timer.LastUpdateTime;
                                                 if (elapsed.TotalSeconds >= 1)
                                                 {
                                                     timer.NowValue += (int)elapsed.TotalSeconds;
-                                                    timer.LastUpdateTime = (DateTime.UtcNow);
+                                                    timer.LastUpdateTime = DateTime.UtcNow;
+                                                    Debug.WriteLine($"{timer.LastUpdateTime}、{timer.NowValue}");
+
                                                     DBfunction.Set_Machine_now_number(machine_name, name, (ushort)timer.NowValue);
-                                                    //Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
+
+                                                    Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
+                                                    
+                                                    Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_History_NumericValue(name)}");
+
                                                 }
 
-                                                if (timer.NowValue >= 30)
+                                                if (timer.NowValue>= 30)
                                                 {
+                                                   
                                                     timer.HistoryValue += timer.NowValue;
+
                                                     DBfunction.Set_Machine_History_NumericValue(machine_name,name, (ushort)timer.HistoryValue);
                                                     timer.NowValue = 0;
                                                     DBfunction.Set_Machine_now_number(machine_name, name, 0);
-                                                    //Debug.WriteLine($"📥 {name} 滿 30 秒：累積為 {timer.HistoryValue}");
+                                                    Debug.WriteLine($"📥 {name} 滿 30 秒：累積為 {timer.HistoryValue}");
+
                                                 }
 
                                             }
@@ -553,14 +563,17 @@ namespace FX5U_IOMonitor.Models
                                             {
                                                 if (timer.IsCounting && timer.NowValue > 0)
                                                 {
+                                                    DBfunction.Inital_MachineParameters_number(machine_name, name);
+
                                                     timer.HistoryValue += timer.NowValue;
-                                                    DBfunction.Set_Machine_History_NumericValue(machine_name,name, (ushort)timer.HistoryValue);
+
+                                                    DBfunction.Set_Machine_History_NumericValue(machine_name, name, (ushort)timer.HistoryValue);
                                                     DBfunction.Set_Machine_now_number(machine_name, name, 0);
                                                     timer.NowValue = 0;
                                                 }
 
                                                 timer.IsCounting = false;
-                                                timer.LastUpdateTime = (DateTime.UtcNow) ; // 記錄重置時間
+                                                timer.LastUpdateTime = (DateTime.UtcNow); // 記錄重置時間
 
                                             }
                                         }
@@ -858,15 +871,16 @@ namespace FX5U_IOMonitor.Models
 
                             //  顯示即時功率（僅顯示功率，不顯示單次電度）
                             DBfunction.Set_Machine_now_string(machine_name, name, currentPower.ToString("F2"));
+
                             //Debug.WriteLine($"[{now}] [Type3] {machine_name}-{name} 即時功率 = {currentPower:F2} kW");
 
                             // 讀取目前累積度數（存成 int，單位 0.01 度）
                             int previousSum = DBfunction.Get_History_NumericValue(machine_name, "electricity");
                             int newSum = previousSum + (int)Math.Round(currentElectricity * 100);  // 例如 0.03 度 → 加入 3
 
+
                             //  寫入累積電度數
                             DBfunction.Set_Machine_History_NumericValue(machine_name, "electricity", newSum);
-
                             // 顯示目前總累積（轉回 kWh）
                             double totalElectricity = newSum / 100.0;
                             DBfunction.Set_Machine_now_string(machine_name, "electricity", totalElectricity.ToString("F1"));

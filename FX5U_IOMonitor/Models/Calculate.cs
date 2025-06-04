@@ -110,43 +110,27 @@ namespace FX5U_IOMonitor.Models
 
             return updatedCount;
         }
-        public static int UpdatealarmCurrentSingleToDB(List<now_single> nowList, string tableName)
+        public static void UpdatealarmCurrentSingleToDB(List<now_single> nowList)
         {
             if (nowList == null || nowList.Count == 0)
             {
                 Console.WriteLine("⚠️ nowList 為空，未更新資料庫。");
-                return 0;
             }
 
             using var context = new ApplicationDB();
 
-            int updatedCount = 0;
-
-
-            switch (tableName)
+            var ioList = context.alarm.ToList();
+            foreach (var now in nowList)
             {
-                case "alarm":
-                    {
-                        var ioList = context.alarm.ToList();
-                        foreach (var now in nowList)
-                        {
-                            var io = ioList.FirstOrDefault(d => d.M_Address == now.address);
-                            if (io != null)
-                            {
-                                io.current_single = now.current_single;
-                                updatedCount++;
-                            }
-                        }
-                        break;
-                    }
-                default:
-                    throw new ArgumentException($"未知的資料表名稱：{tableName}");
+                var io = ioList.FirstOrDefault(d => d.M_Address == now.address);
+                if (io != null)
+                {
+                    io.current_single = now.current_single;
+                }
             }
-
+                      
             context.SaveChanges(); // ✅ 寫入資料庫
-            Console.WriteLine($"✅ 成功更新 {updatedCount} 筆 current_single 至資料表 {tableName}。");
 
-            return updatedCount;
         }
 
         public static void Update_alarm_Single(List<now_single> now_single, List<now_single> old_single)

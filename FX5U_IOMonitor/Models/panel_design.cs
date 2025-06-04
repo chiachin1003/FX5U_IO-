@@ -121,7 +121,7 @@ namespace FX5U_IOMonitor.Models
         //        AutoSize = true,
         //        Font = new Font("微軟正黑體", 20F, FontStyle.Bold),
         //        Location = new Point(10, 14),
-        //        Name = "lab_equipment",
+        //        blade_TPI_name = "lab_equipment",
         //        Size = new Size(145, 40),
         //        Text = equipmentName
         //    };
@@ -137,7 +137,7 @@ namespace FX5U_IOMonitor.Models
         //        Font = new Font("微軟正黑體", 24F, FontStyle.Bold),
         //        Location = new Point(10, 60),
         //        Size = new Size(131, 40),
-        //        Name = "lab_effect",
+        //        blade_TPI_name = "lab_effect",
         //    };
         //    panel.Controls.Add(labEffect);
 
@@ -149,7 +149,7 @@ namespace FX5U_IOMonitor.Models
         //        Dock = DockStyle.Right,
         //        Location = new Point(180, 0),
         //        Size = new Size(235, 200),
-        //        Name = "tableLayoutPanel1",
+        //        blade_TPI_name = "tableLayoutPanel1",
         //    };
         //    tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 39.5061722F));
         //    tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60.49383F));

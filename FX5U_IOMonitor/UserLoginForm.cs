@@ -19,7 +19,7 @@ namespace FX5U_IOMonitor
 		private void UpdateLanguage()
 		{
 			this.Text = ResMapper.GetLocalizedString( "UserLoginForm::Title" );
-			_lblAccount.Text = ResMapper.GetLocalizedString( "UserManageForm::Lbl::Name" );
+			_lblAccount.Text = ResMapper.GetLocalizedString( "UserManageForm::Lbl::blade_TPI_name" );
 			_lblPassword.Text = ResMapper.GetLocalizedString( "UserManageForm::Lbl::Password" );
 			_btnLogin.Text = ResMapper.GetLocalizedString( "UserLoginForm::Btn::Login" );
 		}
