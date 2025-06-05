@@ -3,6 +3,7 @@ using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
@@ -11,13 +12,30 @@ using static FX5U_IOMonitor.Models.MonitoringService;
 namespace FX5U_IOMonitor
 {
 
-    public partial class Swing_main : Form
+    public partial class Machine_main : Form
     {
+        private List<MachinePanelGroup> groupList = new(); //儲存每個圖標的資料
+        private string MachineType;
+        private List<string> matchedBtnTags;
+        public string ClassTag { get; private set; } = "";
+        public float[] ChartIndex { get; private set; }
 
-        public Swing_main(Main main)
+        private static Dictionary<string, Machine_main> _instances = new();
+
+        public static Machine_main GetInstance(string machineType)
         {
+            if (!_instances.ContainsKey(machineType) || _instances[machineType].IsDisposed)
+            {
+                _instances[machineType] = new Machine_main(machineType);
+            }
+            return _instances[machineType];
+        }
 
+        public Machine_main(string machineType)
+        {
+           
             InitializeComponent();
+            this.MachineType = machineType;
             tableLayoutPanel1.BorderStyle = BorderStyle.FixedSingle; // 單線框
             tableLayoutPanel2.BorderStyle = BorderStyle.FixedSingle;
             tableLayoutPanel3.BorderStyle = BorderStyle.FixedSingle;
@@ -26,8 +44,8 @@ namespace FX5U_IOMonitor
             tableLayoutPanel6.BorderStyle = BorderStyle.FixedSingle;
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
-            SwitchLanguage();
             LanguageManager.LanguageChanged += OnLanguageChanged;
+            SwitchLanguage();
 
         }
         private void OnLanguageChanged(string cultureName)
@@ -36,51 +54,25 @@ namespace FX5U_IOMonitor
             SwitchLanguage();
         }
 
-        private void btn_common_Click(object sender, EventArgs e)
-        {
-            List<string> classtag = DBfunction.GetClassTag_address("Sawing", "COMMON");
-            var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(classtag, "Sawing");          //  將資料傳入模組
-            Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
-
-        }
-
-
-
-        private void btn_panel_Click(object sender, EventArgs e)
-        {
-            List<string> classtag = DBfunction.GetClassTag_address("Sawing", "Panel");
-            var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(classtag, "Sawing");          //  將資料傳入模組
-            Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
-        }
-
-        private void btn_cabinet_Click(object sender, EventArgs e)
-        {
-            List<string> classtag = DBfunction.GetClassTag_address("Sawing", "CABINET");
-            var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(classtag, "Sawing");          //  將資料傳入模組
-            Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
-        }
 
         private void lab_red_Click(object sender, EventArgs e)
         {
-            List<string> alarms = DBfunction.Get_Red_addressList("Sawing");
+            List<string> alarms = DBfunction.Get_Red_addressList(MachineType);
 
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(alarms, "Sawing");          //  將資料傳入模組
+            searchControl.LoadData(alarms, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
 
         }
 
         private void reset_labText()//更新主頁面連接狀況
         {
-            lab_green.Text = DBfunction.Get_Green_number("Sawing").ToString();
-            lab_yellow.Text = DBfunction.Get_Yellow_number("Sawing").ToString();
-            lab_red.Text = DBfunction.Get_Red_number("Sawing").ToString();
-            lab_sum.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
+            lab_green.Text = DBfunction.Get_Green_number(MachineType).ToString();
+            lab_yellow.Text = DBfunction.Get_Yellow_number(MachineType).ToString();
+            lab_red.Text = DBfunction.Get_Red_number(MachineType).ToString();
+            lab_sum.Text = DBfunction.GetMachineRowCount(MachineType).ToString();
 
-            var existingContext = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+            var existingContext = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
             //var existingContext = MachineHub.Get("Sawing");
             if (existingContext != null && existingContext.IsConnected)
             {
@@ -88,8 +80,8 @@ namespace FX5U_IOMonitor
                 lab_connectOK.ForeColor = Color.Green;
 
                 lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
-                List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part("Sawing");
-                lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts("Sawing", drill_breakdowm_part).Count.ToString();
+                List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
+                lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, drill_breakdowm_part).Count.ToString();
 
             }
             else
@@ -105,19 +97,17 @@ namespace FX5U_IOMonitor
         }
         private List<float[]> update_class()
         {
-            List<string> classTags = new List<string>
-            {
-                "COMMON", "Panel", "CABINET"
-            };
+            List<string> classTags = DBfunction.GetMachineClassTags(MachineType);
+
             List<float[]> chartValues = new List<float[]>();
             foreach (string classTag in classTags)
             {
                 // 計算當前 ClassTag 的狀態數據
-                List<string> search_number = DBfunction.GetClassTag_address("Sawing", classTag);
+                List<string> search_number = DBfunction.GetClassTag_address(MachineType, classTag);
 
-                int Green = DBfunction.Get_Green_classnumber("Sawing", classTag, search_number);
-                int yellow = DBfunction.Get_Yellow_classnumber("Sawing", classTag, search_number);
-                int red = DBfunction.Get_Red_classnumber("Sawing", classTag, search_number);
+                int Green = DBfunction.Get_Green_classnumber(MachineType, classTag, search_number);
+                int yellow = DBfunction.Get_Yellow_classnumber(MachineType, classTag, search_number);
+                int red = DBfunction.Get_Red_classnumber(MachineType, classTag, search_number);
 
                 // 轉換為 float[]
                 chartValues.Add(new float[] { Green, yellow, red });
@@ -127,19 +117,19 @@ namespace FX5U_IOMonitor
 
         private void lab_yellow_Click(object sender, EventArgs e)
         {
-            List<string> warn = DBfunction.Get_Yellow_addressList("Sawing");
+            List<string> warn = DBfunction.Get_Yellow_addressList(MachineType);
 
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(warn, "Sawing");          //  將資料傳入模組
+            searchControl.LoadData(warn, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
 
         }
 
         private void lab_green_Click(object sender, EventArgs e)
         {
-            List<string> green = DBfunction.Get_Green_addressList("Sawing");
+            List<string> green = DBfunction.Get_Green_addressList(MachineType);
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(green, "Sawing");          //  將資料傳入模組
+            searchControl.LoadData(green, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
         }
 
@@ -148,15 +138,36 @@ namespace FX5U_IOMonitor
 
 
             reset_labText();
+            
+            List<string> classTags = DBfunction.GetMachineClassTags(MachineType);
+            List<string> btnTags = DBfunction.GetClassTagLanguageKeys();
+            if (classTags.Count != btnTags.Count)
+            {
+                matchedBtnTags = btnTags.Where(tag =>
+                {
+                    if (tag.StartsWith("ClassTag_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string suffix = tag.Substring("ClassTag_".Length);
+                        return classTags.Any(c => c.Equals(suffix, StringComparison.OrdinalIgnoreCase));
+                    }
+                    return false;
+                }).ToList();
 
+            }
+            else 
+            {
+                matchedBtnTags = btnTags;
+            }
+           
+            
             //輸入當前顯示的不同數值
             List<float[]> chartValues = update_class();
             // 總數量
-            int totalCharts = 3;
-            int chartsPerRow = 3;
-            int spacingX = 300, spacingY = 0;
-            int startX = 106, startY = 160;
-            int lab_start_x = 106, lab_start_y = 300;
+            int totalCharts = classTags.Count;
+            int chartsPerRow = 7;
+            int spacingX = 130, spacingY = 220;
+            int startX = 35, startY = 40;
+            int lab_start_x = 30, lab_start_y = 150;
 
             for (int i = 0; i < totalCharts; i++)
             {
@@ -166,28 +177,16 @@ namespace FX5U_IOMonitor
                 int x = startX + (col * spacingX);
                 int y = startY + (row * spacingY);
 
-                // **使用預定義的數據**
-                float[] values = chartValues[i];
-                int[] number = new int[values.Length];
+                string classTag = classTags[i];
+                string btnTag = LanguageManager.Translate(matchedBtnTags[i]);
 
-                for (int j = 0; j < values.Length; j++)
+                var group = new MachinePanelGroup(MachineType, btnTag, classTag, chartValues[i])
                 {
-                    number[j] = Convert.ToInt32(values[j]);  // 會四捨五入
-                }
+                    Location = new Point(startX + col * spacingX, startY + row * spacingY)
+                };
 
-                PictureBox chartPanel = panel_design.CreateDoughnutChartPanel(120,
-                                       values,
-                                       new Color[] { Color.LightGreen, Color.Yellow, Color.Red });
-
-                chartPanel.Location = new Point(x, y);
-                this.Controls.Add(chartPanel);
-
-                int table_x = lab_start_x + (col * spacingX);
-                int table_y = lab_start_y + (row * spacingY);
-
-                TableLayoutPanel tableLayoutPanel = panel_design.CreateColorLegendPanel(number[0].ToString(), number[1].ToString(), number[2].ToString());
-                tableLayoutPanel.Location = new Point(table_x, table_y);
-                this.Controls.Add(tableLayoutPanel);
+                this.Controls.Add(group);
+                groupList.Add(group);
             }
             //Monitor_alarm();
 
@@ -209,9 +208,9 @@ namespace FX5U_IOMonitor
         private void btn_search_Click(object sender, EventArgs e)
         {
             searchText = txB_search.Text.Trim();
-            List<string> search_data = DBfunction.Search_IOFromDB("Sawing", searchText);
+            List<string> search_data = DBfunction.Search_IOFromDB(MachineType, searchText);
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-            searchControl.LoadData(search_data, "Sawing");          //  將資料傳入模組
+            searchControl.LoadData(search_data, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
         }
 
@@ -221,12 +220,12 @@ namespace FX5U_IOMonitor
             if (existingContext != null && existingContext.IsConnected)
             {
 
-                List<string> breakdown_part = DBfunction.Get_breakdown_part("Sawing");
+                List<string> breakdown_part = DBfunction.Get_breakdown_part(MachineType);
                 if (breakdown_part.Count != 0)
                 {
-                    List<string> breakdown_address = DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
+                    List<string> breakdown_address = DBfunction.Get_address_ByBreakdownParts(MachineType, breakdown_part);
                     var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
-                    searchControl.LoadData(breakdown_address, "Sawing");          //  將資料傳入模組
+                    searchControl.LoadData(breakdown_address, MachineType);          //  將資料傳入模組
                     Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
                 }
                 else
@@ -286,8 +285,8 @@ namespace FX5U_IOMonitor
                 return;
             }
             reset_labText();
-            List<string> breakdowm_part = DBfunction.Get_breakdown_part("Sawing");
-            lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts("Sawing", breakdowm_part).Count.ToString();
+            List<string> breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
+            lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, breakdowm_part).Count.ToString();
             //if (e.NewValue == true && e.OldValue == false)
             //{
             //    // 顯示變化
@@ -325,7 +324,7 @@ namespace FX5U_IOMonitor
         private void lab_sum_Click(object sender, EventArgs e)
         {
 
-            var context = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+            var context = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
 
             if (context != null && context.IsConnected)
             {
@@ -335,15 +334,12 @@ namespace FX5U_IOMonitor
             {
                 MessageBox.Show("當前無資料監控與更新");
             }
-
+           
         }
 
         private void SwitchLanguage()
         {
            
-            btn_common.Text = LanguageManager.Translate("Drillmain_common");
-            btn_cabinet.Text = LanguageManager.Translate("Drillmain_Cabinet");
-            btn_panel.Text = LanguageManager.Translate("Drillmain_Panel");
 
             label1.Text = LanguageManager.Translate("Mainform_RedLights");
             label2.Text = LanguageManager.Translate("Mainform_YellowLights");
@@ -353,6 +349,10 @@ namespace FX5U_IOMonitor
             label6.Text = LanguageManager.Translate("Mainform_MonitoredItems");
             label_txt.Text = LanguageManager.Translate("Mainform_TextSearch");
             btn_search.Text = LanguageManager.Translate("Mainform_Search");
+            for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
+            {
+                groupList[i].UpdateButtonLabel(LanguageManager.Translate(matchedBtnTags[i]));
+            }
 
         }
     }

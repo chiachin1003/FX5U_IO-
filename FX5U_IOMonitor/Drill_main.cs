@@ -480,20 +480,20 @@ namespace FX5U_IOMonitor
         }
         private void SwitchLanguage()
         {
-            btn_SP1.Text = LanguageManager.Translate("Drillmain_SP1");
-            btn_SP2.Text = LanguageManager.Translate("Drillmain_SP2");
-            btn_SP3.Text = LanguageManager.Translate("Drillmain_SP3");
-            btn_SP4.Text = LanguageManager.Translate("Drillmain_SP4");
-            btn_common.Text = LanguageManager.Translate("Drillmain_common");
-            btn_Panel.Text = LanguageManager.Translate("Drillmain_Panel");
-            btn_Peripheral.Text = LanguageManager.Translate("Drillmain_Peripheral");
-            btn_Cabinet.Text = LanguageManager.Translate("Drillmain_Cabinet");
-            btn_Infeed.Text = LanguageManager.Translate("Drillmain_Infeed");
-            btn_InfeedBox.Text = LanguageManager.Translate("Drillmain_InfeedBox");
-            btn_infeed_PNL.Text = LanguageManager.Translate("Drillmain_infeed_PNL");
-            btn_Outfeed.Text = LanguageManager.Translate("Drillmain_Outfeed");
-            btn_OutfeedPnl.Text = LanguageManager.Translate("Drillmain_OutfeedPnl");
-            btn_OutfeedBox.Text = LanguageManager.Translate("Drillmain_OutfeedBox");
+            btn_SP1.Text = LanguageManager.Translate("ClassTag_SP1");
+            btn_SP2.Text = LanguageManager.Translate("ClassTag_SP2");
+            btn_SP3.Text = LanguageManager.Translate("ClassTag_SP3");
+            btn_SP4.Text = LanguageManager.Translate("ClassTag_SP4");
+            btn_common.Text = LanguageManager.Translate("ClassTag_common");
+            btn_Panel.Text = LanguageManager.Translate("ClassTag_Panel");
+            btn_Peripheral.Text = LanguageManager.Translate("ClassTag_Peripheral");
+            btn_Cabinet.Text = LanguageManager.Translate("ClassTag_Cabinet");
+            btn_Infeed.Text = LanguageManager.Translate("ClassTag_Infeed");
+            btn_InfeedBox.Text = LanguageManager.Translate("ClassTag_InfeedBox");
+            btn_infeed_PNL.Text = LanguageManager.Translate("ClassTag_infeed_PNL");
+            btn_Outfeed.Text = LanguageManager.Translate("ClassTag_Outfeed");
+            btn_OutfeedPnl.Text = LanguageManager.Translate("ClassTag_OutfeedPnl");
+            btn_OutfeedBox.Text = LanguageManager.Translate("ClassTag_OutfeedBox");
             label1.Text = LanguageManager.Translate("Mainform_RedLights");
             label2.Text = LanguageManager.Translate("Mainform_YellowLights");
             label3.Text = LanguageManager.Translate("Mainform_GreenLights");

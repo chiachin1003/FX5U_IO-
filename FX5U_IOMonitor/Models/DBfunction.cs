@@ -233,7 +233,21 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
+        public static List<string> GetMachineClassTags(string tableName)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var list = context.Machine_IO
+                .Where(d => !string.IsNullOrEmpty(d.ClassTag) &&
+                            d.Machine_name == tableName)
+                .Select(d => d.ClassTag.Trim())
+                .Distinct()
+                .OrderBy(tag => tag)
+                .ToList();
 
+                return list;
+            }
+        }
         //查詢表內的class有多少個class類別
         public static List<string> GetClassTag_address(string tableName, string keyword)
         {
@@ -1514,9 +1528,28 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
+        //查詢
+        public static List<string> GetClassTagLanguageKeys()
+        {
+            using var context = new ApplicationDB();
+
+            var list = context.Language
+                .Where(l => l.Key.Contains("ClassTag_"))
+                .Select(l => l.Key)
+                .ToList();
+
+            return list;
+        }
+
+
+
+
+
+
+
+
+
+
     }
-
-
-
 
 }

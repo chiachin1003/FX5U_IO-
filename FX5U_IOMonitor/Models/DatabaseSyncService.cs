@@ -131,6 +131,9 @@ namespace FX5U_IOMonitor.Models
 
                 await SyncTable<MachineParameter>(localContext, cloudContext,
                     local => local.MachineParameters, cloud => cloud.MachineParameters, "MachineParameter", syncResult);
+                await SyncTable<Language>(localContext, cloudContext,
+                    local => local.Language, cloud => cloud.Language, "MachineParameter", syncResult);
+
 
                 string message = $"同步完成 - {DateTime.Now:HH:mm:ss} " +
                     $"(新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";

@@ -30,7 +30,7 @@ namespace FX5U_IOMonitor
             this.Load += Main_Load;
             this.FormClosing += Info_FormClosing;
             string lang = Properties.Settings.Default.LanguageSetting;
-            LanguageManager.LoadLanguageCSV("language.csv", lang);
+            LanguageManager.LoadLanguageFromDatabase(lang);
             SwitchLanguage();
             LanguageManager.LanguageChanged += OnLanguageChanged;
 

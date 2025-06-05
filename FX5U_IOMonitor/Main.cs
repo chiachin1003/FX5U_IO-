@@ -4,6 +4,7 @@ using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Windows.Forms;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 
@@ -13,9 +14,6 @@ namespace FX5U_IOMonitor
     public partial class Main : Form
     {
         private Connect_PLC plcForm; // 連接介面
-
-        private Swing_main swing_main;
-        private Drill_main drill_main;
         private Search_main search_main;
         private Main_form main_Form;
         public event EventHandler? LoginSucceeded;
@@ -54,8 +52,6 @@ namespace FX5U_IOMonitor
 
             InitializeComponent();
             InitLanguageComboBox();
-
-            //Csv2Db.importcsv();
 
             //using (var form = new UserLoginForm())
             //{
@@ -114,14 +110,9 @@ namespace FX5U_IOMonitor
 
             _instance = this;  // 確保單例指向目前的主視窗
             plcForm = new Connect_PLC(this);
-
-            swing_main = new Swing_main(this);
-            drill_main = new Drill_main(this);
-
             search_main = new Search_main();
-            this.Shown += MainForm_Shown;
 
-            btn_search.Enabled = false;
+            this.Shown += MainForm_Shown;
 
             DBfunction.Initiali_current_single();
 
@@ -190,17 +181,16 @@ namespace FX5U_IOMonitor
         private void btn_Drill_Click(object sender, EventArgs e)
         {
 
-            //設置子窗體屬性以嵌入 Panel
-            drill_main.TopLevel = false; // 禁止作為獨立窗口
-            drill_main.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            drill_main.Dock = DockStyle.Fill; // 填滿 Panel
+            string machine = "Drill";
+            var form = Machine_main.GetInstance(machine); // ✅ 呼叫單例
 
-            // 將子窗體添加到 Panel 並顯示
-            panel_main.Controls.Clear(); // 清空 Panel
-            panel_main.Controls.Add(drill_main); // 添加子窗體
-            drill_main.Show(); // 顯示子窗體
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
 
-
+            panel_main.Controls.Clear();
+            panel_main.Controls.Add(form);
+            form.Show();
         }
 
 
@@ -218,20 +208,16 @@ namespace FX5U_IOMonitor
 
         private void button_swing_Click(object sender, EventArgs e)
         {
+            string machine = "Sawing";
+            var form = Machine_main.GetInstance(machine); // ✅ 呼叫單例
 
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
 
-
-            // 設置子窗體屬性以嵌入 Panel
-            swing_main.TopLevel = false; // 禁止作為獨立窗口
-            swing_main.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            swing_main.Dock = DockStyle.Fill; // 填滿 Panel
-
-            // 將子窗體添加到 Panel 並顯示
-            panel_main.Controls.Clear(); // 清空 Panel
-            panel_main.Controls.Add(swing_main); // 添加子窗體
-            swing_main.Show(); // 顯示子窗體
-
-
+            panel_main.Controls.Clear();
+            panel_main.Controls.Add(form);
+            form.Show();
 
         }
 
@@ -382,7 +368,7 @@ namespace FX5U_IOMonitor
         {
             if (comb_language.SelectedValue is string selectedLang)
             {
-                LanguageManager.LoadLanguageCSV("language.csv", selectedLang);
+                LanguageManager.LoadLanguageFromDatabase(selectedLang);
                 Properties.Settings.Default.LanguageSetting = selectedLang;
                 Properties.Settings.Default.Save(); // ✅ 寫入設定檔
                 SwitchLanguage();
@@ -396,6 +382,7 @@ namespace FX5U_IOMonitor
             //    form.StartPosition = FormStartPosition.CenterParent;
             //    var result = form.ShowDialog(this);
             //}
+
             using (var form = new File_Settings())
             {
                 form.StartPosition = FormStartPosition.CenterParent;
