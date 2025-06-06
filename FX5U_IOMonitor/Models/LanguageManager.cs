@@ -24,7 +24,14 @@ namespace FX5U_IOMonitor.Models
             { "TW", "繁體中文" },
             { "US", "English" }
         };
+        public static void SetLanguage(string cultureCode)
+        {
+            LoadLanguageFromDatabase(cultureCode);
 
+            // 儲存到系統設定
+            Properties.Settings.Default.LanguageSetting = cultureCode;
+            Properties.Settings.Default.Save();
+        }
         public static void LoadLanguageCSV(string csvPath, string cultureName)
         {
             try
@@ -83,6 +90,7 @@ namespace FX5U_IOMonitor.Models
 
                 // ✅ 語言變更事件
                 LanguageChanged?.Invoke(cultureName);
+              
 
             }
             catch (Exception ex)
@@ -90,10 +98,16 @@ namespace FX5U_IOMonitor.Models
                 MessageBox.Show($"載入語言檔案時發生錯誤：\n{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
+        //更改語系
         public static string Translate(string key)
         {
             return _currentLanguageMap.TryGetValue(key, out var value) ? value : key;
+        }
+        //更改語系內含有數值型態的資料
+        public static string TranslateFormat(string key, params object[] args)
+        {
+            var format = Translate(key);
+            return string.Format(format, args);
         }
         /// <summary>
         /// 從資料庫載入語言對應表
@@ -133,6 +147,7 @@ namespace FX5U_IOMonitor.Models
                 _currentLanguageMap = languageData;
 
                 LanguageChanged?.Invoke(cultureCode);
+             
             }
             catch (Exception ex)
             {

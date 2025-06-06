@@ -63,8 +63,8 @@ namespace FX5U_IOMonitor.Data
         public int Setting_red { get; set; } //使用者設定健康異警百分比
         public double percent { get; set; }
         public bool Breakdown { get; set; }
-
-
+        public ICollection<MachineIOTranslation> Translations { get; set; } = new List<MachineIOTranslation>();
+        public ICollection<History> Histories { get; set; } = new List<History>();        //連動歷史資料
         [NotMapped]
         public float RemainingLifeTime => (float)Math.Round(Math.Max(0, (1 - (float)equipment_use / MaxLife) * 100), 2);
         public bool? current_single { get; set; } //當前讀取數值or信號
@@ -72,9 +72,28 @@ namespace FX5U_IOMonitor.Data
         public DateTime MountTime { get; set; }
         public DateTime UnmountTime { get; set; }
 
-        //連動歷史資料
-        public ICollection<History> Histories { get; set; } = new List<History>();
-     
+        public string GetComment(string languageCode = "TW")
+        {
+            return Translations?.FirstOrDefault(t => t.LanguageCode == languageCode)?.Comment ?? "";
+        }
+
+        public void SetComment(string languageCode, string comment)
+        {
+            var translation = Translations.FirstOrDefault(t => t.LanguageCode == languageCode);
+            if (translation != null)
+            {
+                translation.Comment = comment;
+            }
+            else
+            {
+                Translations.Add(new MachineIOTranslation
+                {
+                    LanguageCode = languageCode,
+                    Comment = comment,
+                    MachineIOId = this.Id
+                });
+            }
+        }
 
     }
 

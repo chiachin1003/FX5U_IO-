@@ -3,6 +3,7 @@ using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using System.Data;
+using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Connect_PLC;
@@ -15,12 +16,12 @@ namespace FX5U_IOMonitor
     public partial class Machine_main : Form
     {
         private List<MachinePanelGroup> groupList = new(); //儲存每個圖標的資料
-        private string MachineType;
-        private List<string> matchedBtnTags;
-        public string ClassTag { get; private set; } = "";
-        public float[] ChartIndex { get; private set; }
+        private CancellationTokenSource? _cts;             //儲存分組類別更新
 
-        private static Dictionary<string, Machine_main> _instances = new();
+        private string MachineType;                        //當前機台資料
+        private List<string> matchedBtnTags;               //當前語系標籤
+
+        private static Dictionary<string, Machine_main> _instances = new(); // 指定固定視窗
 
         public static Machine_main GetInstance(string machineType)
         {
@@ -52,6 +53,7 @@ namespace FX5U_IOMonitor
         {
             reset_labText();
             SwitchLanguage();
+            
         }
 
 
@@ -73,7 +75,7 @@ namespace FX5U_IOMonitor
             lab_sum.Text = DBfunction.GetMachineRowCount(MachineType).ToString();
 
             var existingContext = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
-            //var existingContext = MachineHub.Get("Sawing");
+
             if (existingContext != null && existingContext.IsConnected)
             {
                 lab_connectOK.Text = LanguageManager.Translate("Mainform_connect");
@@ -82,7 +84,8 @@ namespace FX5U_IOMonitor
                 lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
                 List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
                 lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, drill_breakdowm_part).Count.ToString();
-
+                _cts = new CancellationTokenSource();
+                _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
             }
             else
             {
@@ -92,6 +95,38 @@ namespace FX5U_IOMonitor
 
                 lab_connect.Text = "0";
                 lab_partalarm.Text = "0";
+            }
+
+        }
+        private async Task AutoUpdateAsync(CancellationToken token)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    if (this.IsHandleCreated && !this.IsDisposed)
+                    {
+                        this.Invoke(() =>
+                        {
+                            List<float[]> classvalue = update_class();
+                            for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
+                            {
+                                groupList[i].UpdateDisplay(classvalue[i]);
+                            }
+                            
+                        });
+                    }
+                    await Task.Delay(1000, token); // 每秒更新一次
+                }
+                catch (OperationCanceledException)
+                {
+                    break; // 正常取消任務
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("背景更新錯誤：" + ex.Message);
+                }
             }
 
         }
@@ -139,27 +174,36 @@ namespace FX5U_IOMonitor
 
             reset_labText();
             
-            List<string> classTags = DBfunction.GetMachineClassTags(MachineType);
-            List<string> btnTags = DBfunction.GetClassTagLanguageKeys();
-            if (classTags.Count != btnTags.Count)
-            {
-                matchedBtnTags = btnTags.Where(tag =>
-                {
-                    if (tag.StartsWith("ClassTag_", StringComparison.OrdinalIgnoreCase))
-                    {
-                        string suffix = tag.Substring("ClassTag_".Length);
-                        return classTags.Any(c => c.Equals(suffix, StringComparison.OrdinalIgnoreCase));
-                    }
-                    return false;
-                }).ToList();
+            List<string> classTags = DBfunction.GetMachineClassTags(MachineType); //確定當前分類 
 
-            }
-            else 
+            List<string> btnTags = DBfunction.GetClassTagLanguageKeys();  //確定語系資料
+
+            // 對應 classTag → btnKey，例如 "Infeed" → "ClassTag_Infeed"
+            matchedBtnTags = classTags.Select(tag =>
             {
-                matchedBtnTags = btnTags;
-            }
-           
-            
+                string expectedKey = $"ClassTag_{tag}";
+                return btnTags.FirstOrDefault(k => k.Equals(expectedKey, StringComparison.OrdinalIgnoreCase)) ?? expectedKey;
+            }).ToList();
+
+            //if (classTags.Count != btnTags.Count) //比對結果
+            //{
+            //    matchedBtnTags = btnTags.Where(tag =>
+            //    {
+            //        if (tag.StartsWith("ClassTag_", StringComparison.OrdinalIgnoreCase))
+            //        {
+            //            string suffix = tag.Substring("ClassTag_".Length);
+            //            return classTags.Any(c => c.Equals(suffix, StringComparison.OrdinalIgnoreCase));
+            //        }
+            //        return false;
+            //    }).ToList();
+
+            //}
+            //else
+            //{
+            //    matchedBtnTags = btnTags;
+            //}
+
+
             //輸入當前顯示的不同數值
             List<float[]> chartValues = update_class();
             // 總數量
@@ -178,6 +222,7 @@ namespace FX5U_IOMonitor
                 int y = startY + (row * spacingY);
 
                 string classTag = classTags[i];
+
                 string btnTag = LanguageManager.Translate(matchedBtnTags[i]);
 
                 var group = new MachinePanelGroup(MachineType, btnTag, classTag, chartValues[i])

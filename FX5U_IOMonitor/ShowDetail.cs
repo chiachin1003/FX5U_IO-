@@ -6,7 +6,7 @@ using FX5U_IOMonitor.Data;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using System.Xml.Linq;
-using static FX5U_IOMonitor.Models.panel_design_Setting;
+using static FX5U_IOMonitor.Models.Panel_design_Setting;
 using System.Diagnostics;
 using FX5U_IOMonitor.panel_control;
 
@@ -28,7 +28,8 @@ namespace FX5U_IOMonitor
         private Label? lbl_useCount;
         private Label? lbl_remainCount;
         private readonly Action? onClosedCallback;
-
+        private Panel usagePanel;
+        string currentLang;
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             onClosedCallback?.Invoke(); // ✅ 呼叫外部傳入的委派
@@ -37,6 +38,8 @@ namespace FX5U_IOMonitor
         public ShowDetail(string machine, string Tag, ShowDetailPage defaultPage = ShowDetailPage.Default, Action? onClosed = null)
         {
             InitializeComponent();
+            this.currentLang = Properties.Settings.Default.LanguageSetting; 
+
             dbtable = machine;
             equipmentTag = Tag;
             onClosedCallback = onClosed;
@@ -55,23 +58,23 @@ namespace FX5U_IOMonitor
                     break;
                 default:
 
-
+                    DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
                     string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
-                    string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
+                    string StartTime =$"{DBfunction.FormatNullableDateTime(start)}" + "；第" + numberReplace + "次";
 
-                    var usagePanel = panel_design.CreateShowMainPanel(
+                    var usagePanel = Panel_design.CreateShowMainPanel(
                         equipmentTag,
                         DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                        DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag),
+                        DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang),
                         StartTime
                     );
                     // 記得先抓 lbl_useCount 才能背景更新
                     lbl_useCount = usagePanel.Controls.Find("lb_useCount", true).FirstOrDefault() as Label;
                     lbl_remainCount = usagePanel.Controls.Find("lb_remainCount", true).FirstOrDefault() as Label;
                     panel_main.Controls.Add(usagePanel);
-
+                    this.usagePanel = usagePanel;
                     // 啟動背景監聽（如果先前已存在就先取消）
                     usageMonitorCts?.Cancel();
                     usageMonitorCts = new CancellationTokenSource();
@@ -80,8 +83,15 @@ namespace FX5U_IOMonitor
 
                     break;
             }
+             SwitchLanguage();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
 
         }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+        }
+        
 
 
         private void btn_history_Click(object sender, EventArgs e)
@@ -91,12 +101,12 @@ namespace FX5U_IOMonitor
 
             List<History> history = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag);
 
-            var usagePanel = panel_design.CreateUsagePanel(
+            var usagePanel = Panel_design.CreateUsagePanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), history
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang), history
 
             );
             panel_main.Controls.Add(usagePanel);
@@ -130,12 +140,12 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear();
 
             string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
-            var usagePanel = panel_design.CreateShowMainPanel(
+            var usagePanel = Panel_design.CreateShowMainPanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), StartTime
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang), StartTime
                 );
 
             panel_main.Controls.Add(usagePanel);
@@ -149,7 +159,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear();
            
 
-            Panel Settings = panel_design_Setting.CreateSettingPanel(dbtable ,equipmentTag);
+            Panel Settings = Panel_design_Setting.CreateSettingPanel(dbtable ,equipmentTag, this.currentLang);
             panel_main.Controls.Add(Settings);
         }
 
@@ -159,15 +169,16 @@ namespace FX5U_IOMonitor
             usageMonitorCts?.Cancel();
             usageMonitorCts = new CancellationTokenSource();
 
+            DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
             string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
-            string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
+            string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；第" + numberReplace + "次";
 
-            var usagePanel = panel_design.CreateShowMainPanel(
+            var usagePanel = Panel_design.CreateShowMainPanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag),
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang),
                 StartTime
             );
             // 抓取 Label
@@ -195,16 +206,22 @@ namespace FX5U_IOMonitor
                             {
                                 lbl_useCount.Invoke(() =>
                                 {
-                                    lbl_useCount.Text = $"目前已觸發次數   ：{currentUse} 次";
-                                    lbl_remainCount.Text = $"剩餘可使用次數   ：{remainCount} 次";
+                                    lbl_useCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_useCount", currentUse);
+                                    lbl_remainCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remainCount);
+
+                                    //lbl_useCount.Text = $"目前已觸發次數   ：{currentUse} 次";
+                                    //lbl_remainCount.Text = $"剩餘可使用次數   ：{remainCount} 次";
 
                                 });
                             }
                         }
                         else
                         {
-                            lbl_useCount.Text = $"目前已觸發次數   ：{currentUse} 次";
-                            lbl_remainCount.Text = $"剩餘可使用次數   ：{remainCount} 次";
+                            lbl_useCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_useCount", currentUse);
+                            lbl_remainCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remainCount);
+
+                            //lbl_useCount.Text = $"目前已觸發次數   ：{currentUse} 次";
+                            //lbl_remainCount.Text = $"剩餘可使用次數   ：{remainCount} 次";
                         }
 
                         await Task.Delay(500, token); // 每秒查詢一次
@@ -222,6 +239,21 @@ namespace FX5U_IOMonitor
             }, token);
         }
 
+        private void SwitchLanguage()
+        {
+            DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
+            string StartTime = $"{DBfunction.FormatNullableDateTime(start)}";
+            //int currentUse = DBfunction.Get_use_ByAddress(dbtable, equipmentTag);
+            //int remainCount = (DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag) - currentUse);
+            btn_timereset.Text = LanguageManager.Translate("ShowDetail_btn_timereset");
+            btn_history.Text = LanguageManager.Translate("ShowDetail_btn_history");
+            btn_lifeSetting.Text = LanguageManager.Translate("ShowDetail_btn_lifeSetting");
+            btn_showmain.Text = LanguageManager.Translate("ShowDetail_btn_showmain");
+            
+            //lbl_useCount.Text = LanguageManager.TranslateFormat("Label_UseCount", currentUse);
+            //lbl_remainCount.Text = LanguageManager.TranslateFormat("Label_RemainCount", remainCount);
 
+
+        }
     }
 }

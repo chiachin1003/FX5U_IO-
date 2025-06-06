@@ -78,7 +78,17 @@ namespace FX5U_IO元件監控
             radioButton_DesignatedUser.CheckedChanged += radioButton_CheckedChanged;
             treeView1.AfterCheck += treeView1_AfterCheck_ChildSync;  // 父節點同步子節點
 
+            string lang = FX5U_IOMonitor.Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageFromDatabase(lang);
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            SwitchLanguage();
+
         }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+        }
+
         // ✅ 封裝 classTag 空白處理
         private string NormalizeClassTag(string? classTag)
         {
@@ -646,8 +656,18 @@ namespace FX5U_IO元件監控
             All,        // 所有使用者
             FromAlarm   // 只加入當前 alarm 通知使用者
         }
-       
 
+        private void SwitchLanguage()
+        {
+            this.Text = LanguageManager.Translate("Alarm_Notify_title");
+            radioButton_alluser.Text = LanguageManager.Translate("Alarm_Notify_type");
+            radioButton_special.Text = LanguageManager.Translate("Alarm_Notify_alluser");
+            radioButton_DesignatedUser.Text = LanguageManager.Translate("Alarm_Notify_special");
+            lab_alarm_notify.Text = LanguageManager.Translate("Alarm_Notify_DesignatedUser");
+            lab_machine.Text = LanguageManager.Translate("Alarm_Notify_machine");
+            btn_apply.Text = LanguageManager.Translate("Alarm_Notify_btn_apply");
+            btn_update.Text = LanguageManager.Translate("Alarm_Notify_btn_update");
+        }
     }
 }
 

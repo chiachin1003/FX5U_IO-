@@ -28,139 +28,171 @@
         /// </summary>
         private void InitializeComponent()
         {
-            lab_Possible = new Label();
-            txb_senderEmail = new TextBox();
-            txb_senderPassword = new TextBox();
-            label7 = new Label();
-            label6 = new Label();
+            btn_Update = new Button();
+            tableLayoutPanel1 = new TableLayoutPanel();
             txb_TLS_port = new TextBox();
-            btn_setting = new Button();
-            label1 = new Label();
+            lab_Port = new Label();
             comboBox1 = new ComboBox();
+            lab_Protocal = new Label();
+            txb_senderPassword = new TextBox();
+            lab_Password = new Label();
+            txb_senderEmail = new TextBox();
+            lab_Email = new Label();
+            tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
-            // lab_Possible
+            // btn_Update
             // 
-            lab_Possible.AutoSize = true;
-            lab_Possible.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Possible.Location = new Point(12, 59);
-            lab_Possible.Name = "lab_Possible";
-            lab_Possible.Size = new Size(159, 26);
-            lab_Possible.TabIndex = 10;
-            lab_Possible.Text = "應用程式密碼：";
+            btn_Update.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btn_Update.Location = new Point(395, 183);
+            btn_Update.Name = "btn_Update";
+            btn_Update.Size = new Size(82, 36);
+            btn_Update.TabIndex = 39;
+            btn_Update.Text = "更新";
+            btn_Update.UseVisualStyleBackColor = true;
+            btn_Update.Click += btn_setting_Click;
             // 
-            // txb_senderEmail
+            // tableLayoutPanel1
             // 
-            txb_senderEmail.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            txb_senderEmail.Location = new Point(164, 18);
-            txb_senderEmail.Name = "txb_senderEmail";
-            txb_senderEmail.Size = new Size(266, 27);
-            txb_senderEmail.TabIndex = 19;
-            txb_senderEmail.Text = "webform@mechalogix.com";
-            // 
-            // txb_senderPassword
-            // 
-            txb_senderPassword.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            txb_senderPassword.Location = new Point(164, 58);
-            txb_senderPassword.Name = "txb_senderPassword";
-            txb_senderPassword.Size = new Size(266, 27);
-            txb_senderPassword.TabIndex = 24;
-            txb_senderPassword.Text = "jvvswkymcyokcvug";
-            // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label7.Location = new Point(12, 19);
-            label7.Name = "label7";
-            label7.Size = new Size(138, 26);
-            label7.TabIndex = 30;
-            label7.Text = "寄件者信箱：";
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label6.Location = new Point(95, 142);
-            label6.Name = "label6";
-            label6.Size = new Size(76, 26);
-            label6.TabIndex = 28;
-            label6.Text = "Port：";
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32.68817F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 67.31183F));
+            tableLayoutPanel1.Controls.Add(txb_TLS_port, 1, 3);
+            tableLayoutPanel1.Controls.Add(lab_Port, 0, 3);
+            tableLayoutPanel1.Controls.Add(comboBox1, 1, 2);
+            tableLayoutPanel1.Controls.Add(lab_Protocal, 0, 2);
+            tableLayoutPanel1.Controls.Add(txb_senderPassword, 1, 1);
+            tableLayoutPanel1.Controls.Add(lab_Password, 0, 1);
+            tableLayoutPanel1.Controls.Add(txb_senderEmail, 1, 0);
+            tableLayoutPanel1.Controls.Add(lab_Email, 0, 0);
+            tableLayoutPanel1.Location = new Point(12, 12);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 4;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tableLayoutPanel1.Size = new Size(465, 156);
+            tableLayoutPanel1.TabIndex = 42;
             // 
             // txb_TLS_port
             // 
+            txb_TLS_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             txb_TLS_port.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            txb_TLS_port.Location = new Point(164, 142);
+            txb_TLS_port.Location = new Point(155, 123);
             txb_TLS_port.Name = "txb_TLS_port";
-            txb_TLS_port.Size = new Size(266, 27);
-            txb_TLS_port.TabIndex = 38;
+            txb_TLS_port.Size = new Size(307, 27);
+            txb_TLS_port.TabIndex = 44;
             txb_TLS_port.Text = "465";
             txb_TLS_port.TextAlign = HorizontalAlignment.Center;
             // 
-            // btn_setting
+            // lab_Port
             // 
-            btn_setting.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_setting.Location = new Point(349, 186);
-            btn_setting.Name = "btn_setting";
-            btn_setting.Size = new Size(82, 36);
-            btn_setting.TabIndex = 39;
-            btn_setting.Text = "設定";
-            btn_setting.UseVisualStyleBackColor = true;
-            btn_setting.Click += btn_setting_Click;
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label1.Location = new Point(12, 100);
-            label1.Name = "label1";
-            label1.Size = new Size(159, 26);
-            label1.TabIndex = 40;
-            label1.Text = "郵件協議設定：";
+            lab_Port.AutoSize = true;
+            lab_Port.Dock = DockStyle.Fill;
+            lab_Port.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            lab_Port.Location = new Point(3, 117);
+            lab_Port.Name = "lab_Port";
+            lab_Port.Size = new Size(146, 39);
+            lab_Port.TabIndex = 43;
+            lab_Port.Text = "郵件發送通訊埠：";
+            lab_Port.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // comboBox1
             // 
+            comboBox1.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             comboBox1.DrawMode = DrawMode.OwnerDrawFixed;
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             comboBox1.FormattingEnabled = true;
             comboBox1.Items.AddRange(new object[] { "SMTP" });
-            comboBox1.Location = new Point(164, 100);
+            comboBox1.Location = new Point(155, 83);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(267, 28);
-            comboBox1.TabIndex = 41;
+            comboBox1.Size = new Size(307, 28);
+            comboBox1.TabIndex = 42;
+            // 
+            // lab_Protocal
+            // 
+            lab_Protocal.AutoSize = true;
+            lab_Protocal.Dock = DockStyle.Fill;
+            lab_Protocal.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            lab_Protocal.Location = new Point(3, 78);
+            lab_Protocal.Name = "lab_Protocal";
+            lab_Protocal.Size = new Size(146, 39);
+            lab_Protocal.TabIndex = 41;
+            lab_Protocal.Text = "郵件協議設定：";
+            lab_Protocal.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // txb_senderPassword
+            // 
+            txb_senderPassword.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_senderPassword.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            txb_senderPassword.Location = new Point(155, 45);
+            txb_senderPassword.Name = "txb_senderPassword";
+            txb_senderPassword.Size = new Size(307, 27);
+            txb_senderPassword.TabIndex = 34;
+            txb_senderPassword.Text = "jvvswkymcyokcvug";
+            // 
+            // lab_Password
+            // 
+            lab_Password.AutoSize = true;
+            lab_Password.Dock = DockStyle.Fill;
+            lab_Password.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            lab_Password.Location = new Point(3, 39);
+            lab_Password.Name = "lab_Password";
+            lab_Password.Size = new Size(146, 39);
+            lab_Password.TabIndex = 33;
+            lab_Password.Text = "應用程式密碼：";
+            lab_Password.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // txb_senderEmail
+            // 
+            txb_senderEmail.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_senderEmail.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            txb_senderEmail.Location = new Point(155, 6);
+            txb_senderEmail.Name = "txb_senderEmail";
+            txb_senderEmail.Size = new Size(307, 27);
+            txb_senderEmail.TabIndex = 32;
+            txb_senderEmail.Text = "webform@mechalogix.com";
+            // 
+            // lab_Email
+            // 
+            lab_Email.AutoSize = true;
+            lab_Email.Dock = DockStyle.Fill;
+            lab_Email.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            lab_Email.Location = new Point(3, 0);
+            lab_Email.Name = "lab_Email";
+            lab_Email.Size = new Size(146, 39);
+            lab_Email.TabIndex = 31;
+            lab_Email.Text = "寄件者信箱：";
+            lab_Email.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // Email_Settings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(443, 244);
-            Controls.Add(comboBox1);
-            Controls.Add(label1);
-            Controls.Add(btn_setting);
-            Controls.Add(txb_TLS_port);
-            Controls.Add(label7);
-            Controls.Add(label6);
-            Controls.Add(txb_senderPassword);
-            Controls.Add(txb_senderEmail);
-            Controls.Add(lab_Possible);
+            ClientSize = new Size(500, 242);
+            Controls.Add(tableLayoutPanel1);
+            Controls.Add(btn_Update);
             Name = "Email_Settings";
             StartPosition = FormStartPosition.CenterParent;
             Text = "郵件設定";
             Load += Email_Settings_Load;
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
-        private Label lab_Possible;
-        private TextBox txb_senderEmail;
-        private TextBox txb_senderPassword;
-        private Label label7;
-        private Label label6;
+        private Button btn_Update;
+        private TableLayoutPanel tableLayoutPanel1;
+        private Label lab_Email;
         private TextBox txb_TLS_port;
-        private Button btn_setting;
-        private Label label1;
+        private Label lab_Port;
         private ComboBox comboBox1;
+        private Label lab_Protocal;
+        private TextBox txb_senderPassword;
+        private Label lab_Password;
+        private TextBox txb_senderEmail;
     }
 }

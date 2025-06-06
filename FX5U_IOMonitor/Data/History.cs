@@ -25,7 +25,5 @@ namespace FX5U_IOMonitor.Data
         public int MachineIOId { get; set; }
 
     
-
-
     }
 }

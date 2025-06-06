@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FX5U_IOMonitor.Models
 {
-    internal class UI_Display
+    public class UI_Display
     {
         public class DisplayValuePair<T>
         {

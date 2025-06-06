@@ -18,18 +18,21 @@ namespace FX5U_IOMonitor
 
 		private void UpdateLanguage()
 		{
-			this.Text = ResMapper.GetLocalizedString( "UserLoginForm::Title" );
-			_lblAccount.Text = ResMapper.GetLocalizedString( "UserManageForm::Lbl::blade_TPI_name" );
-			_lblPassword.Text = ResMapper.GetLocalizedString( "UserManageForm::Lbl::Password" );
-			_btnLogin.Text = ResMapper.GetLocalizedString( "UserLoginForm::Btn::Login" );
-		}
+			this.Text = LanguageManager.Translate("User_Login_Form");
+            //_lblAccount.Text = ResMapper.GetLocalizedString( "UserManageForm::Lbl::blade_TPI_name" );
+			
+            _lblPassword.Text = LanguageManager.Translate("UserManageForm_Lbl_Password");
 
-		private async void _btnLogin_Click( object sender, EventArgs e )
+            _btnLogin.Text = LanguageManager.Translate("User_Login_Btn_Login");
+
+        }
+
+        private async void _btnLogin_Click( object sender, EventArgs e )
 		{
 			// Check if the user has entered a valid account and password
 			if( string.IsNullOrEmpty( _txtAccount.Text ) || string.IsNullOrEmpty( _txtPassword.Text ) ) {
-				MessageBox.Show( ResMapper.GetLocalizedString( "UserManageForm::Msg::InvalidInput" ),
-					ResMapper.GetLocalizedString( "UserManageForm::Msg::Error" ), MessageBoxButtons.OK, MessageBoxIcon.Error );
+				MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_InvalidInput"),
+                    LanguageManager.Translate("UserManageForm_Msg_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error );
 				return;
 			}
 
@@ -44,13 +47,13 @@ namespace FX5U_IOMonitor
 					break;
 
 				case UserErrorCode.NotExist:
-					MessageBox.Show( ResMapper.GetLocalizedString( "UserLoginForm::Msg::AccountDoesNotExist" ),
-						ResMapper.GetLocalizedString( "UserManageForm::Msg::Error" ), MessageBoxButtons.OK, MessageBoxIcon.Error );
+					MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_AccountDoesNotExist"),
+                         LanguageManager.Translate("UserManageForm_Msg_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error );
 					break;
 
 				case UserErrorCode.PasswordError:
-					MessageBox.Show( ResMapper.GetLocalizedString( "UserLoginForm::Msg::PasswordError" ),
-						ResMapper.GetLocalizedString( "UserManageForm::Msg::Error" ), MessageBoxButtons.OK, MessageBoxIcon.Error );
+					MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_PasswordError"),
+                         LanguageManager.Translate("UserManageForm_Msg_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error );
 					break;
 
 			}

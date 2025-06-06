@@ -74,7 +74,6 @@ namespace FX5U_IO元件監控
                 地址 = d.address,
                 料件 = d.Description,
                 最大壽命 = d.MaxLife,
-                描述 = d.Comment,
                 紅燈 = d.Setting_red,
                 黃燈 = d.Setting_yellow,
 
@@ -93,7 +92,6 @@ namespace FX5U_IO元件監控
             {
                 地址 = d.address,
                 料件 = d.Description,
-                描述 = d.Comment,
                 最大壽命 = d.MaxLife,
                 紅燈 = d.Setting_red,
                 黃燈 = d.Setting_yellow,
@@ -163,14 +161,12 @@ namespace FX5U_IO元件監控
                 .Where(d =>
                     (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
                     (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
-                    (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
                     (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText))
                 )
                 .Select(d => new
                 {
                     地址 = d.address,
                     料件 = d.Description,
-                    描述 = d.Comment,
                     最大壽命 = d.MaxLife,
                     紅燈 = d.Setting_red,
                     黃燈 = d.Setting_yellow,

@@ -43,7 +43,7 @@ namespace FX5U_IOMonitor.Resources
             if (currentMode == ElementMode.ViewOnly && !string.IsNullOrEmpty(viewAddress) && !string.IsNullOrEmpty(tableName))
             {
                 LoadDataFromDatabase(viewAddress, tableName);
-               
+
             }
 
             if (currentMode == ElementMode.Add && !string.IsNullOrEmpty(tableName))
@@ -82,7 +82,7 @@ namespace FX5U_IOMonitor.Resources
 
             using (var context = new ApplicationDB())
             {
-                
+
                 if (context.Machine_IO.Any(d => d.address == fullAddress && d.Machine_name == this.tableName))
                 {
                     MessageBox.Show($"⚠️ 地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -103,7 +103,7 @@ namespace FX5U_IOMonitor.Resources
                     address = fullAddress
                 };
                 context.Machine_IO.Add(newDrillIO);
-               
+
                 context.SaveChanges();
                 MessageBox.Show("✅ 新增成功！");
                 OnDataUpdated?.Invoke(); // ✅ 呼叫刷新事件
@@ -214,7 +214,7 @@ namespace FX5U_IOMonitor.Resources
         {
             using (var context = new ApplicationDB())
             {
-              
+
                 var data = context.Machine_IO.FirstOrDefault(d => d.address == address && d.Machine_name == tableName);
                 if (data != null)
                 {
@@ -229,20 +229,20 @@ namespace FX5U_IOMonitor.Resources
                     txb_yellow_light.Text = data.Setting_yellow.ToString();
                     txb_red_light.Text = data.Setting_green.ToString();
                 }
-              
+
             };
-         
+
         }
 
-        private void btn_update_Click(object sender, EventArgs e) 
+        private void btn_update_Click(object sender, EventArgs e)
         {
             bool add_OK = ValidateInputFields();
             if (!add_OK) return;
             string fullAddress = comb_io.Text.Trim() + txb_address.Text.Trim();
-            using (var context = new ApplicationDB()) 
+            using (var context = new ApplicationDB())
             {
-               
-                var data = context.Machine_IO.FirstOrDefault(d => d.address == fullAddress && d.Machine_name== this.tableName);
+
+                var data = context.Machine_IO.FirstOrDefault(d => d.address == fullAddress && d.Machine_name == this.tableName);
                 if (data != null)
                 {
                     // ✅ 防呆：若修改後的新地址與其他筆資料重複
@@ -264,10 +264,10 @@ namespace FX5U_IOMonitor.Resources
                     data.Setting_yellow = Convert.ToInt32(txb_yellow_light.Text);
                     data.UnmountTime = DateTime.UtcNow.AddDays(10);
                     data.address = fullAddress;
-                      
+
 
                     context.SaveChanges(); //  儲存
-                    OnDataUpdated?.Invoke(); 
+                    OnDataUpdated?.Invoke();
                     MessageBox.Show("✅資料已成功更新！");
                     this.Close();
                 }
@@ -275,15 +275,14 @@ namespace FX5U_IOMonitor.Resources
                 {
                     MessageBox.Show("⚠️ 找不到要更新的資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-               
+
             };
-          
+
         }
 
 
-         private void SwitchLanguage()
+        private void SwitchLanguage()
         {
-            string lang = Properties.Settings.Default.LanguageSetting;
 
             lab_machineType.Text = LanguageManager.Translate("Element_lab_machineType");
             lab_elementType.Text = LanguageManager.Translate("Element_lab_elementType");
@@ -299,8 +298,60 @@ namespace FX5U_IOMonitor.Resources
             lab_redText.Text = LanguageManager.Translate("Element_lab_redText");
             btn_update.Text = LanguageManager.Translate("Element_btn_update");
             btn_add.Text = LanguageManager.Translate("Element_btn_add");
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel2);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel3);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel4);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel5);
+            Text_design.SafeAdjustFont(lab_green, lab_green.Text);
 
-           
+
+
         }
+
+        private void ApplyAutoFontShrinkToTableLabels(TableLayoutPanel panel)
+        {
+            foreach (Control ctrl in panel.Controls)
+            {
+                if (ctrl is Label lbl)
+                {
+                    lbl.Dock = DockStyle.Fill;
+                    lbl.AutoSize = false;
+                    lbl.TextAlign = ContentAlignment.MiddleLeft;
+                    FitFontToLabel(lbl);
+                }
+            }
+        }
+        private void FitFontToLabel(Label label)
+        {
+            if (string.IsNullOrEmpty(label.Text)) return;
+
+            using (Graphics g = label.CreateGraphics())
+            {
+                float fontSize = label.Font.Size;
+                Font testFont = label.Font;
+                Font prevFont = null;
+
+                while (fontSize > 6)
+                {
+                    if (prevFont != null) prevFont.Dispose();
+                    prevFont = testFont;
+
+                    testFont = new Font(label.Font.FontFamily, fontSize, label.Font.Style);
+                    SizeF textSize = g.MeasureString(label.Text, testFont);
+
+                    if (textSize.Width <= label.Width - 4 && textSize.Height <= label.Height - 4)
+                        break;
+
+                    fontSize -= 0.5f;
+                }
+
+                label.Font = testFont;
+                if (prevFont != null && prevFont != testFont) prevFont.Dispose();
+            }
+        }
+       
+
+        
     }
 }

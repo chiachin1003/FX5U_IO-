@@ -40,7 +40,7 @@
             _btnDelete = new Button();
             _cbSelectedRole = new ComboBox();
             _lblSelectedRole = new Label();
-            label1 = new Label();
+            lab_emailsetting = new Label();
             _txtEmail = new TextBox();
             ((System.ComponentModel.ISupportInitialize)_dgvUsers).BeginInit();
             SuspendLayout();
@@ -170,14 +170,14 @@
             _lblSelectedRole.TabIndex = 11;
             _lblSelectedRole.Text = "權限:";
             // 
-            // label1
+            // lab_emailsetting
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(313, 164);
-            label1.Name = "label1";
-            label1.Size = new Size(70, 15);
-            label1.TabIndex = 13;
-            label1.Text = "使用者信箱:";
+            lab_emailsetting.AutoSize = true;
+            lab_emailsetting.Location = new Point(313, 164);
+            lab_emailsetting.Name = "lab_emailsetting";
+            lab_emailsetting.Size = new Size(34, 15);
+            lab_emailsetting.TabIndex = 13;
+            lab_emailsetting.Text = "信箱:";
             // 
             // _txtEmail
             // 
@@ -193,7 +193,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(585, 381);
             Controls.Add(_txtEmail);
-            Controls.Add(label1);
+            Controls.Add(lab_emailsetting);
             Controls.Add(_cbSelectedRole);
             Controls.Add(_lblSelectedRole);
             Controls.Add(_btnDelete);
@@ -230,7 +230,7 @@
 		private Button _btnDelete;
 		private ComboBox _cbSelectedRole;
 		private Label _lblSelectedRole;
-        private Label label1;
+        private Label lab_emailsetting;
         private TextBox _txtEmail;
     }
 }

@@ -5,6 +5,7 @@ using System.IO.Ports;
 using Modbus.Device; // 來自 NModbus4
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Models.ModbusMonitorService;
+using FX5U_IOMonitor.panel_control;
 
 
 
@@ -12,18 +13,19 @@ namespace FX5U_IOMonitor
 {
     public partial class Connect_PLC : Form
     {
-   
+
         public class connect_isOK //提供各介面共用的X_IO監控數據
         {
-            public static bool Sawing_connect =false;
+            public static bool Sawing_connect = false;
             public static bool Drill_connect = false;
 
         }
 
+        Main main_control;
 
         public Connect_PLC(Main main)
         {
-
+            main_control = main;
             InitializeComponent();
             UpdateConnectmachinComboBox();
             comb_Baudrate.SelectedItem = "115200";
@@ -34,11 +36,32 @@ namespace FX5U_IOMonitor
             //connect_choose.SelectedIndex = 0;
             //comb_language.SelectedIndex = 0;
 
+            string lang = Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageFromDatabase(lang);
+            SwitchLanguage();
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel2);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel3);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
+
+
+
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+
+            connect_choose.SelectedIndexChanged += connect_choose_SelectedIndexChanged;
+            control_choose.SelectedIndexChanged += control_choose_SelectedIndexChanged;
+
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel2);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel3);
+            ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
+
         }
 
         private void connect_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
-            connect_choose.SelectedIndexChanged += connect_choose_SelectedIndexChanged;
 
             if (connect_choose.SelectedIndex == 0)
             {
@@ -54,6 +77,8 @@ namespace FX5U_IOMonitor
                 panel_Ethernet.Visible = false;
                 button_FILE.Visible = false;
                 button2.Visible = false;
+                combobox_text_center();
+
 
             }
             if (connect_choose.SelectedIndex == 2)
@@ -62,8 +87,7 @@ namespace FX5U_IOMonitor
                 panel_Ethernet.Visible = false;
                 button_FILE.Visible = false;
                 button2.Visible = false;
-
-
+                combobox_text_center();
 
             }
             if (connect_choose.SelectedIndex == 2 && control_choose.SelectedIndex == 2)
@@ -249,7 +273,7 @@ namespace FX5U_IOMonitor
 
         private void control_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
-            control_choose.SelectedIndexChanged += control_choose_SelectedIndexChanged;
+            combobox_text_center();
 
             if (control_choose.SelectedIndex == 0)
             {
@@ -310,6 +334,8 @@ namespace FX5U_IOMonitor
             }
 
             Csv2Db.Initialization_MachineElementFromCSV(txb_machine.Text, openFileDialog.FileName);
+            DBfunction.AddMachineKeyIfNotExist($"Mainform_{txb_machine.Text}", txb_machine.Text);
+            MachineButton.UpdateMachineButtons(main_control.panel_choose, main_control.btn_Main, main_control.panel_main);
             UpdateConnectmachinComboBox();
 
         }
@@ -323,7 +349,7 @@ namespace FX5U_IOMonitor
                 //                    .ToList();                      // 轉成 List<string>
                 var machineNames = context.index
                                    .Select(io => io.Name);
-                           
+
                 control_choose.Items.Clear();
 
                 foreach (var machine in machineNames)
@@ -368,7 +394,7 @@ namespace FX5U_IOMonitor
                 {
                     //MessageBox.Show("警告");
                     _ = HandleAlarmAndSendEmailAsync(e);
-                  
+
                 }
 
 
@@ -400,13 +426,81 @@ namespace FX5U_IOMonitor
             Email.SendFailureAlertMail(
                 receivers,
                 machineName,
-                partNumber ,
+                partNumber,
                 addressList: new List<string> { e.Address },
                 faultLocation,
                 possibleReasons: new List<string> { possibleReasons },
                 suggestions: new List<string> { suggestions, "檢查接線", "更換模組" }
             );
         }
+
+        private void btn_delete_Click(object sender, EventArgs e)
+        {
+            string targetMachine = control_choose.Text;
+            // 確認刪除
+            var confirm = MessageBox.Show($"⚠️ 是否確定要刪除機台「{targetMachine}」及其所有資料？", "刪除確認",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirm != DialogResult.Yes)
+                return;
+
+            // 資料庫刪除
+            DBfunction.DeleteMachineByName(targetMachine);
+
+            // 重新更新所有機台按鈕（可確保同步）
+            MachineButton.UpdateMachineButtons(main_control.panel_choose, main_control.btn_Main, main_control.panel_main);
+
+            // 重建下拉選單
+            UpdateConnectmachinComboBox();
+
+            MessageBox.Show("✅ 機台刪除完成");
+
+        }
+
+
+        private void SwitchLanguage()
+        {
+            lab_Add_Machine.Text = LanguageManager.Translate("Connect_Add_Machine_name");
+            lab_MachineType.Text = LanguageManager.Translate("Connect_MachineType");
+            lab_Type.Text = LanguageManager.Translate("Connect_Type");
+            label_IP.Text = LanguageManager.Translate("Connect_Enthernetaddress");
+            lab_Enthernetport.Text = LanguageManager.Translate("Connect_Enthernetport");
+            btn_connect_ethernet.Text = LanguageManager.Translate("Connect_Connect");
+            btn_disconnect_ethernet.Text = LanguageManager.Translate("Connect_Disconnect");
+            btn_connect_RS485.Text = LanguageManager.Translate("Connect_Connect");
+            btn_disconnect_RS485.Text = LanguageManager.Translate("Connect_Disconnect");
+            label_COM.Text = LanguageManager.Translate("Connect_RS_Port");
+            label_BaudRate.Text = LanguageManager.Translate("Connect_RS_BaudRate");
+            lab_Bits.Text = LanguageManager.Translate("Connect_RS_Bits");
+            lab_Parity.Text = LanguageManager.Translate("Connect_RS_Parity");
+            lab_StopBits.Text = LanguageManager.Translate("Connect_RS_StopBits");
+            btn_addmachine.Text = LanguageManager.Translate("Element_btn_add");
+
+        }
+        private void combobox_text_center()
+        {
+
+            Text_design.SetComboBoxCenteredDraw(comb_Parity);
+            Text_design.SetComboBoxCenteredDraw(comb_StopBits);
+            Text_design.SetComboBoxCenteredDraw(comb_Baudrate);
+            Text_design.SetComboBoxCenteredDraw(comb_Bits);
+
+        }
+        private void ApplyAutoFontShrinkToTableLabels(TableLayoutPanel panel)
+        {
+            foreach (Control ctrl in panel.Controls)
+            {
+                if (ctrl is Label lbl)
+                {
+                    lbl.Dock = DockStyle.Fill;
+                    lbl.AutoSize = false;
+                    lbl.TextAlign = ContentAlignment.MiddleLeft;
+                    Text_design.FitFontToLabel(lbl);
+                }
+            }
+        }
+        
+
+        
     }
 }
 

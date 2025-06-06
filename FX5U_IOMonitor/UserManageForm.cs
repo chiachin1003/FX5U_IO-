@@ -13,19 +13,20 @@ namespace FX5U_IOMonitor
             InitializeComponent();
             InitRolesComboBox();
             this.Shown += UserManageForm_Shown;
-            //UpdateLanguage();
+            UpdateLanguage();
         }
 
         private void UpdateLanguage()
         {
-            this.Text = ResMapper.GetLocalizedString("UserManageForm::Title");
-            _lblAccount.Text = ResMapper.GetLocalizedString("UserManageForm::Lbl::blade_TPI_name");
-            _lblPassword.Text = ResMapper.GetLocalizedString("UserManageForm::Lbl::Password");
-            _lblConfirmPassword.Text = ResMapper.GetLocalizedString("UserManageForm::Lbl::ConfirmPassword");
-            _lblRole.Text = ResMapper.GetLocalizedString("UserManageForm::Lbl::Role");
-            _lblSelectedRole.Text = ResMapper.GetLocalizedString("UserManageForm::Lbl::Role");
-            _btnAdd.Text = ResMapper.GetLocalizedString("UserManageForm::Btn::Add");
-            _btnDelete.Text = ResMapper.GetLocalizedString("UserManageForm::Btn::Delete");
+            this.Text = LanguageManager.Translate("UserManageForm_Title");
+            _lblAccount.Text = LanguageManager.Translate("UserManageForm_Lbl_Name");
+            _lblPassword.Text = LanguageManager.Translate("UserManageForm_Lbl_Password");
+            _lblConfirmPassword.Text = LanguageManager.Translate("UserManageForm_Lbl_ConfirmPassword");
+            _lblRole.Text = LanguageManager.Translate("UserManageForm_Lbl_Role");
+            _lblSelectedRole.Text = LanguageManager.Translate("UserManageForm_Lbl_Role");
+            _btnAdd.Text = LanguageManager.Translate("UserManageForm_Btn_Add");
+            _btnDelete.Text = LanguageManager.Translate("UserManageForm_Btn_Delete");
+            lab_emailsetting.Text = LanguageManager.Translate("UserManageForm_Lab_mail");
         }
 
         private async void UserManageForm_Shown(object? sender, EventArgs e)
@@ -60,8 +61,8 @@ namespace FX5U_IOMonitor
             // Check if the user has entered a valid account and password
             if (string.IsNullOrEmpty(_txtAccount.Text) || string.IsNullOrEmpty(_txtPassword.Text))
             {
-                MessageBox.Show(ResMapper.GetLocalizedString("UserManageForm::Msg::InvalidInput"),
-                    ResMapper.GetLocalizedString("UserManageForm::Msg::Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_InvalidInput"),
+                    LanguageManager.Translate("UserManageForm_Msg_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -70,16 +71,16 @@ namespace FX5U_IOMonitor
             {
                 if (userService.CheckUserExist(_txtAccount.Text))
                 {
-                    MessageBox.Show(ResMapper.GetLocalizedString("UserManageForm::Msg::UserNameAlreadyExist"),
-                        ResMapper.GetLocalizedString("UserManageForm::Msg::Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_UserNameAlreadyExist"),
+                        LanguageManager.Translate("UserManageForm_Msg_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 // Check password == confirm password
                 if (_txtPassword.Text != _txtConfirmPassword.Text)
                 {
-                    MessageBox.Show(ResMapper.GetLocalizedString("UserManageForm::Msg::PasswordNotMatch"),
-                        ResMapper.GetLocalizedString("UserManageForm::Msg::Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_PasswordNotMatch"),
+                        LanguageManager.Translate("UserManageForm_Msg_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -94,21 +95,21 @@ namespace FX5U_IOMonitor
             // Get the selected dgv row
             if (_dgvUsers.SelectedRows.Count == 0)
             {
-                MessageBox.Show(ResMapper.GetLocalizedString("UserManageForm::Msg::SelectRowFirst"));
+                MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_SelectRowFirst"));
                 return;
             }
 
             var selectedUser = _dgvUsers.SelectedRows[0].DataBoundItem as ApplicationUser;
             if (selectedUser == null)
             {
-                MessageBox.Show(ResMapper.GetLocalizedString("UserManageForm::Msg::DataNotFound"));
+                MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_DataNotFound"));
                 return;
             }
 
             // Check if the user is admin
             if (selectedUser.UserName == SD.Admin_Account)
             {
-                MessageBox.Show(ResMapper.GetLocalizedString("UserManageForm::Msg::CanNotDeleteUser"));
+                MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_CanNotDeleteUser"));
                 return;
             }
 

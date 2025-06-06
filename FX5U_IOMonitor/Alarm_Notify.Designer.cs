@@ -34,14 +34,14 @@ namespace FX5U_IO元件監控
             panel1 = new Panel();
             checkcombobox_special = new CheckedComboBoxDemo.checkcombobox();
             panel3 = new Panel();
-            label1 = new Label();
+            lab_alarm_notify = new Label();
             btn_update = new Button();
             radioButton_DesignatedUser = new RadioButton();
             radioButton_special = new RadioButton();
             panel2 = new Panel();
             control_choose = new ComboBox();
-            button4 = new Button();
-            label2 = new Label();
+            btn_apply = new Button();
+            lab_machine = new Label();
             panel4 = new Panel();
             treeView1 = new TreeView();
             panel1.SuspendLayout();
@@ -54,7 +54,7 @@ namespace FX5U_IO元件監控
             // 
             radioButton_alluser.AutoSize = true;
             radioButton_alluser.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
-            radioButton_alluser.Location = new Point(18, 59);
+            radioButton_alluser.Location = new Point(18, 49);
             radioButton_alluser.Name = "radioButton_alluser";
             radioButton_alluser.Size = new Size(171, 24);
             radioButton_alluser.TabIndex = 0;
@@ -78,39 +78,39 @@ namespace FX5U_IO元件監控
             // 
             // checkcombobox_special
             // 
-            checkcombobox_special.Location = new Point(195, 101);
+            checkcombobox_special.Location = new Point(18, 119);
             checkcombobox_special.Name = "checkcombobox_special";
-            checkcombobox_special.Size = new Size(210, 23);
+            checkcombobox_special.Size = new Size(358, 23);
             checkcombobox_special.TabIndex = 16;
             checkcombobox_special.Visible = false;
             // 
             // panel3
             // 
             panel3.BackColor = SystemColors.ScrollBar;
-            panel3.Controls.Add(label1);
+            panel3.Controls.Add(lab_alarm_notify);
             panel3.Dock = DockStyle.Top;
             panel3.Location = new Point(0, 0);
             panel3.Name = "panel3";
             panel3.Size = new Size(480, 37);
             panel3.TabIndex = 5;
             // 
-            // label1
+            // lab_alarm_notify
             // 
-            label1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            label1.AutoSize = true;
-            label1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label1.Location = new Point(18, 9);
-            label1.Name = "label1";
-            label1.Size = new Size(99, 19);
-            label1.TabIndex = 0;
-            label1.Text = "通知傳送方式";
+            lab_alarm_notify.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            lab_alarm_notify.AutoSize = true;
+            lab_alarm_notify.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_alarm_notify.Location = new Point(18, 9);
+            lab_alarm_notify.Name = "lab_alarm_notify";
+            lab_alarm_notify.Size = new Size(99, 19);
+            lab_alarm_notify.TabIndex = 0;
+            lab_alarm_notify.Text = "通知傳送方式";
             // 
             // btn_update
             // 
             btn_update.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold);
-            btn_update.Location = new Point(411, 95);
+            btn_update.Location = new Point(397, 109);
             btn_update.Name = "btn_update";
-            btn_update.Size = new Size(55, 36);
+            btn_update.Size = new Size(69, 33);
             btn_update.TabIndex = 3;
             btn_update.Text = "更新";
             btn_update.UseVisualStyleBackColor = true;
@@ -120,7 +120,7 @@ namespace FX5U_IO元件監控
             // 
             radioButton_DesignatedUser.AutoSize = true;
             radioButton_DesignatedUser.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
-            radioButton_DesignatedUser.Location = new Point(18, 144);
+            radioButton_DesignatedUser.Location = new Point(18, 152);
             radioButton_DesignatedUser.Name = "radioButton_DesignatedUser";
             radioButton_DesignatedUser.Size = new Size(251, 24);
             radioButton_DesignatedUser.TabIndex = 2;
@@ -132,7 +132,7 @@ namespace FX5U_IO元件監控
             // 
             radioButton_special.AutoSize = true;
             radioButton_special.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
-            radioButton_special.Location = new Point(18, 100);
+            radioButton_special.Location = new Point(18, 89);
             radioButton_special.Name = "radioButton_special";
             radioButton_special.Size = new Size(171, 24);
             radioButton_special.TabIndex = 1;
@@ -143,13 +143,14 @@ namespace FX5U_IO元件監控
             // panel2
             // 
             panel2.Controls.Add(control_choose);
-            panel2.Controls.Add(button4);
-            panel2.Controls.Add(label2);
+            panel2.Controls.Add(btn_apply);
+            panel2.Controls.Add(lab_machine);
             panel2.Controls.Add(panel4);
             panel2.Controls.Add(panel1);
-            panel2.Location = new Point(199, 2);
+            panel2.Dock = DockStyle.Fill;
+            panel2.Location = new Point(0, 0);
             panel2.Name = "panel2";
-            panel2.Size = new Size(535, 625);
+            panel2.Size = new Size(578, 625);
             panel2.TabIndex = 3;
             // 
             // control_choose
@@ -157,30 +158,30 @@ namespace FX5U_IO元件監控
             control_choose.DropDownStyle = ComboBoxStyle.DropDownList;
             control_choose.Font = new Font("微軟正黑體", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             control_choose.FormattingEnabled = true;
-            control_choose.Location = new Point(124, 10);
+            control_choose.Location = new Point(137, 11);
             control_choose.Name = "control_choose";
-            control_choose.Size = new Size(316, 32);
+            control_choose.Size = new Size(307, 32);
             control_choose.TabIndex = 15;
             control_choose.SelectedIndexChanged += control_choose_SelectedIndexChanged;
             // 
-            // button4
+            // btn_apply
             // 
-            button4.Location = new Point(450, 10);
-            button4.Name = "button4";
-            button4.Size = new Size(57, 37);
-            button4.TabIndex = 4;
-            button4.Text = "應用";
-            button4.UseVisualStyleBackColor = true;
+            btn_apply.Location = new Point(450, 10);
+            btn_apply.Name = "btn_apply";
+            btn_apply.Size = new Size(57, 37);
+            btn_apply.TabIndex = 4;
+            btn_apply.Text = "應用";
+            btn_apply.UseVisualStyleBackColor = true;
             // 
-            // label2
+            // lab_machine
             // 
-            label2.AutoSize = true;
-            label2.Font = new Font("微軟正黑體", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            label2.Location = new Point(26, 14);
-            label2.Name = "label2";
-            label2.Size = new Size(105, 24);
-            label2.TabIndex = 14;
-            label2.Text = "機台選擇：";
+            lab_machine.AutoSize = true;
+            lab_machine.Font = new Font("微軟正黑體", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_machine.Location = new Point(26, 14);
+            lab_machine.Name = "lab_machine";
+            lab_machine.Size = new Size(105, 24);
+            lab_machine.TabIndex = 14;
+            lab_machine.Text = "選擇機台：";
             // 
             // panel4
             // 
@@ -207,13 +208,14 @@ namespace FX5U_IO元件監控
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(920, 625);
+            ClientSize = new Size(578, 625);
             Controls.Add(panel2);
             Margin = new Padding(4);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "Alarm_Notify";
             StartPosition = FormStartPosition.CenterParent;
+            Text = "警告通知設定";
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel3.ResumeLayout(false);
@@ -233,12 +235,12 @@ namespace FX5U_IO元件監控
         private RadioButton radioButton_special;
         private Panel panel2;
         private Panel panel3;
-        private Label label1;
+        private Label lab_alarm_notify;
         private Panel panel4;
         private TreeView treeView1;
-        private Button button4;
+        private Button btn_apply;
         private ComboBox control_choose;
-        private Label label2;
+        private Label lab_machine;
         private CheckedComboBoxDemo.checkcombobox checkcombobox_special;
     }
 }

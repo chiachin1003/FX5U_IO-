@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
@@ -29,19 +30,13 @@ namespace FX5U_IOMonitor.panel_control
         private Dictionary<string, Panel> panelMap = new();
         private MonitorService? monitor;
         private bool isEventRegistered = false;
+        string currentLang;
+
         public UserSearchControl()
         {
             InitializeComponent();
-            string lang = Properties.Settings.Default.LanguageSetting;
-            LanguageManager.LoadLanguageFromDatabase(lang);
-            SwitchLanguage();
-            LanguageManager.LanguageChanged += OnLanguageChanged;
-
         }
-        private void OnLanguageChanged(string cultureName)
-        {
-            SwitchLanguage();
-        }
+        private bool isLanguageRegistered = false;
 
         public void LoadData(List<string> io_DataList, string datatable)
         {
@@ -50,15 +45,15 @@ namespace FX5U_IOMonitor.panel_control
             DataList = io_DataList;
             List<string> breakdown_part = DBfunction.Get_breakdown_part(source_table);
             List<string> breakdown_address = new();
-
-            if (source_table == "Drill")
-            {
-                breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
-            }
-            else if (source_table == "Sawing")
-            {
-                breakdown_address =DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
-            }
+            breakdown_address = DBfunction.Get_address_ByBreakdownParts(source_table, breakdown_part);
+            //if (source_table == "Drill")
+            //{
+            //    breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
+            //}
+            //else if (source_table == "Sawing")
+            //{
+            //    breakdown_address =DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
+            //}
 
 
             Update_Flow(io_DataList);
@@ -95,9 +90,19 @@ namespace FX5U_IOMonitor.panel_control
                 isEventRegistered = true;
 
             }
+            // 防重複綁定語系事件
+            if (!isLanguageRegistered)
+            {
+                LanguageManager.LanguageChanged += OnLanguageChanged;
+                isLanguageRegistered = true;
+            }
 
+            SwitchLanguage();
 
-
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
         }
         /// <summary>
         /// 綁定故障元件功能
@@ -181,6 +186,7 @@ namespace FX5U_IOMonitor.panel_control
         /// <param name="DataList"></param>
         public void Update_Flow(List<string> DataList)
         {
+
             if (this.InvokeRequired)
             {
                 this.Invoke(new Action(() => Update_Flow(DataList)));
@@ -209,7 +215,7 @@ namespace FX5U_IOMonitor.panel_control
                 using (var context = new ApplicationDB())
                 {
                     var filteredList = context.Machine_IO.Where(io => io.Machine_name == source_table &&
-                                    DataList.Contains(io.address))
+                                    DataList.Contains(io.address)).Include(io => io.Translations)
                                     .ToList();
                     foreach (var item in filteredList.Take(MaxPanelCount))
                     {
@@ -222,7 +228,7 @@ namespace FX5U_IOMonitor.panel_control
                             equipmentName: item.Description,
                             percent: item.RUL.ToString("F2"),
                             rulPercent: item.RUL.ToString("F2"),
-                            effect: item.Comment,
+                            effect: item.GetComment(Properties.Settings.Default.LanguageSetting),
                             address: item.address,
                             state: item.current_single
                         );
@@ -351,9 +357,15 @@ namespace FX5U_IOMonitor.panel_control
         }
         private void SwitchLanguage()
         {
+            this.currentLang = Properties.Settings.Default.LanguageSetting;
+
             label1.Text = LanguageManager.Translate("Mainform_RedLights");
             label2.Text = LanguageManager.Translate("Mainform_YellowLights");
             label3.Text = LanguageManager.Translate("Mainform_GreenLights");
+            if (DataList != null && DataList.Count > 0)
+            {
+                Update_Flow(DataList);
+            }
         }
 
        

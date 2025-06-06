@@ -111,30 +111,15 @@ namespace FX5U_IOMonitor.Models
                 var syncResult = new SyncResult();
 
                 // 同步各個資料表
-                await SyncTable<MachineIO>(localContext, cloudContext,
-                    local => local.Machine_IO, cloud => cloud.Machine_IO, "MachineIO", syncResult);
-
-                await SyncTable<Machine_number>(localContext, cloudContext,
-                    local => local.index, cloud => cloud.index, "Machine_number", syncResult);
-
-                await SyncTable<History>(localContext, cloudContext,
-                    local => local.Histories, cloud => cloud.Histories, "History", syncResult);
-
-                await SyncTable<Alarm>(localContext, cloudContext,
-                    local => local.alarm, cloud => cloud.alarm, "Alarm", syncResult);
-
-                await SyncTable<Blade_brand>(localContext, cloudContext,
-                    local => local.Blade_brand, cloud => cloud.Blade_brand, "Blade_brand", syncResult);
-
-                await SyncTable<Blade_brand_TPI>(localContext, cloudContext,
-                    local => local.Blade_brand_TPI, cloud => cloud.Blade_brand_TPI, "Blade_brand_TPI", syncResult);
-
-                await SyncTable<MachineParameter>(localContext, cloudContext,
-                    local => local.MachineParameters, cloud => cloud.MachineParameters, "MachineParameter", syncResult);
-                await SyncTable<Language>(localContext, cloudContext,
-                    local => local.Language, cloud => cloud.Language, "MachineParameter", syncResult);
-
-
+                await SafeSync(localContext, cloudContext, x => x.Machine_IO, x => x.Machine_IO, "MachineIO", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.index, x => x.index, "Machine_number", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Histories, x => x.Histories, "History", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.alarm, x => x.alarm, "Alarm", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Blade_brand, x => x.Blade_brand, "Blade_brand", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Blade_brand_TPI, x => x.Blade_brand_TPI, "Blade_brand_TPI", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.MachineParameters, x => x.MachineParameters, "MachineParameter", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Language, x => x.Language, "Language", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.MachineIOTranslations, x => x.MachineIOTranslations, "Translations", syncResult);
                 string message = $"同步完成 - {DateTime.Now:HH:mm:ss} " +
                     $"(新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";
 
@@ -176,7 +161,24 @@ namespace FX5U_IOMonitor.Models
                     break;
             }
         }
-
+        private async Task SafeSync<T>(
+                     ApplicationDB localContext,
+                     CloudDbContext cloudContext,
+                     Func<ApplicationDB, DbSet<T>> localSelector,
+                     Func<CloudDbContext, DbSet<T>> cloudSelector,
+                     string tableName,
+                     SyncResult syncResult) where T : class
+        {
+            try
+            {
+                await SyncTable(localContext, cloudContext, localSelector, cloudSelector, tableName, syncResult);
+            }
+            catch (Exception ex)
+            {
+                string error = $"❌ 表 [{tableName}] 同步失敗: {ex.Message}";
+                OnLogMessage(error);
+            }
+        }
         /// <summary>
         /// 只將地端資料同步到雲端（原始邏輯）
         /// </summary>

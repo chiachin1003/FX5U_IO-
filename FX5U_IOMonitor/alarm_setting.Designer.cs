@@ -46,7 +46,6 @@
             // 
             // panel1
             // 
-            panel1.Anchor = AnchorStyles.None;
             panel1.Controls.Add(lab_Description);
             panel1.Controls.Add(btn_update);
             panel1.Controls.Add(label4);
@@ -59,9 +58,10 @@
             panel1.Controls.Add(lab_Error);
             panel1.Controls.Add(txB_Step);
             panel1.Controls.Add(lab_Repair_step);
-            panel1.Location = new Point(59, 28);
+            panel1.Dock = DockStyle.Fill;
+            panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(342, 644);
+            panel1.Size = new Size(463, 580);
             panel1.TabIndex = 0;
             // 
             // lab_Description
@@ -77,7 +77,7 @@
             // btn_update
             // 
             btn_update.Anchor = AnchorStyles.None;
-            btn_update.Location = new Point(271, 593);
+            btn_update.Location = new Point(377, 529);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(61, 39);
             btn_update.TabIndex = 2;
@@ -110,18 +110,18 @@
             txB_Possible.AcceptsReturn = true;
             txB_Possible.AcceptsTab = true;
             txB_Possible.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            txB_Possible.Location = new Point(19, 204);
+            txB_Possible.Location = new Point(128, 162);
             txB_Possible.MaxLength = 30;
             txB_Possible.Multiline = true;
             txB_Possible.Name = "txB_Possible";
-            txB_Possible.Size = new Size(271, 77);
+            txB_Possible.Size = new Size(310, 77);
             txB_Possible.TabIndex = 8;
             // 
             // label2
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label2.Location = new Point(19, 175);
+            label2.Location = new Point(19, 162);
             label2.Name = "label2";
             label2.Size = new Size(117, 26);
             label2.TabIndex = 7;
@@ -132,10 +132,10 @@
             txB_Error.AcceptsReturn = true;
             txB_Error.AcceptsTab = true;
             txB_Error.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            txB_Error.Location = new Point(19, 126);
+            txB_Error.Location = new Point(136, 99);
             txB_Error.MaxLength = 20;
             txB_Error.Name = "txB_Error";
-            txB_Error.Size = new Size(271, 34);
+            txB_Error.Size = new Size(302, 34);
             txB_Error.TabIndex = 6;
             // 
             // label1
@@ -173,18 +173,18 @@
             txB_Step.AcceptsReturn = true;
             txB_Step.AcceptsTab = true;
             txB_Step.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            txB_Step.Location = new Point(19, 327);
+            txB_Step.Location = new Point(19, 286);
             txB_Step.Multiline = true;
             txB_Step.Name = "txB_Step";
             txB_Step.ScrollBars = ScrollBars.Vertical;
-            txB_Step.Size = new Size(287, 260);
+            txB_Step.Size = new Size(419, 235);
             txB_Step.TabIndex = 1;
             // 
             // lab_Repair_step
             // 
             lab_Repair_step.AutoSize = true;
             lab_Repair_step.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Repair_step.Location = new Point(19, 298);
+            lab_Repair_step.Location = new Point(19, 257);
             lab_Repair_step.Name = "lab_Repair_step";
             lab_Repair_step.Size = new Size(159, 26);
             lab_Repair_step.TabIndex = 0;
@@ -194,7 +194,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(463, 699);
+            ClientSize = new Size(463, 580);
             Controls.Add(panel1);
             Name = "alarm_setting";
             StartPosition = FormStartPosition.CenterParent;

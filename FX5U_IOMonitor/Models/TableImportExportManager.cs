@@ -34,7 +34,7 @@ namespace FX5U_IOMonitor.Models
 
         public static void ExportTableToCsv(string tableName, string mode = "auto", string[]? columns = null)
         {
-            string connString = $"Host={Local_IpAddress};Port={Local_Port};Database=element;Username={Local_UserName};Password={Local_Password}";
+            string connString = $"Host={Local_IpAddress};Port={Local_Port};Database=element.db;Username={Local_UserName};Password={Local_Password}";
             using var conn = new NpgsqlConnection(connString);
             conn.Open();
 

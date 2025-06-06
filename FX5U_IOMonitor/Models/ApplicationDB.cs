@@ -39,6 +39,7 @@ namespace FX5U_IOMonitor.Models
         public DbSet<History> Histories { get; set; }
        
         public DbSet<Alarm> alarm { get; set; }
+        public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
 
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
@@ -138,6 +139,7 @@ namespace FX5U_IOMonitor.Models
         public DbSet<History> Histories { get; set; }
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<Language> Language { get; set; }
+        public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
 
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }

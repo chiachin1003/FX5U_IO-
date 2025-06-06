@@ -16,8 +16,16 @@ namespace FX5U_IOMonitor.Resources
         {
             InitializeComponent();
             txb_senderPassword.PasswordChar = '*';  // 隱藏密碼
-            comboBox1.SelectedIndex = 0;  
+            comboBox1.SelectedIndex = 0;
+            string lang = Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageFromDatabase(lang);
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            SwitchLanguage();
 
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
         }
 
 
@@ -66,12 +74,21 @@ namespace FX5U_IOMonitor.Resources
             Properties.Settings.Default.senderEmail = txb_senderEmail.Text;
             Properties.Settings.Default.senderPassword = txb_senderPassword.Text; // 建議使用應用程式專用密碼
 
-            Properties.Settings.Default.Gmail_SMTP_server = "smtp.gmail.com"; // 建議使用應用程式專用密碼
+            Properties.Settings.Default.Gmail_SMTP_server = "smtp.gmail.com"; 
             Properties.Settings.Default.TLS_port = Convert.ToInt32(txb_TLS_port.Text); // 建議使用應用程式專用密碼
             Properties.Settings.Default.Save(); // ✅ 寫入設定檔
 
         }
+        private void SwitchLanguage()
+        {
+            this.Text = LanguageManager.Translate("Email_SetForm_Title");
+            lab_Email.Text = LanguageManager.Translate("Email_SetForm_Email");
+            lab_Password.Text = LanguageManager.Translate("Email_SetForm_Password");
+            lab_Protocal.Text = LanguageManager.Translate("Email_SetForm_Protocal");
+            lab_Port.Text = LanguageManager.Translate("Email_SetForm_Port");
+            btn_Update.Text = LanguageManager.Translate("Email_SetForm_Update");
 
+        }
         private void Email_Settings_Load(object sender, EventArgs e)
         {
             comboBox1.DrawItem += (s, e) =>

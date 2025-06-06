@@ -42,9 +42,10 @@ namespace FX5U_IOMonitor.Models
                 {
                     AutoSize = true,
                     Font = new Font("微軟正黑體", 12F, FontStyle.Bold),
-                    MaximumSize = new System.Drawing.Size(120, 0), // 限制最大寬度為 50px，高度自適應
+                    MaximumSize = new System.Drawing.Size(150, 0), // 限制最大寬度為 50px，高度自適應
                     Location = new Point(9, 11),
                     Name = "lab_equipment",
+                    BackColor = Color.Transparent, // ✅ 背景透明
                     Text = equipmentName
                 };
                 panel.Controls.Add(labEquipment);
@@ -60,12 +61,13 @@ namespace FX5U_IOMonitor.Models
                     Location = new Point(9, 33),
                     Name = "lab_effect",
                 };
+                Text_design.AdjustFontToFitBox(labEffect, effect, minFontSize: 10f);
                 panel.Controls.Add(labEffect);
 
                 // 初始化 panel_light
                 Panel panelLight = new Panel
                 {
-                    Location = new Point(133, 11),
+                    Location = new Point(153, 11),
                     Name = "panel_light",
                     Size = new Size(40, 40),
                     BackColor = (Color)SetColor(percent, DBfunction.Get_SetG_ByAddress(dbtable, address)
@@ -80,9 +82,9 @@ namespace FX5U_IOMonitor.Models
                 panelLight.Click += (sender, e) => PanelLight_Click(sender, e);
                 Panel panel_ON = new Panel
                 {
-                    Location = new Point(175, 50),
+                    Location = new Point(181, 41),
                     Name = "panel_ON",
-                    Size = new Size(12, 12),
+                    Size = new Size(8, 8),
                     BackColor = (Color)SetPointColor(state)
                 };
                 //SetCircularShape(panel_ON, 20);
@@ -91,7 +93,7 @@ namespace FX5U_IOMonitor.Models
                 // 初始化 RUL_precent
                 ProgressBar rulLabel = new ProgressBar
                 {
-                    Location = new Point(125, 50),
+                    Location = new Point(145, 50),
                     Name = "RUL_precent",
                     Size = new Size(45, 12),
                     Value = ProgressBarValue(percent)
@@ -103,7 +105,7 @@ namespace FX5U_IOMonitor.Models
                 {
                     AutoSize = true,
                     Font = new Font("微軟正黑體", 10F, FontStyle.Bold),
-                    Location = new Point(125, 65),
+                    Location = new Point(135, 65),
                     Name = "label_percent",
                     Text = $"{percent} %"
                 };

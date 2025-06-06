@@ -5,10 +5,10 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace FX5U_IOMonitor.Models
 {
-    public static class panel_design_Setting
+    public static class Panel_design_Setting
     {
         static string datatable = "";
-        public static Panel CreateSettingPanel( string machine ,string address)
+        public static Panel CreateSettingPanel( string machine ,string address,string currentLang)
         {
             datatable = machine;
 
@@ -40,9 +40,9 @@ namespace FX5U_IOMonitor.Models
             };
 
             label_detail.Text =
-                 $"{"元件儲存器地址：".PadRight(10)} {address}\n" +
-                 $"{"更換料號　　　：".PadRight(10)} {DBfunction.Get_Decription_ByAddress(datatable, address)}\n" +
-                 $"{"設備細節描述　：".PadRight(10)} {DBfunction.Get_Comment_ByAddress(datatable, address)}";
+                 $"{LanguageManager.Translate("ShowDetail_lb_address").PadRight(10)} {address}\n" +
+                 $"{LanguageManager.Translate("ShowDetail_lb_descript").PadRight(10)} {DBfunction.Get_Decription_ByAddress(datatable, address)}\n" +
+                 $"{LanguageManager.Translate("ShowDetail_history_lb_Detail").PadRight(10)} {DBfunction.Get_Comment_ByAddress(datatable, address, currentLang)}";
 
             topPanel.Controls.Add(label_detail);
 
@@ -90,7 +90,7 @@ namespace FX5U_IOMonitor.Models
             // label2：最大壽命
             Label label2 = new Label
             {
-                Text = "當前最大壽命設定(次)：",
+                Text = LanguageManager.Translate("ShowDetail_Setting_MaxLife"),
                 Font = labelFont,
                 Location = new Point((int)(15 * scale), (int)(15 * scale)),
                 AutoSize = true
@@ -112,22 +112,25 @@ namespace FX5U_IOMonitor.Models
             // lab_Repair_step
             Label lab_Repair_step = new Label
             {
-                Text = "綠燈健康狀態為黃燈設定值以上",
+                Text = LanguageManager.Translate("ShowDetail_Element_lab_green"),
+                Size = new Size((int)(450 * scale), (int)(33 * scale)),
                 Font = labelFont,
                 Location = new Point((int)(15 * scale), (int)(60 * scale)),
                 AutoSize = true
             };
+            AdjustLabelFontToFit(lab_Repair_step, lab_Repair_step.Text);
+
             panel.Controls.Add(lab_Repair_step);
 
             // label3：黃燈設定
-            Label label3 = new Label
+            Label Setting_MaxLife = new Label
             {
-                Text = "黃燈健康狀態設定(%)：",
+                Text = LanguageManager.Translate("ShowDetail_Setting_YellowLight"),
                 Font = labelFont,
                 Location = new Point((int)(15 * scale), (int)(100 * scale)),
                 AutoSize = true
             };
-            panel.Controls.Add(label3);
+            panel.Controls.Add(Setting_MaxLife);
 
             // txb_yellow_light
             NumericUpDown txb_yellow_light = new NumericUpDown
@@ -142,24 +145,24 @@ namespace FX5U_IOMonitor.Models
             panel.Controls.Add(txb_yellow_light);
 
             // label8
-            Label label8 = new Label
+            Label Setting_YellowLight = new Label
             {
-                Text = "設定值以下時觸發黃燈警報",
+                Text = LanguageManager.Translate("ShowDetail_Setting_YellowNote"),
                 Font = smallFont,
-                Location = new Point((int)(62 * scale), (int)(130 * scale)),
+                Location = new Point((int)(17 * scale), (int)(130 * scale)),
                 AutoSize = true
             };
-            panel.Controls.Add(label8);
+            panel.Controls.Add(Setting_YellowLight);
 
             // label4：紅燈設定
-            Label label4 = new Label
+            Label Setting_RedLight = new Label
             {
-                Text = "紅燈健康狀態設定(%)：",
+                Text = LanguageManager.Translate("ShowDetail_Setting_RedLight"),
                 Font = labelFont,
                 Location = new Point((int)(15 * scale), (int)(160 * scale)),
                 AutoSize = true
             };
-            panel.Controls.Add(label4);
+            panel.Controls.Add(Setting_RedLight);
 
             // txb_red_light
             NumericUpDown txb_red_light = new NumericUpDown
@@ -174,19 +177,19 @@ namespace FX5U_IOMonitor.Models
             panel.Controls.Add(txb_red_light);
 
             // label9
-            Label label9 = new Label
+            Label ShowDetail_Setting_RedNote = new Label
             {
-                Text = "設定值以下時觸發紅燈警報",
+                Text = LanguageManager.Translate("ShowDetail_Setting_RedNote"),
                 Font = smallFont,
-                Location = new Point((int)(62 * scale), (int)(190 * scale)),
+                Location = new Point((int)(17 * scale), (int)(190 * scale)),
                 AutoSize = true
             };
-            panel.Controls.Add(label9);
+            panel.Controls.Add(ShowDetail_Setting_RedNote);
 
             // btn_update
             System.Windows.Forms.Button btn_update = new System.Windows.Forms.Button
             {
-                Text = "重置",
+                Text = LanguageManager.Translate("ShowDetail_btn_Reset"),
                 Font = inputFont,
                 Location = new Point((int)(450 * scale), (int)(100 * scale)),
                 Size = new Size((int)(61 * scale), (int)(36 * scale))
@@ -201,10 +204,10 @@ namespace FX5U_IOMonitor.Models
             };
             panel.Controls.Add(btn_update);
 
-            // btn_add
+            // 
             System.Windows.Forms.Button btn_add = new System.Windows.Forms.Button
             {
-                Text = "更新",
+                Text = LanguageManager.Translate("ShowDetail_btn_Update"),
                 Font = inputFont,
                 Location = new Point((int)(450 * scale), (int)(160 * scale)),
                 Size = new Size((int)(61 * scale), (int)(36 * scale))
@@ -221,7 +224,31 @@ namespace FX5U_IOMonitor.Models
             return panel;
         }
 
+        private static void AdjustLabelFontToFit(Label label, string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
 
-       
+            Size proposedSize = label.ClientSize;
+            float fontSize = 20f; // 起始字體大小，可自訂
+            Font font;
+
+            using (Graphics g = label.CreateGraphics())
+            {
+                do
+                {
+                    font = new Font(label.Font.FontFamily, fontSize, label.Font.Style);
+                    SizeF textSize = g.MeasureString(text, font);
+
+                    if (textSize.Width <= proposedSize.Width && textSize.Height <= proposedSize.Height)
+                        break;
+
+                    fontSize -= 0.5f; // 遞減縮小
+                }
+                while (fontSize > 6f); // 最小字體限制
+            }
+
+            label.Font = font;
+        }
+
     }
 }
