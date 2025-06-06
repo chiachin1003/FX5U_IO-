@@ -30,30 +30,27 @@ namespace FX5U_IOMonitor
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
-            control_choose = new ComboBox();
-            connect_choose = new ComboBox();
-            label4 = new Label();
             panel_Ethernet = new Panel();
             btn_disconnect_ethernet = new Button();
             btn_connect_ethernet = new Button();
             txb_port = new TextBox();
             txb_IP = new TextBox();
-            label3 = new Label();
+            lab_Enthernetport = new Label();
             label_IP = new Label();
             panel_RS485 = new Panel();
+            tableLayoutPanel2 = new TableLayoutPanel();
             comb_StopBits = new ComboBox();
+            lab_StopBits = new Label();
             comb_Parity = new ComboBox();
+            lab_Parity = new Label();
             comb_Bits = new ComboBox();
+            lab_Bits = new Label();
             comb_Baudrate = new ComboBox();
-            label9 = new Label();
-            label8 = new Label();
-            label7 = new Label();
+            label_BaudRate = new Label();
+            txb_comport = new TextBox();
+            label_COM = new Label();
             btn_disconnect_RS485 = new Button();
             btn_connect_RS485 = new Button();
-            txb_comport = new TextBox();
-            label_BaudRate = new Label();
-            label_COM = new Label();
             button1 = new Button();
             textBox1 = new TextBox();
             textBox2 = new TextBox();
@@ -63,57 +60,23 @@ namespace FX5U_IOMonitor
             panel1 = new Panel();
             button_FILE = new Button();
             button2 = new Button();
-            txb_machine = new TextBox();
-            label6 = new Label();
+            btn_delete = new Button();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            connect_choose = new ComboBox();
+            lab_Type = new Label();
+            control_choose = new ComboBox();
+            lab_MachineType = new Label();
+            tableLayoutPanel3 = new TableLayoutPanel();
             btn_addmachine = new Button();
+            txb_machine = new TextBox();
+            lab_Add_Machine = new Label();
             panel_Ethernet.SuspendLayout();
             panel_RS485.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
             panel1.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
+            tableLayoutPanel3.SuspendLayout();
             SuspendLayout();
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Font = new Font("微軟正黑體", 18F, FontStyle.Bold);
-            label1.Location = new Point(81, 99);
-            label1.Name = "label1";
-            label1.Size = new Size(182, 31);
-            label1.TabIndex = 0;
-            label1.Text = "連線機台選擇：";
-            // 
-            // control_choose
-            // 
-            control_choose.DropDownStyle = ComboBoxStyle.DropDownList;
-            control_choose.Font = new Font("微軟正黑體", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            control_choose.FormattingEnabled = true;
-            control_choose.Items.AddRange(new object[] { "R16ENCPU(鑽床)", "FX5U_(鋸床)", "M800W" });
-            control_choose.Location = new Point(269, 96);
-            control_choose.Name = "control_choose";
-            control_choose.Size = new Size(364, 39);
-            control_choose.TabIndex = 13;
-            control_choose.SelectedIndexChanged += control_choose_SelectedIndexChanged;
-            // 
-            // connect_choose
-            // 
-            connect_choose.DropDownStyle = ComboBoxStyle.DropDownList;
-            connect_choose.Font = new Font("微軟正黑體", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            connect_choose.FormattingEnabled = true;
-            connect_choose.Items.AddRange(new object[] { "乙太網路", "RS 485 / RS422", "RS 232" });
-            connect_choose.Location = new Point(269, 160);
-            connect_choose.Name = "connect_choose";
-            connect_choose.Size = new Size(364, 39);
-            connect_choose.TabIndex = 15;
-            connect_choose.SelectedIndexChanged += connect_choose_SelectedIndexChanged;
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("微軟正黑體", 18F, FontStyle.Bold);
-            label4.Location = new Point(81, 163);
-            label4.Name = "label4";
-            label4.Size = new Size(182, 31);
-            label4.TabIndex = 14;
-            label4.Text = "連線方式設定：";
             // 
             // panel_Ethernet
             // 
@@ -121,21 +84,21 @@ namespace FX5U_IOMonitor
             panel_Ethernet.Controls.Add(btn_connect_ethernet);
             panel_Ethernet.Controls.Add(txb_port);
             panel_Ethernet.Controls.Add(txb_IP);
-            panel_Ethernet.Controls.Add(label3);
+            panel_Ethernet.Controls.Add(lab_Enthernetport);
             panel_Ethernet.Controls.Add(label_IP);
-            panel_Ethernet.Location = new Point(81, 228);
+            panel_Ethernet.Location = new Point(81, 211);
             panel_Ethernet.Name = "panel_Ethernet";
-            panel_Ethernet.Size = new Size(552, 363);
+            panel_Ethernet.Size = new Size(558, 363);
             panel_Ethernet.TabIndex = 16;
             panel_Ethernet.Visible = false;
             // 
             // btn_disconnect_ethernet
             // 
             btn_disconnect_ethernet.FlatStyle = FlatStyle.Flat;
-            btn_disconnect_ethernet.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_disconnect_ethernet.Location = new Point(435, 289);
+            btn_disconnect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            btn_disconnect_ethernet.Location = new Point(418, 289);
             btn_disconnect_ethernet.Name = "btn_disconnect_ethernet";
-            btn_disconnect_ethernet.Size = new Size(93, 43);
+            btn_disconnect_ethernet.Size = new Size(110, 43);
             btn_disconnect_ethernet.TabIndex = 6;
             btn_disconnect_ethernet.Text = "斷線";
             btn_disconnect_ethernet.UseVisualStyleBackColor = true;
@@ -144,8 +107,8 @@ namespace FX5U_IOMonitor
             // btn_connect_ethernet
             // 
             btn_connect_ethernet.FlatStyle = FlatStyle.Flat;
-            btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_connect_ethernet.Location = new Point(322, 289);
+            btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            btn_connect_ethernet.Location = new Point(302, 289);
             btn_connect_ethernet.Name = "btn_connect_ethernet";
             btn_connect_ethernet.Size = new Size(94, 43);
             btn_connect_ethernet.TabIndex = 5;
@@ -155,141 +118,207 @@ namespace FX5U_IOMonitor
             // 
             // txb_port
             // 
-            txb_port.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            txb_port.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_port.Location = new Point(24, 201);
             txb_port.Name = "txb_port";
-            txb_port.Size = new Size(504, 38);
+            txb_port.Size = new Size(504, 34);
             txb_port.TabIndex = 4;
             txb_port.Text = "2000";
             txb_port.TextAlign = HorizontalAlignment.Center;
             // 
             // txb_IP
             // 
-            txb_IP.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            txb_IP.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_IP.Location = new Point(24, 80);
             txb_IP.Name = "txb_IP";
-            txb_IP.Size = new Size(504, 38);
+            txb_IP.Size = new Size(504, 34);
             txb_IP.TabIndex = 3;
             txb_IP.Text = "192.168.9.1";
             txb_IP.TextAlign = HorizontalAlignment.Center;
             // 
-            // label3
+            // lab_Enthernetport
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label3.Location = new Point(24, 151);
-            label3.Name = "label3";
-            label3.Size = new Size(133, 30);
-            label3.TabIndex = 2;
-            label3.Text = "連接埠號：";
+            lab_Enthernetport.AutoSize = true;
+            lab_Enthernetport.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_Enthernetport.Location = new Point(24, 151);
+            lab_Enthernetport.Name = "lab_Enthernetport";
+            lab_Enthernetport.Size = new Size(117, 26);
+            lab_Enthernetport.TabIndex = 2;
+            lab_Enthernetport.Text = "連接埠號：";
             // 
             // label_IP
             // 
             label_IP.AutoSize = true;
-            label_IP.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            label_IP.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             label_IP.Location = new Point(24, 23);
             label_IP.Name = "label_IP";
-            label_IP.Size = new Size(181, 30);
+            label_IP.Size = new Size(159, 26);
             label_IP.TabIndex = 0;
             label_IP.Text = "網際協議地址：";
             // 
             // panel_RS485
             // 
-            panel_RS485.Controls.Add(comb_StopBits);
-            panel_RS485.Controls.Add(comb_Parity);
-            panel_RS485.Controls.Add(comb_Bits);
-            panel_RS485.Controls.Add(comb_Baudrate);
-            panel_RS485.Controls.Add(label9);
-            panel_RS485.Controls.Add(label8);
-            panel_RS485.Controls.Add(label7);
+            panel_RS485.Controls.Add(tableLayoutPanel2);
             panel_RS485.Controls.Add(btn_disconnect_RS485);
             panel_RS485.Controls.Add(btn_connect_RS485);
-            panel_RS485.Controls.Add(txb_comport);
-            panel_RS485.Controls.Add(label_BaudRate);
-            panel_RS485.Controls.Add(label_COM);
-            panel_RS485.Location = new Point(84, 228);
+            panel_RS485.Location = new Point(84, 200);
             panel_RS485.Name = "panel_RS485";
-            panel_RS485.Size = new Size(549, 404);
+            panel_RS485.Size = new Size(552, 404);
             panel_RS485.TabIndex = 17;
             panel_RS485.Visible = false;
             // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 53.1876144F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46.8123856F));
+            tableLayoutPanel2.Controls.Add(comb_StopBits, 1, 4);
+            tableLayoutPanel2.Controls.Add(lab_StopBits, 0, 4);
+            tableLayoutPanel2.Controls.Add(comb_Parity, 1, 3);
+            tableLayoutPanel2.Controls.Add(lab_Parity, 0, 3);
+            tableLayoutPanel2.Controls.Add(comb_Bits, 1, 2);
+            tableLayoutPanel2.Controls.Add(lab_Bits, 0, 2);
+            tableLayoutPanel2.Controls.Add(comb_Baudrate, 1, 1);
+            tableLayoutPanel2.Controls.Add(label_BaudRate, 0, 1);
+            tableLayoutPanel2.Controls.Add(txb_comport, 1, 0);
+            tableLayoutPanel2.Controls.Add(label_COM, 0, 0);
+            tableLayoutPanel2.Location = new Point(0, 23);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 5;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.Size = new Size(549, 296);
+            tableLayoutPanel2.TabIndex = 14;
+            // 
             // comb_StopBits
             // 
-            comb_StopBits.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            comb_StopBits.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_StopBits.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_StopBits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_StopBits.FormattingEnabled = true;
             comb_StopBits.Items.AddRange(new object[] { "One", "Two" });
-            comb_StopBits.Location = new Point(222, 270);
+            comb_StopBits.Location = new Point(295, 249);
             comb_StopBits.Name = "comb_StopBits";
-            comb_StopBits.Size = new Size(257, 38);
-            comb_StopBits.TabIndex = 13;
+            comb_StopBits.Size = new Size(251, 34);
+            comb_StopBits.TabIndex = 17;
+            // 
+            // lab_StopBits
+            // 
+            lab_StopBits.AutoSize = true;
+            lab_StopBits.Dock = DockStyle.Fill;
+            lab_StopBits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_StopBits.Location = new Point(3, 236);
+            lab_StopBits.Name = "lab_StopBits";
+            lab_StopBits.Size = new Size(286, 60);
+            lab_StopBits.TabIndex = 16;
+            lab_StopBits.Text = "停止位元(S)：";
+            lab_StopBits.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // comb_Parity
             // 
-            comb_Parity.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            comb_Parity.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_Parity.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_Parity.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_Parity.FormattingEnabled = true;
             comb_Parity.Items.AddRange(new object[] { "None", "Even", "Odd" });
-            comb_Parity.Location = new Point(222, 208);
+            comb_Parity.Location = new Point(295, 189);
             comb_Parity.Name = "comb_Parity";
-            comb_Parity.Size = new Size(257, 38);
-            comb_Parity.TabIndex = 12;
+            comb_Parity.Size = new Size(251, 34);
+            comb_Parity.TabIndex = 15;
+            // 
+            // lab_Parity
+            // 
+            lab_Parity.AutoSize = true;
+            lab_Parity.Dock = DockStyle.Fill;
+            lab_Parity.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_Parity.Location = new Point(3, 177);
+            lab_Parity.Name = "lab_Parity";
+            lab_Parity.Size = new Size(286, 59);
+            lab_Parity.TabIndex = 14;
+            lab_Parity.Text = "同位檢查(P)：";
+            lab_Parity.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // comb_Bits
             // 
-            comb_Bits.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            comb_Bits.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_Bits.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_Bits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_Bits.FormattingEnabled = true;
             comb_Bits.Items.AddRange(new object[] { "7", "8" });
-            comb_Bits.Location = new Point(222, 152);
+            comb_Bits.Location = new Point(295, 130);
             comb_Bits.Name = "comb_Bits";
-            comb_Bits.Size = new Size(257, 38);
-            comb_Bits.TabIndex = 11;
+            comb_Bits.Size = new Size(251, 34);
+            comb_Bits.TabIndex = 13;
+            // 
+            // lab_Bits
+            // 
+            lab_Bits.AutoSize = true;
+            lab_Bits.Dock = DockStyle.Fill;
+            lab_Bits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_Bits.Location = new Point(3, 118);
+            lab_Bits.Name = "lab_Bits";
+            lab_Bits.Size = new Size(286, 59);
+            lab_Bits.TabIndex = 12;
+            lab_Bits.Text = "資料位元(D)：";
+            lab_Bits.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // comb_Baudrate
             // 
-            comb_Baudrate.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
+            comb_Baudrate.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_Baudrate.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_Baudrate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_Baudrate.FormattingEnabled = true;
             comb_Baudrate.Items.AddRange(new object[] { "9600", "14400", "19200", "38400", "57600", "115200", "230400", "460800" });
-            comb_Baudrate.Location = new Point(222, 93);
+            comb_Baudrate.Location = new Point(295, 71);
             comb_Baudrate.Name = "comb_Baudrate";
-            comb_Baudrate.Size = new Size(257, 38);
-            comb_Baudrate.TabIndex = 10;
+            comb_Baudrate.Size = new Size(251, 34);
+            comb_Baudrate.TabIndex = 11;
             // 
-            // label9
+            // label_BaudRate
             // 
-            label9.AutoSize = true;
-            label9.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label9.Location = new Point(67, 273);
-            label9.Name = "label9";
-            label9.Size = new Size(163, 30);
-            label9.TabIndex = 9;
-            label9.Text = "停止位元(S)：";
+            label_BaudRate.AutoSize = true;
+            label_BaudRate.Dock = DockStyle.Fill;
+            label_BaudRate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            label_BaudRate.Location = new Point(3, 59);
+            label_BaudRate.Name = "label_BaudRate";
+            label_BaudRate.Size = new Size(286, 59);
+            label_BaudRate.TabIndex = 5;
+            label_BaudRate.Text = "每秒傳輸位元(B)：";
+            label_BaudRate.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // label8
+            // txb_comport
             // 
-            label8.AutoSize = true;
-            label8.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label8.Location = new Point(66, 211);
-            label8.Name = "label8";
-            label8.Size = new Size(164, 30);
-            label8.TabIndex = 8;
-            label8.Text = "同位檢查(P)：";
+            txb_comport.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_comport.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            txb_comport.Location = new Point(295, 12);
+            txb_comport.Name = "txb_comport";
+            txb_comport.Size = new Size(251, 34);
+            txb_comport.TabIndex = 4;
+            txb_comport.Text = "COM4";
+            txb_comport.TextAlign = HorizontalAlignment.Center;
             // 
-            // label7
+            // label_COM
             // 
-            label7.AutoSize = true;
-            label7.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label7.Location = new Point(62, 152);
-            label7.Name = "label7";
-            label7.Size = new Size(168, 30);
-            label7.TabIndex = 7;
-            label7.Text = "資料位元(D)：";
+            label_COM.AutoSize = true;
+            label_COM.Dock = DockStyle.Fill;
+            label_COM.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            label_COM.Location = new Point(3, 0);
+            label_COM.Name = "label_COM";
+            label_COM.Size = new Size(286, 59);
+            label_COM.TabIndex = 1;
+            label_COM.Text = "通訊埠編號：";
+            label_COM.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // btn_disconnect_RS485
             // 
             btn_disconnect_RS485.FlatStyle = FlatStyle.Flat;
-            btn_disconnect_RS485.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_disconnect_RS485.Location = new Point(435, 332);
+            btn_disconnect_RS485.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            btn_disconnect_RS485.Location = new Point(442, 332);
             btn_disconnect_RS485.Name = "btn_disconnect_RS485";
-            btn_disconnect_RS485.Size = new Size(93, 42);
+            btn_disconnect_RS485.Size = new Size(110, 42);
             btn_disconnect_RS485.TabIndex = 6;
             btn_disconnect_RS485.Text = "斷線";
             btn_disconnect_RS485.UseVisualStyleBackColor = true;
@@ -298,44 +327,14 @@ namespace FX5U_IOMonitor
             // btn_connect_RS485
             // 
             btn_connect_RS485.FlatStyle = FlatStyle.Flat;
-            btn_connect_RS485.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_connect_RS485.Location = new Point(322, 332);
+            btn_connect_RS485.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            btn_connect_RS485.Location = new Point(295, 332);
             btn_connect_RS485.Name = "btn_connect_RS485";
             btn_connect_RS485.Size = new Size(94, 42);
             btn_connect_RS485.TabIndex = 5;
             btn_connect_RS485.Text = "連線";
             btn_connect_RS485.UseVisualStyleBackColor = true;
             btn_connect_RS485.Click += btn_connect_RS485_Click;
-            // 
-            // txb_comport
-            // 
-            txb_comport.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            txb_comport.Location = new Point(222, 39);
-            txb_comport.Name = "txb_comport";
-            txb_comport.Size = new Size(257, 38);
-            txb_comport.TabIndex = 3;
-            txb_comport.Text = "COM4";
-            txb_comport.TextAlign = HorizontalAlignment.Center;
-            // 
-            // label_BaudRate
-            // 
-            label_BaudRate.AutoSize = true;
-            label_BaudRate.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label_BaudRate.Location = new Point(18, 96);
-            label_BaudRate.Name = "label_BaudRate";
-            label_BaudRate.Size = new Size(212, 30);
-            label_BaudRate.TabIndex = 2;
-            label_BaudRate.Text = "每秒傳輸位元(B)：";
-            // 
-            // label_COM
-            // 
-            label_COM.AutoSize = true;
-            label_COM.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            label_COM.Location = new Point(73, 42);
-            label_COM.Name = "label_COM";
-            label_COM.Size = new Size(157, 30);
-            label_COM.TabIndex = 0;
-            label_COM.Text = "通訊埠編號：";
             // 
             // button1
             // 
@@ -443,86 +442,176 @@ namespace FX5U_IOMonitor
             button2.UseVisualStyleBackColor = true;
             button2.Visible = false;
             // 
-            // txb_machine
+            // btn_delete
             // 
-            txb_machine.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            txb_machine.Location = new Point(269, 36);
-            txb_machine.Name = "txb_machine";
-            txb_machine.Size = new Size(252, 38);
-            txb_machine.TabIndex = 24;
-            txb_machine.TextAlign = HorizontalAlignment.Center;
+            btn_delete.FlatStyle = FlatStyle.Flat;
+            btn_delete.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btn_delete.Location = new Point(651, 33);
+            btn_delete.Name = "btn_delete";
+            btn_delete.Size = new Size(94, 43);
+            btn_delete.TabIndex = 27;
+            btn_delete.Text = "刪除";
+            btn_delete.UseVisualStyleBackColor = true;
+            btn_delete.Visible = false;
+            btn_delete.Click += btn_delete_Click;
             // 
-            // label6
+            // tableLayoutPanel1
             // 
-            label6.AutoSize = true;
-            label6.Font = new Font("微軟正黑體", 18F, FontStyle.Bold);
-            label6.Location = new Point(81, 43);
-            label6.Name = "label6";
-            label6.Size = new Size(182, 31);
-            label6.TabIndex = 25;
-            label6.Text = "監控機台型號：";
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 52.8985519F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 47.1014481F));
+            tableLayoutPanel1.Controls.Add(connect_choose, 1, 1);
+            tableLayoutPanel1.Controls.Add(lab_Type, 0, 1);
+            tableLayoutPanel1.Controls.Add(control_choose, 1, 0);
+            tableLayoutPanel1.Controls.Add(lab_MachineType, 0, 0);
+            tableLayoutPanel1.Location = new Point(84, 86);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 2;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 47.5806465F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 52.4193535F));
+            tableLayoutPanel1.Size = new Size(552, 108);
+            tableLayoutPanel1.TabIndex = 28;
+            // 
+            // connect_choose
+            // 
+            connect_choose.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            connect_choose.DropDownStyle = ComboBoxStyle.DropDownList;
+            connect_choose.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            connect_choose.FormattingEnabled = true;
+            connect_choose.Items.AddRange(new object[] { "Enthernet", "RS 485 / RS422", "RS 232" });
+            connect_choose.Location = new Point(295, 62);
+            connect_choose.Name = "connect_choose";
+            connect_choose.Size = new Size(254, 34);
+            connect_choose.TabIndex = 16;
+            // 
+            // lab_Type
+            // 
+            lab_Type.AutoSize = true;
+            lab_Type.Dock = DockStyle.Fill;
+            lab_Type.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
+            lab_Type.Location = new Point(3, 51);
+            lab_Type.Name = "lab_Type";
+            lab_Type.Size = new Size(286, 57);
+            lab_Type.TabIndex = 15;
+            lab_Type.Text = "連線方式：";
+            lab_Type.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // control_choose
+            // 
+            control_choose.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            control_choose.DropDownStyle = ComboBoxStyle.DropDownList;
+            control_choose.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            control_choose.FormattingEnabled = true;
+            control_choose.Items.AddRange(new object[] { "R16ENCPU(鑽床)", "FX5U_(鋸床)", "M800W" });
+            control_choose.Location = new Point(295, 8);
+            control_choose.Name = "control_choose";
+            control_choose.Size = new Size(254, 34);
+            control_choose.TabIndex = 14;
+            // 
+            // lab_MachineType
+            // 
+            lab_MachineType.AutoSize = true;
+            lab_MachineType.Dock = DockStyle.Fill;
+            lab_MachineType.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
+            lab_MachineType.Location = new Point(3, 0);
+            lab_MachineType.Name = "lab_MachineType";
+            lab_MachineType.Size = new Size(286, 51);
+            lab_MachineType.TabIndex = 1;
+            lab_MachineType.Text = "選擇機台：";
+            lab_MachineType.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // tableLayoutPanel3
+            // 
+            tableLayoutPanel3.ColumnCount = 3;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 61.0416679F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38.9583321F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 71F));
+            tableLayoutPanel3.Controls.Add(btn_addmachine, 2, 0);
+            tableLayoutPanel3.Controls.Add(txb_machine, 1, 0);
+            tableLayoutPanel3.Controls.Add(lab_Add_Machine, 0, 0);
+            tableLayoutPanel3.Location = new Point(84, 33);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 1;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 47.5806465F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 52.4193535F));
+            tableLayoutPanel3.Size = new Size(552, 47);
+            tableLayoutPanel3.TabIndex = 29;
             // 
             // btn_addmachine
             // 
+            btn_addmachine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             btn_addmachine.FlatStyle = FlatStyle.Flat;
-            btn_addmachine.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold);
-            btn_addmachine.Location = new Point(539, 34);
+            btn_addmachine.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            btn_addmachine.Location = new Point(483, 3);
             btn_addmachine.Name = "btn_addmachine";
-            btn_addmachine.Size = new Size(94, 43);
-            btn_addmachine.TabIndex = 26;
+            btn_addmachine.Size = new Size(66, 41);
+            btn_addmachine.TabIndex = 28;
             btn_addmachine.Text = "新增";
             btn_addmachine.UseVisualStyleBackColor = true;
             btn_addmachine.Click += btn_addmachine_Click;
+            // 
+            // txb_machine
+            // 
+            txb_machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_machine.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            txb_machine.Location = new Point(296, 6);
+            txb_machine.Name = "txb_machine";
+            txb_machine.Size = new Size(181, 34);
+            txb_machine.TabIndex = 27;
+            txb_machine.TextAlign = HorizontalAlignment.Center;
+            // 
+            // lab_Add_Machine
+            // 
+            lab_Add_Machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            lab_Add_Machine.AutoSize = true;
+            lab_Add_Machine.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
+            lab_Add_Machine.Location = new Point(3, 10);
+            lab_Add_Machine.Name = "lab_Add_Machine";
+            lab_Add_Machine.Size = new Size(287, 26);
+            lab_Add_Machine.TabIndex = 26;
+            lab_Add_Machine.Text = "新增機台：";
             // 
             // Connect_PLC
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(972, 664);
-            Controls.Add(btn_addmachine);
-            Controls.Add(label6);
-            Controls.Add(txb_machine);
+            ClientSize = new Size(1221, 664);
+            Controls.Add(tableLayoutPanel3);
+            Controls.Add(tableLayoutPanel1);
+            Controls.Add(btn_delete);
             Controls.Add(panel_Ethernet);
             Controls.Add(panel_RS485);
             Controls.Add(button2);
             Controls.Add(button_FILE);
-            Controls.Add(connect_choose);
-            Controls.Add(label4);
             Controls.Add(panel1);
-            Controls.Add(control_choose);
-            Controls.Add(label1);
             FormBorderStyle = FormBorderStyle.None;
             Name = "Connect_PLC";
             Text = "s";
             panel_Ethernet.ResumeLayout(false);
             panel_Ethernet.PerformLayout();
             panel_RS485.ResumeLayout(false);
-            panel_RS485.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel2.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel1.PerformLayout();
+            tableLayoutPanel3.ResumeLayout(false);
+            tableLayoutPanel3.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox control_choose;
-        private System.Windows.Forms.ComboBox connect_choose;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Panel panel_Ethernet;
         private System.Windows.Forms.Label label_IP;
         private System.Windows.Forms.TextBox txb_port;
         private System.Windows.Forms.TextBox txb_IP;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lab_Enthernetport;
         private System.Windows.Forms.Button btn_disconnect_ethernet;
         private System.Windows.Forms.Button btn_connect_ethernet;
         private System.Windows.Forms.Panel panel_RS485;
         private System.Windows.Forms.Button btn_disconnect_RS485;
         private System.Windows.Forms.Button btn_connect_RS485;
-        private System.Windows.Forms.TextBox txb_comport;
-        private System.Windows.Forms.Label label_BaudRate;
-        private System.Windows.Forms.Label label_COM;
         private Button button1;
         private TextBox textBox1;
         private TextBox textBox2;
@@ -533,15 +622,26 @@ namespace FX5U_IOMonitor
         private Button button_FILE;
         private Button button2;
         private System.Windows.Forms.Timer timer1;
-        private TextBox txb_machine;
-        private Label label6;
-        private Button btn_addmachine;
-        private Label label9;
-        private Label label8;
-        private Label label7;
+        private Button btn_delete;
+        private TableLayoutPanel tableLayoutPanel1;
+        private ComboBox connect_choose;
+        private Label lab_Type;
+        private ComboBox control_choose;
+        private Label lab_MachineType;
+        private TableLayoutPanel tableLayoutPanel2;
         private ComboBox comb_StopBits;
+        private Label lab_StopBits;
         private ComboBox comb_Parity;
+        private Label lab_Parity;
         private ComboBox comb_Bits;
+        private Label lab_Bits;
         private ComboBox comb_Baudrate;
+        private Label label_BaudRate;
+        private TextBox txb_comport;
+        private Label label_COM;
+        private TableLayoutPanel tableLayoutPanel3;
+        private Button btn_addmachine;
+        private TextBox txb_machine;
+        private Label lab_Add_Machine;
     }
 }

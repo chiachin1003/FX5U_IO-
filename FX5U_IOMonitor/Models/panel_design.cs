@@ -6,7 +6,7 @@ using Label = System.Windows.Forms.Label;
 
 namespace FX5U_IOMonitor.Models
 {
-    internal class panel_design
+    internal class Panel_design
     {
 
         //設定按鈕的設計

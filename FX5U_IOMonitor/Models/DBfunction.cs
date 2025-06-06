@@ -1541,12 +1541,64 @@ namespace FX5U_IOMonitor.Models
             return list;
         }
 
+        public static List<Machine_number> GetMachineIndexes()
+        {
+            using var context = new ApplicationDB();
+            return context.index
+                .Select(x => new Machine_number
+                {
+                    Name = x.Name,
+                })
+                .ToList();
+        }
+
+        public static void AddMachineKeyIfNotExist(string key, string usValue)
+        {
+            using (var context = new ApplicationDB())
+            {
+                // 檢查是否已存在
+                bool exists = context.Language.Any(l => l.Key == key);
+                if (exists) return;
+
+                var newLang = new Language
+                {
+                    Key = key,
+                    US = usValue,
+                };
+
+                context.Language.Add(newLang);
+                context.SaveChanges();
+
+            }
+
+        }
 
 
+        public static void DeleteMachineByName(string machineName)
+        {
+            using var context = new ApplicationDB();
 
+            // 刪除 Machine_IO 中與此機台相關資料
+            var ioItems = context.Machine_IO.Where(m => m.Machine_name == machineName).ToList();
+            context.Machine_IO.RemoveRange(ioItems);
 
+            var ioItem = context.index.FirstOrDefault(m => m.Name == machineName);
+            if (ioItem != null)
+            {
+                context.index.Remove(ioItem);
 
+            }
 
+            // 刪除語系表（可選）
+            string langKey = $"Mainform_{machineName}";
+            var langEntry = context.Language.FirstOrDefault(l => l.Key == langKey);
+            if (langEntry != null)
+            {
+                context.Language.Remove(langEntry);
+            }
+
+            context.SaveChanges();
+        }
 
 
 

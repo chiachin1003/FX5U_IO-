@@ -32,10 +32,9 @@
             btn_setting = new Button();
             btn_email = new Button();
             btn_search = new Button();
-            button_swing = new Button();
-            btn_Drill = new Button();
-            btn_connect = new Button();
             btn_Main = new Button();
+            btn_connect = new Button();
+            panel_main = new Panel();
             panel_select = new Panel();
             panel_language = new Panel();
             comb_language = new ComboBox();
@@ -43,7 +42,6 @@
             btn_log_out = new Button();
             btn_user = new Button();
             btn_log_in = new Button();
-            panel_main = new Panel();
             panel_choose.SuspendLayout();
             panel_select.SuspendLayout();
             panel_language.SuspendLayout();
@@ -54,10 +52,8 @@
             panel_choose.Controls.Add(btn_setting);
             panel_choose.Controls.Add(btn_email);
             panel_choose.Controls.Add(btn_search);
-            panel_choose.Controls.Add(button_swing);
-            panel_choose.Controls.Add(btn_Drill);
-            panel_choose.Controls.Add(btn_connect);
             panel_choose.Controls.Add(btn_Main);
+            panel_choose.Controls.Add(btn_connect);
             panel_choose.Dock = DockStyle.Left;
             panel_choose.Location = new Point(0, 0);
             panel_choose.Margin = new Padding(4);
@@ -70,10 +66,10 @@
             btn_setting.Dock = DockStyle.Bottom;
             btn_setting.FlatStyle = FlatStyle.Flat;
             btn_setting.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_setting.Location = new Point(0, 608);
+            btn_setting.Location = new Point(0, 601);
             btn_setting.Margin = new Padding(4);
             btn_setting.Name = "btn_setting";
-            btn_setting.Size = new Size(68, 38);
+            btn_setting.Size = new Size(68, 45);
             btn_setting.TabIndex = 7;
             btn_setting.Text = "設定";
             btn_setting.UseVisualStyleBackColor = true;
@@ -84,13 +80,14 @@
             btn_email.Dock = DockStyle.Top;
             btn_email.FlatStyle = FlatStyle.Flat;
             btn_email.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_email.Location = new Point(0, 200);
+            btn_email.Location = new Point(0, 100);
             btn_email.Margin = new Padding(4);
             btn_email.Name = "btn_email";
             btn_email.Size = new Size(68, 50);
             btn_email.TabIndex = 6;
             btn_email.Text = "信箱\r\n設定";
             btn_email.UseVisualStyleBackColor = true;
+            btn_email.Visible = false;
             btn_email.Click += btn_email_Click;
             // 
             // btn_search
@@ -98,42 +95,29 @@
             btn_search.Dock = DockStyle.Top;
             btn_search.FlatStyle = FlatStyle.Flat;
             btn_search.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_search.Location = new Point(0, 150);
+            btn_search.Location = new Point(0, 50);
             btn_search.Margin = new Padding(4);
             btn_search.Name = "btn_search";
             btn_search.Size = new Size(68, 50);
             btn_search.TabIndex = 5;
             btn_search.Text = "故障\r\n排除表";
             btn_search.UseVisualStyleBackColor = true;
+            btn_search.Visible = false;
             btn_search.Click += btn_search_Click;
             // 
-            // button_swing
+            // btn_Main
             // 
-            button_swing.Dock = DockStyle.Top;
-            button_swing.FlatStyle = FlatStyle.Flat;
-            button_swing.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            button_swing.Location = new Point(0, 100);
-            button_swing.Margin = new Padding(4);
-            button_swing.Name = "button_swing";
-            button_swing.Size = new Size(68, 50);
-            button_swing.TabIndex = 4;
-            button_swing.Text = "鋸床";
-            button_swing.UseVisualStyleBackColor = true;
-            button_swing.Click += button_swing_Click;
-            // 
-            // btn_Drill
-            // 
-            btn_Drill.Dock = DockStyle.Top;
-            btn_Drill.FlatStyle = FlatStyle.Flat;
-            btn_Drill.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_Drill.Location = new Point(0, 50);
-            btn_Drill.Margin = new Padding(4);
-            btn_Drill.Name = "btn_Drill";
-            btn_Drill.Size = new Size(68, 50);
-            btn_Drill.TabIndex = 3;
-            btn_Drill.Text = "鑽床";
-            btn_Drill.UseVisualStyleBackColor = true;
-            btn_Drill.Click += btn_Drill_Click;
+            btn_Main.Dock = DockStyle.Top;
+            btn_Main.FlatStyle = FlatStyle.Flat;
+            btn_Main.Font = new Font("微軟正黑體", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_Main.Location = new Point(0, 0);
+            btn_Main.Margin = new Padding(4);
+            btn_Main.Name = "btn_Main";
+            btn_Main.Size = new Size(68, 50);
+            btn_Main.TabIndex = 17;
+            btn_Main.Text = "主頁面";
+            btn_Main.UseVisualStyleBackColor = true;
+            btn_Main.Click += btn_Main_Click;
             // 
             // btn_connect
             // 
@@ -149,19 +133,14 @@
             btn_connect.UseVisualStyleBackColor = true;
             btn_connect.Click += btn_connect_Click;
             // 
-            // btn_Main
+            // panel_main
             // 
-            btn_Main.Dock = DockStyle.Top;
-            btn_Main.FlatStyle = FlatStyle.Flat;
-            btn_Main.Font = new Font("微軟正黑體", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_Main.Location = new Point(0, 0);
-            btn_Main.Margin = new Padding(4);
-            btn_Main.Name = "btn_Main";
-            btn_Main.Size = new Size(68, 50);
-            btn_Main.TabIndex = 0;
-            btn_Main.Text = "主頁面";
-            btn_Main.UseVisualStyleBackColor = true;
-            btn_Main.Click += btn_Main_Click;
+            panel_main.Dock = DockStyle.Fill;
+            panel_main.Location = new Point(68, 50);
+            panel_main.Margin = new Padding(4);
+            panel_main.Name = "panel_main";
+            panel_main.Size = new Size(966, 641);
+            panel_main.TabIndex = 3;
             // 
             // panel_select
             // 
@@ -225,14 +204,13 @@
             btn_user.Dock = DockStyle.Left;
             btn_user.FlatStyle = FlatStyle.Flat;
             btn_user.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_user.Location = new Point(55, 0);
+            btn_user.Location = new Point(68, 0);
             btn_user.Margin = new Padding(4);
             btn_user.Name = "btn_user";
             btn_user.Size = new Size(79, 50);
             btn_user.TabIndex = 10;
             btn_user.Text = "權限\r\n設定";
             btn_user.UseVisualStyleBackColor = true;
-            btn_user.Click += btn_user_Click;
             // 
             // btn_log_in
             // 
@@ -242,21 +220,11 @@
             btn_log_in.Location = new Point(0, 0);
             btn_log_in.Margin = new Padding(4);
             btn_log_in.Name = "btn_log_in";
-            btn_log_in.Size = new Size(55, 50);
+            btn_log_in.Size = new Size(68, 50);
             btn_log_in.TabIndex = 9;
             btn_log_in.Text = "使用者登錄";
             btn_log_in.UseVisualStyleBackColor = true;
             btn_log_in.Visible = false;
-            btn_log_in.Click += btn_log_in_Click;
-            // 
-            // panel_main
-            // 
-            panel_main.Dock = DockStyle.Fill;
-            panel_main.Location = new Point(68, 50);
-            panel_main.Margin = new Padding(4);
-            panel_main.Name = "panel_main";
-            panel_main.Size = new Size(966, 641);
-            panel_main.TabIndex = 3;
             // 
             // Main
             // 
@@ -279,13 +247,10 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel_choose;
+        public System.Windows.Forms.Panel panel_choose;
         private System.Windows.Forms.Panel panel_select;
-        private System.Windows.Forms.Panel panel_main;
+        public System.Windows.Forms.Panel panel_main;
         private System.Windows.Forms.Button btn_connect;
-        private System.Windows.Forms.Button btn_Main;
-        private System.Windows.Forms.Button btn_Drill;
-        private System.Windows.Forms.Button button_swing;
         private System.Windows.Forms.Button btn_search;
         private Button btn_log_in;
         private Button btn_user;
@@ -295,6 +260,7 @@
         private Button btn_language;
         private ComboBox comb_language;
         private Button btn_setting;
+        public Button btn_Main;
     }
 }
 

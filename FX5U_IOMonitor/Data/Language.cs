@@ -15,11 +15,13 @@ using FX5U_IOMonitor.Models;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using FX5U_IOMonitor.Login;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // 語系實體類別
 public class Language : SyncableEntity
 {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
     public int Id { get; set; }
     public string Key { get; set; }  // 介面名稱
     public string? TW { get; set; }
@@ -171,7 +173,17 @@ public class LanguageImportService
 
             // 處理固定欄位
             if (headers.Contains("Id"))
-                record.Id = csv.GetField<int>("Id");
+            {
+                var idField = csv.GetField("Id");
+                if (int.TryParse(idField, out int parsedId))
+                {
+                    record.Id = parsedId;
+                }
+                else
+                {
+                    record.Id = 0;
+                }
+            }
 
             if (headers.Contains("Key"))
                 record.Key = csv.GetField<string>("Key");
@@ -294,41 +306,41 @@ public class LanguageImportService
     /// <summary>
     /// 執行語系資料匯入
     /// </summary>
-    private ImportResult ExecuteLanguageImport(List<LanguageCsvRecord> records, List<string> languageColumns)
+    private ImportResult ExecuteLanguageImport(List<LanguageCsvRecord> records, List<string> languageColumns, bool enableDelete = false)
     {
         var result = new ImportResult();
 
-        // 取得現有資料
-        var existingData = _context.Language.ToDictionary(l => l.Id);
+        var existingData = _context.Language.ToDictionary(l => l.Key);
 
-        // 處理新增和更新
         foreach (var record in records)
         {
-            if (existingData.TryGetValue(record.Id, out var existing))
+            if (string.IsNullOrWhiteSpace(record.Key))
+                continue;
+
+            if (existingData.TryGetValue(record.Key, out var existing))
             {
-                // 更新現有記錄
                 if (UpdateLanguageEntity(existing, record, languageColumns))
-                {
                     result.UpdateCount++;
-                }
             }
             else
             {
-                // 新增記錄
                 var newEntity = CreateLanguageEntity(record, languageColumns);
                 _context.Language.Add(newEntity);
                 result.InsertCount++;
             }
         }
 
-        // 同步刪除
-        var csvIds = records.Select(r => r.Id).ToHashSet();
-        var toDelete = existingData.Values.Where(d => !csvIds.Contains(d.Id)).ToList();
-
-        if (toDelete.Any())
+        //  條件式選擇是否刪除資料庫中不存在於 CSV 的 Key
+        if (enableDelete)
         {
-            _context.Language.RemoveRange(toDelete);
-            result.DeleteCount = toDelete.Count;
+            var csvKeys = records.Select(r => r.Key).ToHashSet();
+            var toDelete = existingData.Values.Where(e => !csvKeys.Contains(e.Key)).ToList();
+
+            if (toDelete.Any())
+            {
+                _context.Language.RemoveRange(toDelete);
+                result.DeleteCount = toDelete.Count;
+            }
         }
 
         _context.SaveChanges();
@@ -377,7 +389,6 @@ public class LanguageImportService
     {
         var entity = new Language
         {
-            Id = csvRecord.Id,
             Key = csvRecord.Key
         };
 

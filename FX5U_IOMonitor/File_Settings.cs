@@ -21,7 +21,6 @@ namespace FX5U_IOMonitor.Resources
                 new DisplayValuePair<string>("警告資料表", "alarm"),
                 new DisplayValuePair<string>("鋸帶材質資料表", "Blade_brand"),
                 new DisplayValuePair<string>("鋸帶尺數資料表", "Blade_brand_TPI"),
-                //new DisplayValuePair<string>("機械監控參數資料表", "MachineParameters"),
                 new DisplayValuePair<string>("語系資料表", "Language")
 
             };
@@ -32,21 +31,19 @@ namespace FX5U_IOMonitor.Resources
                 new DisplayValuePair<string>("使用者自選", "manual"),
             };
 
-
-
             foreach (var item in TableList)
             {
                 comb_datatable.Items.Add(item);  // item.ToString() 會顯示 Display 值
             }
             comb_datatable.SelectedIndex = 0;
-            SetComboBoxCenteredDraw(comb_datatable);
+            Text_design.SetComboBoxCenteredDraw(comb_datatable);
 
             foreach (var item in SaveList)
             {
                 comb_select.Items.Add(item);  // item.ToString() 會顯示 Display 值
             }
             comb_select.SelectedIndex = 0;
-            SetComboBoxCenteredDraw(comb_select);
+            Text_design.SetComboBoxCenteredDraw(comb_select);
         }
 
 
@@ -88,6 +85,8 @@ namespace FX5U_IOMonitor.Resources
                     if (result != null)
                     {
                         Console.WriteLine($"匯入完成：新增 {result.InsertCount}，更新 {result.UpdateCount}，刪除 {result.DeleteCount}");
+                        string lang = Properties.Settings.Default.LanguageSetting;
+                        LanguageManager.LoadLanguageFromDatabase(lang);
                     }
                 }
                 else 
@@ -104,35 +103,12 @@ namespace FX5U_IOMonitor.Resources
         }
 
 
-        public static void SetComboBoxCenteredDraw(ComboBox comboBox)
-        {
-            // 設定 DrawMode 為 OwnerDrawFixed 才能使用自訂繪製
-            comboBox.DrawMode = DrawMode.OwnerDrawFixed;
 
-            comboBox.DrawItem += (s, e) =>
-            {
-                e.DrawBackground();
-
-                if (e.Index >= 0)
-                {
-                    string text = comboBox.Items[e.Index].ToString();
-
-                    using (StringFormat sf = new StringFormat())
-                    {
-                        sf.Alignment = StringAlignment.Center;        // 水平置中
-                        sf.LineAlignment = StringAlignment.Center;    // 垂直置中
-
-                        e.Graphics.DrawString(text, comboBox.Font, Brushes.Black, e.Bounds, sf);
-                    }
-                }
-
-                e.DrawFocusRectangle();
-            };
         }
 
         
 
 
         
-    }
+    
 }

@@ -6,7 +6,7 @@ using FX5U_IOMonitor.Data;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using System.Xml.Linq;
-using static FX5U_IOMonitor.Models.panel_design_Setting;
+using static FX5U_IOMonitor.Models.Panel_design_Setting;
 using System.Diagnostics;
 using FX5U_IOMonitor.panel_control;
 
@@ -59,7 +59,7 @@ namespace FX5U_IOMonitor
                     string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
                     string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
 
-                    var usagePanel = panel_design.CreateShowMainPanel(
+                    var usagePanel = Panel_design.CreateShowMainPanel(
                         equipmentTag,
                         DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
@@ -91,7 +91,7 @@ namespace FX5U_IOMonitor
 
             List<History> history = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag);
 
-            var usagePanel = panel_design.CreateUsagePanel(
+            var usagePanel = Panel_design.CreateUsagePanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
@@ -130,7 +130,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear();
 
             string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
-            var usagePanel = panel_design.CreateShowMainPanel(
+            var usagePanel = Panel_design.CreateShowMainPanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
@@ -149,7 +149,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear();
            
 
-            Panel Settings = panel_design_Setting.CreateSettingPanel(dbtable ,equipmentTag);
+            Panel Settings = Panel_design_Setting.CreateSettingPanel(dbtable ,equipmentTag);
             panel_main.Controls.Add(Settings);
         }
 
@@ -162,7 +162,7 @@ namespace FX5U_IOMonitor
             string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
             string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
 
-            var usagePanel = panel_design.CreateShowMainPanel(
+            var usagePanel = Panel_design.CreateShowMainPanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),

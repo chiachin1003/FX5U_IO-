@@ -5,7 +5,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace FX5U_IOMonitor.Models
 {
-    public static class panel_design_Setting
+    public static class Panel_design_Setting
     {
         static string datatable = "";
         public static Panel CreateSettingPanel( string machine ,string address)
