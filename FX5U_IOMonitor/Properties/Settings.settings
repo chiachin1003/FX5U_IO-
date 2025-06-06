@@ -20,5 +20,17 @@
     <Setting Name="TLS_port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">587</Value>
     </Setting>
+    <Setting Name="senderEmail" Type="System.String" Scope="User">
+      <Value Profile="(Default)">itrid400itri@gmail.com</Value>
+    </Setting>
+    <Setting Name="senderPassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)">wmfisqognlhnhcsc</Value>
+    </Setting>
+    <Setting Name="Gmail_SMTP_server" Type="System.String" Scope="User">
+      <Value Profile="(Default)">smtp.gmail.com</Value>
+    </Setting>
+    <Setting Name="TLS_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">587</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

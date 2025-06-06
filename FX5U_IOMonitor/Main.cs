@@ -53,6 +53,7 @@ namespace FX5U_IOMonitor
             InitializeComponent();
             InitLanguageComboBox();
 
+
             //using (var form = new UserLoginForm())
             //{
             //    form.StartPosition = FormStartPosition.CenterParent;

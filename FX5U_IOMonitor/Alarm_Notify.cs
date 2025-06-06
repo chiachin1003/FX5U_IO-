@@ -646,6 +646,8 @@ namespace FX5U_IO元件監控
             All,        // 所有使用者
             FromAlarm   // 只加入當前 alarm 通知使用者
         }
+       
+
     }
 }
 

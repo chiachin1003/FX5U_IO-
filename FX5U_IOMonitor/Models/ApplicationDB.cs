@@ -32,7 +32,7 @@ namespace FX5U_IOMonitor.Models
         {
             //var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\.."));
             //_dbFullName = Path.Combine(projectRoot, "Database", "element.db");
-            _dbFullName = "element";
+            _dbFullName = "element.db";
         }
         public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<Machine_number> index { get; set; }
