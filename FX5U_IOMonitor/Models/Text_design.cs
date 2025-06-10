@@ -55,7 +55,7 @@ namespace FX5U_IOMonitor.Models
                             break;
 
                         fontSize -= 0.5f; // 遞減縮小
-                    }
+    }
                     while (fontSize > 6f); // 最小字體限制
                 }
 
