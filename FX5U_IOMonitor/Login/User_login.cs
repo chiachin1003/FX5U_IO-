@@ -10,6 +10,7 @@ using System.Diagnostics;
 
 namespace FX5U_IOMonitor.Login
 {
+   
     public class ScheduleTag
     {
         [Key]
@@ -34,7 +35,7 @@ namespace FX5U_IOMonitor.Login
         public const string Default_Email = "jenny963200@hotmail.com";
 
     }
-
+     
     public enum UserErrorCode
     {
         None,
@@ -251,5 +252,7 @@ namespace FX5U_IOMonitor.Login
             .AddRoles<IdentityRole>() // 註冊角色管理
             .AddEntityFrameworkStores<TContext>(); // 使用 Entity Framework 儲存使用者和角色
         }
+
     }
+
 }

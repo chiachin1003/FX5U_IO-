@@ -8,6 +8,7 @@ using static FX5U_IO元件監控.Part_Search;
 using FX5U_IOMonitor.Login;
 using System.Diagnostics;
 using FX5U_IOMonitor.panel_control;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
 
 
 
@@ -37,6 +38,8 @@ namespace FX5U_IOMonitor
         }
         private void OnLanguageChanged(string cultureName)
         {
+            reset_lab_connectText();
+
             SwitchLanguage();
         }
         private void Info_FormClosing(object? sender, FormClosingEventArgs e)
@@ -49,8 +52,8 @@ namespace FX5U_IOMonitor
 
 
             reset_lab_connectText();
-            //_cts = new CancellationTokenSource();
-            //_ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
+            _cts = new CancellationTokenSource();
+            _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
 
         }
         private async Task AutoUpdateAsync(CancellationToken token)
@@ -112,11 +115,14 @@ namespace FX5U_IOMonitor
             lab_yellow_swing.Text = DBfunction.Get_Yellow_number("Sawing").ToString();
             lab_green_swing.Text = DBfunction.Get_Green_number("Sawing").ToString();
 
-            var existingContext = MachineHub.Get("Drill");
+            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+
+            
             if (existingContext != null && existingContext.IsConnected)
             {
                 Drill_main_update();
                 lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
+
                 List<string> breakdowm_part = DBfunction.Get_breakdown_part(existingContext.MachineName);
                 lab_disconnect.Text = DBfunction.Get_address_ByBreakdownParts(existingContext.MachineName, breakdowm_part).Count.ToString();
                 List<string> sawingbreakdowm_part = DBfunction.Get_breakdown_part("Sawing");
@@ -129,8 +135,7 @@ namespace FX5U_IOMonitor
                 Drill_main_update();
 
             }
-
-            existingContext = MachineHub.Get("Sawing");
+            existingContext = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
                 swing_main_update();
@@ -166,8 +171,8 @@ namespace FX5U_IOMonitor
         }
         private void Drill_main_update()
         {
-            lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
-            lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
+            lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
+            lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
             lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(伏特)";
             lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(安培) ";
             lb_drillpower.Text = DBfunction.Get_Machine_now_string("Drill", "power") + "\n(千瓦小時) ";

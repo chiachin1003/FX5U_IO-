@@ -23,6 +23,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using static System.Windows.Forms.DataFormats;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 
+
 namespace FX5U_IOMonitor.Models
 {
 
@@ -93,7 +94,6 @@ namespace FX5U_IOMonitor.Models
             {
                 List<now_single> old_single = DBfunction.Get_Machine_current_single_all(machinname);
                 string format = DBfunction.Get_Element_baseType(machinname);
-                format = "oct"; // 測試的時候切換用，實機雙連時拿掉
                 var Drill = Calculate.AnalyzeIOSections(machinname, format); 
                 var sectionGroups = Drill
                     .GroupBy(s => s.Prefix)
@@ -102,6 +102,7 @@ namespace FX5U_IOMonitor.Models
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 lock (externalLock ?? new object())
                 {
+
                     foreach (var prefix in sectionGroups.Keys)
                     {
                         var blocks = sectionGroups[prefix];
@@ -111,7 +112,7 @@ namespace FX5U_IOMonitor.Models
                             string device = prefix + block.Start;
                             try
                             {
-                                bool[]  plc_result = plc.ReadBitDevice(device, 256);
+                                bool[] plc_result = plc.ReadBitDevice(device, 256);
                                 var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
                                 if (isFirstRead)
                                 {
@@ -119,6 +120,7 @@ namespace FX5U_IOMonitor.Models
                                     var context = MachineHub.Get(machinname);
                                     if (context != null)
                                     {
+                                     
                                         context.ConnectSummary.connect += updated;
                                     }
                                 }
@@ -126,16 +128,17 @@ namespace FX5U_IOMonitor.Models
                                 {
                                     UpdateIODataBaseFromNowSingle(result, old_single);
                                 }
-                               
+
 
                             }
                             catch
                             {
                                 isFirstRead = true; // 斷線時設定下次重新初始化
-                                return; // 中止此次讀取
+                                break;
+                                //return; // 中止此次讀取
                             }
                         }
-                        
+
                     }
                     stopwatch.Stop();
                     // ✅ 更新斷線數與耗時資訊
@@ -144,6 +147,7 @@ namespace FX5U_IOMonitor.Models
                     {
                         monition.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds} 毫秒";
                         monition.ConnectSummary.disconnect = DBfunction.GetMachineRowCount(monition.MachineName) - monition.ConnectSummary.connect;
+                        
                     }
                 }
                 isFirstRead = false; // ✅ 完成第一次後設定為 false
@@ -440,6 +444,8 @@ namespace FX5U_IOMonitor.Models
                     modeAddressMap[type] = addresses;
                 }
 
+                bool isFirstCycle = true; // 第一次循環旗標
+
                 while (token == null || !token.Value.IsCancellationRequested)
                 {
                     try
@@ -492,6 +498,17 @@ namespace FX5U_IOMonitor.Models
                                         bool newVal = match.current_single;
                                         bool oldVal = lastStates.ContainsKey(name) ? lastStates[name] : false;
 
+                                        if (isFirstCycle && type==2)
+                                        {
+                                            int now_time = DBfunction.Get_Machine_NowValue(machine_name, name);
+                                            int history_time = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
+                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, (ushort)(now_time+ history_time));
+                                            DBfunction.Set_Machine_now_number(machine_name, name, 0);
+
+                                            continue;
+                                        }
+
+
                                         if (type == 1)
                                         {
                                             if (oldVal != newVal && newVal == true)
@@ -504,7 +521,7 @@ namespace FX5U_IOMonitor.Models
                                                 });
 
                                                 //Debug.WriteLine($"⚠️ 變化：{name} {oldVal} ➜ {newVal}");
-                                                int historyVal = DBfunction.Get_History_NumericValue(name);
+                                                int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
 
                                                 DBfunction.Set_Machine_History_NumericValue(machine_name,name, historyVal + 1);
 
@@ -516,7 +533,7 @@ namespace FX5U_IOMonitor.Models
                                         {
                                             if (!timer_bit.ContainsKey(name))
                                             {
-                                                int historyVal = DBfunction.Get_History_NumericValue(name);
+                                                int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
                                                 timer_bit[name] = new MonitorFunction.RuntimebitTimer
                                                 {
                                                     HistoryValue = historyVal
@@ -542,7 +559,7 @@ namespace FX5U_IOMonitor.Models
 
                                                     Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
                                                     
-                                                    Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_History_NumericValue(name)}");
+                                                    Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_Machine_History_NumericValue(name)}");
 
                                                 }
 
@@ -587,6 +604,7 @@ namespace FX5U_IOMonitor.Models
                     {
                         Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
                     }
+                    isFirstCycle = false; // ✅ 只在第一次後設為 false
 
                     await Task.Delay(100, token ?? CancellationToken.None); // 輪詢節流
                 }

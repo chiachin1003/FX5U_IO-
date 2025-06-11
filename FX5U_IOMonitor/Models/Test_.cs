@@ -263,7 +263,7 @@ namespace FX5U_IOMonitor.Models
 
                     if (!timers.ContainsKey(name))
                     {
-                        int historyVal = DBfunction.Get_History_NumericValue(name);
+                        int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
                         timers[name] = new MonitorFunction.RuntimebitTimer
                         {
                             HistoryValue = historyVal
@@ -457,7 +457,7 @@ namespace FX5U_IOMonitor.Models
 
                                 lastStates[name] = newVal; // 更新狀態
 
-                                int historyVal = DBfunction.Get_History_NumericValue(name);
+                                int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
                                 int newValue = historyVal + 1;
                                 DBfunction.Set_Machine_History_NumericValue(table, name, (ushort)newValue);
 

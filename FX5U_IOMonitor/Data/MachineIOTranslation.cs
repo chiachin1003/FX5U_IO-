@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FX5U_IOMonitor.Data
 {
-    public class MachineIOTranslation : SyncableEntity
+    public class MachineIOTranslation 
     {
         [Key]
         public int Id { get; set; }

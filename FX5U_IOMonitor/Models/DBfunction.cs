@@ -1049,7 +1049,7 @@ namespace FX5U_IOMonitor.Models
                 {
                     IO.current_single = null;
                 }
-              
+
                 var Alarm_io = context.alarm.ToList();
 
                 foreach (var alarm_io in Alarm_io)
@@ -1520,12 +1520,29 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
-        public static int Get_History_NumericValue(string Machineprameter_name)
+        public static int Get_Machine_History_NumericValue(string Machineprameter_name)
         {
             using (var context = new ApplicationDB())
             {
                 var name = context.MachineParameters.FirstOrDefault(a => a.Name == Machineprameter_name).History_NumericValue;
                 return name ?? 0;
+
+            }
+
+        }
+        public static int Get_Machine_History_NumericValue(string machine_name, string Machineprameter_name)
+        {
+            using (var context = new ApplicationDB())
+            {
+
+
+
+                var result = context.MachineParameters
+                    .Where(io => io.Machine_Name == machine_name && io.Name == Machineprameter_name)
+                    .Select(io => io.History_NumericValue)
+                    .FirstOrDefault();
+
+                return result.HasValue ? result.Value : 0;
 
             }
         }

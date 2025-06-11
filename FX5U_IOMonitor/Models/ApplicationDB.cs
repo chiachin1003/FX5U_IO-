@@ -16,11 +16,12 @@ using Microsoft.Extensions.Hosting;
 using Timer = System.Threading.Timer;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using FX5U_IOMonitor.Config;
 
 namespace FX5U_IOMonitor.Models
 {
-  
 
+   
     /// <summary>
     /// 地端資料庫
     /// </summary>
@@ -32,14 +33,14 @@ namespace FX5U_IOMonitor.Models
         {
             //var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\.."));
             //_dbFullName = Path.Combine(projectRoot, "Database", "element.db");
-            _dbFullName = "element.db";
+            _dbFullName = "element";
         }
         public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<Machine_number> index { get; set; }
         public DbSet<History> Histories { get; set; }
        
         public DbSet<Alarm> alarm { get; set; }
-        public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
+        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
 
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
@@ -74,11 +75,15 @@ namespace FX5U_IOMonitor.Models
             }
 
         }
+        string Local_IpAddress = DbConfig.Local.IpAddress;
+        string Local_Port = DbConfig.Local.Port;
+        string Local_UserName = DbConfig.Local.UserName;
+        string Local_Password = DbConfig.Local.Password;
 
-        public static string Local_IpAddress = "localhost";
-        public static string Local_Port = "5430";
-        public static string Local_UserName = "postgres";
-        public static string Local_Password = "963200";
+        //public static string Local_IpAddress = "localhost";
+        //public static string Local_Port = "5430";
+        //public static string Local_UserName = "postgres";
+        //public static string Local_Password = "963200";
 
         //public static string Local_IpAddress = "ssiopgsql.postgres.database.azure.com";
         //public static string Local_Port = "5432";
@@ -139,16 +144,21 @@ namespace FX5U_IOMonitor.Models
         public DbSet<History> Histories { get; set; }
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<Language> Language { get; set; }
-        public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
+        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
 
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }
 
-        public static string Cloud_IpAddress = "ssiopgsql.postgres.database.azure.com";
-        public static string Cloud_Port = "5432";
-        public static string Cloud_UserName = "itritus";
-        public static string Cloud_Password = "Itrics687912O@";
+        string Cloud_IpAddress = DbConfig.Cloud.IpAddress;
+        string Cloud_Port = DbConfig.Cloud.Port;
+        string Cloud_UserName = DbConfig.Cloud.UserName;
+        string Cloud_Password = DbConfig.Cloud.Password;
+
+        //public static string Cloud_IpAddress = "ssiopgsql.postgres.database.azure.com";
+        //public static string Cloud_Port = "5432";
+        //public static string Cloud_UserName = "itritus";
+        //public static string Cloud_Password = "Itrics687912O@";
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql($"Host={Cloud_IpAddress};Port={Cloud_Port};Database={_dbFullName};Username={Cloud_UserName};Password={Cloud_Password}");

@@ -103,7 +103,7 @@ namespace FX5U_IOMonitor.Models
                 Font = inputFont,
                 Location = new Point((int)(253 * scale), (int)(15 * scale)),
                 Size = new Size((int)(176 * scale), (int)(33 * scale)),
-                Maximum = 10000000000,
+                Maximum = 10000000000000,
                 Value = maxvalue,
                 TextAlign = HorizontalAlignment.Center
             };

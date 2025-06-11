@@ -100,24 +100,33 @@ namespace FX5U_IOMonitor
         }
         private async Task AutoUpdateAsync(CancellationToken token)
         {
+            List<float[]>? lastClassValue = null;
+
             var stopwatch = Stopwatch.StartNew();
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    if (this.IsHandleCreated && !this.IsDisposed)
+                    // 1. 在背景取得資料
+                    List<float[]> classvalue = update_class();
+
+                    // 2. 檢查是否與前次結果相同（若相同則跳過更新）
+                    bool isChanged = IsDifferent(classvalue, lastClassValue);
+
+                    if (isChanged && this.IsHandleCreated && !this.IsDisposed)
                     {
-                        this.Invoke(() =>
+                        lastClassValue = classvalue;
+
+                        this.BeginInvoke(() =>
                         {
-                            List<float[]> classvalue = update_class();
                             for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
                             {
                                 groupList[i].UpdateDisplay(classvalue[i]);
                             }
-                            
                         });
                     }
-                    await Task.Delay(1000, token); // 每秒更新一次
+
+                    await Task.Delay(1000, token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -129,6 +138,28 @@ namespace FX5U_IOMonitor
                 }
             }
 
+        }
+        private bool IsDifferent(List<float[]> current, List<float[]>? previous)
+        {
+            if (previous == null || current.Count != previous.Count)
+                return true;
+
+            for (int i = 0; i < current.Count; i++)
+            {
+                float[] curArr = current[i];
+                float[] preArr = previous[i];
+
+                if (curArr.Length != preArr.Length)
+                    return true;
+
+                for (int j = 0; j < curArr.Length; j++)
+                {
+                    if (!curArr[j].Equals(preArr[j])) // 或使用 Math.Abs(curArr[j] - preArr[j]) > 0.01f
+                        return true;
+                }
+            }
+
+            return false; // 完全一致
         }
         private List<float[]> update_class()
         {

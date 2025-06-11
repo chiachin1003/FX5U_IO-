@@ -162,10 +162,13 @@ namespace FX5U_IOMonitor
             int[] writemodes = DBfunction.Get_Machine_Calculate_type(context.MachineName);
             int[] read_modes = DBfunction.Get_Machine_Readview_type(context.MachineName);
 
+
+
             _ = Task.Run(() => context.Monitor.Read_Bit_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
             _ = Task.Run(() => context.Monitor.Read_Word_Monitor_AllModesAsync(context.MachineName, read_modes, context.TokenSource.Token));
-            _ = Task.Run(() => context.Monitor.Write_Word_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
             _ = Task.Run(() => context.Monitor.Read_None_Monitor_AllModesAsync(context.MachineName, context.TokenSource.Token));
+            _ = Task.Run(() => context.Monitor.Write_Word_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
+
 
             // 註冊變更事件
             context.Monitor.IOUpdated += DB_update_change;
@@ -267,7 +270,7 @@ namespace FX5U_IOMonitor
                 // 註冊變更事件
                 monitor.IOUpdated += DB_update_change;
             }
-
+           
         }
 
 

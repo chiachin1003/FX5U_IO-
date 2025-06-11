@@ -91,17 +91,17 @@ namespace FX5U_IOMonitor
         private void reset_lab_connectText()
         {
 
-            lab_Drill_servo_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_servo_usetime") + (DBfunction.Get_Machine_number("Drill_servo_usetime"))));
-            lab_Drill_spindle_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
-            lab_Drill_plc_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
-            lab_Drill_inverter.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_inverter") + (DBfunction.Get_Machine_number("Drill_inverter"))));
-            lab_Drill_total_Time.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
+            lab_Drill_servo_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_servo_usetime") + (DBfunction.Get_Machine_number("Drill_servo_usetime"))));
+            lab_Drill_spindle_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
+            lab_Drill_plc_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
+            lab_Drill_inverter.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_inverter") + (DBfunction.Get_Machine_number("Drill_inverter"))));
+            lab_Drill_total_Time.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
 
-            lab_Drill_origin.Text = DBfunction.Get_History_NumericValue("Drill_origin").ToString() + " 次 ";
-            lab_Drill_loose_tools.Text = DBfunction.Get_History_NumericValue("Drill_loose_tools").ToString() + " 次 ";
-            lab_Drill_measurement.Text = DBfunction.Get_History_NumericValue("Drill_measurement").ToString() + " 次 ";
-            lab_Drill_clamping.Text = DBfunction.Get_History_NumericValue("Drill_clamping").ToString() + " 次 ";
-            lab_Drill_feeder.Text = DBfunction.Get_History_NumericValue("Drill_feeder").ToString() + " 次 ";
+            lab_Drill_origin.Text = DBfunction.Get_Machine_History_NumericValue("Drill_origin").ToString() + " 次 ";
+            lab_Drill_loose_tools.Text = DBfunction.Get_Machine_History_NumericValue("Drill_loose_tools").ToString() + " 次 ";
+            lab_Drill_measurement.Text = DBfunction.Get_Machine_History_NumericValue("Drill_measurement").ToString() + " 次 ";
+            lab_Drill_clamping.Text = DBfunction.Get_Machine_History_NumericValue("Drill_clamping").ToString() + " 次 ";
+            lab_Drill_feeder.Text = DBfunction.Get_Machine_History_NumericValue("Drill_feeder").ToString() + " 次 ";
 
         }
 

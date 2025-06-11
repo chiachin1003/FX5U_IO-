@@ -1,4 +1,5 @@
-﻿using FX5U_IOMonitor.Data;
+﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
@@ -52,14 +53,21 @@ namespace FX5U_IOMonitor
 
         public Main()
         {
+           
+                DbConfig.LoadFromJson("DbConfig.json");
+         
+                InitializeComponent();
             
-            InitializeComponent();
-            InitMachineInfoDatabase();
-            Initialization_BladeTPIFromCSV("鋸帶齒數 ID 定義.csv");
-            Initialization_BladeBrandFromCSV("鋸帶廠牌、材質 ID 定義.csv");
-            Initialization_AlarmFromCSV("alarm.csv");
-            Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
-
+                InitMachineInfoDatabase();
+           
+                Initialization_BladeTPIFromCSV("鋸帶齒數 ID 定義.csv");
+           
+                Initialization_BladeBrandFromCSV("鋸帶廠牌、材質 ID 定義.csv");
+            
+                Initialization_AlarmFromCSV("alarm.csv");
+          
+                Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
+           
             // 檢查是否已初始化
             using (var context = new ApplicationDB())
             {
@@ -108,7 +116,7 @@ namespace FX5U_IOMonitor
 
             this.Shown += MainForm_Shown;
 
-            DBfunction.Initiali_current_single();
+            //DBfunction.Initiali_current_single();
 
             main_Form = new Main_form();
             main_Form.TopLevel = false; // 禁止作為獨立窗口
@@ -120,11 +128,13 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
 
-
-          
         }
 
-
+        private void ShowError(string step, Exception ex)
+        {
+            Debug.WriteLine($"❌ 錯誤發生於 [{step}]：{ex.Message}");
+            MessageBox.Show($"錯誤發生於：{step}\n\n錯誤內容：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
         private void btn_connect_Click(object sender, EventArgs e)
         {
             // 設置子窗體屬性以嵌入 Panel
@@ -194,6 +204,7 @@ namespace FX5U_IOMonitor
             {
                 await userService.CreateDefaultUserAsync();
             }
+
         }
 
 
@@ -215,7 +226,6 @@ namespace FX5U_IOMonitor
                     if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
                     {
                         btn_search.Enabled = true;
-                        //btn_connect.Enabled = true;
 
                     }
                     else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)

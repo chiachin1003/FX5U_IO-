@@ -1,0 +1,14 @@
+{
+  "Local": {
+    "IpAddress": "localhost",
+    "Port": "5430",
+    "UserName": "postgres",
+    "Password": "963200"
+  },
+  "Cloud": {
+    "IpAddress": "ssiopgsql.postgres.database.azure.com",
+    "Port": "5432",
+    "UserName": "itritus",
+    "Password": "Itrics687912O@"
+  }
+}
