@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Login;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Npgsql;
@@ -17,6 +18,7 @@ using System.Reflection.PortableExecutable;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
@@ -146,42 +148,41 @@ namespace FX5U_IOMonitor.Models
 
                 using var context = new ApplicationDB();
 
-                // 先取得已存在的 M_Address + SourceDbName 組合
+                // 先取得已存在的 address + SourceMachine 組合
                 var existingKeys = context.alarm
-                    .Select(a => new { a.M_Address, a.SourceDbName })
+                    .Select(a => new { a.address, a.SourceMachine })
                     .ToHashSet();
 
                 int addCount = 0;
                 foreach (var row in records)
                 {
-                    if (string.IsNullOrWhiteSpace(row.M_CODE))
+                    if (string.IsNullOrWhiteSpace(row.address))
                         continue;
 
-                    string drillType = row.SawingDrill?.Trim().ToLower();
+                    string drillType = row.SourceMachine?.Trim().ToLower();
                     string sourceDb = drillType == "drill" ? "Drill" :
                                       drillType == "sawing" ? "Sawing" :
-                                      row.M_CODE.StartsWith("L8") ? "Drill" :
-                                      row.M_CODE.StartsWith("L9") ? "Sawing" :
+                                      row.address.StartsWith("L8") ? "Drill" :
+                                      row.address.StartsWith("L9") ? "Sawing" :
                                       "Unknown";
 
-                    // 防呆：若此 M_Address + SourceDbName 已存在，就跳過
-                    var key = new { M_Address = row.M_CODE, SourceDbName = sourceDb };
+                    // 防呆：若此 address + SourceMachine 已存在，就跳過
+                    var key = new { address = row.address, SourceMachine = sourceDb };
                     if (existingKeys.Contains(key))
                         continue;
-
+                   
                     var alarm = new Alarm
                     {
-                        SourceDbName = sourceDb,
-                        M_Address = row.M_CODE,
-                        Description = row.料號,
-                        Error = row.故障內容,
-                        Possible = row.可能原因,
-                        Repair_steps = row.維修步驟,
-                        MountTime = DateTime.UtcNow,
-                        UnmountTime = DateTime.UtcNow.AddMinutes(1),
+                        SourceMachine = sourceDb,
+                        address = row.address,
+                        IPC_table = row.IPC_table,
+                        Description = row.Description,
+                        Error = row.Error,
+                        Possible = row.Possible,
+                        Repair_steps = row.Repair_steps,
                         classTag = row.ClassTag,
-                        AlarmNotifyClass = 1,
-                        AlarmNotifyuser = ""
+                        AlarmNotifyClass = 2,
+                        AlarmNotifyuser = SD.Admin_Account
                     };
 
                     context.alarm.Add(alarm);
@@ -202,24 +203,19 @@ namespace FX5U_IOMonitor.Models
 
         private class AlarmCsvRow
         {
-            public string SawingDrill { get; set; }
-            public string M_CODE { get; set; }
+            public string SourceMachine { get; set; }
+            public string address { get; set; }
 
-            [Name("IPC table")]
+            [Name("IPC_table")]
             public string IPC_table { get; set; }
 
-            public string 料號 { get; set; }
-            public string 故障內容 { get; set; }
-            public string 可能原因 { get; set; }
-            public string 維修步驟 { get; set; }
+            public string Description { get; set; }
+            public string Error { get; set; }
+            public string Possible { get; set; }
+            public string Repair_steps { get; set; }
             public string ClassTag { get; set; }
 
 
-            [Name("發生時間(M_BIT ON)")]
-            public string 發生時間 { get; set; }
-
-            [Name("結束時間(M_BIT OFF)")]
-            public string 結束時間 { get; set; }
         }
 
 
@@ -276,7 +272,6 @@ namespace FX5U_IOMonitor.Models
         }
         private class BladeTpiCsv
         {
-            public int Id { get; set; }
 
             public int blade_TPI_id { get; set; }
             public string blade_TPI_name { get; set; }
@@ -314,6 +309,7 @@ namespace FX5U_IOMonitor.Models
                     {
                         var brand = new Blade_brand
                         {
+
                             blade_brand_id = row.blade_brand_id,
                             blade_brand_name = row.blade_brand_name,
                             blade_material_id = row.blade_material_id,
@@ -353,9 +349,9 @@ namespace FX5U_IOMonitor.Models
         }
         private class alarmcsv
         {
-            public int Id { get; set; }
-            public string SourceDbName { get; set; } = "";
-            public string M_Address { get; set; } = "";
+            public string SourceMachine { get; set; } = "";
+            public string address { get; set; } = "";
+            public string IPC_table { get; set; }
             public string Description { get; set; } = "";
             public string Error { get; set; } = "";
             public string? Possible { get; set; }
@@ -375,94 +371,72 @@ namespace FX5U_IOMonitor.Models
             switch (tableName)
             {
                 case "Blade_brand_TPI":
-                    importService.ImportCsvToTable<Blade_brand_TPI, BladeTpiCsv>(
+                    importService.ImportCsvToTable<Blade_brand_TPI, BladeTpiCsv, int>(
                         tableName: tableName,
                         dbSet: context.Blade_brand_TPI,
-                        mapFunction: (csvRecord, id) => new Blade_brand_TPI
+                        mapFunction: csvRecord => new Blade_brand_TPI
                         {
-                            Id = csvRecord.Id,
                             blade_TPI_id = csvRecord.blade_TPI_id,
                             blade_TPI_name = csvRecord.blade_TPI_name,
                             Machine_Number = 1
                         },
-                        keySelector: entity => entity.Id,
+                        entityKeySelector: entity => entity.blade_TPI_id,
+                        recordKeySelector: csv => csv.blade_TPI_id,
                         enableSync: true
                     );
                     break;
 
                 case "Blade_brand":
-                    importService.ImportCsvToTable<Blade_brand, Bladebrandcsv>(
-                        tableName: tableName,
-                        dbSet: context.Blade_brand,
-                        mapFunction: (csvRecord, id) => new Blade_brand
-                        {
-                            Id = id,
-                            blade_brand_id = csvRecord.blade_brand_id,
-                            blade_brand_name = csvRecord.blade_brand_name,
-                            blade_material_id = csvRecord.blade_material_id,
-                            blade_material_name = csvRecord.blade_material_name,
-                            blade_Type_id = csvRecord.blade_Type_id,
-                            blade_Type_name = csvRecord.blade_Type_name,
-                            Machine_Number = 1
-                        },
-                        keySelector: entity => entity.Id,
-                        enableSync: true
-                    );
+                    importService.ImportCsvToTable<Blade_brand, Bladebrandcsv,int>(
+                          tableName: tableName,
+                          dbSet: context.Blade_brand,
+                          mapFunction: csvRecord => new Blade_brand
+                          {
+                              Id = csvRecord.Id,
+                              blade_brand_id = csvRecord.blade_brand_id,
+                              blade_brand_name = csvRecord.blade_brand_name,
+                              blade_material_id = csvRecord.blade_material_id,
+                              blade_material_name = csvRecord.blade_material_name,
+                              blade_Type_id = csvRecord.blade_Type_id,
+                              blade_Type_name = csvRecord.blade_Type_name,
+                              Machine_Number = 1
+                          },
+                          entityKeySelector: entity => entity.Id,
+                          recordKeySelector: csv => csv.Id,
+                          enableSync: true
+                      );
                     break;
+
 
                 case "alarm":
-                    importService.ImportCsvToTable<Alarm, alarmcsv>(
-                        tableName: tableName,
-                        dbSet: context.alarm,
-                        mapFunction: (csvRecord, id) => new Alarm
-                        {
-                            Id = id,
-                            SourceDbName = csvRecord.SourceDbName,
-                            M_Address = csvRecord.M_Address,
-                            Description = csvRecord.Description,
-                            Error = csvRecord.Error,
-                            Possible = csvRecord.Possible,
-                            Repair_steps = csvRecord.Repair_steps,
-                            classTag = csvRecord.classTag,
-                            AlarmNotifyClass = csvRecord.AlarmNotifyClass,
-                            AlarmNotifyuser = csvRecord.AlarmNotifyuser
-                        },
-                        keySelector: entity => entity.Id,
-                        enableSync: true
-                    );
+                    importService.ImportCsvToTable<Alarm, alarmcsv,string>(
+                       tableName: tableName,
+                       dbSet: context.alarm,
+                       mapFunction: csvRecord => new Alarm
+                       {
+                           SourceMachine = csvRecord.SourceMachine,
+                           address = csvRecord.address,
+                           IPC_table = csvRecord.IPC_table,
+                           Description = csvRecord.Description,
+                           Error = csvRecord.Error,
+                           Possible = csvRecord.Possible,
+                           Repair_steps = csvRecord.Repair_steps,
+                           classTag = csvRecord.classTag,
+                           AlarmNotifyClass = 2,
+                           AlarmNotifyuser = SD.Admin_Account
+                       },
+                       entityKeySelector: entity => entity.IPC_table,
+                       recordKeySelector: csv => csv.IPC_table,
+                       enableSync: true
+                   );
                     break;
-
-                //case "MachineParameters":
-                //    importService.ImportCsvToTable<MachineParameter, MachineParameter>(
-                //        tableName: tableName,
-                //        dbSet: context.MachineParameters,
-                //        mapFunction: (csvRecord, id) => new MachineParameter
-                //        {
-                //            Id = csvRecord.Id,
-                //            Machine_Name = csvRecord.Machine_Name,
-                //            Name = csvRecord.Name,
-                //            Calculate = csvRecord.Calculate,
-                //            Calculate_type = csvRecord.Calculate_type,
-                //            Unit_transfer = csvRecord.Unit_transfer,
-                //            Read_type = csvRecord.Read_type,
-                //            Read_view = csvRecord.Read_view,
-                //            Read_address = csvRecord.Read_address,
-                //            Read_address_index = csvRecord.Read_address_index,
-                //            Write_address = csvRecord.Write_address,
-                //            Write_address_index = csvRecord.Write_address_index,
-                //            History_NumericValue = csvRecord.History_NumericValue
-                //        },
-                //        keySelector: entity => entity.Id,
-                //        enableSync: true
-                //    );
-                //    break;
 
                 default:
                     MessageBox.Show($"未支援的 tableName: {tableName}");
                     break;
             }
         }
-       
+   
         /// <summary>
         /// 初始化監控參數資料
         /// </summary>
@@ -632,123 +606,7 @@ namespace FX5U_IOMonitor.Models
                 Console.WriteLine("✅ 資料已成功匯入資料庫。");
             }
         }
-        //public static void Initialization_MachineElementFromCSV(string targetMachine, string filePath)
-        //{
 
-
-        //    DataTable excelData = LoadCsv(filePath);
-        //    using (var context = new ApplicationDB())
-        //    {
-        //        // 確認目標機台是否已經存在
-        //        Machine_number? machine = context.index.FirstOrDefault(m => m.Name == targetMachine);
-        //        if (machine == null)
-        //        {
-        //            machine = new() { Name = targetMachine };
-        //            context.index.Add(machine);
-        //            context.SaveChanges();
-        //        }
-        //        // 確認監控元件的輸出及輸入繼電器屬於哪一個型態
-        //        var allAddresses = excelData.Rows.Cast<DataRow>()
-        //                        .Select(row => row["資料地址"]?.ToString()?.Trim() ?? "")
-        //                        .ToList();
-
-        //        // 全部地址統一偵測進位格式
-        //        string unifiedBaseType = DetectUnifiedAddressBase(allAddresses);
-
-        //        int rowIndex = 0;
-        //        foreach (DataRow row in excelData.Rows)
-        //        {
-
-        //            rowIndex++;
-        //            // 檢查所有必須欄位是否存在
-        //            string[] requiredColumns = new[]
-        //            {
-        //                "機械式/電子式", "點位輸出入", "資料地址", "設備描述", "分類", "更換料號",
-        //                "最大壽命",  "黃燈登錄", "紅燈登錄"
-        //            };
-
-        //            foreach (var colName in requiredColumns)
-        //            {
-        //                if (!excelData.Columns.Contains(colName))
-        //                {
-        //                    MessageBox.Show($"❌ 第 {rowIndex} 行資料錯誤：找不到必要欄位「{colName}」");
-        //                }
-        //            }
-
-        //            try
-        //            {
-        //                bool Type = bool.TryParse(row["機械式/電子式"]?.ToString(), out var temp) ? temp : false;
-        //                int ioInt = int.TryParse(row["點位輸出入"]?.ToString(), out var i) ? i : 0;
-        //                string machine_name = targetMachine;
-        //                bool IO = ioInt == 1;
-        //                string address = row["資料地址"]?.ToString()?.Trim() ?? "未知地址";
-
-        //                bool isDuplicate = context.Machine_IO.Any(io => io.address == address);
-
-        //                string description = row["設備描述"]?.ToString()?.Trim() ?? "無描述";
-        //                string comment = description;
-        //                string classTag = row["分類"]?.ToString()?.Trim() ?? "未分類";
-        //                string name = row["更換料號"]?.ToString()?.Trim() ?? "未設定";
-
-        //                int maxLife = int.TryParse(row["最大壽命"]?.ToString(), out int maxVal) ? maxVal : 100;
-        //                int yellow = int.TryParse(row["黃燈登錄"]?.ToString(), out int y) ? y : 20;
-        //                int red = int.TryParse(row["紅燈登錄"]?.ToString(), out int r) ? r : 10;
-        //                var languageColumns = excelData.Columns.Cast<DataColumn>()
-        //                                .Where(c => c.ColumnName.StartsWith("設備描述_"))
-        //                                .ToDictionary(
-        //                                    c => c.ColumnName,                             // 原始欄位名稱
-        //                                    c => c.ColumnName.Replace("設備描述_", "")     // 語系碼
-        //                                );
-        //                if (!languageColumns.Any())
-        //                {
-        //                    MessageBox.Show("❌ Excel 中找不到任何語系描述欄位（例如 設備描述_TW）！");
-        //                    return;
-        //                }
-        //                var _IO = new MachineIO
-        //                {
-        //                    address = address,
-        //                    IOType = IO,
-        //                    RelayType = Type ? RelayType.Machanical : RelayType.Electronic,
-        //                    Machine_name = machine_name,
-        //                    Description = name,
-        //                    baseType = unifiedBaseType,
-        //                    Comment = comment,
-        //                    ClassTag = classTag,
-        //                    MaxLife = maxLife,
-        //                    MountTime = DateTime.UtcNow,
-        //                    UnmountTime = DateTime.UtcNow.AddMinutes(1),
-        //                    Setting_yellow = yellow,
-        //                    Setting_red = red,
-        //                    Translations = languageColumns.Select(lc =>
-        //                    {
-        //                        string langColName = lc.Key;
-        //                        string langCode = lc.Value;
-        //                        string comment = row[langColName]?.ToString()?.Trim() ?? "";
-
-        //                        return new MachineIOTranslation
-        //                        {
-        //                            LanguageCode = langCode,
-        //                            Comment = comment
-        //                        };
-        //                    }).ToList()
-
-        //                };
-
-        //                context.Machine_IO.Add(_IO);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                MessageBox.Show($"❌ 第 {rowIndex} 行處理資料時發生錯誤：{ex.Message}");
-        //            }
-        //        }
-
-
-        //        context.SaveChanges();
-        //        Console.WriteLine("✅ 資料已成功匯入資料庫。");
-        //    };
-
-
-        //}
         /// <summary>
         /// 確定實體元件的資料格式為何
         /// </summary>
@@ -779,7 +637,7 @@ namespace FX5U_IOMonitor.Models
             return "oct"; // 全部只含 0-7 的話視為八進位
         }
 
-      
+       
 
     }
 

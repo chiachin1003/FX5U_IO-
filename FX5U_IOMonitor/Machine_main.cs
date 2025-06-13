@@ -65,6 +65,7 @@ namespace FX5U_IOMonitor
             searchControl.LoadData(alarms, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
 
+
         }
 
         private void reset_labText()//更新主頁面連接狀況
@@ -171,9 +172,9 @@ namespace FX5U_IOMonitor
                 // 計算當前 ClassTag 的狀態數據
                 List<string> search_number = DBfunction.GetClassTag_address(MachineType, classTag);
 
-                int Green = DBfunction.Get_Green_classnumber(MachineType, classTag, search_number);
-                int yellow = DBfunction.Get_Yellow_classnumber(MachineType, classTag, search_number);
-                int red = DBfunction.Get_Red_classnumber(MachineType, classTag, search_number);
+                int Green = DBfunction.Get_Green_search(MachineType, search_number);
+                int yellow = DBfunction.Get_Yellow_search(MachineType, search_number);
+                int red = DBfunction.Get_Red_search(MachineType, search_number);
 
                 // 轉換為 float[]
                 chartValues.Add(new float[] { Green, yellow, red });
@@ -216,25 +217,6 @@ namespace FX5U_IOMonitor
                 return btnTags.FirstOrDefault(k => k.Equals(expectedKey, StringComparison.OrdinalIgnoreCase)) ?? expectedKey;
             }).ToList();
 
-            //if (classTags.Count != btnTags.Count) //比對結果
-            //{
-            //    matchedBtnTags = btnTags.Where(tag =>
-            //    {
-            //        if (tag.StartsWith("ClassTag_", StringComparison.OrdinalIgnoreCase))
-            //        {
-            //            string suffix = tag.Substring("ClassTag_".Length);
-            //            return classTags.Any(c => c.Equals(suffix, StringComparison.OrdinalIgnoreCase));
-            //        }
-            //        return false;
-            //    }).ToList();
-
-            //}
-            //else
-            //{
-            //    matchedBtnTags = btnTags;
-            //}
-
-
             //輸入當前顯示的不同數值
             List<float[]> chartValues = update_class();
             // 總數量
@@ -270,10 +252,24 @@ namespace FX5U_IOMonitor
 
         private void lab_connect_Click(object sender, EventArgs e)
         {
+            var context = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
 
-          
+            if (context != null && context.IsConnected)
+            {
+                if (int.Parse(context.ConnectSummary.read_time)>70)
+                {
+                    MessageBox.Show("當前監控總數更新時間：70ms");
 
-
+                }
+                else
+                {
+                    MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time +"ms");
+                }
+            }
+            else
+            {
+                MessageBox.Show("當前無資料監控與更新");
+            }
         }
 
         private void Swing_main_VisibleChanged(object sender, EventArgs e)
@@ -317,52 +313,52 @@ namespace FX5U_IOMonitor
 
         }
         bool isEventRegistered = false;
-        private void Monitor_alarm()
-        {
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(1000); // 每秒檢查一次
+        //private void Monitor_alarm()
+        //{
+        //    Task.Run(async () =>
+        //    {
+        //        while (true)
+        //        {
+        //            await Task.Delay(1000); // 每秒檢查一次
 
-                    bool connected = connect_isOK.Drill_connect;
-                    this.Invoke(() =>
-                    {
-                        var DB_update = MachineHub.GetMonitor("Drill");
+        //            bool connected = connect_isOK.Drill_connect;
+        //            this.Invoke(() =>
+        //            {
+        //                var DB_update = MachineHub.GetMonitor("Drill");
 
-                        //var DB_update = MonitorHub.GetMonitor("Drill");
-                        if (DB_update == null)
-                        {
-                            Console.WriteLine("⚠️ MonitorHub 尚未註冊 Drill 監控對象");
-                            return;
-                        }
+        //                //var DB_update = MonitorHub.GetMonitor("Drill");
+        //                if (DB_update == null)
+        //                {
+        //                    Console.WriteLine("⚠️ MonitorHub 尚未註冊 Drill 監控對象");
+        //                    return;
+        //                }
 
-                        if (connected && !isEventRegistered)
-                        {
-                            DB_update.alarm_event += Warning_signs;
-                            isEventRegistered = true;
-                        }
-                        else if (!connected && isEventRegistered)
-                        {
-                            DB_update.alarm_event -= Warning_signs;
-                            isEventRegistered = false;
-                        }
+        //                if (connected && !isEventRegistered)
+        //                {
+        //                    DB_update.alarm_event += Warning_signs;
+        //                    isEventRegistered = true;
+        //                }
+        //                else if (!connected && isEventRegistered)
+        //                {
+        //                    DB_update.alarm_event -= Warning_signs;
+        //                    isEventRegistered = false;
+        //                }
 
-                    });
-                }
-            });
-        }
+        //            });
+        //        }
+        //    });
+        //}
 
-        private void Warning_signs(object? sender, IOUpdateEventArgs e)
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action(() => Warning_signs(sender, e)));
-                return;
-            }
-            reset_labText();
-            List<string> breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
-            lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, breakdowm_part).Count.ToString();
+        //private void Warning_signs(object? sender, IOUpdateEventArgs e)
+        //{
+        //    if (this.InvokeRequired)
+        //    {
+        //        this.Invoke(new Action(() => Warning_signs(sender, e)));
+        //        return;
+        //    }
+        //    reset_labText();
+        //    List<string> breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
+        //    lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, breakdowm_part).Count.ToString();
             //if (e.NewValue == true && e.OldValue == false)
             //{
             //    // 顯示變化
@@ -395,21 +391,12 @@ namespace FX5U_IOMonitor
 
 
 
-        }
+        //}
 
         private void lab_sum_Click(object sender, EventArgs e)
         {
 
-            var context = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
-
-            if (context != null && context.IsConnected)
-            {
-                MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time.ToString());
-            }
-            else
-            {
-                MessageBox.Show("當前無資料監控與更新");
-            }
+           
            
         }
 

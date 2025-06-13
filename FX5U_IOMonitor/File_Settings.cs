@@ -60,7 +60,7 @@ namespace FX5U_IOMonitor.Resources
                 {
                     LanguageImportHelper.ExportLanguageTemplate(saveMode);
                 }
-                else 
+                else
                 {
                     TableImportExportManager.ExportTableToCsv(tableName, saveMode);  // 呼叫對應函數
                 }
@@ -84,16 +84,21 @@ namespace FX5U_IOMonitor.Resources
                     var result = LanguageImportHelper.ImportLanguage();
                     if (result != null)
                     {
-                        Console.WriteLine($"匯入完成：新增 {result.InsertCount}，更新 {result.UpdateCount}，刪除 {result.DeleteCount}");
+                        // 5. 顯示結果
+                        MessageBox.Show(
+                            $"語系資料匯入完成：\n" +
+                            $"新增 {result.InsertCount} 筆\n" +
+                            $"更新 {result.UpdateCount} 筆\n" +
+                            $"刪除 {result.DeleteCount} 筆 匯入成功");
                         string lang = Properties.Settings.Default.LanguageSetting;
                         LanguageManager.LoadLanguageFromDatabase(lang);
                     }
                 }
-                else 
+                else
                 {
                     Csv2Db.UpdateTable(tableName);
                 }
-              
+
 
             }
             else
@@ -102,13 +107,10 @@ namespace FX5U_IOMonitor.Resources
             }
         }
 
-
-
     }
 
-        
 
 
-        
-    
+
+
 }

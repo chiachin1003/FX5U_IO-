@@ -51,9 +51,9 @@
             btn_download.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btn_download.Location = new Point(257, 104);
             btn_download.Name = "btn_download";
-            btn_download.Size = new Size(82, 36);
+            btn_download.Size = new Size(86, 36);
             btn_download.TabIndex = 39;
-            btn_download.Text = "檔案下載";
+            btn_download.Text = "下載";
             btn_download.UseVisualStyleBackColor = true;
             btn_download.Click += btn_setting_Click;
             // 
@@ -75,7 +75,7 @@
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(82, 36);
             btn_update.TabIndex = 42;
-            btn_update.Text = "檔案更新";
+            btn_update.Text = "更新";
             btn_update.UseVisualStyleBackColor = true;
             btn_update.Click += btn_update_Click;
             // 

@@ -56,10 +56,13 @@ namespace FX5U_IOMonitor
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
 
         }
+        private Stopwatch stopwatch;
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
+                stopwatch = Stopwatch.StartNew(); // ✅ 計時開始
+
                 try
                 {
                     // 主執行緒呼叫 UI 更新
@@ -71,7 +74,6 @@ namespace FX5U_IOMonitor
                         });
                     }
 
-                    await Task.Delay(900, token); // 每900毫秒更新一次
                 }
                 catch (OperationCanceledException)
                 {
@@ -81,6 +83,10 @@ namespace FX5U_IOMonitor
                 {
                     Debug.WriteLine("背景更新錯誤：" + ex.Message);
                 }
+                stopwatch.Stop(); // ✅ 計時結束
+                await Task.Delay(900, token); // 每900毫秒更新一次
+
+
             }
         }
         private void Main_LoginSucceeded(object? sender, EventArgs e)
@@ -117,7 +123,7 @@ namespace FX5U_IOMonitor
 
             var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
 
-            
+
             if (existingContext != null && existingContext.IsConnected)
             {
                 Drill_main_update();
@@ -140,12 +146,16 @@ namespace FX5U_IOMonitor
             {
                 swing_main_update();
                 lab_connect_swing.Text = existingContext.ConnectSummary.connect.ToString();
+                lab_time.Text = $"單次更新耗時：200 ms";
+
             }
             else
             {
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
                 swing_main_update();
+                lab_time.Text = "";
+
             }
 
 
@@ -166,7 +176,6 @@ namespace FX5U_IOMonitor
             lb_totaltime.Text = DBfunction.Get_Machine_now_string("Sawing", "total_time");
             lb_countdown_time.Text = DBfunction.Get_Machine_now_string("Sawing", "countdown_time");
             lb_remain_tools.Text = DBfunction.Get_Machine_now_string("Sawing", "remain_tools") + "刀";
-
 
         }
         private void Drill_main_update()
@@ -268,24 +277,8 @@ namespace FX5U_IOMonitor
 
         private void lab_reset_Click(object sender, EventArgs e)
         {
-            var result = MessageBox.Show(
-          "⚠️ 確定要將用電紀錄歸零嗎？此操作無法還原！",
-          "確認重設",
-          MessageBoxButtons.YesNo,
-          MessageBoxIcon.Warning);
 
-            if (result == DialogResult.Yes)
-            {
-                DBfunction.Set_Machine_History_NumericValue("Drill", "electricity", 0);
-                DBfunction.Set_Machine_now_string("Drill", "electricity", "0");
-
-                MessageBox.Show("✅ 用電紀錄已成功歸零", "重設成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                MessageBox.Show("❎ 已取消歸零操作", "取消", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-
+            Drill_Info.ConfirmAndResetUsetime("Drill", "electricity", "確定要將用電紀錄歸零嗎?", "用電紀錄已成功歸零");
         }
 
         private void lab_disconnect_Click(object sender, EventArgs e)
@@ -297,7 +290,7 @@ namespace FX5U_IOMonitor
                 List<string> breakdown_part = DBfunction.Get_breakdown_part("Drill");
                 if (breakdown_part.Count != 0)
                 {
-                    List<string> breakdown_address =DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
+                    List<string> breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
                     var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
                     searchControl.LoadData(breakdown_address, "Drill");          //  將資料傳入模組
                     Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
@@ -399,6 +392,11 @@ namespace FX5U_IOMonitor
             {
                 part_Search.BringToFront();
             }
+        }
+
+        private void panel_Drill_Paint(object sender, PaintEventArgs e)
+        {
+            MessageBox.Show($"單次更新耗時：{stopwatch.ElapsedMilliseconds} ms");
         }
     }
 }

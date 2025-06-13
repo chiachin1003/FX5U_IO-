@@ -120,7 +120,7 @@ namespace FX5U_IOMonitor.Models
                 await SafeSync(localContext, cloudContext, x => x.MachineParameters, x => x.MachineParameters, "MachineParameter", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.Language, x => x.Language, "Language", syncResult);
                 //await SafeSync(localContext, cloudContext, x => x.MachineIOTranslations, x => x.MachineIOTranslations, "Translations", syncResult);
-                string message = $"同步完成 - {DateTime.Now:HH:mm:ss} " +
+                string message = $"同步完成 - {DateTime.UtcNow:HH:mm:ss} " +
                     $"(新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";
 
                 OnLogMessage(message);

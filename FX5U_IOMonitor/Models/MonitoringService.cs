@@ -145,7 +145,7 @@ namespace FX5U_IOMonitor.Models
                     var monition = MachineHub.Get(machinname);
                     if (monition != null)
                     {
-                        monition.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds} 毫秒";
+                        monition.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds}";
                         monition.ConnectSummary.disconnect = DBfunction.GetMachineRowCount(monition.MachineName) - monition.ConnectSummary.connect;
                         
                     }
@@ -554,24 +554,23 @@ namespace FX5U_IOMonitor.Models
                                                     timer.NowValue += (int)elapsed.TotalSeconds;
                                                     timer.LastUpdateTime = DateTime.UtcNow;
                                                     Debug.WriteLine($"{timer.LastUpdateTime}、{timer.NowValue}");
+                                                    ushort now_total = (ushort)(DBfunction.Get_Machine_NowValue(machine_name, name)+ (ushort)elapsed.TotalSeconds);
+                                                    DBfunction.Set_Machine_now_number(machine_name, name, now_total);
 
-                                                    DBfunction.Set_Machine_now_number(machine_name, name, (ushort)timer.NowValue);
-
-                                                    Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
+                                                    //Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
                                                     
-                                                    Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_Machine_History_NumericValue(name)}");
+                                                    //Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_Machine_History_NumericValue(name)}");
 
                                                 }
 
                                                 if (timer.NowValue>= 30)
                                                 {
-                                                   
-                                                    timer.HistoryValue += timer.NowValue;
 
-                                                    DBfunction.Set_Machine_History_NumericValue(machine_name,name, (ushort)timer.HistoryValue);
+                                                    ushort HistoryValue = (ushort)(DBfunction.Get_Machine_History_NumericValue(machine_name, name) + timer.NowValue);//確定經過的時間為30s
+                                                    DBfunction.Set_Machine_History_NumericValue(machine_name,name, HistoryValue);
                                                     timer.NowValue = 0;
                                                     DBfunction.Set_Machine_now_number(machine_name, name, 0);
-                                                    Debug.WriteLine($"📥 {name} 滿 30 秒：累積為 {timer.HistoryValue}");
+                                                    //Debug.WriteLine($"📥 {name} 滿 30 秒：累積為 {timer.HistoryValue}");
 
                                                 }
 
@@ -796,7 +795,7 @@ namespace FX5U_IOMonitor.Models
                                                                 double avg = timer.AverageBuffer.Average();
                                                                 timer.HistoryValue = (int)Math.Round(avg);
                                                                 DBfunction.Set_Machine_History_NumericValue(machine_name, name, timer.HistoryValue);
-                                                                Debug.WriteLine($"📊 10秒平均：{avg:F2}，平均為 {timer.HistoryValue}");
+                                                                //Debug.WriteLine($"📊 10秒平均：{avg:F2}，平均為 {timer.HistoryValue}");
                                                                 timer.AverageBuffer.Clear();
                                                             }
                                                         }
@@ -870,7 +869,7 @@ namespace FX5U_IOMonitor.Models
                     {
                         if (name == "power")
                         {
-                            string now = DateTime.Now.ToString("HH:mm:ss");
+                            string now = DateTime.UtcNow.ToString("HH:mm:ss");
 
                             double voltage = DBfunction.Get_History_NumericValue(machine_name, "voltage");
                             double current = DBfunction.Get_History_NumericValue(machine_name, "current");

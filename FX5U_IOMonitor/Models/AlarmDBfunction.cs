@@ -40,7 +40,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.AlarmNotifyuser ?? "";
             }
         }
@@ -48,15 +48,15 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
-                return alarm?.SourceDbName ?? "";
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+                return alarm?.SourceMachine ?? "";
             }
         }
         public static string Get_Description_ByAddress(string address)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Description ?? "";
             }
         }
@@ -65,7 +65,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Error ?? "";
             }
         }
@@ -74,7 +74,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Possible ?? "";
             }
         }
@@ -84,7 +84,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Repair_steps ?? "";
             }
         }

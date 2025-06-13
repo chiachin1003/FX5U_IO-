@@ -20,32 +20,55 @@ namespace FX5U_IOMonitor.Data
         public int Calculate_type { get; set; } //計算的型態
         public double Unit_transfer { get; set; }
 
-        public string Read_type { get; set; } = ""; // PLC Address，例如 "D100"
+        public string Read_type { get; set; } = ""; // 讀取型態
         public int Read_view { get; set; }  // PLC Address word 一次讀取N個
 
-        public string Read_address { get; set; } = ""; // PLC Address，例如 "D100"
+        public string Read_address { get; set; } = ""; // 讀取地址
         public int Read_address_index { get; set; }  // PLC Address word 一次讀取N個
 
-        public string Write_address { get; set; } = ""; // PLC Address，例如 "D100"
-        public int? Write_address_index { get; set; }  // PLC Address word 一次讀取N個
+        public string Write_address { get; set; } = ""; // 寫入地址
+        public int? Write_address_index { get; set; }  // PLC Address word 一次寫入N個
 
-
-        public int? History_NumericValue { get; set; }
+        public int? History_NumericValue { get; set; } //歷史當前紀錄
 
         public int? now_NumericValue { get; set; } // 數值型
         public string? now_TextValue { get; set; } // 文字型（如果是 string 類型）
-
-       
+        public virtual ICollection<MachineParameterHistoryRecode> HistoryRecodes { get; set; } = new List<MachineParameterHistoryRecode>();
 
 
     }
+    public class MachineParameterHistoryRecode : SyncableEntity
+    {
+        [Key]
+        public int Id { get; set; }  // 主鍵建議使用 Id
 
+        // 外鍵關聯
+        public int MachineParameterId { get; set; }
+        public virtual MachineParameter MachineParameter { get; set; }
+
+        // 統計時間區間
+        public DateTime StartTime { get; set; }    // 歷史統計開始
+        public DateTime EndTime { get; set; }      // 歷史統計結束
+
+        // 歷史值（例如計次、用電總量等）
+        public int? History_NumericValue { get; set; }
+
+        // 歸零的時間（如為定時歸零，或是手動重置）
+        public DateTime? ResetTime { get; set; }
+
+        // 備註（可用來說明這段紀錄的情境）
+        public string? ResetBy { get; set; }  // "系統自動"、"使用者帳號"
+        public string? PeriodTag { get; set; } // 例如："2025M06" 或 "2025W24"
+
+    }
 
 
     public class Blade_brand : SyncableEntity
     {
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+
         public int Id { get; set; }
 
         public int blade_brand_id { get; set; }
@@ -60,12 +83,14 @@ namespace FX5U_IOMonitor.Data
 
         public int Machine_Number { get; set; }
        
-
     }
+
     public class Blade_brand_TPI : SyncableEntity
     {
 
+
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
         public int Id { get; set; }
         public int blade_TPI_id { get; set; }
 

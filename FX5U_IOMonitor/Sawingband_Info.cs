@@ -48,11 +48,14 @@ namespace FX5U_IOMonitor
             }
         }
 
+        private Stopwatch stopwatch;
 
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
+                stopwatch = Stopwatch.StartNew(); // ✅ 計時開始
+
                 try
                 {
                     // 主執行緒呼叫 UI 更新
@@ -74,6 +77,15 @@ namespace FX5U_IOMonitor
                 {
                     Debug.WriteLine("背景更新錯誤：" + ex.Message);
                 }
+                stopwatch.Stop(); // ✅ 計時結束
+                this.Invoke(() =>
+                {
+                    if (stopwatch.ElapsedMilliseconds < 550)
+                    {
+                        lab_time.Text = $"單次更新耗時：{stopwatch.ElapsedMilliseconds} ms";
+                    }
+                   
+                });
             }
         }
 

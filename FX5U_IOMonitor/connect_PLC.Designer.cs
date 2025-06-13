@@ -70,6 +70,7 @@ namespace FX5U_IOMonitor
             btn_addmachine = new Button();
             txb_machine = new TextBox();
             lab_Add_Machine = new Label();
+            btn_mishubishi = new Button();
             panel_Ethernet.SuspendLayout();
             panel_RS485.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -571,11 +572,25 @@ namespace FX5U_IOMonitor
             lab_Add_Machine.TabIndex = 26;
             lab_Add_Machine.Text = "新增機台：";
             // 
+            // btn_mishubishi
+            // 
+            btn_mishubishi.FlatStyle = FlatStyle.Flat;
+            btn_mishubishi.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            btn_mishubishi.Location = new Point(651, 94);
+            btn_mishubishi.Name = "btn_mishubishi";
+            btn_mishubishi.Size = new Size(94, 52);
+            btn_mishubishi.TabIndex = 30;
+            btn_mishubishi.Text = "切換監控\r\n三菱控制器";
+            btn_mishubishi.UseVisualStyleBackColor = true;
+            btn_mishubishi.Visible = false;
+            btn_mishubishi.Click += btn_mishubishi_Click;
+            // 
             // Connect_PLC
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1221, 664);
+            Controls.Add(btn_mishubishi);
             Controls.Add(tableLayoutPanel3);
             Controls.Add(tableLayoutPanel1);
             Controls.Add(btn_delete);
@@ -643,5 +658,6 @@ namespace FX5U_IOMonitor
         private Button btn_addmachine;
         private TextBox txb_machine;
         private Label lab_Add_Machine;
+        private Button btn_mishubishi;
     }
 }

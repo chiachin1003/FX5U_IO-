@@ -167,7 +167,7 @@ namespace FX5U_IO元件監控
 
             using var context = new ApplicationDB();
             var allAlarms = context.alarm
-                .Where(a => a.SourceDbName == machineName)
+                .Where(a => a.SourceMachine == machineName)
                 .ToList();
 
             foreach (var className in classList)
@@ -287,7 +287,7 @@ namespace FX5U_IO元件監控
                 // 從 alarm 資料取得已被指定的使用者
                 using var db = new ApplicationDB();
                 var notifyUserStrs = db.alarm
-                    .Where(a => a.SourceDbName == datatable && !string.IsNullOrWhiteSpace(a.AlarmNotifyuser))
+                    .Where(a => a.SourceMachine == datatable && !string.IsNullOrWhiteSpace(a.AlarmNotifyuser))
                     .Select(a => a.AlarmNotifyuser)
                     .ToList();
 
@@ -326,7 +326,7 @@ namespace FX5U_IO元件監控
 
             using (var db = new ApplicationDB())
             {
-                var allAlarms = db.alarm.Where(a => a.SourceDbName == datatable).ToList();
+                var allAlarms = db.alarm.Where(a => a.SourceMachine == datatable).ToList();
                 foreach (var alarm in allAlarms)
                 {
                     alarm.AlarmNotifyuser = userNames;
@@ -343,7 +343,7 @@ namespace FX5U_IO元件監控
 
             using (var db = new ApplicationDB())
             {
-                var allAlarms = db.alarm.Where(a => a.SourceDbName == datatable).ToList();
+                var allAlarms = db.alarm.Where(a => a.SourceMachine == datatable).ToList();
                 foreach (var alarm in allAlarms)
                 {
                     alarm.AlarmNotifyuser = userNames;
@@ -472,7 +472,7 @@ namespace FX5U_IO元件監控
 
                 using (var db = new ApplicationDB())
                 {
-                    var alarm = db.alarm.Where(a => a.SourceDbName == machineName).ToList();
+                    var alarm = db.alarm.Where(a => a.SourceMachine == machineName).ToList();
 
                     if (alarm == null)
                     {
@@ -631,7 +631,7 @@ namespace FX5U_IO元件監控
             {
                 string classTag = (string)classNode.Tag;
 
-                var alarms = db.alarm.Where(a => a.SourceDbName == datatable)
+                var alarms = db.alarm.Where(a => a.SourceMachine == datatable)
                                     .ToList()
                                     .Where(a => NormalizeClassTag(a.classTag) == classTag)
                                     .ToList();

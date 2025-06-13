@@ -35,16 +35,19 @@ namespace FX5U_IOMonitor.Models
             //_dbFullName = Path.Combine(projectRoot, "Database", "element.db");
             _dbFullName = "element";
         }
-        public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<Machine_number> index { get; set; }
+
+        public DbSet<MachineIO> Machine_IO { get; set; }
+        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
         public DbSet<History> Histories { get; set; }
        
         public DbSet<Alarm> alarm { get; set; }
-        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
+        public DbSet<AlarmHistory> AlarmHistories { get; set; }
+        public DbSet<MachineParameter> MachineParameters { get; set; }
 
+        public DbSet<MachineParameterHistoryRecode> MachineParameterHistoryRecodes { get; set; }
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
-        public DbSet<MachineParameter> MachineParameters { get; set; }
         public DbSet<Language> Language { get; set; }
 
 

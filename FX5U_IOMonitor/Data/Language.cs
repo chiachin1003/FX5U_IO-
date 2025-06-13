@@ -86,26 +86,30 @@ public class LanguageImportService
     {
         _context = context;
     }
-
+   
     /// <summary>
     /// 匯入語系 CSV 檔案
     /// </summary>
     /// <returns>匯入結果</returns>
-    public ImportResult ImportLanguageCsv()
+    public ImportResult ImportLanguageCsv(string? filepath = null)
     {
-        OpenFileDialog openFileDialog = new OpenFileDialog
+        if (string.IsNullOrWhiteSpace(filepath))
         {
-            Filter = "CSV 檔案 (*.csv)|*.csv",
-            Title = "選擇要匯入的語系 CSV 檔案"
-        };
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV 檔案 (*.csv)|*.csv",
+                Title = "選擇要匯入的語系 CSV 檔案"
+            };
 
-        if (openFileDialog.ShowDialog() != DialogResult.OK)
-            return null;
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                return null;
 
+            filepath = openFileDialog.FileName;
+        }
         try
         {
             // 1. 讀取 CSV 檔案並分析結構
-            var csvData = ReadCsvWithDynamicColumns(openFileDialog.FileName);
+            var csvData = ReadCsvWithDynamicColumns(filepath);
             if (!csvData.Any())
             {
                 MessageBox.Show("❌ CSV 檔案沒有資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -123,16 +127,6 @@ public class LanguageImportService
             // 4. 執行匯入
             var result = ExecuteLanguageImport(processedData, languageColumns);
 
-            // 5. 顯示結果
-            MessageBox.Show(
-                $"✅ 語系資料匯入完成：\n" +
-                $"📝 新增 {result.InsertCount} 筆\n" +
-                $"🔄 更新 {result.UpdateCount} 筆\n" +
-                $"🗑️ 刪除 {result.DeleteCount} 筆\n" +
-                $"🌐 語系欄位：{string.Join(", ", languageColumns)}",
-                "匯入成功",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
 
             return result;
         }
@@ -415,11 +409,11 @@ public static class LanguageImportHelper
     /// 匯入語系資料
     /// </summary>
     /// <returns>匯入結果</returns>
-    public static ImportResult ImportLanguage()
+    public static ImportResult ImportLanguage(string? filepath = null)
     {
         using var context = new ApplicationDB();
         var importService = new LanguageImportService(context);
-        return importService.ImportLanguageCsv();
+        return importService.ImportLanguageCsv(filepath);
     }
 
     /// <summary>

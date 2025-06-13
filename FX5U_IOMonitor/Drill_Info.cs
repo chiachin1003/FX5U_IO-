@@ -7,6 +7,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Threading;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
 
 
 
@@ -15,7 +16,8 @@ namespace FX5U_IOMonitor
     public partial class Drill_Info : Form
     {
         private CancellationTokenSource? _cts;
-        private double elapsedSeconds;
+        private Stopwatch stopwatch;
+
         public Drill_Info()
         {
             InitializeComponent();
@@ -36,7 +38,7 @@ namespace FX5U_IOMonitor
         private void Main_Load(object sender, EventArgs e)
         {
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
-            var existingContext = MachineHub.Get("Drill");
+            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
                 reset_lab_connectText(); // 初始顯示一次
@@ -48,7 +50,6 @@ namespace FX5U_IOMonitor
             else
             {
                 reset_lab_connectText(); // 初始顯示一次
-                elapsedSeconds = 500;
 
             }
 
@@ -57,9 +58,10 @@ namespace FX5U_IOMonitor
 
         private async Task AutoUpdateAsync(CancellationToken token)
         {
-            var stopwatch = Stopwatch.StartNew();
             while (!token.IsCancellationRequested)
             {
+                stopwatch = Stopwatch.StartNew();
+
                 try
                 {
                     // 主執行緒呼叫 UI 更新
@@ -111,10 +113,7 @@ namespace FX5U_IOMonitor
             _cts?.Cancel(); // 關閉時自動取消背景任務
         }
 
-        private void label2_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("當前介面更新速度" + elapsedSeconds.ToString() + "毫秒");
-        }
+
         private void SwitchLanguage()
         {
             lab_titleText.Text = LanguageManager.Translate("DrillInfo_title");
@@ -198,7 +197,7 @@ namespace FX5U_IOMonitor
         /// <param name="parameterName"></param>
         /// <param name="confirmMessage"></param>
         /// <param name="successMessage"></param>
-        private void ConfirmAndResetUsetime(string machineName, string parameterName, string confirmMessage, string successMessage)
+        public static void ConfirmAndResetUsetime(string machineName, string parameterName, string confirmMessage, string successMessage)
         {
             var result = MessageBox.Show(
                 $"⚠️ {confirmMessage}\n此操作無法還原！",
@@ -208,14 +207,29 @@ namespace FX5U_IOMonitor
 
             if (result == DialogResult.Yes)
             {
+                // 儲存當前的歷史紀錄
+                ushort total = (ushort)(DBfunction.Get_Machine_NowValue(machineName, parameterName) + DBfunction.Get_Machine_History_NumericValue(machineName, parameterName));
+                // 統計歸零前的紀錄資料
+                DBfunction.Set_Machine_History_NumericValue(machineName, parameterName, total);
+                // 將值寫入參數歷史資料
+                DBfunction.Set_MachineParamHistory_ResetRecord(machineName, parameterName);
+                // 清空當前參數的累計資料
                 DBfunction.Set_Machine_History_NumericValue(machineName, parameterName, 0);
-                DBfunction.Set_Machine_now_string(machineName, parameterName, "0");
+                DBfunction.Set_Machine_now_number(machineName, parameterName, 0);
 
                 MessageBox.Show($"✅ {successMessage}", "重設成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
                 MessageBox.Show("❎ 已取消歸零操作", "取消", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void lab_title_Click(object sender, EventArgs e)
+        {
+            if (stopwatch != null && stopwatch.ElapsedMilliseconds < 900  )
+            {
+                MessageBox.Show($"單次更新耗時：{stopwatch.ElapsedMilliseconds} ms");
             }
         }
     }

@@ -75,6 +75,7 @@
             lab_Drill_servo_usetimeText = new Label();
             lab_title = new Label();
             lab_titleText = new Label();
+            lab_time = new Label();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -130,6 +131,7 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 9F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 9F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 9F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel1.Size = new Size(655, 549);
             tableLayoutPanel1.TabIndex = 1;
             // 
@@ -390,7 +392,7 @@
             lab_title.TabIndex = 1;
             lab_title.Text = "目前累積時間";
             lab_title.TextAlign = ContentAlignment.MiddleCenter;
-            lab_title.Click += label2_Click;
+            lab_title.Click += lab_title_Click;
             // 
             // lab_titleText
             // 
@@ -404,12 +406,21 @@
             lab_titleText.Text = "設備與周邊元件壽命總表";
             lab_titleText.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // lab_time
+            // 
+            lab_time.AutoSize = true;
+            lab_time.Location = new Point(36, 9);
+            lab_time.Name = "lab_time";
+            lab_time.Size = new Size(0, 15);
+            lab_time.TabIndex = 1;
+            // 
             // Drill_Info
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(730, 630);
+            Controls.Add(lab_time);
             Controls.Add(panel1);
             Margin = new Padding(4);
             Name = "Drill_Info";
@@ -420,6 +431,7 @@
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -448,6 +460,7 @@
         private Label lab_Drill_total_TimeText;
         private Label lab_Drill_inverter;
         private Label lab_Drill_inverterText;
+        private Label lab_time;
     }
 }
 

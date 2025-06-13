@@ -5,11 +5,50 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using FX5U_IOMonitor.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace FX5U_IOMonitor.Models
 {
     public class Email
     {
+        /// <summary>
+        /// 非同步發送郵件
+        /// </summary>
+        /// <param name="receiver"></param>寄件人
+        /// <param name="subject"></param>主旨
+        /// <param name="body"></param>內容
+        /// <returns></returns>
+        public static async Task SendAsync(string receiver, string subject, string body)
+        {
+            using var client = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
+            {
+                Port = Properties.Settings.Default.TLS_port,
+
+                Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword),
+              
+                EnableSsl = true
+            };
+           
+            var mail = new MailMessage
+            {
+                From = new MailAddress(Properties.Settings.Default.senderEmail),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = false // 如果是 HTML 郵件，請改為 true
+            };
+
+            mail.To.Add(receiver);
+
+            await client.SendMailAsync(mail);
+        }
+        public static async Task SendAsync(List<string> receivers, string subject, string body)
+        {
+            foreach (var to in receivers)
+            {
+                await SendAsync(to, subject, body);
+            }
+        }
 
         /// <summary>
         /// 故障訊息郵件發送
@@ -135,7 +174,7 @@ namespace FX5U_IOMonitor.Models
 
                 // 建立信件內容（可用 $ 字串內插）
                 string body = $@"
-                                發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
+                                發送通知時間：{DateTime.UtcNow:yyyy/MM/dd HH:mm:ss}
                                 設備名稱：{machineName}
                                 更換料號名稱：{partNumber}
                                 元件儲存器位置：{address}
@@ -151,13 +190,12 @@ namespace FX5U_IOMonitor.Models
 
                 mail.Body = body.Trim(); // 清除前後空白
 
-                SmtpClient smtpClient = new SmtpClient("smtp.gmail.com")
+                SmtpClient smtpClient = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
                 {
-                    Port = 587,
+                    Port = Properties.Settings.Default.TLS_port,
                     EnableSsl = true,
-                    Credentials = new NetworkCredential(senderEmail, senderPassword)
+                    Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword)
                 };
-
                 smtpClient.Send(mail);
                 Console.WriteLine("✅ 郵件已成功發送！");
             }
@@ -168,6 +206,125 @@ namespace FX5U_IOMonitor.Models
                     Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
             }
         }
+
+
+
+
+
+        /// <summary>
+        /// 每日定期發送尚未排除的警告
+        /// </summary>
+        public class AlarmDailySummaryScheduler
+        {
+            private System.Threading.Timer? _timer; // 定時器，用於排程
+            private readonly TimeSpan _runTime;     // 使用者設定的每日執行時間
+
+            // 建構函式，指定每日執行的時間（如：早上8點）
+            public AlarmDailySummaryScheduler(TimeSpan userDefinedTime)
+            {
+                _runTime = userDefinedTime;
+            }
+
+            // 啟動排程任務
+            public void Start()
+            {
+                // 計算從現在到下一次排程時間的延遲
+                TimeSpan delay = GetInitialDelay(_runTime);
+
+                // 建立 Timer，第一次執行在 delay 之後，之後每天執行一次
+                _timer = new System.Threading.Timer(async _ =>
+                {
+                    await SendDailyAlarmSummaryAsync();  // 每日執行的邏輯
+                }, null, delay, TimeSpan.FromDays(1));    // 週期為每日一次
+            }
+
+            // 停止排程任務
+            public void Stop()
+            {
+                _timer?.Dispose();  // 釋放 Timer 資源
+            }
+
+            // 計算從現在到下次執行時間的延遲時間
+            private TimeSpan GetInitialDelay(TimeSpan targetTime)
+            {
+                var now = DateTime.UtcNow;
+                var targetDateTime = now.Date + targetTime;  // 今天的目標時間
+                if (now > targetDateTime)
+                    targetDateTime = targetDateTime.AddDays(1);  // 如果已超過今天的目標時間，則延到明天
+                return targetDateTime - now;
+            }
+
+            // 實際執行每日通知邏輯
+            private async Task SendDailyAlarmSummaryAsync()
+            {
+                using var db = new ApplicationDB();
+                var now = DateTime.UtcNow;
+
+                // 查詢所有尚未排除的警告，且今天尚未發送提醒過
+                var histories = db.AlarmHistories
+                    .Include(h => h.Alarm)  // 載入關聯 Alarm 資料
+                    .Where(h => h.EndTime == null && h.RecordTime.Date != now.Date)
+                    .ToList();
+
+                // 根據每筆警告的 AlarmNotifyuser 欄位分組
+                var groupedByUsers = histories
+                    .Where(h => !string.IsNullOrWhiteSpace(h.Alarm.AlarmNotifyuser))  // 排除未設定收件者
+                    .GroupBy(h => h.Alarm.AlarmNotifyuser);                           // 以通知對象分組
+
+                foreach (var group in groupedByUsers)
+                {
+                    // 取得收件者 Email 清單（支援 , 或 ; 分隔）
+                    var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
+                                         .Select(x => x.Trim())
+                                         .ToList();
+
+                    // 建立該使用者對應的彙總信件內容
+                    var body = BuildEmailBody(group.ToList());
+                    var subject = $"📬 每日未排除警告摘要（{now:yyyy/MM/dd}）";
+
+                    // 發送 Email 給每位收件人
+                    foreach (var email in users)
+                    {
+                        await SendAsync(email, subject, body);
+                    }
+
+                    // 更新每筆紀錄的發送時間與次數
+                    foreach (var h in group)
+                    {
+                        h.RecordTime = now;
+                        h.Records += 1;
+                    }
+                }
+
+                // 寫回資料庫
+                db.SaveChanges();
+            }
+
+            // 建立 Email 內容（將多筆警告合併為一封摘要）
+            private string BuildEmailBody(List<AlarmHistory> alarms)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("📌 以下為尚未排除的警告摘要：\n");
+
+                foreach (var h in alarms)
+                {
+                    sb.AppendLine($"故障地址：{h.Alarm.address}");                        // 警告位置
+                    sb.AppendLine($"警告描述：{h.Alarm.Description}");                  // 更換料件
+                    sb.AppendLine($"可能錯誤錯誤：{h.Alarm.Error}");                        // 錯誤內容
+                    sb.AppendLine($"發生時間：{h.StartTime:yyyy-MM-dd HH:mm}");   // 發生時間
+                    sb.AppendLine($"已發送次數：{h.Records + 1}");                 // 預估下一次寄送是第幾次
+                    sb.AppendLine("-------------------------------------------");
+                }
+
+                return sb.ToString();
+            }
+        }
+
+
+
+
+
+
     }
 
 }

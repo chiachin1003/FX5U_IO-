@@ -48,7 +48,7 @@ namespace FX5U_IOMonitor
             var data = context.alarm
             .Select(d => new
             {
-                地址 = d.M_Address,
+                地址 = d.address,
                 位置 = d.classTag,
                 料件 = d.Description,
                 錯誤信息 = d.Error,

@@ -75,6 +75,7 @@
             lab_Sawblade_materialText = new Label();
             lab_Sawband_brand = new Label();
             lab_Sawband_brandText = new Label();
+            lab_time = new Label();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -399,12 +400,21 @@
             lab_Sawband_brandText.Text = "鋸帶廠牌";
             lab_Sawband_brandText.TextAlign = ContentAlignment.MiddleLeft;
             // 
+            // lab_time
+            // 
+            lab_time.AutoSize = true;
+            lab_time.Location = new Point(583, 599);
+            lab_time.Name = "lab_time";
+            lab_time.Size = new Size(0, 15);
+            lab_time.TabIndex = 1;
+            // 
             // Sawingband_Info
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(730, 630);
+            Controls.Add(lab_time);
             Controls.Add(panel1);
             Margin = new Padding(4);
             Name = "Sawingband_Info";
@@ -415,6 +425,7 @@
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -443,6 +454,7 @@
         private Label lab_Sawband_speed;
         private Label lab_Sawband_speedText;
         private Label lab_Sawband_tension;
+        private Label lab_time;
     }
 }
 

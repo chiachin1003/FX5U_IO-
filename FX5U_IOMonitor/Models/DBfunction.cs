@@ -6,55 +6,33 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static FX5U_IOMonitor.Data.Recordmode;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FX5U_IOMonitor.Models
 {
     internal class DBfunction
     {
-        //------------找是否存在地址------------//
-
-        public static string FindTableWithAddress(string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                if (context.alarm.Any(m => m.M_Address == address))
-                    return "alarm";
-                return ""; // 沒找到
-            }
-        }
-
-      
+       
         //-----------尋找資料表內容-------------------------//
 
-        public static int GetTableRowCount(string tableName)
-        {
-            using (var context = new ApplicationDB())
-            {
-                return tableName switch
-                {
-                    "History" => context.Histories.Count(),
-                    "Alarm" => context.alarm.Count(),
-                    _ => throw new ArgumentException($"未知資料表名稱：{tableName}")
-                };
-            }
-        }
         public static int GetMachineRowCount(string machineName)
         {
             using (var context = new ApplicationDB())
             {
-                return context.Machine_IO.Where(a=>a.Machine_name==machineName).Count();
+                return context.Machine_IO.Where(a => a.Machine_name == machineName).Count();
             }
         }
 
 
-        //----------------啟用時間----------------
+        //----------------元件啟用時間----------------
         public static string FormatNullableDateTime(DateTime? dt)
         {
             return dt?.ToString("yyyy/M/d HH:mm:ss") ?? "未記錄當前時間";
@@ -89,7 +67,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        //----------------結束時間-----------------------
+        //----------------元件結束時間-----------------------
         public static DateTime? GetUnmountTimeByAddress(string tableName, string address)
         {
             using (var context = new ApplicationDB())
@@ -127,7 +105,7 @@ namespace FX5U_IOMonitor.Models
                 var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
                 if (machine == null)
                 {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");      
+                    Console.WriteLine($"找不到 address 為 {address} 的元件");
                     return;
                 }
 
@@ -146,60 +124,7 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
-        public static void SetAlarmStartTime(string tableName, string address, string sourceDbName)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = GetMachineByAddress(context, tableName, address);
-                if (machine == null)
-                {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");
-                    return;
-                }
 
-                History history = new History
-                {
-                    MachineIOId = machine.Id,
-                    SourceDbName = sourceDbName,
-                    Address = machine.M_Address,
-                    StartTime = machine.MountTime,
-                };
-
-                context.Histories.Add(history);
-                context.SaveChanges();
-            }
-        }
-      
-        public static void SetAlarmEndTime(string tableName, string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = GetMachineByAddress(context, tableName, address);
-                if (machine == null)
-                {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");
-                    return;
-                }
-
-                // 找到尚未設定 EndTime 的 alarm 記錄
-                var target = context.Histories
-                    .FirstOrDefault(h => h.SourceDbName == "alarm" &&
-                                         h.Address == address &&
-                                         h.EndTime == null);
-
-                if (target != null)
-                {
-                    target.EndTime = machine.UnmountTime; // 或用 DateTime.Now 也可以
-                    context.SaveChanges();
-
-                    Console.WriteLine($"已更新 {address} 的 EndTime 為 {target.EndTime}");
-                }
-                else
-                {
-                    Console.WriteLine($"找不到尚未結束的 alarm 記錄（{address}）");
-                }
-            }
-        }
         // 讀取歷史資料
         public static List<History> GetHistoryBySourceAndAddress(string sourceDbName, string address)
         {
@@ -224,19 +149,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        // 共用方法：根據 tableName 傳回對應資料
-        private static dynamic GetMachineByAddress(ApplicationDB context, string tableName, string address)
-        {
-            switch (tableName)
-            {
-               
-                case "alarm":
-                    return context.alarm.FirstOrDefault(m => m.M_Address == address);
-                default:
-                    throw new ArgumentException($"未知的資料表名稱：{tableName}");
-            }
-        }
-
+        
         public static List<string> GetMachineClassTags(string tableName)
         {
             using (var context = new ApplicationDB())
@@ -265,7 +178,7 @@ namespace FX5U_IOMonitor.Models
                         d.ClassTag.Length == keyword.Length)
                     .Select(d => d.address)
                     .ToList();
-           
+
             return list.ToList();
         }
 
@@ -280,7 +193,7 @@ namespace FX5U_IOMonitor.Models
                                     .Distinct(StringComparer.OrdinalIgnoreCase)
                                     .OrderBy(tag => tag)
                                     .ToList();
-               
+
             }
         }
         //------尋找綠燈數量--------------
@@ -289,7 +202,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 return context.Machine_IO
-                        .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && io.Machine_name ==tableName)
+                        .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && io.Machine_name == tableName)
                         .Count();
             }
         }
@@ -339,62 +252,10 @@ namespace FX5U_IOMonitor.Models
                 return context.Machine_IO
                                 .Where(io => io.RUL < io.Setting_red && stringaddress.Contains(io.address) && io.Machine_name == tableName)
                                .Count();
-                    
-            }
-        }
-
-        public static int Get_Green_classnumber(string machineName, string classTag, List<string> classaddress)
-        {
-            using (var context = new ApplicationDB())
-            {
-                string normalizedTag = classTag?.Trim().ToLower() ?? "";
-
-                int number = context.Machine_IO
-                                .Where(io =>
-                                    !string.IsNullOrEmpty(io.ClassTag) &&
-                                    io.Machine_name== machineName &&
-                                    io.ClassTag.ToLower() == normalizedTag &&
-                                    classaddress.Contains(io.address)
-                                )
-                                .AsEnumerable()
-                                .Count(io => io.RUL > io.Setting_yellow);
-                return number;
-            }
-        }
-        public static int Get_Red_classnumber(string tableName, string classTag, List<string> classaddress)
-        {
-            using (var context = new ApplicationDB())
-            {
-                string normalizedTag = classTag?.Trim().ToLower() ?? "";
-
-                return context.Machine_IO
-                                .Where(io =>
-                                    !string.IsNullOrEmpty(io.ClassTag) &&
-                                    io.Machine_name == tableName &&
-                                    io.ClassTag.ToLower() == normalizedTag &&
-                                    classaddress.Contains(io.address))
-                                .AsEnumerable()
-                                .Count(io => io.RUL < io.Setting_red);
 
             }
-            
         }
 
-        public static int Get_Yellow_classnumber(string tableName, string classTag, List<string> classaddress)
-        {
-            using var context = new ApplicationDB();
-            string normalizedTag = classTag?.Trim().ToLower() ?? "";
-
-            return context.Machine_IO
-                                .Where(io =>
-                             !string.IsNullOrEmpty(io.ClassTag) &&
-                             io.Machine_name == tableName &&
-                             io.ClassTag.ToLower() == normalizedTag &&
-                             classaddress.Contains(io.address))
-                         .AsEnumerable()
-                         .Count(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow);
-
-        }
         //-----獲取元件壽命
         public static double Get_RUL_ByAddress(string tableName, string address)
         {
@@ -414,7 +275,7 @@ namespace FX5U_IOMonitor.Models
             {
                 var machine = context.Machine_IO
                    .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
-                 if (machine != null)
+                if (machine != null)
                 {
                     machine.RUL = number;
                     context.SaveChanges();
@@ -443,23 +304,6 @@ namespace FX5U_IOMonitor.Models
                 }
 
                 return value;
-            }
-        }
-        public static void Set_SetG_ByAddress(string tableName, string address, int number)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.Machine_IO.FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
-                if (machine != null)
-                {
-                    machine.Setting_green = number;
-                    context.SaveChanges();
-                    Console.WriteLine($"已將 {address} 的說明欄位更新為：{number}");
-                }
-                else
-                {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");
-                }
             }
         }
         //----------獲取使用者設定黃燈---------
@@ -666,7 +510,7 @@ namespace FX5U_IOMonitor.Models
                 }
 
                 return value;
-               
+
             }
         }
         public static string Get_Address_ByDecription(string tableName, string decription)
@@ -706,24 +550,6 @@ namespace FX5U_IOMonitor.Models
         }
 
         //----------獲取設備描述---------
-        public static string Get_Comment_ByAddress(string tableName, string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var value = context.Machine_IO
-                     .Where(m => m.Machine_name == tableName && m.address == address)
-                     .Select(m => m.Comment)  // 轉成 nullable int
-                     .FirstOrDefault();
-                if (value == null)
-                {
-                    Console.WriteLine("找不到指定 address");
-                    return "";
-                }
-
-                return value;
-            }
-        }
-
         public static string Get_Comment_ByAddress(string tableName, string address, string languageCode = "US")
         {
             using (var context = new ApplicationDB())
@@ -748,6 +574,22 @@ namespace FX5U_IOMonitor.Models
                     : io.Comment; // fallback 主欄位 comment
             }
         }
+        // 獲取當前元件監控的信號
+        public static List<now_single> Get_Machine_current_single_all(string tablename)
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.Machine_IO.Where(a => a.Machine_name == tablename && a.current_single.HasValue).ToList()
+                    .Select(a => new now_single
+                    {
+                        address = a.address,
+                        current_single = (bool)a.current_single
+                    })
+                    .ToList();
+            }
+        }
+
+
         /// <summary>
         ///  警告維護表用到的
         /// </summary>
@@ -758,7 +600,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var db = new ApplicationDB())
             {
-                var query = db.alarm.Select(a => a.M_Address);
+                var query = db.alarm.Select(a => a.address);
 
                 return distinct ? query.Distinct().ToList() : query.ToList();
             }
@@ -769,7 +611,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarmClasses = context.alarm.Where(a =>a.SourceDbName == machine_name)
+                var alarmClasses = context.alarm.Where(a => a.SourceMachine == machine_name)
                     .Select(a => string.IsNullOrWhiteSpace(a.classTag) ? "other" : a.classTag)
                     .Distinct() // 2. 去除重複
                     .ToList();
@@ -781,7 +623,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var alarmClass = context.alarm
-                    .Where(a => a.SourceDbName == machine_name)
+                    .Where(a => a.SourceMachine == machine_name)
                     .Select(a => a.AlarmNotifyClass)
                     .Distinct()
                     .FirstOrDefault(); // 取第一筆，若沒有資料回傳 0
@@ -789,27 +631,15 @@ namespace FX5U_IOMonitor.Models
                 return alarmClass;
             }
         }
-        public static string Get_alarm_AlarmNotifyuser(string machine_name)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var AlarmNotifyuser = context.alarm
-                    .Where(a => a.SourceDbName == machine_name)
-                    .Select(a => a.AlarmNotifyuser)
-                    .Distinct()
-                    .FirstOrDefault(); // 取第一筆，若沒有資料回傳 0
-
-                return AlarmNotifyuser;
-            }
-        }
+     
         public static List<string> Get_alarm_error_by_class(string machine_name, string className)
         {
             using (var context = new ApplicationDB())
             {
                 return context.alarm
-                    .Where(a => a.SourceDbName == machine_name &&
+                    .Where(a => a.SourceMachine == machine_name &&
                                 (string.IsNullOrWhiteSpace(a.classTag) ? "other" : a.classTag) == className)
-                    .Select(a => a.Error) 
+                    .Select(a => a.Error)
                     .Distinct()
                     .ToList();
             }
@@ -818,16 +648,16 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Description ?? "";
             }
         }
-        public static (string SourceDbName ,string Description) Get_AlarmInfo_ByAddress(string address)
+        public static (string SourceDbName, string Description) Get_AlarmInfo_ByAddress(string address)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
-                return (alarm?.SourceDbName ?? "",alarm?.Description ?? "");
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+                return (alarm?.SourceMachine ?? "", alarm?.Description ?? "");
             }
         }
         public static List<string>? Get_Addresses_ByCurrentSingle(string description)
@@ -836,7 +666,7 @@ namespace FX5U_IOMonitor.Models
             {
                 var matches = context.alarm
                     .Where(a => a.Description == description && a.current_single == true)
-                    .Select(a => a.M_Address)
+                    .Select(a => a.address)
                     .ToList();
 
                 return matches.Count > 0 ? matches : null;
@@ -848,7 +678,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Error ?? "無對應說明";
             }
         }
@@ -856,7 +686,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Possible ?? "無對應說明";
             }
         }
@@ -864,7 +694,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.classTag ?? "無對應說明";
             }
         }
@@ -872,7 +702,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Repair_steps ?? "無對應說明";
             }
         }
@@ -883,19 +713,19 @@ namespace FX5U_IOMonitor.Models
             {
                 // 1. 取出 alarm 表中符合 address 的 Description
                 var alarmDescriptions = context.alarm
-                                                .Where(a => breakdownParts_address.Contains(a.M_Address))
+                                                .Where(a => breakdownParts_address.Contains(a.address))
                                                 .Select(a => a.Description)
                                                 .Distinct()
                                                 .ToList();
-              
-                    var matchedDrillAddresses = context.Machine_IO
-                                                  .Where(d => alarmDescriptions.Contains(d.Description) &&d.Machine_name == database)
-                                                  .Select(d => d.address)
-                                                  .Distinct()
-                                                  .ToList();
-                    return matchedDrillAddresses;
+
+                var matchedDrillAddresses = context.Machine_IO
+                                              .Where(d => alarmDescriptions.Contains(d.Description) && d.Machine_name == database)
+                                              .Select(d => d.address)
+                                              .Distinct()
+                                              .ToList();
+                return matchedDrillAddresses;
             }
-               
+
         }
 
         //--------找到警告中的故障料件-----------//
@@ -905,8 +735,8 @@ namespace FX5U_IOMonitor.Models
             {
 
                 var query = db.alarm
-                             .Where(a => a.current_single == true && !string.IsNullOrEmpty(a.M_Address) && a.SourceDbName == datatable)
-                             .Select(a => a.M_Address)
+                             .Where(a => a.current_single == true && !string.IsNullOrEmpty(a.address) && a.SourceMachine == datatable)
+                             .Select(a => a.address)
                              .Distinct().ToList();
                 return query;
 
@@ -920,12 +750,12 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.Error ?? "";
             }
         }
-       
+
         public static string Get_Description_ByAddress(string address, string description)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
                 return alarm?.Description ?? "";
             }
         }
@@ -933,7 +763,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
 
                 if (alarm != null)
                 {
@@ -947,20 +777,71 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-        public static void SetAlarmNotifyType(int AlarmNotify)
+        public static void Set_Alarm_StartTimeByAddress(string address)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.AlarmNotifyClass == AlarmNotify);
-                alarm.AlarmNotifyClass = AlarmNotify;
-                context.SaveChanges();
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+
+                if (alarm != null)
+                {
+                    var history = new AlarmHistory
+                    {
+                        AlarmId = alarm.Id,
+                        StartTime = DateTime.UtcNow,
+                        RecordTime = DateTime.UtcNow,
+                        Records = 1
+                    };
+                    context.AlarmHistories.Add(history);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 address 為 {address} 的警告");
+                }
+            }
+
+        }
+        public static void Set_Alarm_EndTimeByAddress(string address)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.Include(a => a.AlarmHistories)
+                                        .FirstOrDefault(a => a.address == address);
+
+
+                if (alarm != null)
+                {
+                    if (alarm.AlarmHistories == null || !alarm.AlarmHistories.Any())
+                    {
+                        Console.WriteLine($"⚠️ 無任何 AlarmHistories 資料");
+                    }
+                    else
+                    {
+                        var history = alarm.AlarmHistories
+                             .Where(h => h.AlarmId == alarm.Id && h.EndTime == null)
+                             .OrderByDescending(h => h.StartTime)
+                             .FirstOrDefault();
+
+                        if (history != null)
+                        {
+                            history.EndTime = DateTime.UtcNow;
+                            history.Duration = history.EndTime - history.StartTime;
+                            context.SaveChanges();
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 address 為 {address} 的警告");
+                }
             }
         }
         public static void Set_RepairStep_ByAddress(string address, string steps)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
 
                 if (alarm != null)
                 {
@@ -978,7 +859,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.M_Address == address);
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
 
                 if (alarm != null)
                 {
@@ -992,31 +873,15 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-        
 
-        public static List<now_single> Get_Machine_current_single_all(string tablename)
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO.Where(a => a.Machine_name == tablename && a.current_single.HasValue).ToList()
-                    .Select(a => new now_single
-                    {
-                        address = a.address,
-                        current_single = (bool)a.current_single
-                    })
-                    .ToList();
-            }
-        }
-       
-
-       
+        //獲得警告當前的所有信號
         public static List<now_single> Get_alarm_current_single_all()
         {
             using var context = new ApplicationDB();
             return context.alarm
                 .Select(a => new now_single
                 {
-                    address = a.M_Address,
+                    address = a.address,
                     current_single = a.current_single
                 })
                 .ToList();
@@ -1026,7 +891,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = context.alarm.FirstOrDefault(m =>m.M_Address == address);
+                var machine = context.alarm.FirstOrDefault(m => m.address == address);
                 if (machine != null)
                 {
                     machine.current_single = current_single;
@@ -1038,10 +903,12 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+        
+        //初始化信號
         public static void Initiali_current_single()
         {
 
-            using ( var context = new ApplicationDB())
+            using (var context = new ApplicationDB())
             {
                 var io = context.Machine_IO.ToList();
 
@@ -1062,7 +929,7 @@ namespace FX5U_IOMonitor.Models
 
         }
         /// <summary>
-        /// 
+        /// 搜尋元件位置
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="searchText"></param>
@@ -1073,14 +940,14 @@ namespace FX5U_IOMonitor.Models
             searchText = searchText?.Trim().ToLower() ?? "";
 
             return context.Machine_IO
-                .Where(d => d.Machine_name== tableName &&
+                .Where(d => d.Machine_name == tableName &&
                     (!string.IsNullOrEmpty(d.address) && d.address.ToLower().Contains(searchText)) ||
                     (!string.IsNullOrEmpty(d.ClassTag) && d.ClassTag.ToLower().Contains(searchText)) ||
                     (!string.IsNullOrEmpty(d.Comment) && d.Comment.ToLower().Contains(searchText)) ||
                     (!string.IsNullOrEmpty(d.Description) && d.Description.ToLower().Contains(searchText)))
                 .Select(d => d.address)
                 .ToList();
-           
+
         }
 
         public static List<string> Get_Green_addressList(string tableName)
@@ -1088,7 +955,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 return context.Machine_IO
-                                .Where(io => io.RUL > io.Setting_yellow && io.Machine_name ==tableName)
+                                .Where(io => io.RUL > io.Setting_yellow && io.Machine_name == tableName)
                                 .Select(io => io.address)
                                 .ToList();
             }
@@ -1138,16 +1005,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        public static string Get_Machine_now_string(string name)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.now_TextValue ?? "0";
-            }
-        }
-
-        public static string Get_Machine_now_string(string machine ,string name)
+        public static string Get_Machine_now_string(string machine, string name)
         {
             using (var context = new ApplicationDB())
             {
@@ -1172,7 +1030,7 @@ namespace FX5U_IOMonitor.Models
             using var context = new ApplicationDB();
 
             var duplicateAddresses = context.Machine_IO
-                .Where(a =>a.Machine_name== talbename)
+                .Where(a => a.Machine_name == talbename)
                 .GroupBy(d => d.address)
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
@@ -1225,7 +1083,14 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
-
+        public static string Get_Machine_now_string(string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+                return machine?.now_TextValue ?? "0";
+            }
+        }
         public static List<string> Get_Machine_read_view(int read_view, string machine_name)
         {
             using (var context = new ApplicationDB())
@@ -1243,7 +1108,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var result = context.MachineParameters
-                    .Where(io => io. Calculate== true && io.Machine_Name == machine_name && io.Calculate_type == write_type)
+                    .Where(io => io.Calculate == true && io.Machine_Name == machine_name && io.Calculate_type == write_type)
                     .Select(io => io.Name)
                     .ToList();
 
@@ -1280,7 +1145,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var result = context.MachineParameters
-                    .Where(io => io.Machine_Name == machine_name )
+                    .Where(io => io.Machine_Name == machine_name)
                     .Select(io => io.Read_view)
                     .ToArray();
 
@@ -1315,15 +1180,15 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
-        public static List<(string,int)> Get_None_machineparameter_Name(string machine_name)
+        public static List<(string, int)> Get_None_machineparameter_Name(string machine_name)
         {
             using (var context = new ApplicationDB())
             {
                 var result = context.MachineParameters
-                            .Where(m =>  m.Read_type == "None" && m.Machine_Name == machine_name)
+                            .Where(m => m.Read_type == "None" && m.Machine_Name == machine_name)
                             .Select(m => new { m.Name, m.Calculate_type })
                             .ToList()
-                            .Select(x => (x.Name,x.Calculate_type))
+                            .Select(x => (x.Name, x.Calculate_type))
                             .ToList();
 
                 return result;
@@ -1360,11 +1225,11 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-        public static void Set_Machine_now_number(string machine_name,string name, int number)
+        public static void Set_Machine_now_number(string machine_name, string name, int number)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name==machine_name);
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machine_name);
 
                 if (machine != null)
                 {
@@ -1401,7 +1266,7 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name &&a.Machine_Name== machine_name);
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machine_name);
 
                 if (machine != null)
                 {
@@ -1414,7 +1279,7 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-       
+
         public static void Set_Machine_History_NumericValue(string machine_name, string name, int number)
         {
             using (var context = new ApplicationDB())
@@ -1433,7 +1298,39 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-       
+        public static void Set_MachineParamHistory_ResetRecord(string machine_name, string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var param = context.MachineParameters.FirstOrDefault(a => a.Machine_Name == machine_name && a.Name == name);
+
+                if (param == null)
+                {
+                    Debug.WriteLine($"找不到對應的參數");
+                    return;
+                }
+                // 查詢上次歸零時間
+                DateTime? lastEndTime = context.MachineParameterHistoryRecodes
+                    .Where(r => r.MachineParameterId == param.Id)
+                    .OrderByDescending(r => r.EndTime)
+                    .Select(r => (DateTime?)r.EndTime)
+                    .FirstOrDefault();
+                DateTime startTime = lastEndTime ?? DateTime.MinValue;
+                // 建立歷史紀錄
+                var record = new MachineParameterHistoryRecode
+                {
+                    MachineParameterId = param.Id,
+                    StartTime = startTime,
+                    EndTime = DateTime.UtcNow,
+                    History_NumericValue = param.History_NumericValue,
+                    ResetTime = DateTime.UtcNow,
+                    ResetBy = "手動歸零"
+                };
+                context.MachineParameterHistoryRecodes.Add(record);
+                context.SaveChanges();
+
+            }
+        }
         public static int Get_Machine_number(string name)
         {
             using (var context = new ApplicationDB())
@@ -1505,7 +1402,7 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
-      
+
         public static List<(string, string)> Get_Calculate_Readbit_address(List<string> Machineprameter_name)
         {
             using (var context = new ApplicationDB())
@@ -1546,7 +1443,7 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
-        public static int Get_History_NumericValue(string Machine_Name,string Machineprameter_name)
+        public static int Get_History_NumericValue(string Machine_Name, string Machineprameter_name)
         {
             using (var context = new ApplicationDB())
             {
@@ -1555,7 +1452,7 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
-        //查詢
+        //查詢語系功能
         public static List<string> GetClassTagLanguageKeys()
         {
             using var context = new ApplicationDB();
@@ -1567,7 +1464,7 @@ namespace FX5U_IOMonitor.Models
 
             return list;
         }
-
+        //搜尋當前有幾個監控機台
         public static List<Machine_number> GetMachineIndexes()
         {
             using var context = new ApplicationDB();
@@ -1578,7 +1475,7 @@ namespace FX5U_IOMonitor.Models
                 })
                 .ToList();
         }
-
+        //檢查當前機台名稱有無重複
         public static void AddMachineKeyIfNotExist(string key, string usValue)
         {
             using (var context = new ApplicationDB())
@@ -1600,7 +1497,7 @@ namespace FX5U_IOMonitor.Models
 
         }
 
-
+        //刪除對應機台資料
         public static void DeleteMachineByName(string machineName)
         {
             using var context = new ApplicationDB();
@@ -1626,6 +1523,83 @@ namespace FX5U_IOMonitor.Models
 
             context.SaveChanges();
         }
+
+        /// <summary>
+        /// 自動紀錄機械參數(日、周、月)
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static void LogAllMachineParametersByPeriod(PeriodMode mode)
+        {
+            using var context = new ApplicationDB();
+            var now = DateTime.UtcNow;
+
+            DateTime periodStart;
+            DateTime periodEnd;
+            string periodKey;
+
+            switch (mode)
+            {
+                case PeriodMode.Daily:
+                    periodStart = now.Date;
+                    periodEnd = periodStart.AddDays(1);
+                    periodKey = $"D{periodStart:yyyyMMdd}";
+                    break;
+
+                case PeriodMode.Weekly:
+                    int diff = (int)now.DayOfWeek;
+                    periodStart = now.Date.AddDays(-diff); // 本週日
+                    periodEnd = periodStart.AddDays(7);
+                    periodKey = $"W{periodStart:yyyyMMdd}";
+                    break;
+
+                case PeriodMode.Monthly:
+                    periodStart = new DateTime(now.Year, now.Month, 1);
+                    periodEnd = periodStart.AddMonths(1);
+                    periodKey = $"M{periodStart:yyyyMM}";
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mode));
+            }
+
+            var parameters = context.MachineParameters.ToList();
+            int recordCount = 0;
+
+            foreach (var param in parameters)
+            {
+                // 是否已記錄過當日／週／月
+                bool alreadyLogged = context.MachineParameterHistoryRecodes.Any(r =>
+                    r.MachineParameterId == param.Id &&
+                    r.ResetTime == null &&
+                    r.StartTime >= periodStart &&
+                    r.StartTime < periodEnd);
+
+                if (alreadyLogged)
+                    continue;
+
+                var record = new MachineParameterHistoryRecode
+                {
+                    MachineParameterId = param.Id,
+                    StartTime = periodStart,
+                    EndTime = now,
+                    History_NumericValue = param.History_NumericValue,
+                    ResetTime = null,
+                    ResetBy = null
+                    // 可以額外加 PeriodTag = periodKey;
+                };
+
+                context.MachineParameterHistoryRecodes.Add(record);
+                recordCount++;
+            }
+
+            context.SaveChanges();
+            Debug.WriteLine($"✅ [{mode}] 模式已記錄 {recordCount} 筆資料，區間：{periodStart:yyyy-MM-dd} ~ {periodEnd:yyyy-MM-dd}");
+        }
+
+
+
+
 
 
 

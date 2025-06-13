@@ -94,7 +94,7 @@ namespace FX5U_IOMonitor.Models
                 var monitor = ModbusMachineHub.Get(MachineName);
                 if (monitor != null)
                 {
-                    monitor.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds} 毫秒";
+                    monitor.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds} ";
 
                     monitor.ConnectSummary.disconnect = DBfunction.GetMachineRowCount(MachineName) - monitor.ConnectSummary.connect;
                 }

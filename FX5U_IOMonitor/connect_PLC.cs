@@ -270,7 +270,7 @@ namespace FX5U_IOMonitor
                 // 註冊變更事件
                 monitor.IOUpdated += DB_update_change;
             }
-           
+
         }
 
 
@@ -346,10 +346,6 @@ namespace FX5U_IOMonitor
         {
             using (var context = new ApplicationDB())
             {
-                //var machineNames = context.Machine_IO
-                //                    .Select(io => io.Machine_name)  // 只取 Machine_name 欄位
-                //                    .Distinct()                     // 過濾重複值
-                //                    .ToList();                      // 轉成 List<string>
                 var machineNames = context.index
                                    .Select(io => io.Name);
 
@@ -366,7 +362,7 @@ namespace FX5U_IOMonitor
         }
 
         /// <summary>
-        /// 監控及記錄當前實體元件的使用次數
+        /// 發出警告郵件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -390,13 +386,19 @@ namespace FX5U_IOMonitor
                 {
                     return;
                 }
+
                 DBfunction.Set_alarm_current_single_ByAddress(e.Address, e.NewValue);
                 //MessageBox.Show($"📡 偵測到 I/O 變化：{e.Address} from {e.OldValue} ➜ {e.NewValue}");
 
                 if (e.NewValue == true)
                 {
-                    //MessageBox.Show("警告");
-                    _ = HandleAlarmAndSendEmailAsync(e);
+                    DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
+                    //_ = HandleAlarmAndSendEmailAsync(e);
+
+                }
+                else 
+                {
+                    DBfunction.Set_Alarm_EndTimeByAddress(e.Address);
 
                 }
 
@@ -501,9 +503,11 @@ namespace FX5U_IOMonitor
                 }
             }
         }
-        
 
-        
+        private void btn_mishubishi_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

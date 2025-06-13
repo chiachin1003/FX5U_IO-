@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
@@ -43,29 +44,7 @@ namespace FX5U_IOMonitor.panel_control
             if (io_DataList == null) return;
             source_table = datatable;
             DataList = io_DataList;
-            List<string> breakdown_part = DBfunction.Get_breakdown_part(source_table);
-            List<string> breakdown_address = new();
-            breakdown_address = DBfunction.Get_address_ByBreakdownParts(source_table, breakdown_part);
-            //if (source_table == "Drill")
-            //{
-            //    breakdown_address = DBfunction.Get_address_ByBreakdownParts("Drill", breakdown_part);
-            //}
-            //else if (source_table == "Sawing")
-            //{
-            //    breakdown_address =DBfunction.Get_address_ByBreakdownParts("Sawing", breakdown_part);
-            //}
-
-
             Update_Flow(io_DataList);
-
-            // 將故障對應的項目標紅與綁定點擊事件
-            foreach (string addr in breakdown_address)
-            {
-                if (panelMap.TryGetValue(addr, out var panel))
-                {
-                    HighlightPanel(panel, breakdown_part);
-                }
-            }
 
             tableLayoutPanel2.BorderStyle = BorderStyle.FixedSingle;
             tableLayoutPanel5.BorderStyle = BorderStyle.FixedSingle;
@@ -126,6 +105,10 @@ namespace FX5U_IOMonitor.panel_control
                 // ✅ 使用 lambda 包含 address 傳遞進去
                 labEquipment.Click += (s, e) => LabEquipment_Click(s, e, breakdown_part_address, labEquipment.Text);
 
+            }
+            else
+            {
+                Debug.WriteLine($"✅ 成功綁定紅字與事件於：{labEquipment.Text}");
             }
         }
 
@@ -239,6 +222,18 @@ namespace FX5U_IOMonitor.panel_control
 
                     }
                 };
+                List<string> breakdown_part = DBfunction.Get_breakdown_part(source_table);
+                List<string> breakdown_address = new();
+                breakdown_address = DBfunction.Get_address_ByBreakdownParts(source_table, breakdown_part);
+
+                // 將故障對應的項目標紅與綁定點擊事件
+                foreach (string addr in breakdown_address)
+                {
+                    if (panelMap.TryGetValue(addr, out var panel))
+                    {
+                        HighlightPanel(panel, breakdown_part);
+                    }
+                }
 
             }
             finally

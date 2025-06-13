@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
+using FX5U_IOMonitor.Config;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FX5U_IOMonitor.Models
 {
@@ -21,10 +23,7 @@ namespace FX5U_IOMonitor.Models
             _context = context;
         }
 
-        public static string Local_IpAddress = "localhost";
-        public static string Local_Port = "5430";
-        public static string Local_UserName = "postgres";
-        public static string Local_Password = "963200";
+
         /// <summary>
         /// 下載當前資料庫資料表
         /// </summary>
@@ -32,44 +31,65 @@ namespace FX5U_IOMonitor.Models
         /// <param name="columns"> 是否指定column</param> 
         /// <param name="mode"> "manual"=提供使用者選擇 ，"auto" 自動至下載資料夾</param> 
 
-        public static void ExportTableToCsv(string tableName, string mode = "auto", string[]? columns = null)
+        public static void ExportTableToCsv(string tableName, string mode = "auto")
         {
-            string connString = $"Host={Local_IpAddress};Port={Local_Port};Database=element.db;Username={Local_UserName};Password={Local_Password}";
+            // 對應每個資料表匯出的欄位
+            var exportColumns = new Dictionary<string, string[]>
+            {
+                ["Blade_brand_TPI"] = new[] { "blade_TPI_id", "blade_TPI_name" },
+                ["Blade_brand"] = new[] {"Id",
+            "blade_brand_id", "blade_brand_name",
+            "blade_material_id", "blade_material_name",
+            "blade_Type_id", "blade_Type_name"
+        },
+                ["alarm"] = new[] {
+            "SourceMachine", "address","IPC_table", "Description",
+            "Error", "Possible", "Repair_steps",
+            "classTag"}
+            };
+
+            string connString = $"Host={DbConfig.Local.IpAddress};Port={DbConfig.Local.Port};Database=element;Username={DbConfig.Local.UserName};Password={DbConfig.Local.Password}";
             using var conn = new NpgsqlConnection(connString);
             conn.Open();
 
             string quotedTable = QuotePostgresIdentifier(tableName);
 
-            string selectFields = columns != null && columns.Length > 0
-                ? string.Join(", ", columns.Select(QuotePostgresIdentifier))
-                : "*";
-
-            bool hasIdColumn = false;
-            if (columns == null || columns.Contains("Id", StringComparer.OrdinalIgnoreCase))
+            if (!exportColumns.TryGetValue(tableName, out var columns) || columns.Length == 0)
             {
-                var checkCmd = new NpgsqlCommand($"SELECT column_name FROM information_schema.columns WHERE table_name = lower(@name)", conn);
-                checkCmd.Parameters.AddWithValue("@name", tableName);
-                using var readerCheck = checkCmd.ExecuteReader();
-                while (readerCheck.Read())
+                MessageBox.Show($"❌ 未定義 {tableName} 的欄位匯出順序。", "匯出失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 取得 Id 欄位
+            var checkCmd = new NpgsqlCommand(@"
+                        SELECT column_name FROM information_schema.columns 
+                        WHERE table_name = lower(@name)", conn);
+            checkCmd.Parameters.AddWithValue("@name", tableName);
+
+            bool hasId = false;
+            using (var reader = checkCmd.ExecuteReader())
+            {
+                while (reader.Read())
                 {
-                    if (readerCheck.GetString(0).Equals("Id", StringComparison.OrdinalIgnoreCase))
+                    if (reader.GetString(0).Equals("Id", StringComparison.OrdinalIgnoreCase))
                     {
-                        hasIdColumn = true;
+                        hasId = true;
                         break;
                     }
                 }
-                readerCheck.Close();
             }
 
-            string sql = $"SELECT {selectFields} FROM {quotedTable}" + (hasIdColumn ? $" ORDER BY {QuotePostgresIdentifier("Id")}" : "");
+            string selectFields = string.Join(", ", columns.Select(QuotePostgresIdentifier));
+            string sql = hasId
+                ? $"SELECT {selectFields} FROM {quotedTable} ORDER BY {QuotePostgresIdentifier("Id")}"
+                : $"SELECT {selectFields} FROM {quotedTable}";
+
             using var cmd = new NpgsqlCommand(sql, conn);
-            using var reader = cmd.ExecuteReader();
+            using var reader2 = cmd.ExecuteReader();
 
             string filePath;
-
             if (mode.ToLower() == "manual")
             {
-                // 手動選擇儲存位置
                 SaveFileDialog saveFileDialog = new SaveFileDialog
                 {
                     Filter = "CSV 檔案 (*.csv)|*.csv",
@@ -84,37 +104,25 @@ namespace FX5U_IOMonitor.Models
             }
             else
             {
-                // 自動儲存到下載資料夾
                 string downloadFolder = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                     "Downloads"
                 );
 
-                Directory.CreateDirectory(downloadFolder); // 保險起見建立資料夾
+                Directory.CreateDirectory(downloadFolder);
                 filePath = Path.Combine(downloadFolder, $"{tableName}.csv");
             }
 
             using var writer = new StreamWriter(filePath, false, new UTF8Encoding(true));
 
-            // 寫入欄位名稱
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                writer.Write(reader.GetName(i));
-                if (i < reader.FieldCount - 1)
-                    writer.Write(",");
-            }
-            writer.WriteLine();
+            // 寫入欄位名稱（依順序）
+            writer.WriteLine(string.Join(",", columns));
 
-            // 寫入每一列資料
-            while (reader.Read())
+            // 寫入資料
+            while (reader2.Read())
             {
-                for (int i = 0; i < reader.FieldCount; i++)
-                {
-                    writer.Write(reader[i]?.ToString()?.Replace(",", "，")); // 防止欄位錯裂
-                    if (i < reader.FieldCount - 1)
-                        writer.Write(",");
-                }
-                writer.WriteLine();
+                var row = columns.Select(col => reader2[col]?.ToString()?.Replace(",", "，"));
+                writer.WriteLine(string.Join(",", row));
             }
 
             MessageBox.Show($"✅ 匯出完成：\n📄 {filePath}", "匯出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -134,6 +142,8 @@ namespace FX5U_IOMonitor.Models
 
             return $"\"{identifier}\"";
         }
+
+
         /// <summary>
         /// 通用CSV匯入方法
         /// </summary>
@@ -144,14 +154,16 @@ namespace FX5U_IOMonitor.Models
         /// <param name="mapFunction">CSV模型轉換為實體的映射函數</param>
         /// <param name="keySelector">主鍵選擇器</param>
         /// <param name="enableSync">是否啟用同步刪除（刪除CSV中不存在的記錄）</param>
-        public void ImportCsvToTable<TEntity, TCsvModel>(
-            string tableName,
-            DbSet<TEntity> dbSet,
-            Func<TCsvModel, int, TEntity> mapFunction,
-            Func<TEntity, int> keySelector,
-            bool enableSync = true)
-            where TEntity : class
-            where TCsvModel : class
+        public void ImportCsvToTable<TEntity, TCsvModel, TKey>(
+                 string tableName,
+                 DbSet<TEntity> dbSet,
+                 Func<TCsvModel, TEntity> mapFunction,
+                 Func<TEntity, TKey> entityKeySelector,
+                 Func<TCsvModel, TKey> recordKeySelector,
+                 bool enableSync = true)
+                 where TEntity : class
+                 where TCsvModel : class
+                 where TKey : notnull
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
@@ -183,14 +195,8 @@ namespace FX5U_IOMonitor.Models
                     return;
                 }
 
-                // 處理ID驗證和分配
-                var processedRecords = ValidateAndAssignCsvIds(records, dbSet, keySelector);
-                if (processedRecords == null) return; // 使用者取消
+                var result = ApplyImportChanges(dbSet, records, mapFunction, entityKeySelector, recordKeySelector, enableSync);
 
-                // 執行匯入
-                var result = ApplyImportChanges(dbSet, processedRecords, mapFunction, keySelector, enableSync);
-
-                // 顯示結果
                 MessageBox.Show(
                     $"✅ {tableName} 匯入完成：\n" +
                     $"📝 新增 {result.InsertCount} 筆\n" +
@@ -207,106 +213,34 @@ namespace FX5U_IOMonitor.Models
         }
 
         /// <summary>
-        /// 處理ID驗證和分配
-        /// </summary>
-        private List<TCsvModel> ValidateAndAssignCsvIds<TEntity, TCsvModel>(
-            List<TCsvModel> records,
-            DbSet<TEntity> dbSet,
-            Func<TEntity, int> keySelector)
-            where TEntity : class
-            where TCsvModel : class
-        {
-            // 取得ID屬性
-            var idProperty = typeof(TCsvModel).GetProperty("Id");
-            if (idProperty == null)
-            {
-                MessageBox.Show("❌ CSV 模型缺少 Id 屬性", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-
-            // 取得資料庫最大ID
-            int maxDbId = dbSet.Any() ? dbSet.Max(keySelector) : 0;
-            int nextId = maxDbId + 1;
-
-            // 檢查並補齊ID
-            var idSet = new HashSet<int>();
-            foreach (var record in records)
-            {
-                var currentId = (int)idProperty.GetValue(record);
-
-                if (currentId <= 0)
-                {
-                    idProperty.SetValue(record, nextId++);
-                    currentId = nextId - 1;
-                }
-
-                if (!idSet.Add(currentId))
-                {
-                    MessageBox.Show($"❌ 匯入失敗：CSV 中出現重複的 Id: {currentId}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return null;
-                }
-            }
-
-            // 檢查ID連續性
-            if (!CheckIdContinuity(idSet))
-                return null;
-
-            return records;
-        }
-
-        /// <summary>
-        /// 檢查ID連續性
-        /// </summary>
-        private bool CheckIdContinuity(HashSet<int> idSet)
-        {
-            var idListSorted = idSet.OrderBy(id => id).ToList();
-
-            for (int i = 1; i < idListSorted.Count; i++)
-            {
-                if (idListSorted[i] != idListSorted[i - 1] + 1)
-                {
-                    var result = MessageBox.Show(
-                        $"⚠️ 偵測到 CSV 中的 Id 不連續（例如 {idListSorted[i - 1]} ➜ {idListSorted[i]}）\n是否仍要繼續匯入？",
-                        "Id 連續性警告",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Warning);
-
-                    return result == DialogResult.Yes;
-                }
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// 資料新增/更新/刪除的實作	
         /// </summary>
-        private ImportResult ApplyImportChanges<TEntity, TCsvModel>(
+        private ImportResult ApplyImportChanges<TEntity, TCsvModel, TKey>(
             DbSet<TEntity> dbSet,
             List<TCsvModel> records,
-            Func<TCsvModel, int, TEntity> mapFunction,
-            Func<TEntity, int> keySelector,
+            Func<TCsvModel, TEntity> mapFunction,
+            Func<TEntity, TKey> entityKeySelector,
+            Func<TCsvModel, TKey> recordKeySelector,
             bool enableSync)
             where TEntity : class
             where TCsvModel : class
+            where TKey : notnull
+
         {
             var result = new ImportResult();
-            var idProperty = typeof(TCsvModel).GetProperty("Id");
-
-            // 取得現有資料
+            // 取得現有資料（以主鍵為 key）
             var existingData = dbSet.AsEnumerable()
-                .GroupBy(keySelector)
+                .GroupBy(entityKeySelector)
                 .ToDictionary(g => g.Key, g => g.First());
 
             // 處理新增和更新
             foreach (var record in records)
             {
-                var recordId = (int)idProperty.GetValue(record);
+                var key = recordKeySelector(record);
 
-                if (existingData.TryGetValue(recordId, out var existing))
+                if (existingData.TryGetValue(key, out var existing))
                 {
-                    // 更新現有記錄
-                    var newEntity = mapFunction(record, recordId);
+                    var newEntity = mapFunction(record);
                     if (UpdateEntityProperties(existing, newEntity))
                     {
                         result.UpdateCount++;
@@ -314,18 +248,19 @@ namespace FX5U_IOMonitor.Models
                 }
                 else
                 {
-                    // 新增記錄
-                    var newEntity = mapFunction(record, recordId);
+                    var newEntity = mapFunction(record);
                     dbSet.Add(newEntity);
                     result.InsertCount++;
                 }
             }
 
-            // 同步刪除
+            // 刪除資料（啟用同步）
             if (enableSync)
             {
-                var csvIds = records.Select(r => (int)idProperty.GetValue(r)).ToHashSet();
-                var toDelete = dbSet.AsEnumerable().Where(d => !csvIds.Contains(keySelector(d))).ToList();
+                var recordKeys = records.Select(recordKeySelector).ToHashSet();
+                var toDelete = dbSet.AsEnumerable()
+                    .Where(e => !recordKeys.Contains(entityKeySelector(e)))
+                    .ToList();
 
                 if (toDelete.Any())
                 {
@@ -341,36 +276,35 @@ namespace FX5U_IOMonitor.Models
         /// <summary>
         /// 更新實體屬性
         /// </summary>
-        private bool UpdateEntityProperties<TEntity>(TEntity existing, TEntity newEntity) where TEntity : class
+        private bool UpdateEntityProperties<TEntity>(TEntity target, TEntity source)
         {
-            bool hasChanges = false;
-            var properties = typeof(TEntity).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && p.CanWrite && p.Name != "Id");
+            bool hasChanged = false;
+            var properties = typeof(TEntity).GetProperties()
+                .Where(p => p.CanRead && p.CanWrite && p.Name != "Id"); // 忽略主鍵
 
-            foreach (var property in properties)
+            foreach (var prop in properties)
             {
-                var existingValue = property.GetValue(existing);
-                var newValue = property.GetValue(newEntity);
+                var oldValue = prop.GetValue(target);
+                var newValue = prop.GetValue(source);
 
-                if (!Equals(existingValue, newValue))
+                if (!Equals(oldValue, newValue))
                 {
-                    property.SetValue(existing, newValue);
-                    hasChanges = true;
+                    prop.SetValue(target, newValue);
+                    hasChanged = true;
                 }
             }
 
-            return hasChanges;
+            return hasChanged;
         }
     }
 
-    /// <summary>
-    /// 匯入結果
-    /// </summary>
     public class ImportResult
     {
-        public int InsertCount { get; set; }
-        public int UpdateCount { get; set; }
-        public int DeleteCount { get; set; }
+    public int InsertCount { get; set; }
+    public int UpdateCount { get; set; }
+    public int DeleteCount { get; set; }
     }
+
      
-    }
+
+}

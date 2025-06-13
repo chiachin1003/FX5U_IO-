@@ -26,11 +26,12 @@ namespace FX5U_IOMonitor.Models
         };
         public static void SetLanguage(string cultureCode)
         {
-            LoadLanguageFromDatabase(cultureCode);
-
             // 儲存到系統設定
             Properties.Settings.Default.LanguageSetting = cultureCode;
             Properties.Settings.Default.Save();
+            LoadLanguageFromDatabase(Properties.Settings.Default.LanguageSetting);
+
+          
         }
         public static void LoadLanguageCSV(string csvPath, string cultureName)
         {

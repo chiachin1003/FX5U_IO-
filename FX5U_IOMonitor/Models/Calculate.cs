@@ -122,7 +122,7 @@ namespace FX5U_IOMonitor.Models
             var ioList = context.alarm.ToList();
             foreach (var now in nowList)
             {
-                var io = ioList.FirstOrDefault(d => d.M_Address == now.address);
+                var io = ioList.FirstOrDefault(d => d.address == now.address);
                 if (io != null)
                 {
                     io.current_single = now.current_single;
@@ -234,8 +234,8 @@ namespace FX5U_IOMonitor.Models
                 var result = new List<IOSectionInfo>();
 
                 var LList = alarmList
-                    .Where(d => d.M_Address.StartsWith("L"))
-                    .Select(d => Convert.ToInt32(d.M_Address.TrimStart('L')))
+                    .Where(d => d.address.StartsWith("L"))
+                    .Select(d => Convert.ToInt32(d.address.TrimStart('L')))
                     .OrderBy(a => a)
                     .ToList();
 

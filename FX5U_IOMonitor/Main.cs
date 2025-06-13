@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
+using static FX5U_IOMonitor.Data.Recordmode;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static FX5U_IOMonitor.Models.UI_Display;
@@ -53,21 +54,22 @@ namespace FX5U_IOMonitor
 
         public Main()
         {
-           
-                DbConfig.LoadFromJson("DbConfig.json");
+
+            DbConfig.LoadFromJson("DbConfig.json");
          
-                InitializeComponent();
+            InitializeComponent();
             
-                InitMachineInfoDatabase();
+            InitMachineInfoDatabase();
            
-                Initialization_BladeTPIFromCSV("鋸帶齒數 ID 定義.csv");
+            Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
            
-                Initialization_BladeBrandFromCSV("鋸帶廠牌、材質 ID 定義.csv");
-            
-                Initialization_AlarmFromCSV("alarm.csv");
-          
-                Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
+            Initialization_BladeBrandFromCSV("Blade_brand.csv");
+         
+            Initialization_AlarmFromCSV("alarm.csv");
+            LanguageImportHelper.ImportLanguage("language.csv");
+            Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
            
+
             // 檢查是否已初始化
             using (var context = new ApplicationDB())
             {
