@@ -64,12 +64,12 @@ namespace FX5U_IOMonitor
             Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
            
             Initialization_BladeBrandFromCSV("Blade_brand.csv");
-         
+            
             Initialization_AlarmFromCSV("alarm.csv");
             LanguageImportHelper.ImportLanguage("language.csv");
             Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
-           
 
+          
             // 檢查是否已初始化
             using (var context = new ApplicationDB())
             {
@@ -90,6 +90,9 @@ namespace FX5U_IOMonitor
                     Csv2Db.Initialization_MachineElementFromCSV("Sawing", "Saw_Data2.csv");
                 }
             }
+
+
+
             // 從資料庫取得當前機台數量（index_name + display_name）
             List<Machine_number> machineList = DBfunction.GetMachineIndexes();
             machineButtons = new List<Button>(machineList.Count);

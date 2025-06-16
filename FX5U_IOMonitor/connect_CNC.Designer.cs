@@ -2,7 +2,7 @@
 
 namespace FX5U_IOMonitor
 {
-    partial class Connect_PLC
+    partial class Connect_CNC
     {
         /// <summary>
         /// Required designer variable.
@@ -31,6 +31,19 @@ namespace FX5U_IOMonitor
         private void InitializeComponent()
         {
             panel_Ethernet = new Panel();
+            label3 = new Label();
+            panel2 = new Panel();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            lab_5 = new Label();
+            label11 = new Label();
+            lab_4 = new Label();
+            label9 = new Label();
+            lab_Z = new Label();
+            label7 = new Label();
+            lab_Y = new Label();
+            label4 = new Label();
+            lab_X = new Label();
+            label1 = new Label();
             btn_disconnect_ethernet = new Button();
             btn_connect_ethernet = new Button();
             txb_port = new TextBox();
@@ -38,19 +51,13 @@ namespace FX5U_IOMonitor
             lab_Enthernetport = new Label();
             label_IP = new Label();
             panel_RS485 = new Panel();
-            tableLayoutPanel2 = new TableLayoutPanel();
-            comb_StopBits = new ComboBox();
-            lab_StopBits = new Label();
-            comb_Parity = new ComboBox();
-            lab_Parity = new Label();
-            comb_Bits = new ComboBox();
-            lab_Bits = new Label();
-            comb_Baudrate = new ComboBox();
-            label_BaudRate = new Label();
-            txb_comport = new TextBox();
-            label_COM = new Label();
+            lab_Error = new Label();
+            label8 = new Label();
+            txb_file_name = new TextBox();
+            txb_file_address = new TextBox();
+            label6 = new Label();
             btn_disconnect_RS485 = new Button();
-            btn_connect_RS485 = new Button();
+            button_FILE = new Button();
             button1 = new Button();
             textBox1 = new TextBox();
             textBox2 = new TextBox();
@@ -58,48 +65,216 @@ namespace FX5U_IOMonitor
             label2 = new Label();
             label5 = new Label();
             panel1 = new Panel();
-            button_FILE = new Button();
             button2 = new Button();
-            btn_delete = new Button();
             tableLayoutPanel1 = new TableLayoutPanel();
             connect_choose = new ComboBox();
             lab_Type = new Label();
             control_choose = new ComboBox();
             lab_MachineType = new Label();
-            tableLayoutPanel3 = new TableLayoutPanel();
-            btn_addmachine = new Button();
-            txb_machine = new TextBox();
-            lab_Add_Machine = new Label();
             btn_mishubishi = new Button();
             panel_Ethernet.SuspendLayout();
-            panel_RS485.SuspendLayout();
+            panel2.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
+            panel_RS485.SuspendLayout();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
-            tableLayoutPanel3.SuspendLayout();
             SuspendLayout();
             // 
             // panel_Ethernet
             // 
             panel_Ethernet.BackColor = SystemColors.ButtonHighlight;
+            panel_Ethernet.Controls.Add(label3);
+            panel_Ethernet.Controls.Add(panel2);
             panel_Ethernet.Controls.Add(btn_disconnect_ethernet);
             panel_Ethernet.Controls.Add(btn_connect_ethernet);
             panel_Ethernet.Controls.Add(txb_port);
             panel_Ethernet.Controls.Add(txb_IP);
             panel_Ethernet.Controls.Add(lab_Enthernetport);
             panel_Ethernet.Controls.Add(label_IP);
-            panel_Ethernet.Location = new Point(81, 211);
+            panel_Ethernet.Location = new Point(72, 231);
             panel_Ethernet.Name = "panel_Ethernet";
-            panel_Ethernet.Size = new Size(558, 363);
+            panel_Ethernet.Size = new Size(580, 363);
             panel_Ethernet.TabIndex = 16;
             panel_Ethernet.Visible = false;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.BackColor = SystemColors.ButtonHighlight;
+            label3.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            label3.Location = new Point(358, 23);
+            label3.Name = "label3";
+            label3.Size = new Size(180, 26);
+            label3.TabIndex = 8;
+            label3.Text = "監控機械座標值：";
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(tableLayoutPanel2);
+            panel2.Location = new Point(358, 80);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(181, 208);
+            panel2.TabIndex = 7;
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 23.7569065F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 76.2430954F));
+            tableLayoutPanel2.Controls.Add(lab_5, 1, 4);
+            tableLayoutPanel2.Controls.Add(label11, 0, 4);
+            tableLayoutPanel2.Controls.Add(lab_4, 1, 3);
+            tableLayoutPanel2.Controls.Add(label9, 0, 3);
+            tableLayoutPanel2.Controls.Add(lab_Z, 1, 2);
+            tableLayoutPanel2.Controls.Add(label7, 0, 2);
+            tableLayoutPanel2.Controls.Add(lab_Y, 1, 1);
+            tableLayoutPanel2.Controls.Add(label4, 0, 1);
+            tableLayoutPanel2.Controls.Add(lab_X, 1, 0);
+            tableLayoutPanel2.Controls.Add(label1, 0, 0);
+            tableLayoutPanel2.Dock = DockStyle.Top;
+            tableLayoutPanel2.Location = new Point(0, 0);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 5;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel2.Size = new Size(181, 203);
+            tableLayoutPanel2.TabIndex = 0;
+            // 
+            // lab_5
+            // 
+            lab_5.AutoSize = true;
+            lab_5.BackColor = SystemColors.ButtonHighlight;
+            lab_5.Dock = DockStyle.Fill;
+            lab_5.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            lab_5.Location = new Point(47, 161);
+            lab_5.Name = "lab_5";
+            lab_5.Size = new Size(130, 41);
+            lab_5.TabIndex = 10;
+            lab_5.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.BackColor = SystemColors.ButtonHighlight;
+            label11.Dock = DockStyle.Fill;
+            label11.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            label11.Location = new Point(4, 161);
+            label11.Name = "label11";
+            label11.Size = new Size(36, 41);
+            label11.TabIndex = 9;
+            label11.Text = "5 :";
+            label11.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_4
+            // 
+            lab_4.AutoSize = true;
+            lab_4.BackColor = SystemColors.ButtonHighlight;
+            lab_4.Dock = DockStyle.Fill;
+            lab_4.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            lab_4.Location = new Point(47, 121);
+            lab_4.Name = "lab_4";
+            lab_4.Size = new Size(130, 39);
+            lab_4.TabIndex = 8;
+            lab_4.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.BackColor = SystemColors.ButtonHighlight;
+            label9.Dock = DockStyle.Fill;
+            label9.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            label9.Location = new Point(4, 121);
+            label9.Name = "label9";
+            label9.Size = new Size(36, 39);
+            label9.TabIndex = 7;
+            label9.Text = "4 :";
+            label9.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_Z
+            // 
+            lab_Z.AutoSize = true;
+            lab_Z.BackColor = SystemColors.ButtonHighlight;
+            lab_Z.Dock = DockStyle.Fill;
+            lab_Z.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            lab_Z.Location = new Point(47, 81);
+            lab_Z.Name = "lab_Z";
+            lab_Z.Size = new Size(130, 39);
+            lab_Z.TabIndex = 6;
+            lab_Z.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.BackColor = SystemColors.ButtonHighlight;
+            label7.Dock = DockStyle.Fill;
+            label7.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            label7.Location = new Point(4, 81);
+            label7.Name = "label7";
+            label7.Size = new Size(36, 39);
+            label7.TabIndex = 5;
+            label7.Text = "Z :";
+            label7.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_Y
+            // 
+            lab_Y.AutoSize = true;
+            lab_Y.BackColor = SystemColors.ButtonHighlight;
+            lab_Y.Dock = DockStyle.Fill;
+            lab_Y.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            lab_Y.Location = new Point(47, 41);
+            lab_Y.Name = "lab_Y";
+            lab_Y.Size = new Size(130, 39);
+            lab_Y.TabIndex = 4;
+            lab_Y.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.BackColor = SystemColors.ButtonHighlight;
+            label4.Dock = DockStyle.Fill;
+            label4.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            label4.Location = new Point(4, 41);
+            label4.Name = "label4";
+            label4.Size = new Size(36, 39);
+            label4.TabIndex = 3;
+            label4.Text = "Y :";
+            label4.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_X
+            // 
+            lab_X.AutoSize = true;
+            lab_X.BackColor = SystemColors.ButtonHighlight;
+            lab_X.Dock = DockStyle.Fill;
+            lab_X.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            lab_X.Location = new Point(47, 1);
+            lab_X.Name = "lab_X";
+            lab_X.Size = new Size(130, 39);
+            lab_X.TabIndex = 2;
+            lab_X.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.BackColor = SystemColors.ButtonHighlight;
+            label1.Dock = DockStyle.Fill;
+            label1.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
+            label1.Location = new Point(4, 1);
+            label1.Name = "label1";
+            label1.Size = new Size(36, 39);
+            label1.TabIndex = 1;
+            label1.Text = "X :";
+            label1.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // btn_disconnect_ethernet
             // 
             btn_disconnect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_disconnect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_disconnect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_disconnect_ethernet.Location = new Point(418, 289);
+            btn_disconnect_ethernet.Location = new Point(229, 271);
             btn_disconnect_ethernet.Name = "btn_disconnect_ethernet";
             btn_disconnect_ethernet.Size = new Size(110, 43);
             btn_disconnect_ethernet.TabIndex = 6;
@@ -112,7 +287,7 @@ namespace FX5U_IOMonitor
             btn_connect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_connect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_connect_ethernet.Location = new Point(302, 289);
+            btn_connect_ethernet.Location = new Point(103, 271);
             btn_connect_ethernet.Name = "btn_connect_ethernet";
             btn_connect_ethernet.Size = new Size(94, 43);
             btn_connect_ethernet.TabIndex = 5;
@@ -126,9 +301,9 @@ namespace FX5U_IOMonitor
             txb_port.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_port.Location = new Point(24, 201);
             txb_port.Name = "txb_port";
-            txb_port.Size = new Size(504, 34);
+            txb_port.Size = new Size(315, 34);
             txb_port.TabIndex = 4;
-            txb_port.Text = "2000";
+            txb_port.Text = "683";
             txb_port.TextAlign = HorizontalAlignment.Center;
             // 
             // txb_IP
@@ -137,9 +312,9 @@ namespace FX5U_IOMonitor
             txb_IP.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_IP.Location = new Point(24, 80);
             txb_IP.Name = "txb_IP";
-            txb_IP.Size = new Size(504, 34);
+            txb_IP.Size = new Size(315, 34);
             txb_IP.TabIndex = 3;
-            txb_IP.Text = "192.168.9.1";
+            txb_IP.Text = "192.168.60.1";
             txb_IP.TextAlign = HorizontalAlignment.Center;
             // 
             // lab_Enthernetport
@@ -167,196 +342,97 @@ namespace FX5U_IOMonitor
             // panel_RS485
             // 
             panel_RS485.BackColor = SystemColors.ButtonHighlight;
-            panel_RS485.Controls.Add(tableLayoutPanel2);
+            panel_RS485.Controls.Add(lab_Error);
+            panel_RS485.Controls.Add(label8);
+            panel_RS485.Controls.Add(txb_file_name);
+            panel_RS485.Controls.Add(txb_file_address);
+            panel_RS485.Controls.Add(label6);
             panel_RS485.Controls.Add(btn_disconnect_RS485);
-            panel_RS485.Controls.Add(btn_connect_RS485);
-            panel_RS485.Location = new Point(84, 200);
+            panel_RS485.Controls.Add(button_FILE);
+            panel_RS485.Location = new Point(84, 208);
             panel_RS485.Name = "panel_RS485";
-            panel_RS485.Size = new Size(552, 404);
+            panel_RS485.Size = new Size(549, 288);
             panel_RS485.TabIndex = 17;
             panel_RS485.Visible = false;
             // 
-            // tableLayoutPanel2
+            // lab_Error
             // 
-            tableLayoutPanel2.BackColor = SystemColors.ButtonHighlight;
-            tableLayoutPanel2.ColumnCount = 2;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 53.1876144F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46.8123856F));
-            tableLayoutPanel2.Controls.Add(comb_StopBits, 1, 4);
-            tableLayoutPanel2.Controls.Add(lab_StopBits, 0, 4);
-            tableLayoutPanel2.Controls.Add(comb_Parity, 1, 3);
-            tableLayoutPanel2.Controls.Add(lab_Parity, 0, 3);
-            tableLayoutPanel2.Controls.Add(comb_Bits, 1, 2);
-            tableLayoutPanel2.Controls.Add(lab_Bits, 0, 2);
-            tableLayoutPanel2.Controls.Add(comb_Baudrate, 1, 1);
-            tableLayoutPanel2.Controls.Add(label_BaudRate, 0, 1);
-            tableLayoutPanel2.Controls.Add(txb_comport, 1, 0);
-            tableLayoutPanel2.Controls.Add(label_COM, 0, 0);
-            tableLayoutPanel2.Location = new Point(0, 23);
-            tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 5;
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
-            tableLayoutPanel2.Size = new Size(549, 296);
-            tableLayoutPanel2.TabIndex = 14;
+            lab_Error.AutoSize = true;
+            lab_Error.BackColor = SystemColors.ButtonHighlight;
+            lab_Error.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_Error.ForeColor = Color.Red;
+            lab_Error.Location = new Point(32, 207);
+            lab_Error.Name = "lab_Error";
+            lab_Error.Size = new Size(0, 20);
+            lab_Error.TabIndex = 27;
             // 
-            // comb_StopBits
+            // label8
             // 
-            comb_StopBits.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            comb_StopBits.BackColor = SystemColors.ButtonHighlight;
-            comb_StopBits.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_StopBits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            comb_StopBits.FormattingEnabled = true;
-            comb_StopBits.Items.AddRange(new object[] { "One", "Two" });
-            comb_StopBits.Location = new Point(295, 249);
-            comb_StopBits.Name = "comb_StopBits";
-            comb_StopBits.Size = new Size(251, 34);
-            comb_StopBits.TabIndex = 17;
+            label8.AutoSize = true;
+            label8.BackColor = SystemColors.ButtonHighlight;
+            label8.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            label8.Location = new Point(28, 118);
+            label8.Name = "label8";
+            label8.Size = new Size(117, 26);
+            label8.TabIndex = 26;
+            label8.Text = "檔案名稱：";
             // 
-            // lab_StopBits
+            // txb_file_name
             // 
-            lab_StopBits.AutoSize = true;
-            lab_StopBits.BackColor = SystemColors.ButtonHighlight;
-            lab_StopBits.Dock = DockStyle.Fill;
-            lab_StopBits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            lab_StopBits.Location = new Point(3, 236);
-            lab_StopBits.Name = "lab_StopBits";
-            lab_StopBits.Size = new Size(286, 60);
-            lab_StopBits.TabIndex = 16;
-            lab_StopBits.Text = "停止位元(S)：";
-            lab_StopBits.TextAlign = ContentAlignment.MiddleLeft;
+            txb_file_name.BackColor = SystemColors.ButtonHighlight;
+            txb_file_name.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            txb_file_name.Location = new Point(28, 158);
+            txb_file_name.Name = "txb_file_name";
+            txb_file_name.Size = new Size(505, 34);
+            txb_file_name.TabIndex = 25;
+            txb_file_name.Text = "O9991";
             // 
-            // comb_Parity
+            // txb_file_address
             // 
-            comb_Parity.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            comb_Parity.BackColor = SystemColors.ButtonHighlight;
-            comb_Parity.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_Parity.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            comb_Parity.FormattingEnabled = true;
-            comb_Parity.Items.AddRange(new object[] { "None", "Even", "Odd" });
-            comb_Parity.Location = new Point(295, 189);
-            comb_Parity.Name = "comb_Parity";
-            comb_Parity.Size = new Size(251, 34);
-            comb_Parity.TabIndex = 15;
+            txb_file_address.BackColor = SystemColors.ButtonHighlight;
+            txb_file_address.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            txb_file_address.Location = new Point(28, 66);
+            txb_file_address.Name = "txb_file_address";
+            txb_file_address.Size = new Size(505, 34);
+            txb_file_address.TabIndex = 24;
+            txb_file_address.Text = "M01:\\PRG\\USER\\";
             // 
-            // lab_Parity
+            // label6
             // 
-            lab_Parity.AutoSize = true;
-            lab_Parity.BackColor = SystemColors.ButtonHighlight;
-            lab_Parity.Dock = DockStyle.Fill;
-            lab_Parity.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            lab_Parity.Location = new Point(3, 177);
-            lab_Parity.Name = "lab_Parity";
-            lab_Parity.Size = new Size(286, 59);
-            lab_Parity.TabIndex = 14;
-            lab_Parity.Text = "同位檢查(P)：";
-            lab_Parity.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comb_Bits
-            // 
-            comb_Bits.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            comb_Bits.BackColor = SystemColors.ButtonHighlight;
-            comb_Bits.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_Bits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            comb_Bits.FormattingEnabled = true;
-            comb_Bits.Items.AddRange(new object[] { "7", "8" });
-            comb_Bits.Location = new Point(295, 130);
-            comb_Bits.Name = "comb_Bits";
-            comb_Bits.Size = new Size(251, 34);
-            comb_Bits.TabIndex = 13;
-            // 
-            // lab_Bits
-            // 
-            lab_Bits.AutoSize = true;
-            lab_Bits.BackColor = SystemColors.ButtonHighlight;
-            lab_Bits.Dock = DockStyle.Fill;
-            lab_Bits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            lab_Bits.Location = new Point(3, 118);
-            lab_Bits.Name = "lab_Bits";
-            lab_Bits.Size = new Size(286, 59);
-            lab_Bits.TabIndex = 12;
-            lab_Bits.Text = "資料位元(D)：";
-            lab_Bits.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // comb_Baudrate
-            // 
-            comb_Baudrate.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            comb_Baudrate.BackColor = SystemColors.ButtonHighlight;
-            comb_Baudrate.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_Baudrate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            comb_Baudrate.FormattingEnabled = true;
-            comb_Baudrate.Items.AddRange(new object[] { "9600", "14400", "19200", "38400", "57600", "115200", "230400", "460800" });
-            comb_Baudrate.Location = new Point(295, 71);
-            comb_Baudrate.Name = "comb_Baudrate";
-            comb_Baudrate.Size = new Size(251, 34);
-            comb_Baudrate.TabIndex = 11;
-            // 
-            // label_BaudRate
-            // 
-            label_BaudRate.AutoSize = true;
-            label_BaudRate.BackColor = SystemColors.ButtonHighlight;
-            label_BaudRate.Dock = DockStyle.Fill;
-            label_BaudRate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label_BaudRate.Location = new Point(3, 59);
-            label_BaudRate.Name = "label_BaudRate";
-            label_BaudRate.Size = new Size(286, 59);
-            label_BaudRate.TabIndex = 5;
-            label_BaudRate.Text = "每秒傳輸位元(B)：";
-            label_BaudRate.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // txb_comport
-            // 
-            txb_comport.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txb_comport.BackColor = SystemColors.ButtonHighlight;
-            txb_comport.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            txb_comport.Location = new Point(295, 12);
-            txb_comport.Name = "txb_comport";
-            txb_comport.Size = new Size(251, 34);
-            txb_comport.TabIndex = 4;
-            txb_comport.Text = "COM4";
-            txb_comport.TextAlign = HorizontalAlignment.Center;
-            // 
-            // label_COM
-            // 
-            label_COM.AutoSize = true;
-            label_COM.BackColor = SystemColors.ButtonHighlight;
-            label_COM.Dock = DockStyle.Fill;
-            label_COM.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label_COM.Location = new Point(3, 0);
-            label_COM.Name = "label_COM";
-            label_COM.Size = new Size(286, 59);
-            label_COM.TabIndex = 1;
-            label_COM.Text = "通訊埠編號：";
-            label_COM.TextAlign = ContentAlignment.MiddleLeft;
+            label6.AutoSize = true;
+            label6.BackColor = SystemColors.ButtonHighlight;
+            label6.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            label6.Location = new Point(28, 23);
+            label6.Name = "label6";
+            label6.Size = new Size(159, 26);
+            label6.TabIndex = 23;
+            label6.Text = "檔案輸入地址：";
             // 
             // btn_disconnect_RS485
             // 
             btn_disconnect_RS485.BackColor = SystemColors.ButtonHighlight;
             btn_disconnect_RS485.FlatStyle = FlatStyle.Flat;
             btn_disconnect_RS485.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_disconnect_RS485.Location = new Point(442, 332);
+            btn_disconnect_RS485.Location = new Point(440, 217);
             btn_disconnect_RS485.Name = "btn_disconnect_RS485";
-            btn_disconnect_RS485.Size = new Size(110, 42);
+            btn_disconnect_RS485.Size = new Size(93, 42);
             btn_disconnect_RS485.TabIndex = 6;
-            btn_disconnect_RS485.Text = "斷線";
+            btn_disconnect_RS485.Text = "檔案移除";
             btn_disconnect_RS485.UseVisualStyleBackColor = false;
             btn_disconnect_RS485.Click += btn_disconnect_RS485_Click;
             // 
-            // btn_connect_RS485
+            // button_FILE
             // 
-            btn_connect_RS485.BackColor = SystemColors.ButtonHighlight;
-            btn_connect_RS485.FlatStyle = FlatStyle.Flat;
-            btn_connect_RS485.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_connect_RS485.Location = new Point(295, 332);
-            btn_connect_RS485.Name = "btn_connect_RS485";
-            btn_connect_RS485.Size = new Size(94, 42);
-            btn_connect_RS485.TabIndex = 5;
-            btn_connect_RS485.Text = "連線";
-            btn_connect_RS485.UseVisualStyleBackColor = false;
-            btn_connect_RS485.Click += btn_connect_RS485_Click;
+            button_FILE.BackColor = SystemColors.ButtonHighlight;
+            button_FILE.FlatStyle = FlatStyle.Flat;
+            button_FILE.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            button_FILE.Location = new Point(316, 217);
+            button_FILE.Name = "button_FILE";
+            button_FILE.Size = new Size(91, 42);
+            button_FILE.TabIndex = 22;
+            button_FILE.Text = "檔案寫入";
+            button_FILE.UseVisualStyleBackColor = false;
+            button_FILE.Click += button_FILE_Click;
             // 
             // button1
             // 
@@ -446,20 +522,6 @@ namespace FX5U_IOMonitor
             panel1.TabIndex = 22;
             panel1.Visible = false;
             // 
-            // button_FILE
-            // 
-            button_FILE.BackColor = SystemColors.ButtonHighlight;
-            button_FILE.FlatStyle = FlatStyle.Flat;
-            button_FILE.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            button_FILE.Location = new Point(793, 176);
-            button_FILE.Name = "button_FILE";
-            button_FILE.Size = new Size(89, 31);
-            button_FILE.TabIndex = 22;
-            button_FILE.Text = "檔案寫入";
-            button_FILE.UseVisualStyleBackColor = false;
-            button_FILE.Visible = false;
-            button_FILE.Click += button_FILE_Click;
-            // 
             // button2
             // 
             button2.BackColor = SystemColors.ButtonHighlight;
@@ -472,19 +534,6 @@ namespace FX5U_IOMonitor
             button2.Text = "刪除";
             button2.UseVisualStyleBackColor = false;
             button2.Visible = false;
-            // 
-            // btn_delete
-            // 
-            btn_delete.BackColor = SystemColors.ButtonHighlight;
-            btn_delete.FlatStyle = FlatStyle.Flat;
-            btn_delete.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_delete.Location = new Point(651, 33);
-            btn_delete.Name = "btn_delete";
-            btn_delete.Size = new Size(94, 43);
-            btn_delete.TabIndex = 27;
-            btn_delete.Text = "刪除";
-            btn_delete.UseVisualStyleBackColor = false;
-            btn_delete.Click += btn_delete_Click;
             // 
             // tableLayoutPanel1
             // 
@@ -537,7 +586,7 @@ namespace FX5U_IOMonitor
             control_choose.DropDownStyle = ComboBoxStyle.DropDownList;
             control_choose.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             control_choose.FormattingEnabled = true;
-            control_choose.Items.AddRange(new object[] { "R16ENCPU(鑽床)", "FX5U_(鋸床)", "M800W" });
+            control_choose.Items.AddRange(new object[] { "M700-L", "M700-M", "M800-L", "M800-M" });
             control_choose.Location = new Point(295, 8);
             control_choose.Name = "control_choose";
             control_choose.Size = new Size(254, 34);
@@ -556,61 +605,6 @@ namespace FX5U_IOMonitor
             lab_MachineType.Text = "選擇機台：";
             lab_MachineType.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // tableLayoutPanel3
-            // 
-            tableLayoutPanel3.BackColor = SystemColors.ButtonHighlight;
-            tableLayoutPanel3.ColumnCount = 3;
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 61.0416679F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38.9583321F));
-            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 71F));
-            tableLayoutPanel3.Controls.Add(btn_addmachine, 2, 0);
-            tableLayoutPanel3.Controls.Add(txb_machine, 1, 0);
-            tableLayoutPanel3.Controls.Add(lab_Add_Machine, 0, 0);
-            tableLayoutPanel3.Location = new Point(84, 33);
-            tableLayoutPanel3.Name = "tableLayoutPanel3";
-            tableLayoutPanel3.RowCount = 1;
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 47.5806465F));
-            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 52.4193535F));
-            tableLayoutPanel3.Size = new Size(552, 47);
-            tableLayoutPanel3.TabIndex = 29;
-            // 
-            // btn_addmachine
-            // 
-            btn_addmachine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            btn_addmachine.BackColor = SystemColors.ButtonHighlight;
-            btn_addmachine.FlatStyle = FlatStyle.Flat;
-            btn_addmachine.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_addmachine.Location = new Point(483, 3);
-            btn_addmachine.Name = "btn_addmachine";
-            btn_addmachine.Size = new Size(66, 41);
-            btn_addmachine.TabIndex = 28;
-            btn_addmachine.Text = "新增";
-            btn_addmachine.UseVisualStyleBackColor = false;
-            btn_addmachine.Click += btn_addmachine_Click;
-            // 
-            // txb_machine
-            // 
-            txb_machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txb_machine.BackColor = SystemColors.ButtonHighlight;
-            txb_machine.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            txb_machine.Location = new Point(296, 6);
-            txb_machine.Name = "txb_machine";
-            txb_machine.Size = new Size(181, 34);
-            txb_machine.TabIndex = 27;
-            txb_machine.TextAlign = HorizontalAlignment.Center;
-            // 
-            // lab_Add_Machine
-            // 
-            lab_Add_Machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            lab_Add_Machine.AutoSize = true;
-            lab_Add_Machine.BackColor = SystemColors.ButtonHighlight;
-            lab_Add_Machine.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
-            lab_Add_Machine.Location = new Point(3, 10);
-            lab_Add_Machine.Name = "lab_Add_Machine";
-            lab_Add_Machine.Size = new Size(287, 26);
-            lab_Add_Machine.TabIndex = 26;
-            lab_Add_Machine.Text = "新增機台：";
-            // 
             // btn_mishubishi
             // 
             btn_mishubishi.BackColor = SystemColors.ButtonHighlight;
@@ -620,39 +614,36 @@ namespace FX5U_IOMonitor
             btn_mishubishi.Name = "btn_mishubishi";
             btn_mishubishi.Size = new Size(94, 52);
             btn_mishubishi.TabIndex = 30;
-            btn_mishubishi.Text = "切換監控\r\n三菱控制器";
+            btn_mishubishi.Text = "切換監控\r\n三菱PLC";
             btn_mishubishi.UseVisualStyleBackColor = false;
             btn_mishubishi.Click += btn_mishubishi_Click;
             // 
-            // Connect_PLC
+            // Connect_CNC
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(1221, 664);
             Controls.Add(btn_mishubishi);
-            Controls.Add(tableLayoutPanel3);
             Controls.Add(tableLayoutPanel1);
-            Controls.Add(btn_delete);
             Controls.Add(panel_Ethernet);
             Controls.Add(panel_RS485);
             Controls.Add(button2);
-            Controls.Add(button_FILE);
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.None;
-            Name = "Connect_PLC";
+            Name = "Connect_CNC";
             Text = "s";
             panel_Ethernet.ResumeLayout(false);
             panel_Ethernet.PerformLayout();
-            panel_RS485.ResumeLayout(false);
+            panel2.ResumeLayout(false);
             tableLayoutPanel2.ResumeLayout(false);
             tableLayoutPanel2.PerformLayout();
+            panel_RS485.ResumeLayout(false);
+            panel_RS485.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
-            tableLayoutPanel3.ResumeLayout(false);
-            tableLayoutPanel3.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -666,7 +657,6 @@ namespace FX5U_IOMonitor
         private System.Windows.Forms.Button btn_connect_ethernet;
         private System.Windows.Forms.Panel panel_RS485;
         private System.Windows.Forms.Button btn_disconnect_RS485;
-        private System.Windows.Forms.Button btn_connect_RS485;
         private Button button1;
         private TextBox textBox1;
         private TextBox textBox2;
@@ -674,30 +664,32 @@ namespace FX5U_IOMonitor
         private Label label2;
         private Label label5;
         private Panel panel1;
-        private Button button_FILE;
         private Button button2;
         private System.Windows.Forms.Timer timer1;
-        private Button btn_delete;
         private TableLayoutPanel tableLayoutPanel1;
         private ComboBox connect_choose;
         private Label lab_Type;
         private ComboBox control_choose;
         private Label lab_MachineType;
-        private TableLayoutPanel tableLayoutPanel2;
-        private ComboBox comb_StopBits;
-        private Label lab_StopBits;
-        private ComboBox comb_Parity;
-        private Label lab_Parity;
-        private ComboBox comb_Bits;
-        private Label lab_Bits;
-        private ComboBox comb_Baudrate;
-        private Label label_BaudRate;
-        private TextBox txb_comport;
-        private Label label_COM;
-        private TableLayoutPanel tableLayoutPanel3;
-        private Button btn_addmachine;
-        private TextBox txb_machine;
-        private Label lab_Add_Machine;
         private Button btn_mishubishi;
+        private Button button_FILE;
+        private Panel panel2;
+        private TableLayoutPanel tableLayoutPanel2;
+        private Label lab_5;
+        private Label label11;
+        private Label lab_4;
+        private Label label9;
+        private Label lab_Z;
+        private Label label7;
+        private Label lab_Y;
+        private Label label4;
+        private Label lab_X;
+        private Label label1;
+        private Label label3;
+        private Label label8;
+        private TextBox txb_file_name;
+        private TextBox txb_file_address;
+        private Label label6;
+        private Label lab_Error;
     }
 }

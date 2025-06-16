@@ -6,6 +6,8 @@ using Modbus.Device; // 來自 NModbus4
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using FX5U_IOMonitor.panel_control;
+using FX5U_IOMonitor.Resources;
+using System.Windows.Forms;
 
 
 
@@ -393,7 +395,7 @@ namespace FX5U_IOMonitor
                 if (e.NewValue == true)
                 {
                     DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
-                    //_ = HandleAlarmAndSendEmailAsync(e);
+                    _ = HandleAlarmAndSendEmailAsync(e);
 
                 }
                 else 
@@ -507,6 +509,16 @@ namespace FX5U_IOMonitor
         private void btn_mishubishi_Click(object sender, EventArgs e)
         {
 
+            var cncForm = new Connect_CNC();
+
+            cncForm.TopLevel = false; // 禁止作為獨立窗口
+            cncForm.FormBorderStyle = FormBorderStyle.None; // 移除邊框
+            cncForm.Dock = DockStyle.Fill; // 填滿 Panel
+
+            // 將子窗體添加到 Panel 並顯示
+            main_control.panel_main.Controls.Clear(); // 清空 Panel
+            main_control.panel_main.Controls.Add(cncForm); // 添加子窗體
+            cncForm.Show(); // 顯示子窗體
         }
     }
 }

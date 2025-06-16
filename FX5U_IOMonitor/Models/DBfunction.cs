@@ -20,7 +20,7 @@ namespace FX5U_IOMonitor.Models
 {
     internal class DBfunction
     {
-       
+
         //-----------尋找資料表內容-------------------------//
 
         public static int GetMachineRowCount(string machineName)
@@ -43,7 +43,7 @@ namespace FX5U_IOMonitor.Models
             {
                 var io = context.Machine_IO
                        .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
-                return io?.MountTime;
+                return io?.MountTime.ToLocalTime();
             }
         }
 
@@ -74,7 +74,7 @@ namespace FX5U_IOMonitor.Models
             {
                 var io = context.Machine_IO
                         .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
-                return io?.UnmountTime;
+                return io?.UnmountTime.ToLocalTime();
             }
         }
 
@@ -135,7 +135,16 @@ namespace FX5U_IOMonitor.Models
                     var list = context.Histories
                         .Where(h => h.SourceDbName == sourceDbName && h.Address == address)
                         .OrderBy(h => h.StartTime)
-                        .ToList();
+                        .AsEnumerable() // ⬅️ 在這裡停止轉 SQL，接下來是本機記憶體運算
+                        .Select(h => new History
+                        {
+                            Id = h.Id,
+                            Address = h.Address,
+                            SourceDbName = h.SourceDbName,
+                            StartTime = h.StartTime.ToLocalTime(), // ✅ 轉為本地時間
+                            EndTime = h.EndTime?.ToLocalTime(),     // ✅ nullable 也要 ?.ToLocalTime()
+                        }).ToList();
+
 
                     Console.WriteLine($"在資料表 {sourceDbName} 中，找到 {list.Count} 筆 address 為 {address} 的歷史資料");
                     return list;
@@ -149,7 +158,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        
+
         public static List<string> GetMachineClassTags(string tableName)
         {
             using (var context = new ApplicationDB())
@@ -631,7 +640,7 @@ namespace FX5U_IOMonitor.Models
                 return alarmClass;
             }
         }
-     
+
         public static List<string> Get_alarm_error_by_class(string machine_name, string className)
         {
             using (var context = new ApplicationDB())
@@ -903,7 +912,7 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-        
+
         //初始化信號
         public static void Initiali_current_single()
         {
@@ -917,12 +926,12 @@ namespace FX5U_IOMonitor.Models
                     IO.current_single = null;
                 }
 
-                var Alarm_io = context.alarm.ToList();
+                //var Alarm_io = context.alarm.ToList();
 
-                foreach (var alarm_io in Alarm_io)
-                {
-                    alarm_io.current_single = false;
-                }
+                //foreach (var alarm_io in Alarm_io)
+                //{
+                //    alarm_io.current_single = false;
+                //}
                 context.SaveChanges(); // ✅ 儲存變更
             }
 
@@ -1315,7 +1324,7 @@ namespace FX5U_IOMonitor.Models
                     .OrderByDescending(r => r.EndTime)
                     .Select(r => (DateTime?)r.EndTime)
                     .FirstOrDefault();
-                DateTime startTime = lastEndTime ?? DateTime.MinValue;
+                DateTime startTime = lastEndTime ?? param.CreatedAt;
                 // 建立歷史紀錄
                 var record = new MachineParameterHistoryRecode
                 {
@@ -1344,7 +1353,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.now_TextValue ?? "無當前資訊";
+                return machine?.now_TextValue ?? "";
             }
         }
         public static double Get_Unit_transfer(string name)
@@ -1600,8 +1609,83 @@ namespace FX5U_IOMonitor.Models
 
 
 
+        //參數歸零歷史紀錄搜尋
+        public static List<object> Get_Searchparam_HistoryRecords(DateTime startDateLocal, DateTime endDateLocal)
+        {
+            DateTime startDate = startDateLocal.ToUniversalTime();
+            DateTime endDate = endDateLocal.ToUniversalTime();
 
+            using (var context = new ApplicationDB())
+            {
+                var result = context.MachineParameterHistoryRecodes
+                    .Include(mh => mh.MachineParameter)
+                    .Where(mh => mh.EndTime >= startDate && mh.StartTime <= endDate)
+                    .OrderByDescending(mh => mh.StartTime)
+                    .AsEnumerable() // 切換為本機端計算
+                    .Select(mh => 
+                    {
+                        string record = "";
+                        if (mh.MachineParameter.Read_type == "bit")
+                        {
+                            if (mh.MachineParameter.Calculate_type == 1)
+                            {
+                                record = mh.History_NumericValue.GetValueOrDefault().ToString();
+                            }
+                            else 
+                            {
+                                record = MonitorFunction.ConvertSecondsToDHMS(mh.History_NumericValue.GetValueOrDefault());
+                            }
+                        }
 
+                        if (mh.MachineParameter.Read_type == "None")
+                        {
+                            record = (mh.History_NumericValue.GetValueOrDefault() * 0.01).ToString();
+                        }
+                        if (mh.MachineParameter.Read_type == "word")
+                        {
+                            record = mh.MachineParameter.now_TextValue;
+                        }
+                        return new
+                        {
+                            mh.MachineParameter.Machine_Name,
+                            Name = mh.MachineParameter.Name,
+                            StartTime = mh.StartTime.ToLocalTime(),
+                            EndTime = mh.EndTime.ToLocalTime(),
+                            record = record
+                        };
+                     })
+                    .ToList<object>(); // 用 object 型別做匿名類型回傳
+
+                return result;
+            }
+        }
+        //警告歷史紀錄搜尋
+        public static List<AlarmHistoryViewModel> Get_Searchalarm_Records(DateTime startDateLocal, DateTime endDateLocal)
+        {
+            DateTime startDate = startDateLocal.ToUniversalTime();
+            DateTime endDate = endDateLocal.ToUniversalTime();
+
+            using (var context = new ApplicationDB())
+            {
+                var result = context.AlarmHistories
+                   .Include(ah => ah.Alarm)
+                   .Where(ah => ah.EndTime >= startDate && ah.StartTime <= endDate)
+                   .OrderByDescending(ah => ah.StartTime)
+                   .AsEnumerable()
+                   .Select(ah => new AlarmHistoryViewModel
+                   {
+                       IPC_table =ah.Alarm.IPC_table,
+                       Error = ah.Alarm.Error,
+                       classTag = ah.Alarm.classTag,
+                       StartTime = ah.StartTime.ToLocalTime(),
+                       EndTime = ah.EndTime?.ToLocalTime(),
+
+                       Duration = ah.Duration
+                   }).ToList();
+
+                return result;
+            }
+        }
 
     }
 

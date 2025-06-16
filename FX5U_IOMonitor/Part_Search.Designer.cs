@@ -165,6 +165,7 @@ namespace FX5U_IO元件監控
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(920, 625);
             Controls.Add(dataGridView1);
             Controls.Add(panel1);

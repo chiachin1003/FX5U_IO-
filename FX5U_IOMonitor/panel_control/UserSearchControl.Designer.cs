@@ -55,6 +55,7 @@
             // 
             // panel1
             // 
+            panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.Controls.Add(tableLayoutPanel6);
             panel1.Controls.Add(tableLayoutPanel5);
             panel1.Controls.Add(tableLayoutPanel2);
@@ -66,6 +67,7 @@
             // 
             // tableLayoutPanel6
             // 
+            tableLayoutPanel6.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel6.ColumnCount = 1;
             tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -83,7 +85,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.BackColor = SystemColors.ButtonFace;
+            label2.BackColor = SystemColors.ButtonHighlight;
             label2.Dock = DockStyle.Fill;
             label2.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label2.Location = new Point(3, 45);
@@ -96,7 +98,7 @@
             // lab_yellow
             // 
             lab_yellow.AutoSize = true;
-            lab_yellow.BackColor = SystemColors.ButtonFace;
+            lab_yellow.BackColor = SystemColors.ButtonHighlight;
             lab_yellow.Dock = DockStyle.Fill;
             lab_yellow.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yellow.Location = new Point(3, 0);
@@ -107,6 +109,7 @@
             // 
             // tableLayoutPanel5
             // 
+            tableLayoutPanel5.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel5.ColumnCount = 1;
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -124,7 +127,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.BackColor = SystemColors.ButtonFace;
+            label3.BackColor = SystemColors.ButtonHighlight;
             label3.Dock = DockStyle.Fill;
             label3.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label3.Location = new Point(3, 42);
@@ -137,7 +140,7 @@
             // lab_green
             // 
             lab_green.AutoSize = true;
-            lab_green.BackColor = SystemColors.ButtonFace;
+            lab_green.BackColor = SystemColors.ButtonHighlight;
             lab_green.Dock = DockStyle.Fill;
             lab_green.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_green.Location = new Point(3, 0);
@@ -148,6 +151,7 @@
             // 
             // tableLayoutPanel2
             // 
+            tableLayoutPanel2.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel2.ColumnCount = 1;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -165,7 +169,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.BackColor = SystemColors.ButtonFace;
+            label1.BackColor = SystemColors.ButtonHighlight;
             label1.Dock = DockStyle.Fill;
             label1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label1.Location = new Point(3, 43);
@@ -178,7 +182,7 @@
             // lab_red
             // 
             lab_red.AutoSize = true;
-            lab_red.BackColor = SystemColors.ButtonFace;
+            lab_red.BackColor = SystemColors.ButtonHighlight;
             lab_red.Dock = DockStyle.Fill;
             lab_red.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_red.Location = new Point(3, 0);
@@ -260,6 +264,7 @@
             // flowLayoutPanel2
             // 
             flowLayoutPanel2.AutoScroll = true;
+            flowLayoutPanel2.BackColor = SystemColors.ButtonHighlight;
             flowLayoutPanel2.Controls.Add(panel_example);
             flowLayoutPanel2.Dock = DockStyle.Top;
             flowLayoutPanel2.Location = new Point(0, 0);

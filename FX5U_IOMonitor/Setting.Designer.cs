@@ -35,6 +35,7 @@ namespace FX5U_IOMonitor
             btn_Mail_Manager = new Button();
             btn_usersetting = new Button();
             btn_Alrm_Notify = new Button();
+            btn_history = new Button();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -54,7 +55,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Mail_Manager
             // 
-            btn_Mail_Manager.Location = new Point(234, 118);
+            btn_Mail_Manager.Location = new Point(73, 175);
             btn_Mail_Manager.Name = "btn_Mail_Manager";
             btn_Mail_Manager.Size = new Size(124, 42);
             btn_Mail_Manager.TabIndex = 8;
@@ -64,7 +65,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(542, 118);
+            btn_usersetting.Location = new Point(73, 316);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -74,7 +75,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(386, 118);
+            btn_Alrm_Notify.Location = new Point(73, 239);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -82,11 +83,23 @@ namespace FX5U_IOMonitor
             btn_Alrm_Notify.UseVisualStyleBackColor = true;
             btn_Alrm_Notify.Click += btn_Alrm_Notify_Click;
             // 
+            // btn_history
+            // 
+            btn_history.Location = new Point(73, 389);
+            btn_history.Name = "btn_history";
+            btn_history.Size = new Size(124, 42);
+            btn_history.TabIndex = 11;
+            btn_history.Text = "歷史紀錄查詢";
+            btn_history.UseVisualStyleBackColor = true;
+            btn_history.Click += btn_history_Click;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(btn_history);
             Controls.Add(btn_Alrm_Notify);
             Controls.Add(btn_usersetting);
             Controls.Add(btn_Mail_Manager);
@@ -104,5 +117,6 @@ namespace FX5U_IOMonitor
         private Button btn_Mail_Manager;
         private Button btn_usersetting;
         private Button btn_Alrm_Notify;
+        private Button btn_history;
     }
 }

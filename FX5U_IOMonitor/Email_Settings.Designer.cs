@@ -43,17 +43,19 @@
             // 
             // btn_Update
             // 
+            btn_Update.BackColor = SystemColors.ButtonHighlight;
             btn_Update.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btn_Update.Location = new Point(395, 183);
             btn_Update.Name = "btn_Update";
             btn_Update.Size = new Size(82, 36);
             btn_Update.TabIndex = 39;
             btn_Update.Text = "更新";
-            btn_Update.UseVisualStyleBackColor = true;
+            btn_Update.UseVisualStyleBackColor = false;
             btn_Update.Click += btn_setting_Click;
             // 
             // tableLayoutPanel1
             // 
+            tableLayoutPanel1.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32.68817F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 67.31183F));
@@ -78,6 +80,7 @@
             // txb_TLS_port
             // 
             txb_TLS_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_TLS_port.BackColor = SystemColors.ButtonHighlight;
             txb_TLS_port.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             txb_TLS_port.Location = new Point(155, 123);
             txb_TLS_port.Name = "txb_TLS_port";
@@ -89,6 +92,7 @@
             // lab_Port
             // 
             lab_Port.AutoSize = true;
+            lab_Port.BackColor = SystemColors.ButtonHighlight;
             lab_Port.Dock = DockStyle.Fill;
             lab_Port.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             lab_Port.Location = new Point(3, 117);
@@ -101,6 +105,7 @@
             // comboBox1
             // 
             comboBox1.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comboBox1.BackColor = SystemColors.ButtonHighlight;
             comboBox1.DrawMode = DrawMode.OwnerDrawFixed;
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
@@ -114,6 +119,7 @@
             // lab_Protocal
             // 
             lab_Protocal.AutoSize = true;
+            lab_Protocal.BackColor = SystemColors.ButtonHighlight;
             lab_Protocal.Dock = DockStyle.Fill;
             lab_Protocal.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             lab_Protocal.Location = new Point(3, 78);
@@ -126,6 +132,7 @@
             // txb_senderPassword
             // 
             txb_senderPassword.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_senderPassword.BackColor = SystemColors.ButtonHighlight;
             txb_senderPassword.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             txb_senderPassword.Location = new Point(155, 45);
             txb_senderPassword.Name = "txb_senderPassword";
@@ -136,6 +143,7 @@
             // lab_Password
             // 
             lab_Password.AutoSize = true;
+            lab_Password.BackColor = SystemColors.ButtonHighlight;
             lab_Password.Dock = DockStyle.Fill;
             lab_Password.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             lab_Password.Location = new Point(3, 39);
@@ -148,6 +156,7 @@
             // txb_senderEmail
             // 
             txb_senderEmail.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_senderEmail.BackColor = SystemColors.ButtonHighlight;
             txb_senderEmail.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             txb_senderEmail.Location = new Point(155, 6);
             txb_senderEmail.Name = "txb_senderEmail";
@@ -158,6 +167,7 @@
             // lab_Email
             // 
             lab_Email.AutoSize = true;
+            lab_Email.BackColor = SystemColors.ButtonHighlight;
             lab_Email.Dock = DockStyle.Fill;
             lab_Email.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             lab_Email.Location = new Point(3, 0);
@@ -171,6 +181,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(500, 242);
             Controls.Add(tableLayoutPanel1);
             Controls.Add(btn_Update);

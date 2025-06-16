@@ -92,6 +92,8 @@ namespace FX5U_IOMonitor.Resources
                             $"刪除 {result.DeleteCount} 筆 匯入成功");
                         string lang = Properties.Settings.Default.LanguageSetting;
                         LanguageManager.LoadLanguageFromDatabase(lang);
+                        LanguageManager.SetLanguage(lang); // ✅ 自動載入 + 儲存 + 觸發事件
+
                     }
                 }
                 else

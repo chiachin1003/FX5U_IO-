@@ -144,7 +144,6 @@
             lab_Sawband_tension.Name = "lab_Sawband_tension";
             lab_Sawband_tension.Size = new Size(408, 54);
             lab_Sawband_tension.TabIndex = 21;
-            lab_Sawband_tension.Text = "天　時　分　秒";
             lab_Sawband_tension.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_Sawband_tensionText
@@ -168,7 +167,6 @@
             lab_saw_life.Name = "lab_saw_life";
             lab_saw_life.Size = new Size(408, 49);
             lab_saw_life.TabIndex = 19;
-            lab_saw_life.Text = "天　時　分　秒";
             lab_saw_life.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_saw_lifeText
@@ -192,7 +190,6 @@
             lab_Sawband_area.Name = "lab_Sawband_area";
             lab_Sawband_area.Size = new Size(408, 49);
             lab_Sawband_area.TabIndex = 17;
-            lab_Sawband_area.Text = "平方公尺";
             lab_Sawband_area.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_Sawband_areaText
@@ -217,7 +214,7 @@
             lab_Sawband_current.Size = new Size(408, 49);
             lab_Sawband_current.TabIndex = 15;
             lab_Sawband_current.Tag = "";
-            lab_Sawband_current.Text = "安培(A)";
+            lab_Sawband_current.Text = "(A)";
             lab_Sawband_current.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_Sawband_currentText
@@ -242,7 +239,7 @@
             lab_Sawband_power.Size = new Size(408, 49);
             lab_Sawband_power.TabIndex = 13;
             lab_Sawband_power.Tag = "";
-            lab_Sawband_power.Text = "Hp";
+            lab_Sawband_power.Text = "(Hp)";
             lab_Sawband_power.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_Sawband_powerText
@@ -267,7 +264,6 @@
             lab_Sawband_motors_usetime.Size = new Size(408, 49);
             lab_Sawband_motors_usetime.TabIndex = 11;
             lab_Sawband_motors_usetime.Tag = "";
-            lab_Sawband_motors_usetime.Text = "天　時　分　秒";
             lab_Sawband_motors_usetime.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_Sawband_motors_usetimeText
@@ -315,7 +311,7 @@
             lab_Sawblade_teeth.Name = "lab_Sawblade_teeth";
             lab_Sawblade_teeth.Size = new Size(408, 49);
             lab_Sawblade_teeth.TabIndex = 7;
-            lab_Sawblade_teeth.Text = "1/2    (TOOL / INCH)";
+            lab_Sawblade_teeth.Text = " (TOOL / INCH)";
             lab_Sawblade_teeth.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lab_Sawblade_teethText
@@ -412,6 +408,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(730, 630);
             Controls.Add(lab_time);

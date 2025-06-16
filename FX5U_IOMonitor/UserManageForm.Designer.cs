@@ -59,6 +59,7 @@
             // _lblAccount
             // 
             _lblAccount.AutoSize = true;
+            _lblAccount.BackColor = SystemColors.ButtonHighlight;
             _lblAccount.Location = new Point(313, 21);
             _lblAccount.Name = "_lblAccount";
             _lblAccount.Size = new Size(34, 15);
@@ -68,6 +69,7 @@
             // _lblPassword
             // 
             _lblPassword.AutoSize = true;
+            _lblPassword.BackColor = SystemColors.ButtonHighlight;
             _lblPassword.Location = new Point(313, 51);
             _lblPassword.Name = "_lblPassword";
             _lblPassword.Size = new Size(34, 15);
@@ -77,6 +79,7 @@
             // _lblConfirmPassword
             // 
             _lblConfirmPassword.AutoSize = true;
+            _lblConfirmPassword.BackColor = SystemColors.ButtonHighlight;
             _lblConfirmPassword.Location = new Point(313, 83);
             _lblConfirmPassword.Name = "_lblConfirmPassword";
             _lblConfirmPassword.Size = new Size(58, 15);
@@ -86,6 +89,9 @@
             // _txtAccount
             // 
             _txtAccount.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _txtAccount.BackColor = SystemColors.ButtonHighlight;
+            _txtAccount.BorderStyle = BorderStyle.FixedSingle;
+            _txtAccount.CausesValidation = false;
             _txtAccount.Location = new Point(422, 19);
             _txtAccount.Name = "_txtAccount";
             _txtAccount.Size = new Size(139, 23);
@@ -94,6 +100,9 @@
             // _txtPassword
             // 
             _txtPassword.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _txtPassword.BackColor = SystemColors.ButtonHighlight;
+            _txtPassword.BorderStyle = BorderStyle.FixedSingle;
+            _txtPassword.CausesValidation = false;
             _txtPassword.Location = new Point(422, 49);
             _txtPassword.Name = "_txtPassword";
             _txtPassword.Size = new Size(139, 23);
@@ -103,6 +112,8 @@
             // _txtConfirmPassword
             // 
             _txtConfirmPassword.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _txtConfirmPassword.BackColor = SystemColors.ButtonHighlight;
+            _txtConfirmPassword.BorderStyle = BorderStyle.FixedSingle;
             _txtConfirmPassword.Location = new Point(422, 81);
             _txtConfirmPassword.Name = "_txtConfirmPassword";
             _txtConfirmPassword.Size = new Size(139, 23);
@@ -112,6 +123,7 @@
             // _lblRole
             // 
             _lblRole.AutoSize = true;
+            _lblRole.BackColor = SystemColors.ButtonHighlight;
             _lblRole.Location = new Point(313, 120);
             _lblRole.Name = "_lblRole";
             _lblRole.Size = new Size(34, 15);
@@ -121,6 +133,8 @@
             // _cbRole
             // 
             _cbRole.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _cbRole.BackColor = SystemColors.ButtonHighlight;
+            _cbRole.CausesValidation = false;
             _cbRole.DropDownStyle = ComboBoxStyle.DropDownList;
             _cbRole.FormattingEnabled = true;
             _cbRole.Location = new Point(422, 118);
@@ -131,28 +145,31 @@
             // _btnAdd
             // 
             _btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _btnAdd.BackColor = SystemColors.ButtonHighlight;
             _btnAdd.Location = new Point(486, 220);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(75, 33);
             _btnAdd.TabIndex = 9;
             _btnAdd.Text = "新增";
-            _btnAdd.UseVisualStyleBackColor = true;
+            _btnAdd.UseVisualStyleBackColor = false;
             _btnAdd.Click += _btnAdd_Click;
             // 
             // _btnDelete
             // 
             _btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _btnDelete.BackColor = SystemColors.ButtonHighlight;
             _btnDelete.Location = new Point(486, 259);
             _btnDelete.Name = "_btnDelete";
             _btnDelete.Size = new Size(75, 33);
             _btnDelete.TabIndex = 10;
             _btnDelete.Text = "刪除";
-            _btnDelete.UseVisualStyleBackColor = true;
+            _btnDelete.UseVisualStyleBackColor = false;
             _btnDelete.Click += _btnDelete_Click;
             // 
             // _cbSelectedRole
             // 
             _cbSelectedRole.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _cbSelectedRole.BackColor = SystemColors.ButtonHighlight;
             _cbSelectedRole.DropDownStyle = ComboBoxStyle.DropDownList;
             _cbSelectedRole.FormattingEnabled = true;
             _cbSelectedRole.Location = new Point(97, 19);
@@ -164,6 +181,7 @@
             // _lblSelectedRole
             // 
             _lblSelectedRole.AutoSize = true;
+            _lblSelectedRole.BackColor = SystemColors.ButtonHighlight;
             _lblSelectedRole.Location = new Point(12, 22);
             _lblSelectedRole.Name = "_lblSelectedRole";
             _lblSelectedRole.Size = new Size(34, 15);
@@ -173,6 +191,7 @@
             // lab_emailsetting
             // 
             lab_emailsetting.AutoSize = true;
+            lab_emailsetting.BackColor = SystemColors.ButtonHighlight;
             lab_emailsetting.Location = new Point(313, 164);
             lab_emailsetting.Name = "lab_emailsetting";
             lab_emailsetting.Size = new Size(34, 15);
@@ -182,6 +201,8 @@
             // _txtEmail
             // 
             _txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _txtEmail.BackColor = SystemColors.ButtonHighlight;
+            _txtEmail.BorderStyle = BorderStyle.FixedSingle;
             _txtEmail.Location = new Point(422, 161);
             _txtEmail.Name = "_txtEmail";
             _txtEmail.Size = new Size(139, 23);
@@ -191,6 +212,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(585, 381);
             Controls.Add(_txtEmail);
             Controls.Add(lab_emailsetting);

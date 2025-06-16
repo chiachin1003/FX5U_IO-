@@ -91,7 +91,6 @@ namespace FX5U_IOMonitor
 
         private void reset_lab_connectText()
         {
-
             lab_Sawband_brand.Text = DBfunction.Get_Machine_text("Sawband_brand");
             lab_Sawblade_material.Text = DBfunction.Get_Machine_text("Sawblade_material");
             lab_Sawblade_type.Text = DBfunction.Get_Machine_text("Sawblade_type");
@@ -99,9 +98,9 @@ namespace FX5U_IOMonitor
             lab_Sawband_speed.Text = DBfunction.Get_Machine_text("Sawband_speed") + "(m/min)";
             lab_Sawband_motors_usetime.Text = DBfunction.Get_Machine_text("Sawband_motors_usetime");
 
-            lab_Sawband_power.Text = DBfunction.Get_Machine_text("Sawband_power").ToString() + " 馬力(Hp) ";
-            lab_Sawband_current.Text = DBfunction.Get_Machine_text("Sawband_current").ToString() + "安培(A)";
-            lab_Sawband_area.Text = DBfunction.Get_Machine_text("Sawband_area").ToString() + " 平方公尺 ";
+            lab_Sawband_power.Text = DBfunction.Get_Machine_text("Sawband_power").ToString() + " (Hp)";
+            lab_Sawband_current.Text = DBfunction.Get_Machine_text("Sawband_current").ToString() + "(A)";
+            lab_Sawband_area.Text = DBfunction.Get_Machine_text("Sawband_area").ToString() + "(m²)";
             lab_saw_life.Text = DBfunction.Get_Machine_text("Sawband_life").ToString();
             lab_Sawband_tension.Text = DBfunction.Get_Machine_text("Sawband_tension").ToString();
 
@@ -116,7 +115,7 @@ namespace FX5U_IOMonitor
         private void SwitchLanguage()
         {
             string lang = Properties.Settings.Default.LanguageSetting;
-
+            this.Text = LanguageManager.Translate("SawingInfo_FormText");
             lab_Sawband_brandText.Text = LanguageManager.Translate("SawingInfo_SawbandbrandText");
             lab_Sawblade_materialText.Text = LanguageManager.Translate("SawingInfo_SawbladematerialText");
             lab_Sawblade_typeText.Text = LanguageManager.Translate("SawingInfo_SawbladetypeText");

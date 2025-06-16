@@ -217,6 +217,7 @@
             // panel12
             // 
             panel12.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel12.BackColor = SystemColors.ButtonHighlight;
             panel12.BorderStyle = BorderStyle.FixedSingle;
             panel12.Controls.Add(panel3);
             panel12.Controls.Add(tbPanel_Swing_sum);
@@ -234,6 +235,7 @@
             // 
             // panel3
             // 
+            panel3.BackColor = SystemColors.ButtonHighlight;
             panel3.BorderStyle = BorderStyle.FixedSingle;
             panel3.Controls.Add(btn_Sawing_lifesetting);
             panel3.Controls.Add(lab_Drill_lifesetting);
@@ -244,7 +246,7 @@
             // 
             // btn_Sawing_lifesetting
             // 
-            btn_Sawing_lifesetting.BackColor = SystemColors.ButtonFace;
+            btn_Sawing_lifesetting.BackColor = SystemColors.ButtonHighlight;
             btn_Sawing_lifesetting.FlatStyle = FlatStyle.Flat;
             btn_Sawing_lifesetting.Location = new Point(119, 17);
             btn_Sawing_lifesetting.Margin = new Padding(4);
@@ -259,7 +261,7 @@
             // 
             lab_Drill_lifesetting.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lab_Drill_lifesetting.AutoSize = true;
-            lab_Drill_lifesetting.BackColor = SystemColors.ButtonFace;
+            lab_Drill_lifesetting.BackColor = SystemColors.ButtonHighlight;
             lab_Drill_lifesetting.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Drill_lifesetting.Location = new Point(13, 21);
             lab_Drill_lifesetting.Name = "lab_Drill_lifesetting";
@@ -270,6 +272,7 @@
             // 
             // tbPanel_Swing_sum
             // 
+            tbPanel_Swing_sum.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_sum.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_sum.ColumnCount = 1;
             tbPanel_Swing_sum.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -286,7 +289,7 @@
             // lab_sumS
             // 
             lab_sumS.AutoSize = true;
-            lab_sumS.BackColor = SystemColors.ButtonFace;
+            lab_sumS.BackColor = SystemColors.ButtonHighlight;
             lab_sumS.Dock = DockStyle.Fill;
             lab_sumS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_sumS.Location = new Point(3, 45);
@@ -299,7 +302,7 @@
             // lab_sum_swing
             // 
             lab_sum_swing.AutoSize = true;
-            lab_sum_swing.BackColor = SystemColors.ButtonFace;
+            lab_sum_swing.BackColor = SystemColors.ButtonHighlight;
             lab_sum_swing.Dock = DockStyle.Fill;
             lab_sum_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_sum_swing.Location = new Point(3, 0);
@@ -310,6 +313,7 @@
             // 
             // tbPanel_Swing_connect
             // 
+            tbPanel_Swing_connect.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_connect.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_connect.ColumnCount = 1;
             tbPanel_Swing_connect.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -328,7 +332,7 @@
             // lab_connectS
             // 
             lab_connectS.AutoSize = true;
-            lab_connectS.BackColor = SystemColors.ButtonFace;
+            lab_connectS.BackColor = SystemColors.ButtonHighlight;
             lab_connectS.Dock = DockStyle.Fill;
             lab_connectS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_connectS.Location = new Point(3, 44);
@@ -341,7 +345,7 @@
             // lab_connect_swing
             // 
             lab_connect_swing.AutoSize = true;
-            lab_connect_swing.BackColor = SystemColors.ButtonFace;
+            lab_connect_swing.BackColor = SystemColors.ButtonHighlight;
             lab_connect_swing.Dock = DockStyle.Fill;
             lab_connect_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_connect_swing.Location = new Point(3, 0);
@@ -352,6 +356,7 @@
             // 
             // panel4
             // 
+            panel4.BackColor = SystemColors.ButtonHighlight;
             panel4.BorderStyle = BorderStyle.FixedSingle;
             panel4.Controls.Add(btn_SawBand);
             panel4.Location = new Point(253, 218);
@@ -361,7 +366,7 @@
             // 
             // btn_SawBand
             // 
-            btn_SawBand.BackColor = SystemColors.ButtonFace;
+            btn_SawBand.BackColor = SystemColors.ButtonHighlight;
             btn_SawBand.FlatStyle = FlatStyle.Flat;
             btn_SawBand.Location = new Point(6, 17);
             btn_SawBand.Margin = new Padding(4);
@@ -374,7 +379,7 @@
             // 
             // tbPanel_Swing_red
             // 
-            tbPanel_Swing_red.BackColor = SystemColors.Control;
+            tbPanel_Swing_red.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_red.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_red.ColumnCount = 1;
             tbPanel_Swing_red.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -391,7 +396,7 @@
             // lab_rS
             // 
             lab_rS.AutoSize = true;
-            lab_rS.BackColor = SystemColors.ButtonFace;
+            lab_rS.BackColor = SystemColors.ButtonHighlight;
             lab_rS.Dock = DockStyle.Fill;
             lab_rS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_rS.Location = new Point(3, 45);
@@ -404,7 +409,7 @@
             // lab_red_swing
             // 
             lab_red_swing.AutoSize = true;
-            lab_red_swing.BackColor = SystemColors.ButtonFace;
+            lab_red_swing.BackColor = SystemColors.ButtonHighlight;
             lab_red_swing.Dock = DockStyle.Fill;
             lab_red_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_red_swing.Location = new Point(3, 0);
@@ -415,6 +420,7 @@
             // 
             // tbPanel_Swing_disconnect
             // 
+            tbPanel_Swing_disconnect.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_disconnect.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_disconnect.ColumnCount = 1;
             tbPanel_Swing_disconnect.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -433,7 +439,7 @@
             // lab_disS
             // 
             lab_disS.AutoSize = true;
-            lab_disS.BackColor = SystemColors.ButtonFace;
+            lab_disS.BackColor = SystemColors.ButtonHighlight;
             lab_disS.Dock = DockStyle.Fill;
             lab_disS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_disS.Location = new Point(3, 47);
@@ -446,7 +452,7 @@
             // lab_disconnect_sawing
             // 
             lab_disconnect_sawing.AutoSize = true;
-            lab_disconnect_sawing.BackColor = SystemColors.ButtonFace;
+            lab_disconnect_sawing.BackColor = SystemColors.ButtonHighlight;
             lab_disconnect_sawing.Dock = DockStyle.Fill;
             lab_disconnect_sawing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_disconnect_sawing.Location = new Point(3, 0);
@@ -458,6 +464,7 @@
             // 
             // tbPanel_Swing_green
             // 
+            tbPanel_Swing_green.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_green.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_green.ColumnCount = 1;
             tbPanel_Swing_green.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -474,7 +481,7 @@
             // lab_gS
             // 
             lab_gS.AutoSize = true;
-            lab_gS.BackColor = SystemColors.ButtonFace;
+            lab_gS.BackColor = SystemColors.ButtonHighlight;
             lab_gS.Dock = DockStyle.Fill;
             lab_gS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_gS.Location = new Point(3, 46);
@@ -487,7 +494,7 @@
             // lab_green_swing
             // 
             lab_green_swing.AutoSize = true;
-            lab_green_swing.BackColor = SystemColors.ButtonFace;
+            lab_green_swing.BackColor = SystemColors.ButtonHighlight;
             lab_green_swing.Dock = DockStyle.Fill;
             lab_green_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_green_swing.Location = new Point(3, 0);
@@ -498,6 +505,7 @@
             // 
             // tbPanel_Swing_yellow
             // 
+            tbPanel_Swing_yellow.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_yellow.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_yellow.ColumnCount = 1;
             tbPanel_Swing_yellow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -514,7 +522,7 @@
             // lab_yS
             // 
             lab_yS.AutoSize = true;
-            lab_yS.BackColor = SystemColors.ButtonFace;
+            lab_yS.BackColor = SystemColors.ButtonHighlight;
             lab_yS.Dock = DockStyle.Fill;
             lab_yS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yS.Location = new Point(3, 46);
@@ -527,7 +535,7 @@
             // lab_yellow_swing
             // 
             lab_yellow_swing.AutoSize = true;
-            lab_yellow_swing.BackColor = SystemColors.ButtonFace;
+            lab_yellow_swing.BackColor = SystemColors.ButtonHighlight;
             lab_yellow_swing.Dock = DockStyle.Fill;
             lab_yellow_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yellow_swing.Location = new Point(3, 0);
@@ -539,6 +547,7 @@
             // panel11
             // 
             panel11.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel11.BackColor = SystemColors.ButtonHighlight;
             panel11.BorderStyle = BorderStyle.FixedSingle;
             panel11.Controls.Add(tbPanel_Drill_sum);
             panel11.Controls.Add(tbPanel_Drill_connect);
@@ -556,6 +565,7 @@
             // 
             // tbPanel_Drill_sum
             // 
+            tbPanel_Drill_sum.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_sum.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_sum.ColumnCount = 1;
             tbPanel_Drill_sum.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -572,7 +582,7 @@
             // lab_sumD
             // 
             lab_sumD.AutoSize = true;
-            lab_sumD.BackColor = SystemColors.ButtonFace;
+            lab_sumD.BackColor = SystemColors.ButtonHighlight;
             lab_sumD.Dock = DockStyle.Fill;
             lab_sumD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_sumD.Location = new Point(3, 50);
@@ -585,7 +595,7 @@
             // lab_sum
             // 
             lab_sum.AutoSize = true;
-            lab_sum.BackColor = SystemColors.ButtonFace;
+            lab_sum.BackColor = SystemColors.ButtonHighlight;
             lab_sum.Dock = DockStyle.Fill;
             lab_sum.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_sum.Location = new Point(3, 0);
@@ -596,6 +606,7 @@
             // 
             // tbPanel_Drill_connect
             // 
+            tbPanel_Drill_connect.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_connect.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_connect.ColumnCount = 1;
             tbPanel_Drill_connect.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -612,7 +623,7 @@
             // lab_connectD
             // 
             lab_connectD.AutoSize = true;
-            lab_connectD.BackColor = SystemColors.ButtonFace;
+            lab_connectD.BackColor = SystemColors.ButtonHighlight;
             lab_connectD.Dock = DockStyle.Fill;
             lab_connectD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_connectD.Location = new Point(3, 50);
@@ -625,7 +636,7 @@
             // lab_connect
             // 
             lab_connect.AutoSize = true;
-            lab_connect.BackColor = SystemColors.ButtonFace;
+            lab_connect.BackColor = SystemColors.ButtonHighlight;
             lab_connect.Dock = DockStyle.Fill;
             lab_connect.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_connect.Location = new Point(3, 0);
@@ -636,6 +647,7 @@
             // 
             // tbPanel_Drill_red
             // 
+            tbPanel_Drill_red.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_red.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_red.ColumnCount = 1;
             tbPanel_Drill_red.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -652,7 +664,7 @@
             // lab_rD
             // 
             lab_rD.AutoSize = true;
-            lab_rD.BackColor = SystemColors.ButtonFace;
+            lab_rD.BackColor = SystemColors.ButtonHighlight;
             lab_rD.Dock = DockStyle.Fill;
             lab_rD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_rD.Location = new Point(3, 47);
@@ -665,7 +677,7 @@
             // lab_red
             // 
             lab_red.AutoSize = true;
-            lab_red.BackColor = SystemColors.ButtonFace;
+            lab_red.BackColor = SystemColors.ButtonHighlight;
             lab_red.Dock = DockStyle.Fill;
             lab_red.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_red.Location = new Point(3, 0);
@@ -676,6 +688,7 @@
             // 
             // tbPanel_Drill_disconnect
             // 
+            tbPanel_Drill_disconnect.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_disconnect.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_disconnect.ColumnCount = 1;
             tbPanel_Drill_disconnect.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -692,7 +705,7 @@
             // lab_disD
             // 
             lab_disD.AutoSize = true;
-            lab_disD.BackColor = SystemColors.ButtonFace;
+            lab_disD.BackColor = SystemColors.ButtonHighlight;
             lab_disD.Dock = DockStyle.Fill;
             lab_disD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_disD.Location = new Point(3, 50);
@@ -705,7 +718,7 @@
             // lab_disconnect
             // 
             lab_disconnect.AutoSize = true;
-            lab_disconnect.BackColor = SystemColors.ButtonFace;
+            lab_disconnect.BackColor = SystemColors.ButtonHighlight;
             lab_disconnect.Dock = DockStyle.Fill;
             lab_disconnect.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_disconnect.Location = new Point(3, 0);
@@ -717,6 +730,7 @@
             // 
             // tbPanel_Drill_green
             // 
+            tbPanel_Drill_green.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_green.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_green.ColumnCount = 1;
             tbPanel_Drill_green.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -733,7 +747,7 @@
             // lab_gD
             // 
             lab_gD.AutoSize = true;
-            lab_gD.BackColor = SystemColors.ButtonFace;
+            lab_gD.BackColor = SystemColors.ButtonHighlight;
             lab_gD.Dock = DockStyle.Fill;
             lab_gD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_gD.Location = new Point(3, 48);
@@ -746,7 +760,7 @@
             // lab_green
             // 
             lab_green.AutoSize = true;
-            lab_green.BackColor = SystemColors.ButtonFace;
+            lab_green.BackColor = SystemColors.ButtonHighlight;
             lab_green.Dock = DockStyle.Fill;
             lab_green.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_green.Location = new Point(3, 0);
@@ -757,6 +771,7 @@
             // 
             // tbPanel_Drill_yellow
             // 
+            tbPanel_Drill_yellow.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_yellow.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_yellow.ColumnCount = 1;
             tbPanel_Drill_yellow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
@@ -773,7 +788,7 @@
             // lab_yD
             // 
             lab_yD.AutoSize = true;
-            lab_yD.BackColor = SystemColors.ButtonFace;
+            lab_yD.BackColor = SystemColors.ButtonHighlight;
             lab_yD.Dock = DockStyle.Fill;
             lab_yD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yD.Location = new Point(3, 48);
@@ -786,7 +801,7 @@
             // lab_yellow
             // 
             lab_yellow.AutoSize = true;
-            lab_yellow.BackColor = SystemColors.ButtonFace;
+            lab_yellow.BackColor = SystemColors.ButtonHighlight;
             lab_yellow.Dock = DockStyle.Fill;
             lab_yellow.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yellow.Location = new Point(3, 0);
@@ -797,6 +812,7 @@
             // 
             // panel1
             // 
+            panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.BorderStyle = BorderStyle.FixedSingle;
             panel1.Controls.Add(btn_Drill_lifesetting);
             panel1.Controls.Add(lab_Sawing_lifesetting);
@@ -807,7 +823,7 @@
             // 
             // btn_Drill_lifesetting
             // 
-            btn_Drill_lifesetting.BackColor = SystemColors.ButtonFace;
+            btn_Drill_lifesetting.BackColor = SystemColors.ButtonHighlight;
             btn_Drill_lifesetting.FlatStyle = FlatStyle.Flat;
             btn_Drill_lifesetting.Location = new Point(119, 14);
             btn_Drill_lifesetting.Margin = new Padding(4);
@@ -822,7 +838,7 @@
             // 
             lab_Sawing_lifesetting.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lab_Sawing_lifesetting.AutoSize = true;
-            lab_Sawing_lifesetting.BackColor = SystemColors.ButtonFace;
+            lab_Sawing_lifesetting.BackColor = SystemColors.ButtonHighlight;
             lab_Sawing_lifesetting.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Sawing_lifesetting.Location = new Point(17, 18);
             lab_Sawing_lifesetting.Name = "lab_Sawing_lifesetting";
@@ -833,6 +849,7 @@
             // 
             // panel2
             // 
+            panel2.BackColor = SystemColors.ButtonHighlight;
             panel2.BorderStyle = BorderStyle.FixedSingle;
             panel2.Controls.Add(btn_Drill_Info);
             panel2.Controls.Add(btn_machInfo);
@@ -843,7 +860,7 @@
             // 
             // btn_Drill_Info
             // 
-            btn_Drill_Info.BackColor = SystemColors.ButtonFace;
+            btn_Drill_Info.BackColor = SystemColors.ButtonHighlight;
             btn_Drill_Info.FlatStyle = FlatStyle.Flat;
             btn_Drill_Info.Location = new Point(5, 14);
             btn_Drill_Info.Margin = new Padding(4);
@@ -857,7 +874,7 @@
             // btn_machInfo
             // 
             btn_machInfo.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            btn_machInfo.BackColor = SystemColors.ButtonFace;
+            btn_machInfo.BackColor = SystemColors.ButtonHighlight;
             btn_machInfo.FlatStyle = FlatStyle.Flat;
             btn_machInfo.Location = new Point(16, 10);
             btn_machInfo.Margin = new Padding(4);
@@ -870,6 +887,7 @@
             // panel_SwingTime
             // 
             panel_SwingTime.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel_SwingTime.BackColor = SystemColors.ButtonHighlight;
             panel_SwingTime.BorderStyle = BorderStyle.FixedSingle;
             panel_SwingTime.Controls.Add(tbPanel_Swing_totaltime);
             panel_SwingTime.Controls.Add(tbPanel_countdowntools);
@@ -889,6 +907,7 @@
             // tbPanel_Swing_totaltime
             // 
             tbPanel_Swing_totaltime.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_Swing_totaltime.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Swing_totaltime.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Swing_totaltime.ColumnCount = 1;
             tbPanel_Swing_totaltime.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -913,19 +932,18 @@
             // 
             lb_totaltime.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lb_totaltime.AutoSize = true;
-            lb_totaltime.BackColor = SystemColors.ButtonFace;
+            lb_totaltime.BackColor = SystemColors.ButtonHighlight;
             lb_totaltime.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_totaltime.Location = new Point(3, 19);
             lb_totaltime.Name = "lb_totaltime";
             lb_totaltime.Size = new Size(291, 22);
             lb_totaltime.TabIndex = 47;
-            lb_totaltime.Text = " 天  時  分  秒";
             lb_totaltime.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lb_totaltimeText
             // 
             lb_totaltimeText.AutoSize = true;
-            lb_totaltimeText.BackColor = SystemColors.ButtonFace;
+            lb_totaltimeText.BackColor = SystemColors.ButtonHighlight;
             lb_totaltimeText.Dock = DockStyle.Fill;
             lb_totaltimeText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_totaltimeText.Location = new Point(3, 0);
@@ -938,6 +956,7 @@
             // tbPanel_countdowntools
             // 
             tbPanel_countdowntools.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_countdowntools.BackColor = SystemColors.ButtonHighlight;
             tbPanel_countdowntools.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_countdowntools.ColumnCount = 1;
             tbPanel_countdowntools.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 65.16393F));
@@ -961,7 +980,7 @@
             // lb_remain_tools
             // 
             lb_remain_tools.AutoSize = true;
-            lb_remain_tools.BackColor = SystemColors.ButtonFace;
+            lb_remain_tools.BackColor = SystemColors.ButtonHighlight;
             lb_remain_tools.Dock = DockStyle.Fill;
             lb_remain_tools.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_remain_tools.Location = new Point(3, 21);
@@ -974,7 +993,7 @@
             // lb_remain_toolsText
             // 
             lb_remain_toolsText.AutoSize = true;
-            lb_remain_toolsText.BackColor = SystemColors.ButtonFace;
+            lb_remain_toolsText.BackColor = SystemColors.ButtonHighlight;
             lb_remain_toolsText.Dock = DockStyle.Fill;
             lb_remain_toolsText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_remain_toolsText.Location = new Point(3, 0);
@@ -987,6 +1006,7 @@
             // tbPanel_countdown
             // 
             tbPanel_countdown.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_countdown.BackColor = SystemColors.ButtonHighlight;
             tbPanel_countdown.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_countdown.ColumnCount = 1;
             tbPanel_countdown.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1011,19 +1031,18 @@
             // 
             lb_countdown_time.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lb_countdown_time.AutoSize = true;
-            lb_countdown_time.BackColor = SystemColors.ButtonFace;
+            lb_countdown_time.BackColor = SystemColors.ButtonHighlight;
             lb_countdown_time.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_countdown_time.Location = new Point(3, 19);
             lb_countdown_time.Name = "lb_countdown_time";
             lb_countdown_time.Size = new Size(291, 21);
             lb_countdown_time.TabIndex = 47;
-            lb_countdown_time.Text = "  時  分  秒";
             lb_countdown_time.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lb_countdown_timeText
             // 
             lb_countdown_timeText.AutoSize = true;
-            lb_countdown_timeText.BackColor = SystemColors.ButtonFace;
+            lb_countdown_timeText.BackColor = SystemColors.ButtonHighlight;
             lb_countdown_timeText.Dock = DockStyle.Fill;
             lb_countdown_timeText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_countdown_timeText.Location = new Point(3, 0);
@@ -1036,6 +1055,7 @@
             // tbPanel_Electricity
             // 
             tbPanel_Electricity.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_Electricity.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Electricity.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Electricity.ColumnCount = 1;
             tbPanel_Electricity.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1059,7 +1079,7 @@
             // lb_electricity
             // 
             lb_electricity.AutoSize = true;
-            lb_electricity.BackColor = SystemColors.ButtonFace;
+            lb_electricity.BackColor = SystemColors.ButtonHighlight;
             lb_electricity.Dock = DockStyle.Fill;
             lb_electricity.Font = new Font("Microsoft JhengHei UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_electricity.Location = new Point(3, 18);
@@ -1072,7 +1092,7 @@
             // lab_reset1
             // 
             lab_reset1.AutoSize = true;
-            lab_reset1.BackColor = SystemColors.ButtonFace;
+            lab_reset1.BackColor = SystemColors.ButtonHighlight;
             lab_reset1.Dock = DockStyle.Fill;
             lab_reset1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_reset1.Location = new Point(3, 0);
@@ -1085,6 +1105,7 @@
             // tbPanel_powerconsumption
             // 
             tbPanel_powerconsumption.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_powerconsumption.BackColor = SystemColors.ButtonHighlight;
             tbPanel_powerconsumption.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_powerconsumption.ColumnCount = 1;
             tbPanel_powerconsumption.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1108,7 +1129,7 @@
             // lb_swingpower
             // 
             lb_swingpower.AutoSize = true;
-            lb_swingpower.BackColor = SystemColors.ButtonFace;
+            lb_swingpower.BackColor = SystemColors.ButtonHighlight;
             lb_swingpower.Dock = DockStyle.Fill;
             lb_swingpower.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_swingpower.Location = new Point(3, 19);
@@ -1121,7 +1142,7 @@
             // lab_power1
             // 
             lab_power1.AutoSize = true;
-            lab_power1.BackColor = SystemColors.ButtonFace;
+            lab_power1.BackColor = SystemColors.ButtonHighlight;
             lab_power1.Dock = DockStyle.Fill;
             lab_power1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_power1.Location = new Point(3, 0);
@@ -1135,6 +1156,7 @@
             // 
             tbPanel_oilpressure.AccessibleRole = AccessibleRole.None;
             tbPanel_oilpressure.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_oilpressure.BackColor = SystemColors.ButtonHighlight;
             tbPanel_oilpressure.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_oilpressure.ColumnCount = 1;
             tbPanel_oilpressure.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1158,7 +1180,7 @@
             // lb_oilpress
             // 
             lb_oilpress.AutoSize = true;
-            lb_oilpress.BackColor = SystemColors.ButtonFace;
+            lb_oilpress.BackColor = SystemColors.ButtonHighlight;
             lb_oilpress.Dock = DockStyle.Fill;
             lb_oilpress.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_oilpress.Location = new Point(3, 20);
@@ -1171,7 +1193,7 @@
             // lb_oilpressText
             // 
             lb_oilpressText.AutoSize = true;
-            lb_oilpressText.BackColor = SystemColors.ButtonFace;
+            lb_oilpressText.BackColor = SystemColors.ButtonHighlight;
             lb_oilpressText.Dock = DockStyle.Fill;
             lb_oilpressText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_oilpressText.Location = new Point(3, 0);
@@ -1184,6 +1206,7 @@
             // tbPanel_Ammeter
             // 
             tbPanel_Ammeter.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_Ammeter.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Ammeter.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Ammeter.ColumnCount = 1;
             tbPanel_Ammeter.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1207,7 +1230,7 @@
             // lb_swing_current
             // 
             lb_swing_current.AutoSize = true;
-            lb_swing_current.BackColor = SystemColors.ButtonFace;
+            lb_swing_current.BackColor = SystemColors.ButtonHighlight;
             lb_swing_current.Dock = DockStyle.Fill;
             lb_swing_current.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_swing_current.Location = new Point(3, 22);
@@ -1220,7 +1243,7 @@
             // label_Ammeter1
             // 
             label_Ammeter1.AutoSize = true;
-            label_Ammeter1.BackColor = SystemColors.ButtonFace;
+            label_Ammeter1.BackColor = SystemColors.ButtonHighlight;
             label_Ammeter1.Dock = DockStyle.Fill;
             label_Ammeter1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label_Ammeter1.Location = new Point(3, 0);
@@ -1233,6 +1256,7 @@
             // tbPanel_Voltage
             // 
             tbPanel_Voltage.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_Voltage.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Voltage.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Voltage.ColumnCount = 1;
             tbPanel_Voltage.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1256,20 +1280,20 @@
             // lb_swing_Voltage
             // 
             lb_swing_Voltage.AutoSize = true;
-            lb_swing_Voltage.BackColor = SystemColors.ButtonFace;
+            lb_swing_Voltage.BackColor = SystemColors.ButtonHighlight;
             lb_swing_Voltage.Dock = DockStyle.Fill;
             lb_swing_Voltage.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_swing_Voltage.Location = new Point(3, 22);
             lb_swing_Voltage.Name = "lb_swing_Voltage";
             lb_swing_Voltage.Size = new Size(140, 21);
             lb_swing_Voltage.TabIndex = 26;
-            lb_swing_Voltage.Text = "0 伏特";
+            lb_swing_Voltage.Text = "0 (V)";
             lb_swing_Voltage.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lb_Voltage1
             // 
             lb_Voltage1.AutoSize = true;
-            lb_Voltage1.BackColor = SystemColors.ButtonFace;
+            lb_Voltage1.BackColor = SystemColors.ButtonHighlight;
             lb_Voltage1.Dock = DockStyle.Fill;
             lb_Voltage1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_Voltage1.Location = new Point(3, 0);
@@ -1282,6 +1306,7 @@
             // tbPanel_cuting_speed
             // 
             tbPanel_cuting_speed.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_cuting_speed.BackColor = SystemColors.ButtonHighlight;
             tbPanel_cuting_speed.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_cuting_speed.ColumnCount = 1;
             tbPanel_cuting_speed.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1305,7 +1330,7 @@
             // lb_sawing_cutingspeed
             // 
             lb_sawing_cutingspeed.AutoSize = true;
-            lb_sawing_cutingspeed.BackColor = SystemColors.ButtonFace;
+            lb_sawing_cutingspeed.BackColor = SystemColors.ButtonHighlight;
             lb_sawing_cutingspeed.Dock = DockStyle.Fill;
             lb_sawing_cutingspeed.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_sawing_cutingspeed.Location = new Point(3, 22);
@@ -1318,7 +1343,7 @@
             // lb_sawing_cutingspeedText
             // 
             lb_sawing_cutingspeedText.AutoSize = true;
-            lb_sawing_cutingspeedText.BackColor = SystemColors.ButtonFace;
+            lb_sawing_cutingspeedText.BackColor = SystemColors.ButtonHighlight;
             lb_sawing_cutingspeedText.Dock = DockStyle.Fill;
             lb_sawing_cutingspeedText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_sawing_cutingspeedText.Location = new Point(3, 0);
@@ -1331,6 +1356,7 @@
             // tbPanel_motor_current
             // 
             tbPanel_motor_current.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            tbPanel_motor_current.BackColor = SystemColors.ButtonHighlight;
             tbPanel_motor_current.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_motor_current.ColumnCount = 1;
             tbPanel_motor_current.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1354,7 +1380,7 @@
             // lb_swing_motor_current
             // 
             lb_swing_motor_current.AutoSize = true;
-            lb_swing_motor_current.BackColor = SystemColors.ButtonFace;
+            lb_swing_motor_current.BackColor = SystemColors.ButtonHighlight;
             lb_swing_motor_current.Dock = DockStyle.Fill;
             lb_swing_motor_current.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_swing_motor_current.Location = new Point(3, 22);
@@ -1367,7 +1393,7 @@
             // lb_swing_motor_currentText
             // 
             lb_swing_motor_currentText.AutoSize = true;
-            lb_swing_motor_currentText.BackColor = SystemColors.ButtonFace;
+            lb_swing_motor_currentText.BackColor = SystemColors.ButtonHighlight;
             lb_swing_motor_currentText.Dock = DockStyle.Fill;
             lb_swing_motor_currentText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_swing_motor_currentText.Location = new Point(3, 0);
@@ -1392,6 +1418,7 @@
             // panel_DrillTime
             // 
             panel_DrillTime.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel_DrillTime.BackColor = SystemColors.ButtonHighlight;
             panel_DrillTime.BorderStyle = BorderStyle.FixedSingle;
             panel_DrillTime.Controls.Add(tbPanel_drillpower);
             panel_DrillTime.Controls.Add(tbPanel_drilldu);
@@ -1407,6 +1434,7 @@
             // tbPanel_drillpower
             // 
             tbPanel_drillpower.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tbPanel_drillpower.BackColor = SystemColors.ButtonHighlight;
             tbPanel_drillpower.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_drillpower.ColumnCount = 1;
             tbPanel_drillpower.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1430,7 +1458,7 @@
             // lb_drillpower
             // 
             lb_drillpower.AutoSize = true;
-            lb_drillpower.BackColor = SystemColors.ButtonFace;
+            lb_drillpower.BackColor = SystemColors.ButtonHighlight;
             lb_drillpower.Dock = DockStyle.Fill;
             lb_drillpower.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             lb_drillpower.Location = new Point(3, 24);
@@ -1443,20 +1471,21 @@
             // lab_power
             // 
             lab_power.AutoSize = true;
-            lab_power.BackColor = SystemColors.ButtonFace;
+            lab_power.BackColor = SystemColors.ButtonHighlight;
             lab_power.Dock = DockStyle.Fill;
             lab_power.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_power.Location = new Point(3, 0);
             lab_power.Name = "lab_power";
             lab_power.Size = new Size(135, 24);
             lab_power.TabIndex = 24;
-            lab_power.Text = "消耗功率";
+            lab_power.Text = "當前消耗功率";
             lab_power.TextAlign = ContentAlignment.MiddleCenter;
             lab_power.Click += lab_power_Click;
             // 
             // tbPanel_drilldu
             // 
             tbPanel_drilldu.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tbPanel_drilldu.BackColor = SystemColors.ButtonHighlight;
             tbPanel_drilldu.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_drilldu.ColumnCount = 1;
             tbPanel_drilldu.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1480,7 +1509,7 @@
             // lb_drill_du
             // 
             lb_drill_du.AutoSize = true;
-            lb_drill_du.BackColor = SystemColors.ButtonFace;
+            lb_drill_du.BackColor = SystemColors.ButtonHighlight;
             lb_drill_du.Dock = DockStyle.Fill;
             lb_drill_du.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             lb_drill_du.Location = new Point(3, 21);
@@ -1489,11 +1518,12 @@
             lb_drill_du.TabIndex = 27;
             lb_drill_du.Text = "0\r\n千瓦/小時";
             lb_drill_du.TextAlign = ContentAlignment.MiddleCenter;
+            lb_drill_du.Click += lb_drill_du_Click;
             // 
             // lab_reset
             // 
             lab_reset.AutoSize = true;
-            lab_reset.BackColor = SystemColors.ButtonFace;
+            lab_reset.BackColor = SystemColors.ButtonHighlight;
             lab_reset.Dock = DockStyle.Fill;
             lab_reset.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_reset.Location = new Point(3, 0);
@@ -1507,6 +1537,7 @@
             // tbPanel_drillcurrent
             // 
             tbPanel_drillcurrent.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tbPanel_drillcurrent.BackColor = SystemColors.ButtonHighlight;
             tbPanel_drillcurrent.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_drillcurrent.ColumnCount = 1;
             tbPanel_drillcurrent.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1530,7 +1561,7 @@
             // lb_drill_current
             // 
             lb_drill_current.AutoSize = true;
-            lb_drill_current.BackColor = SystemColors.ButtonFace;
+            lb_drill_current.BackColor = SystemColors.ButtonHighlight;
             lb_drill_current.Dock = DockStyle.Fill;
             lb_drill_current.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             lb_drill_current.Location = new Point(3, 23);
@@ -1543,7 +1574,7 @@
             // label_Ammeter
             // 
             label_Ammeter.AutoSize = true;
-            label_Ammeter.BackColor = SystemColors.ButtonFace;
+            label_Ammeter.BackColor = SystemColors.ButtonHighlight;
             label_Ammeter.Dock = DockStyle.Fill;
             label_Ammeter.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label_Ammeter.Location = new Point(3, 0);
@@ -1556,6 +1587,7 @@
             // tbPanel_Drill_totaltime
             // 
             tbPanel_Drill_totaltime.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tbPanel_Drill_totaltime.BackColor = SystemColors.ButtonHighlight;
             tbPanel_Drill_totaltime.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_Drill_totaltime.ColumnCount = 1;
             tbPanel_Drill_totaltime.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1580,19 +1612,18 @@
             // 
             lb_Drill_totaltime.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lb_Drill_totaltime.AutoSize = true;
-            lb_Drill_totaltime.BackColor = SystemColors.ButtonFace;
+            lb_Drill_totaltime.BackColor = SystemColors.ButtonHighlight;
             lb_Drill_totaltime.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_Drill_totaltime.Location = new Point(3, 24);
             lb_Drill_totaltime.Name = "lb_Drill_totaltime";
             lb_Drill_totaltime.Size = new Size(292, 26);
             lb_Drill_totaltime.TabIndex = 47;
-            lb_Drill_totaltime.Text = " 天  時  分  秒";
             lb_Drill_totaltime.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lb_Drill_totaltimeText
             // 
             lb_Drill_totaltimeText.AutoSize = true;
-            lb_Drill_totaltimeText.BackColor = SystemColors.ButtonFace;
+            lb_Drill_totaltimeText.BackColor = SystemColors.ButtonHighlight;
             lb_Drill_totaltimeText.Dock = DockStyle.Fill;
             lb_Drill_totaltimeText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_Drill_totaltimeText.Location = new Point(3, 0);
@@ -1605,6 +1636,7 @@
             // tbPanel_drillvoltage
             // 
             tbPanel_drillvoltage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tbPanel_drillvoltage.BackColor = SystemColors.ButtonHighlight;
             tbPanel_drillvoltage.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_drillvoltage.ColumnCount = 1;
             tbPanel_drillvoltage.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1628,7 +1660,7 @@
             // lb_drill_Voltage
             // 
             lb_drill_Voltage.AutoSize = true;
-            lb_drill_Voltage.BackColor = SystemColors.ButtonFace;
+            lb_drill_Voltage.BackColor = SystemColors.ButtonHighlight;
             lb_drill_Voltage.Dock = DockStyle.Fill;
             lb_drill_Voltage.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             lb_drill_Voltage.Location = new Point(3, 22);
@@ -1641,7 +1673,7 @@
             // lb_Voltage
             // 
             lb_Voltage.AutoSize = true;
-            lb_Voltage.BackColor = SystemColors.ButtonFace;
+            lb_Voltage.BackColor = SystemColors.ButtonHighlight;
             lb_Voltage.Dock = DockStyle.Fill;
             lb_Voltage.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_Voltage.Location = new Point(3, 0);
@@ -1654,6 +1686,7 @@
             // tbPanel_cutingtime
             // 
             tbPanel_cutingtime.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tbPanel_cutingtime.BackColor = SystemColors.ButtonHighlight;
             tbPanel_cutingtime.BorderStyle = BorderStyle.FixedSingle;
             tbPanel_cutingtime.ColumnCount = 1;
             tbPanel_cutingtime.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -1678,19 +1711,18 @@
             // 
             lb_cutingtime.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lb_cutingtime.AutoSize = true;
-            lb_cutingtime.BackColor = SystemColors.ButtonFace;
+            lb_cutingtime.BackColor = SystemColors.ButtonHighlight;
             lb_cutingtime.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_cutingtime.Location = new Point(3, 24);
             lb_cutingtime.Name = "lb_cutingtime";
             lb_cutingtime.Size = new Size(292, 26);
             lb_cutingtime.TabIndex = 47;
-            lb_cutingtime.Text = " 天  時  分  秒";
             lb_cutingtime.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lb_cutingtimeText
             // 
             lb_cutingtimeText.AutoSize = true;
-            lb_cutingtimeText.BackColor = SystemColors.ButtonFace;
+            lb_cutingtimeText.BackColor = SystemColors.ButtonHighlight;
             lb_cutingtimeText.Dock = DockStyle.Fill;
             lb_cutingtimeText.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lb_cutingtimeText.Location = new Point(3, 0);
@@ -1703,6 +1735,7 @@
             // panel_Drill
             // 
             panel_Drill.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panel_Drill.BackColor = SystemColors.ButtonHighlight;
             panel_Drill.BackgroundImage = Properties.Resources.Drill;
             panel_Drill.BackgroundImageLayout = ImageLayout.Stretch;
             panel_Drill.BorderStyle = BorderStyle.FixedSingle;
@@ -1714,6 +1747,7 @@
             // lab_time
             // 
             lab_time.AutoSize = true;
+            lab_time.BackColor = SystemColors.ButtonHighlight;
             lab_time.Location = new Point(826, 618);
             lab_time.Name = "lab_time";
             lab_time.Size = new Size(0, 15);
@@ -1723,6 +1757,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(956, 625);
             Controls.Add(lab_time);

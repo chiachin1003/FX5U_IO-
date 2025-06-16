@@ -47,4 +47,14 @@ namespace FX5U_IOMonitor.Data
 
     }
 
+    public class AlarmHistoryViewModel
+    {
+        public string IPC_table { get; set; }
+        public string Error { get; set; }
+        public string classTag { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
+        public TimeSpan? Duration { get; set; }    // 故障持續時間
+
+    }
 }

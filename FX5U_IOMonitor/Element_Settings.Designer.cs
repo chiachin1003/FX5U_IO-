@@ -68,6 +68,7 @@
             // 
             // lab_green
             // 
+            lab_green.BackColor = SystemColors.ButtonHighlight;
             lab_green.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_green.Location = new Point(23, 324);
             lab_green.Name = "lab_green";
@@ -77,27 +78,30 @@
             // 
             // btn_add
             // 
+            btn_add.BackColor = SystemColors.ButtonHighlight;
             btn_add.Location = new Point(352, 505);
             btn_add.Name = "btn_add";
             btn_add.Size = new Size(78, 36);
             btn_add.TabIndex = 25;
             btn_add.Text = "新增";
-            btn_add.UseVisualStyleBackColor = true;
+            btn_add.UseVisualStyleBackColor = false;
             btn_add.Click += btn_add_Click;
             // 
             // btn_update
             // 
+            btn_update.BackColor = SystemColors.ButtonHighlight;
             btn_update.Location = new Point(265, 505);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(81, 36);
             btn_update.TabIndex = 32;
             btn_update.Text = "更新";
-            btn_update.UseVisualStyleBackColor = true;
+            btn_update.UseVisualStyleBackColor = false;
             btn_update.Click += btn_update_Click;
             // 
             // lab_yellowText
             // 
             lab_yellowText.AutoSize = true;
+            lab_yellowText.BackColor = SystemColors.ButtonHighlight;
             lab_yellowText.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yellowText.Location = new Point(28, 403);
             lab_yellowText.Name = "lab_yellowText";
@@ -109,6 +113,7 @@
             // lab_redText
             // 
             lab_redText.AutoSize = true;
+            lab_redText.BackColor = SystemColors.ButtonHighlight;
             lab_redText.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_redText.Location = new Point(28, 468);
             lab_redText.Name = "lab_redText";
@@ -119,6 +124,7 @@
             // 
             // tableLayoutPanel1
             // 
+            tableLayoutPanel1.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 63.8820648F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.1179352F));
@@ -138,6 +144,7 @@
             // comb_type
             // 
             comb_type.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_type.BackColor = SystemColors.ButtonHighlight;
             comb_type.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_type.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             comb_type.FormattingEnabled = true;
@@ -152,6 +159,7 @@
             // 
             lab_elementType.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_elementType.AutoSize = true;
+            lab_elementType.BackColor = SystemColors.ButtonHighlight;
             lab_elementType.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_elementType.Location = new Point(3, 43);
             lab_elementType.Name = "lab_elementType";
@@ -162,6 +170,7 @@
             // comb_machine
             // 
             comb_machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_machine.BackColor = SystemColors.ButtonHighlight;
             comb_machine.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_machine.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             comb_machine.FormattingEnabled = true;
@@ -177,6 +186,7 @@
             // 
             lab_machineType.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_machineType.AutoSize = true;
+            lab_machineType.BackColor = SystemColors.ButtonHighlight;
             lab_machineType.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_machineType.Location = new Point(3, 5);
             lab_machineType.Name = "lab_machineType";
@@ -186,6 +196,7 @@
             // 
             // tableLayoutPanel2
             // 
+            tableLayoutPanel2.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel2.ColumnCount = 2;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 64.12776F));
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35.8722343F));
@@ -210,6 +221,7 @@
             // txb_max_number
             // 
             txb_max_number.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_max_number.BackColor = SystemColors.ButtonHighlight;
             txb_max_number.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             txb_max_number.Location = new Point(265, 123);
             txb_max_number.Margin = new Padding(4);
@@ -223,6 +235,7 @@
             // 
             lab_maxlifesetting.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_maxlifesetting.AutoSize = true;
+            lab_maxlifesetting.BackColor = SystemColors.ButtonHighlight;
             lab_maxlifesetting.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_maxlifesetting.Location = new Point(3, 124);
             lab_maxlifesetting.Name = "lab_maxlifesetting";
@@ -233,6 +246,7 @@
             // txb_comment
             // 
             txb_comment.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_comment.BackColor = SystemColors.ButtonHighlight;
             txb_comment.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             txb_comment.Location = new Point(264, 83);
             txb_comment.Name = "txb_comment";
@@ -243,6 +257,7 @@
             // 
             lab_describe.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_describe.AutoSize = true;
+            lab_describe.BackColor = SystemColors.ButtonHighlight;
             lab_describe.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_describe.Location = new Point(3, 84);
             lab_describe.Name = "lab_describe";
@@ -253,6 +268,7 @@
             // txb_description
             // 
             txb_description.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_description.BackColor = SystemColors.ButtonHighlight;
             txb_description.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             txb_description.Location = new Point(264, 44);
             txb_description.Name = "txb_description";
@@ -263,6 +279,7 @@
             // 
             lab_equipment.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_equipment.AutoSize = true;
+            lab_equipment.BackColor = SystemColors.ButtonHighlight;
             lab_equipment.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_equipment.Location = new Point(3, 45);
             lab_equipment.Name = "lab_equipment";
@@ -273,6 +290,7 @@
             // comb_class
             // 
             comb_class.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_class.BackColor = SystemColors.ButtonHighlight;
             comb_class.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_class.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             comb_class.FormattingEnabled = true;
@@ -285,6 +303,7 @@
             // 
             lab_class.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_class.AutoSize = true;
+            lab_class.BackColor = SystemColors.ButtonHighlight;
             lab_class.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_class.Location = new Point(3, 6);
             lab_class.Name = "lab_class";
@@ -294,6 +313,7 @@
             // 
             // tableLayoutPanel3
             // 
+            tableLayoutPanel3.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel3.ColumnCount = 2;
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 63.8820648F));
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.1179352F));
@@ -310,6 +330,7 @@
             // txb_yellow_light
             // 
             txb_yellow_light.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_yellow_light.BackColor = SystemColors.ButtonHighlight;
             txb_yellow_light.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             txb_yellow_light.Location = new Point(264, 7);
             txb_yellow_light.Margin = new Padding(4);
@@ -323,6 +344,7 @@
             // 
             lab_yellow.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_yellow.AutoSize = true;
+            lab_yellow.BackColor = SystemColors.ButtonHighlight;
             lab_yellow.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_yellow.Location = new Point(3, 8);
             lab_yellow.Name = "lab_yellow";
@@ -332,6 +354,7 @@
             // 
             // tableLayoutPanel4
             // 
+            tableLayoutPanel4.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel4.ColumnCount = 2;
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 63.8820648F));
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 36.1179352F));
@@ -348,6 +371,7 @@
             // txb_red_light
             // 
             txb_red_light.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_red_light.BackColor = SystemColors.ButtonHighlight;
             txb_red_light.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             txb_red_light.Location = new Point(264, 7);
             txb_red_light.Margin = new Padding(4);
@@ -361,6 +385,7 @@
             // 
             lab_red.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_red.AutoSize = true;
+            lab_red.BackColor = SystemColors.ButtonHighlight;
             lab_red.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_red.Location = new Point(3, 8);
             lab_red.Name = "lab_red";
@@ -370,6 +395,7 @@
             // 
             // tableLayoutPanel5
             // 
+            tableLayoutPanel5.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel5.ColumnCount = 3;
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 85.6060638F));
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 14.393939F));
@@ -388,6 +414,7 @@
             // txb_address
             // 
             txb_address.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_address.BackColor = SystemColors.ButtonHighlight;
             txb_address.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             txb_address.Location = new Point(307, 3);
             txb_address.Name = "txb_address";
@@ -398,6 +425,7 @@
             // comb_io
             // 
             comb_io.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_io.BackColor = SystemColors.ButtonHighlight;
             comb_io.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_io.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
             comb_io.FormattingEnabled = true;
@@ -412,6 +440,7 @@
             // 
             lab_elementLocal.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_elementLocal.AutoSize = true;
+            lab_elementLocal.BackColor = SystemColors.ButtonHighlight;
             lab_elementLocal.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_elementLocal.Location = new Point(3, 4);
             lab_elementLocal.Name = "lab_elementLocal";
@@ -423,6 +452,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(455, 553);
             Controls.Add(tableLayoutPanel4);
             Controls.Add(lab_yellowText);

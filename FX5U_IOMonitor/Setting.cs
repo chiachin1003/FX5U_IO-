@@ -20,7 +20,7 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
-
+            
         }
 
         private void btn_file_download_Click(object sender, EventArgs e)
@@ -62,6 +62,14 @@ namespace FX5U_IOMonitor
             }
         }
 
+        private void btn_history_Click(object sender, EventArgs e)
+        {
+            using (var form = new History_record())
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
+            }
+        }
     }
 
 }

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace FX5U_IOMonitor.Models
 {
@@ -13,12 +14,14 @@ namespace FX5U_IOMonitor.Models
 
         public static string ConvertSecondsToDHMS(int totalSeconds)
         {
-            int days = totalSeconds / 86400;
+            //int days = totalSeconds / 86400;
             int hours = (totalSeconds % 86400) / 3600;
             int minutes = (totalSeconds % 3600) / 60;
             int seconds = totalSeconds % 60;
 
-            return $"{days} 天 {hours} 時 {minutes} 分 {seconds} 秒";
+            //return $"{days} 天 {hours} 時 {minutes} 分 {seconds} 秒";
+            return $" {hours} : {minutes} : {seconds} ";
+
         }
 
         /// <summary>
