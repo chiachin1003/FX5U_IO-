@@ -38,6 +38,7 @@
             // 
             // displayBox
             // 
+            displayBox.BackColor = SystemColors.ButtonHighlight;
             displayBox.Dock = DockStyle.Fill;
             displayBox.Location = new Point(0, 0);
             displayBox.Name = "displayBox";
@@ -66,6 +67,7 @@
             ResumeLayout(false);
             PerformLayout();
         }
+
         private void InitializePopup()
         {
             this.checkedListBox = new CheckedListBox();

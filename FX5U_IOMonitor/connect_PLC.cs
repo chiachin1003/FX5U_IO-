@@ -393,7 +393,7 @@ namespace FX5U_IOMonitor
                 if (e.NewValue == true)
                 {
                     DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
-                    //_ = HandleAlarmAndSendEmailAsync(e);
+                    _ = HandleAlarmAndSendEmailAsync(e);
 
                 }
                 else 

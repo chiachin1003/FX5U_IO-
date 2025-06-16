@@ -32,13 +32,14 @@ namespace FX5U_IOMonitor.panel_control
             // 建立 Button
             Button btn = new Button
             {
-                BackColor = SystemColors.ButtonFace,
+                BackColor = SystemColors.ButtonHighlight,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold),
                 Size = new Size(115, 55),
                 Location = new Point(0, 135),
                 Text = btn_Text,
                 Name = $"btn_{baseName}"
+
             };
             btn.Click += Btn_Click;
             this.Controls.Add(btn);

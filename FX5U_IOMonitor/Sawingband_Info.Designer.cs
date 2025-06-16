@@ -412,6 +412,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(730, 630);
             Controls.Add(lab_time);

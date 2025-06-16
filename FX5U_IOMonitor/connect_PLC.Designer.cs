@@ -81,6 +81,7 @@ namespace FX5U_IOMonitor
             // 
             // panel_Ethernet
             // 
+            panel_Ethernet.BackColor = SystemColors.ButtonHighlight;
             panel_Ethernet.Controls.Add(btn_disconnect_ethernet);
             panel_Ethernet.Controls.Add(btn_connect_ethernet);
             panel_Ethernet.Controls.Add(txb_port);
@@ -95,6 +96,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_disconnect_ethernet
             // 
+            btn_disconnect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_disconnect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_disconnect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             btn_disconnect_ethernet.Location = new Point(418, 289);
@@ -102,11 +104,12 @@ namespace FX5U_IOMonitor
             btn_disconnect_ethernet.Size = new Size(110, 43);
             btn_disconnect_ethernet.TabIndex = 6;
             btn_disconnect_ethernet.Text = "斷線";
-            btn_disconnect_ethernet.UseVisualStyleBackColor = true;
+            btn_disconnect_ethernet.UseVisualStyleBackColor = false;
             btn_disconnect_ethernet.Click += btn_disconnect_ethernet_Click;
             // 
             // btn_connect_ethernet
             // 
+            btn_connect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_connect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             btn_connect_ethernet.Location = new Point(302, 289);
@@ -114,11 +117,12 @@ namespace FX5U_IOMonitor
             btn_connect_ethernet.Size = new Size(94, 43);
             btn_connect_ethernet.TabIndex = 5;
             btn_connect_ethernet.Text = "連線";
-            btn_connect_ethernet.UseVisualStyleBackColor = true;
+            btn_connect_ethernet.UseVisualStyleBackColor = false;
             btn_connect_ethernet.Click += btn_connect_ethernet_Click;
             // 
             // txb_port
             // 
+            txb_port.BackColor = SystemColors.ButtonHighlight;
             txb_port.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_port.Location = new Point(24, 201);
             txb_port.Name = "txb_port";
@@ -129,6 +133,7 @@ namespace FX5U_IOMonitor
             // 
             // txb_IP
             // 
+            txb_IP.BackColor = SystemColors.ButtonHighlight;
             txb_IP.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_IP.Location = new Point(24, 80);
             txb_IP.Name = "txb_IP";
@@ -140,6 +145,7 @@ namespace FX5U_IOMonitor
             // lab_Enthernetport
             // 
             lab_Enthernetport.AutoSize = true;
+            lab_Enthernetport.BackColor = SystemColors.ButtonHighlight;
             lab_Enthernetport.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_Enthernetport.Location = new Point(24, 151);
             lab_Enthernetport.Name = "lab_Enthernetport";
@@ -150,6 +156,7 @@ namespace FX5U_IOMonitor
             // label_IP
             // 
             label_IP.AutoSize = true;
+            label_IP.BackColor = SystemColors.ButtonHighlight;
             label_IP.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             label_IP.Location = new Point(24, 23);
             label_IP.Name = "label_IP";
@@ -159,6 +166,7 @@ namespace FX5U_IOMonitor
             // 
             // panel_RS485
             // 
+            panel_RS485.BackColor = SystemColors.ButtonHighlight;
             panel_RS485.Controls.Add(tableLayoutPanel2);
             panel_RS485.Controls.Add(btn_disconnect_RS485);
             panel_RS485.Controls.Add(btn_connect_RS485);
@@ -170,6 +178,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel2
             // 
+            tableLayoutPanel2.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel2.ColumnCount = 2;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 53.1876144F));
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46.8123856F));
@@ -197,6 +206,7 @@ namespace FX5U_IOMonitor
             // comb_StopBits
             // 
             comb_StopBits.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_StopBits.BackColor = SystemColors.ButtonHighlight;
             comb_StopBits.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_StopBits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_StopBits.FormattingEnabled = true;
@@ -209,6 +219,7 @@ namespace FX5U_IOMonitor
             // lab_StopBits
             // 
             lab_StopBits.AutoSize = true;
+            lab_StopBits.BackColor = SystemColors.ButtonHighlight;
             lab_StopBits.Dock = DockStyle.Fill;
             lab_StopBits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_StopBits.Location = new Point(3, 236);
@@ -221,6 +232,7 @@ namespace FX5U_IOMonitor
             // comb_Parity
             // 
             comb_Parity.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_Parity.BackColor = SystemColors.ButtonHighlight;
             comb_Parity.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_Parity.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_Parity.FormattingEnabled = true;
@@ -233,6 +245,7 @@ namespace FX5U_IOMonitor
             // lab_Parity
             // 
             lab_Parity.AutoSize = true;
+            lab_Parity.BackColor = SystemColors.ButtonHighlight;
             lab_Parity.Dock = DockStyle.Fill;
             lab_Parity.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_Parity.Location = new Point(3, 177);
@@ -245,6 +258,7 @@ namespace FX5U_IOMonitor
             // comb_Bits
             // 
             comb_Bits.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_Bits.BackColor = SystemColors.ButtonHighlight;
             comb_Bits.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_Bits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_Bits.FormattingEnabled = true;
@@ -257,6 +271,7 @@ namespace FX5U_IOMonitor
             // lab_Bits
             // 
             lab_Bits.AutoSize = true;
+            lab_Bits.BackColor = SystemColors.ButtonHighlight;
             lab_Bits.Dock = DockStyle.Fill;
             lab_Bits.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_Bits.Location = new Point(3, 118);
@@ -269,6 +284,7 @@ namespace FX5U_IOMonitor
             // comb_Baudrate
             // 
             comb_Baudrate.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_Baudrate.BackColor = SystemColors.ButtonHighlight;
             comb_Baudrate.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_Baudrate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             comb_Baudrate.FormattingEnabled = true;
@@ -281,6 +297,7 @@ namespace FX5U_IOMonitor
             // label_BaudRate
             // 
             label_BaudRate.AutoSize = true;
+            label_BaudRate.BackColor = SystemColors.ButtonHighlight;
             label_BaudRate.Dock = DockStyle.Fill;
             label_BaudRate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             label_BaudRate.Location = new Point(3, 59);
@@ -293,6 +310,7 @@ namespace FX5U_IOMonitor
             // txb_comport
             // 
             txb_comport.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_comport.BackColor = SystemColors.ButtonHighlight;
             txb_comport.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_comport.Location = new Point(295, 12);
             txb_comport.Name = "txb_comport";
@@ -304,6 +322,7 @@ namespace FX5U_IOMonitor
             // label_COM
             // 
             label_COM.AutoSize = true;
+            label_COM.BackColor = SystemColors.ButtonHighlight;
             label_COM.Dock = DockStyle.Fill;
             label_COM.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             label_COM.Location = new Point(3, 0);
@@ -315,6 +334,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_disconnect_RS485
             // 
+            btn_disconnect_RS485.BackColor = SystemColors.ButtonHighlight;
             btn_disconnect_RS485.FlatStyle = FlatStyle.Flat;
             btn_disconnect_RS485.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             btn_disconnect_RS485.Location = new Point(442, 332);
@@ -322,11 +342,12 @@ namespace FX5U_IOMonitor
             btn_disconnect_RS485.Size = new Size(110, 42);
             btn_disconnect_RS485.TabIndex = 6;
             btn_disconnect_RS485.Text = "斷線";
-            btn_disconnect_RS485.UseVisualStyleBackColor = true;
+            btn_disconnect_RS485.UseVisualStyleBackColor = false;
             btn_disconnect_RS485.Click += btn_disconnect_RS485_Click;
             // 
             // btn_connect_RS485
             // 
+            btn_connect_RS485.BackColor = SystemColors.ButtonHighlight;
             btn_connect_RS485.FlatStyle = FlatStyle.Flat;
             btn_connect_RS485.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             btn_connect_RS485.Location = new Point(295, 332);
@@ -334,11 +355,12 @@ namespace FX5U_IOMonitor
             btn_connect_RS485.Size = new Size(94, 42);
             btn_connect_RS485.TabIndex = 5;
             btn_connect_RS485.Text = "連線";
-            btn_connect_RS485.UseVisualStyleBackColor = true;
+            btn_connect_RS485.UseVisualStyleBackColor = false;
             btn_connect_RS485.Click += btn_connect_RS485_Click;
             // 
             // button1
             // 
+            button1.BackColor = SystemColors.ButtonHighlight;
             button1.FlatStyle = FlatStyle.Flat;
             button1.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
             button1.Location = new Point(8, 121);
@@ -346,11 +368,12 @@ namespace FX5U_IOMonitor
             button1.Size = new Size(135, 29);
             button1.TabIndex = 7;
             button1.Text = "數值模擬寫入";
-            button1.UseVisualStyleBackColor = true;
+            button1.UseVisualStyleBackColor = false;
             button1.Visible = false;
             // 
             // textBox1
             // 
+            textBox1.BackColor = SystemColors.ButtonHighlight;
             textBox1.Font = new Font("微軟正黑體", 9F, FontStyle.Bold, GraphicsUnit.Point, 136);
             textBox1.Location = new Point(94, 83);
             textBox1.Name = "textBox1";
@@ -361,6 +384,7 @@ namespace FX5U_IOMonitor
             // 
             // textBox2
             // 
+            textBox2.BackColor = SystemColors.ButtonHighlight;
             textBox2.Font = new Font("微軟正黑體", 9F, FontStyle.Bold, GraphicsUnit.Point, 136);
             textBox2.Location = new Point(94, 37);
             textBox2.Name = "textBox2";
@@ -371,6 +395,7 @@ namespace FX5U_IOMonitor
             // 
             // comb_language
             // 
+            comb_language.BackColor = SystemColors.ButtonHighlight;
             comb_language.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_language.Font = new Font("微軟正黑體", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
             comb_language.FormattingEnabled = true;
@@ -384,6 +409,7 @@ namespace FX5U_IOMonitor
             // label2
             // 
             label2.AutoSize = true;
+            label2.BackColor = SystemColors.ButtonHighlight;
             label2.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label2.Location = new Point(9, 40);
             label2.Name = "label2";
@@ -395,6 +421,7 @@ namespace FX5U_IOMonitor
             // label5
             // 
             label5.AutoSize = true;
+            label5.BackColor = SystemColors.ButtonHighlight;
             label5.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label5.Location = new Point(40, 88);
             label5.Name = "label5";
@@ -405,6 +432,7 @@ namespace FX5U_IOMonitor
             // 
             // panel1
             // 
+            panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.Controls.Add(comb_language);
             panel1.Controls.Add(label5);
             panel1.Controls.Add(button1);
@@ -420,6 +448,7 @@ namespace FX5U_IOMonitor
             // 
             // button_FILE
             // 
+            button_FILE.BackColor = SystemColors.ButtonHighlight;
             button_FILE.FlatStyle = FlatStyle.Flat;
             button_FILE.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
             button_FILE.Location = new Point(793, 176);
@@ -427,12 +456,13 @@ namespace FX5U_IOMonitor
             button_FILE.Size = new Size(89, 31);
             button_FILE.TabIndex = 22;
             button_FILE.Text = "檔案寫入";
-            button_FILE.UseVisualStyleBackColor = true;
+            button_FILE.UseVisualStyleBackColor = false;
             button_FILE.Visible = false;
             button_FILE.Click += button_FILE_Click;
             // 
             // button2
             // 
+            button2.BackColor = SystemColors.ButtonHighlight;
             button2.FlatStyle = FlatStyle.Flat;
             button2.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
             button2.Location = new Point(889, 176);
@@ -440,11 +470,12 @@ namespace FX5U_IOMonitor
             button2.Size = new Size(55, 31);
             button2.TabIndex = 23;
             button2.Text = "刪除";
-            button2.UseVisualStyleBackColor = true;
+            button2.UseVisualStyleBackColor = false;
             button2.Visible = false;
             // 
             // btn_delete
             // 
+            btn_delete.BackColor = SystemColors.ButtonHighlight;
             btn_delete.FlatStyle = FlatStyle.Flat;
             btn_delete.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btn_delete.Location = new Point(651, 33);
@@ -452,12 +483,13 @@ namespace FX5U_IOMonitor
             btn_delete.Size = new Size(94, 43);
             btn_delete.TabIndex = 27;
             btn_delete.Text = "刪除";
-            btn_delete.UseVisualStyleBackColor = true;
+            btn_delete.UseVisualStyleBackColor = false;
             btn_delete.Visible = false;
             btn_delete.Click += btn_delete_Click;
             // 
             // tableLayoutPanel1
             // 
+            tableLayoutPanel1.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 52.8985519F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 47.1014481F));
@@ -476,6 +508,7 @@ namespace FX5U_IOMonitor
             // connect_choose
             // 
             connect_choose.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            connect_choose.BackColor = SystemColors.ButtonHighlight;
             connect_choose.DropDownStyle = ComboBoxStyle.DropDownList;
             connect_choose.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             connect_choose.FormattingEnabled = true;
@@ -488,6 +521,7 @@ namespace FX5U_IOMonitor
             // lab_Type
             // 
             lab_Type.AutoSize = true;
+            lab_Type.BackColor = SystemColors.ButtonHighlight;
             lab_Type.Dock = DockStyle.Fill;
             lab_Type.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
             lab_Type.Location = new Point(3, 51);
@@ -500,6 +534,7 @@ namespace FX5U_IOMonitor
             // control_choose
             // 
             control_choose.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            control_choose.BackColor = SystemColors.ButtonHighlight;
             control_choose.DropDownStyle = ComboBoxStyle.DropDownList;
             control_choose.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             control_choose.FormattingEnabled = true;
@@ -512,6 +547,7 @@ namespace FX5U_IOMonitor
             // lab_MachineType
             // 
             lab_MachineType.AutoSize = true;
+            lab_MachineType.BackColor = SystemColors.ButtonHighlight;
             lab_MachineType.Dock = DockStyle.Fill;
             lab_MachineType.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
             lab_MachineType.Location = new Point(3, 0);
@@ -523,6 +559,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel3
             // 
+            tableLayoutPanel3.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel3.ColumnCount = 3;
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 61.0416679F));
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38.9583321F));
@@ -541,6 +578,7 @@ namespace FX5U_IOMonitor
             // btn_addmachine
             // 
             btn_addmachine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            btn_addmachine.BackColor = SystemColors.ButtonHighlight;
             btn_addmachine.FlatStyle = FlatStyle.Flat;
             btn_addmachine.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
             btn_addmachine.Location = new Point(483, 3);
@@ -548,12 +586,13 @@ namespace FX5U_IOMonitor
             btn_addmachine.Size = new Size(66, 41);
             btn_addmachine.TabIndex = 28;
             btn_addmachine.Text = "新增";
-            btn_addmachine.UseVisualStyleBackColor = true;
+            btn_addmachine.UseVisualStyleBackColor = false;
             btn_addmachine.Click += btn_addmachine_Click;
             // 
             // txb_machine
             // 
             txb_machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            txb_machine.BackColor = SystemColors.ButtonHighlight;
             txb_machine.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             txb_machine.Location = new Point(296, 6);
             txb_machine.Name = "txb_machine";
@@ -565,6 +604,7 @@ namespace FX5U_IOMonitor
             // 
             lab_Add_Machine.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             lab_Add_Machine.AutoSize = true;
+            lab_Add_Machine.BackColor = SystemColors.ButtonHighlight;
             lab_Add_Machine.Font = new Font("微軟正黑體", 15.75F, FontStyle.Bold);
             lab_Add_Machine.Location = new Point(3, 10);
             lab_Add_Machine.Name = "lab_Add_Machine";
@@ -574,14 +614,15 @@ namespace FX5U_IOMonitor
             // 
             // btn_mishubishi
             // 
+            btn_mishubishi.BackColor = SystemColors.ButtonHighlight;
             btn_mishubishi.FlatStyle = FlatStyle.Flat;
             btn_mishubishi.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_mishubishi.Location = new Point(651, 94);
+            btn_mishubishi.Location = new Point(651, 88);
             btn_mishubishi.Name = "btn_mishubishi";
             btn_mishubishi.Size = new Size(94, 52);
             btn_mishubishi.TabIndex = 30;
             btn_mishubishi.Text = "切換監控\r\n三菱控制器";
-            btn_mishubishi.UseVisualStyleBackColor = true;
+            btn_mishubishi.UseVisualStyleBackColor = false;
             btn_mishubishi.Visible = false;
             btn_mishubishi.Click += btn_mishubishi_Click;
             // 
@@ -589,6 +630,7 @@ namespace FX5U_IOMonitor
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(1221, 664);
             Controls.Add(btn_mishubishi);
             Controls.Add(tableLayoutPanel3);

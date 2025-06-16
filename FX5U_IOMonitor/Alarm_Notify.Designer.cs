@@ -53,6 +53,7 @@ namespace FX5U_IO元件監控
             // radioButton_alluser
             // 
             radioButton_alluser.AutoSize = true;
+            radioButton_alluser.BackColor = SystemColors.ButtonHighlight;
             radioButton_alluser.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             radioButton_alluser.Location = new Point(18, 49);
             radioButton_alluser.Name = "radioButton_alluser";
@@ -60,10 +61,11 @@ namespace FX5U_IO元件監控
             radioButton_alluser.TabIndex = 0;
             radioButton_alluser.TabStop = true;
             radioButton_alluser.Text = "所有使用者接收訊息";
-            radioButton_alluser.UseVisualStyleBackColor = true;
+            radioButton_alluser.UseVisualStyleBackColor = false;
             // 
             // panel1
             // 
+            panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.BorderStyle = BorderStyle.FixedSingle;
             panel1.Controls.Add(checkcombobox_special);
             panel1.Controls.Add(panel3);
@@ -78,6 +80,7 @@ namespace FX5U_IO元件監控
             // 
             // checkcombobox_special
             // 
+            checkcombobox_special.BackColor = SystemColors.ButtonHighlight;
             checkcombobox_special.Location = new Point(18, 119);
             checkcombobox_special.Name = "checkcombobox_special";
             checkcombobox_special.Size = new Size(358, 23);
@@ -86,7 +89,7 @@ namespace FX5U_IO元件監控
             // 
             // panel3
             // 
-            panel3.BackColor = SystemColors.ScrollBar;
+            panel3.BackColor = SystemColors.ButtonHighlight;
             panel3.Controls.Add(lab_alarm_notify);
             panel3.Dock = DockStyle.Top;
             panel3.Location = new Point(0, 0);
@@ -98,6 +101,7 @@ namespace FX5U_IO元件監控
             // 
             lab_alarm_notify.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             lab_alarm_notify.AutoSize = true;
+            lab_alarm_notify.BackColor = SystemColors.ButtonHighlight;
             lab_alarm_notify.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_alarm_notify.Location = new Point(18, 9);
             lab_alarm_notify.Name = "lab_alarm_notify";
@@ -107,18 +111,20 @@ namespace FX5U_IO元件監控
             // 
             // btn_update
             // 
+            btn_update.BackColor = SystemColors.ButtonHighlight;
             btn_update.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold);
             btn_update.Location = new Point(397, 109);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(69, 33);
             btn_update.TabIndex = 3;
             btn_update.Text = "更新";
-            btn_update.UseVisualStyleBackColor = true;
+            btn_update.UseVisualStyleBackColor = false;
             btn_update.Click += btn_update_Click;
             // 
             // radioButton_DesignatedUser
             // 
             radioButton_DesignatedUser.AutoSize = true;
+            radioButton_DesignatedUser.BackColor = SystemColors.ButtonHighlight;
             radioButton_DesignatedUser.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             radioButton_DesignatedUser.Location = new Point(18, 152);
             radioButton_DesignatedUser.Name = "radioButton_DesignatedUser";
@@ -126,11 +132,12 @@ namespace FX5U_IO元件監控
             radioButton_DesignatedUser.TabIndex = 2;
             radioButton_DesignatedUser.TabStop = true;
             radioButton_DesignatedUser.Text = "每種訊息個別發送至指定使用者";
-            radioButton_DesignatedUser.UseVisualStyleBackColor = true;
+            radioButton_DesignatedUser.UseVisualStyleBackColor = false;
             // 
             // radioButton_special
             // 
             radioButton_special.AutoSize = true;
+            radioButton_special.BackColor = SystemColors.ButtonHighlight;
             radioButton_special.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold);
             radioButton_special.Location = new Point(18, 89);
             radioButton_special.Name = "radioButton_special";
@@ -138,10 +145,11 @@ namespace FX5U_IO元件監控
             radioButton_special.TabIndex = 1;
             radioButton_special.TabStop = true;
             radioButton_special.Text = "特定使用者接受訊息";
-            radioButton_special.UseVisualStyleBackColor = true;
+            radioButton_special.UseVisualStyleBackColor = false;
             // 
             // panel2
             // 
+            panel2.BackColor = SystemColors.ButtonHighlight;
             panel2.Controls.Add(control_choose);
             panel2.Controls.Add(btn_apply);
             panel2.Controls.Add(lab_machine);
@@ -155,6 +163,7 @@ namespace FX5U_IO元件監控
             // 
             // control_choose
             // 
+            control_choose.BackColor = SystemColors.ButtonHighlight;
             control_choose.DropDownStyle = ComboBoxStyle.DropDownList;
             control_choose.Font = new Font("微軟正黑體", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             control_choose.FormattingEnabled = true;
@@ -166,16 +175,18 @@ namespace FX5U_IO元件監控
             // 
             // btn_apply
             // 
+            btn_apply.BackColor = SystemColors.ButtonHighlight;
             btn_apply.Location = new Point(450, 10);
             btn_apply.Name = "btn_apply";
             btn_apply.Size = new Size(57, 37);
             btn_apply.TabIndex = 4;
             btn_apply.Text = "應用";
-            btn_apply.UseVisualStyleBackColor = true;
+            btn_apply.UseVisualStyleBackColor = false;
             // 
             // lab_machine
             // 
             lab_machine.AutoSize = true;
+            lab_machine.BackColor = SystemColors.ButtonHighlight;
             lab_machine.Font = new Font("微軟正黑體", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_machine.Location = new Point(26, 14);
             lab_machine.Name = "lab_machine";
@@ -185,6 +196,7 @@ namespace FX5U_IO元件監控
             // 
             // panel4
             // 
+            panel4.BackColor = SystemColors.ButtonHighlight;
             panel4.BorderStyle = BorderStyle.FixedSingle;
             panel4.Controls.Add(treeView1);
             panel4.Location = new Point(26, 263);
@@ -194,6 +206,7 @@ namespace FX5U_IO元件監控
             // 
             // treeView1
             // 
+            treeView1.BackColor = SystemColors.ButtonHighlight;
             treeView1.Dock = DockStyle.Fill;
             treeView1.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
             treeView1.Location = new Point(0, 0);

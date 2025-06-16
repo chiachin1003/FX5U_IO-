@@ -62,6 +62,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel6
             // 
+            tableLayoutPanel6.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel6.ColumnCount = 1;
             tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel6.Controls.Add(label2, 0, 1);
@@ -77,7 +78,7 @@ namespace FX5U_IOMonitor
             // label2
             // 
             label2.AutoSize = true;
-            label2.BackColor = SystemColors.ButtonFace;
+            label2.BackColor = SystemColors.ButtonHighlight;
             label2.Dock = DockStyle.Fill;
             label2.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             label2.Location = new Point(3, 57);
@@ -90,7 +91,7 @@ namespace FX5U_IOMonitor
             // lab_yellow
             // 
             lab_yellow.AutoSize = true;
-            lab_yellow.BackColor = SystemColors.ButtonFace;
+            lab_yellow.BackColor = SystemColors.ButtonHighlight;
             lab_yellow.Dock = DockStyle.Fill;
             lab_yellow.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold);
             lab_yellow.Location = new Point(3, 0);
@@ -102,6 +103,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel5
             // 
+            tableLayoutPanel5.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel5.ColumnCount = 1;
             tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel5.Controls.Add(label3, 0, 1);
@@ -117,7 +119,7 @@ namespace FX5U_IOMonitor
             // label3
             // 
             label3.AutoSize = true;
-            label3.BackColor = SystemColors.ButtonFace;
+            label3.BackColor = SystemColors.ButtonHighlight;
             label3.Dock = DockStyle.Fill;
             label3.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             label3.Location = new Point(3, 59);
@@ -130,7 +132,7 @@ namespace FX5U_IOMonitor
             // lab_green
             // 
             lab_green.AutoSize = true;
-            lab_green.BackColor = SystemColors.ButtonFace;
+            lab_green.BackColor = SystemColors.ButtonHighlight;
             lab_green.Dock = DockStyle.Fill;
             lab_green.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold);
             lab_green.Location = new Point(3, 0);
@@ -142,6 +144,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel4
             // 
+            tableLayoutPanel4.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel4.ColumnCount = 1;
             tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel4.Controls.Add(label4, 0, 1);
@@ -157,7 +160,7 @@ namespace FX5U_IOMonitor
             // label4
             // 
             label4.AutoSize = true;
-            label4.BackColor = SystemColors.ButtonFace;
+            label4.BackColor = SystemColors.ButtonHighlight;
             label4.Dock = DockStyle.Fill;
             label4.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             label4.Location = new Point(3, 59);
@@ -170,7 +173,7 @@ namespace FX5U_IOMonitor
             // lab_partalarm
             // 
             lab_partalarm.AutoSize = true;
-            lab_partalarm.BackColor = SystemColors.ButtonFace;
+            lab_partalarm.BackColor = SystemColors.ButtonHighlight;
             lab_partalarm.Dock = DockStyle.Fill;
             lab_partalarm.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold);
             lab_partalarm.Location = new Point(3, 0);
@@ -182,6 +185,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel3
             // 
+            tableLayoutPanel3.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel3.ColumnCount = 1;
             tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel3.Controls.Add(label5, 0, 1);
@@ -197,7 +201,7 @@ namespace FX5U_IOMonitor
             // label5
             // 
             label5.AutoSize = true;
-            label5.BackColor = SystemColors.ButtonFace;
+            label5.BackColor = SystemColors.ButtonHighlight;
             label5.Dock = DockStyle.Fill;
             label5.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             label5.Location = new Point(3, 59);
@@ -210,7 +214,7 @@ namespace FX5U_IOMonitor
             // lab_connect
             // 
             lab_connect.AutoSize = true;
-            lab_connect.BackColor = SystemColors.ButtonFace;
+            lab_connect.BackColor = SystemColors.ButtonHighlight;
             lab_connect.Dock = DockStyle.Fill;
             lab_connect.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold);
             lab_connect.Location = new Point(3, 0);
@@ -222,6 +226,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel2
             // 
+            tableLayoutPanel2.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel2.ColumnCount = 1;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel2.Controls.Add(label1, 0, 1);
@@ -237,7 +242,7 @@ namespace FX5U_IOMonitor
             // label1
             // 
             label1.AutoSize = true;
-            label1.BackColor = SystemColors.ButtonFace;
+            label1.BackColor = SystemColors.ButtonHighlight;
             label1.Dock = DockStyle.Fill;
             label1.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             label1.Location = new Point(3, 59);
@@ -250,7 +255,7 @@ namespace FX5U_IOMonitor
             // lab_red
             // 
             lab_red.AutoSize = true;
-            lab_red.BackColor = SystemColors.ButtonFace;
+            lab_red.BackColor = SystemColors.ButtonHighlight;
             lab_red.Dock = DockStyle.Fill;
             lab_red.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold);
             lab_red.Location = new Point(3, 0);
@@ -262,6 +267,7 @@ namespace FX5U_IOMonitor
             // 
             // tableLayoutPanel1
             // 
+            tableLayoutPanel1.BackColor = SystemColors.ButtonHighlight;
             tableLayoutPanel1.ColumnCount = 1;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tableLayoutPanel1.Controls.Add(label6, 0, 1);
@@ -277,7 +283,7 @@ namespace FX5U_IOMonitor
             // label6
             // 
             label6.AutoSize = true;
-            label6.BackColor = SystemColors.ButtonFace;
+            label6.BackColor = SystemColors.ButtonHighlight;
             label6.Dock = DockStyle.Fill;
             label6.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             label6.Location = new Point(3, 59);
@@ -290,7 +296,7 @@ namespace FX5U_IOMonitor
             // lab_sum
             // 
             lab_sum.AutoSize = true;
-            lab_sum.BackColor = SystemColors.ButtonFace;
+            lab_sum.BackColor = SystemColors.ButtonHighlight;
             lab_sum.Dock = DockStyle.Fill;
             lab_sum.Font = new Font("Microsoft JhengHei UI", 24F, FontStyle.Bold);
             lab_sum.Location = new Point(3, 0);
@@ -304,7 +310,7 @@ namespace FX5U_IOMonitor
             // 
             lab_connectOK.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lab_connectOK.AutoSize = true;
-            lab_connectOK.BackColor = SystemColors.ButtonFace;
+            lab_connectOK.BackColor = SystemColors.ButtonHighlight;
             lab_connectOK.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_connectOK.Location = new Point(12, 604);
             lab_connectOK.Name = "lab_connectOK";
@@ -316,6 +322,7 @@ namespace FX5U_IOMonitor
             // label_txt
             // 
             label_txt.AutoSize = true;
+            label_txt.BackColor = SystemColors.ButtonHighlight;
             label_txt.Font = new Font("微軟正黑體", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 136);
             label_txt.Location = new Point(561, 17);
             label_txt.Margin = new Padding(4, 0, 4, 0);
@@ -327,6 +334,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_search
             // 
+            btn_search.BackColor = SystemColors.ButtonHighlight;
             btn_search.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
             btn_search.Location = new Point(864, 10);
             btn_search.Margin = new Padding(4);
@@ -334,7 +342,7 @@ namespace FX5U_IOMonitor
             btn_search.Size = new Size(67, 28);
             btn_search.TabIndex = 34;
             btn_search.Text = "搜尋";
-            btn_search.UseVisualStyleBackColor = true;
+            btn_search.UseVisualStyleBackColor = false;
             btn_search.Click += btn_search_Click;
             // 
             // txB_search
@@ -349,6 +357,7 @@ namespace FX5U_IOMonitor
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
             Controls.Add(label_txt);
             Controls.Add(btn_search);

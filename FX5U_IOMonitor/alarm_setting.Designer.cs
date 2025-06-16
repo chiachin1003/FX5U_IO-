@@ -46,6 +46,7 @@
             // 
             // panel1
             // 
+            panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.Controls.Add(lab_Description);
             panel1.Controls.Add(btn_update);
             panel1.Controls.Add(label4);
@@ -67,6 +68,7 @@
             // lab_Description
             // 
             lab_Description.AutoSize = true;
+            lab_Description.BackColor = SystemColors.ButtonHighlight;
             lab_Description.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Description.Location = new Point(128, 18);
             lab_Description.Name = "lab_Description";
@@ -77,17 +79,19 @@
             // btn_update
             // 
             btn_update.Anchor = AnchorStyles.None;
+            btn_update.BackColor = SystemColors.ButtonHighlight;
             btn_update.Location = new Point(377, 529);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(61, 39);
             btn_update.TabIndex = 2;
             btn_update.Text = "更新";
-            btn_update.UseVisualStyleBackColor = true;
+            btn_update.UseVisualStyleBackColor = false;
             btn_update.Click += btn_update_Click;
             // 
             // label4
             // 
             label4.AutoSize = true;
+            label4.BackColor = SystemColors.ButtonHighlight;
             label4.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label4.Location = new Point(128, 18);
             label4.Name = "label4";
@@ -98,6 +102,7 @@
             // lab_class
             // 
             lab_class.AutoSize = true;
+            lab_class.BackColor = SystemColors.ButtonHighlight;
             lab_class.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_class.Location = new Point(128, 61);
             lab_class.Name = "lab_class";
@@ -109,6 +114,7 @@
             // 
             txB_Possible.AcceptsReturn = true;
             txB_Possible.AcceptsTab = true;
+            txB_Possible.BackColor = SystemColors.ButtonHighlight;
             txB_Possible.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             txB_Possible.Location = new Point(128, 162);
             txB_Possible.MaxLength = 30;
@@ -120,6 +126,7 @@
             // label2
             // 
             label2.AutoSize = true;
+            label2.BackColor = SystemColors.ButtonHighlight;
             label2.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label2.Location = new Point(19, 162);
             label2.Name = "label2";
@@ -131,6 +138,7 @@
             // 
             txB_Error.AcceptsReturn = true;
             txB_Error.AcceptsTab = true;
+            txB_Error.BackColor = SystemColors.ButtonHighlight;
             txB_Error.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             txB_Error.Location = new Point(136, 99);
             txB_Error.MaxLength = 20;
@@ -141,6 +149,7 @@
             // label1
             // 
             label1.AutoSize = true;
+            label1.BackColor = SystemColors.ButtonHighlight;
             label1.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             label1.Location = new Point(19, 99);
             label1.Name = "label1";
@@ -151,6 +160,7 @@
             // lab_Possible
             // 
             lab_Possible.AutoSize = true;
+            lab_Possible.BackColor = SystemColors.ButtonHighlight;
             lab_Possible.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Possible.Location = new Point(19, 61);
             lab_Possible.Name = "lab_Possible";
@@ -161,6 +171,7 @@
             // lab_Error
             // 
             lab_Error.AutoSize = true;
+            lab_Error.BackColor = SystemColors.ButtonHighlight;
             lab_Error.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Error.Location = new Point(19, 18);
             lab_Error.Name = "lab_Error";
@@ -172,6 +183,7 @@
             // 
             txB_Step.AcceptsReturn = true;
             txB_Step.AcceptsTab = true;
+            txB_Step.BackColor = SystemColors.ButtonHighlight;
             txB_Step.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             txB_Step.Location = new Point(19, 286);
             txB_Step.Multiline = true;
@@ -183,6 +195,7 @@
             // lab_Repair_step
             // 
             lab_Repair_step.AutoSize = true;
+            lab_Repair_step.BackColor = SystemColors.ButtonHighlight;
             lab_Repair_step.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Repair_step.Location = new Point(19, 257);
             lab_Repair_step.Name = "lab_Repair_step";

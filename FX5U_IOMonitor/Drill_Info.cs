@@ -99,11 +99,11 @@ namespace FX5U_IOMonitor
             lab_Drill_inverter.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_inverter") + (DBfunction.Get_Machine_number("Drill_inverter"))));
             lab_Drill_total_Time.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
 
-            lab_Drill_origin.Text = DBfunction.Get_Machine_History_NumericValue("Drill_origin").ToString() + " 次 ";
-            lab_Drill_loose_tools.Text = DBfunction.Get_Machine_History_NumericValue("Drill_loose_tools").ToString() + " 次 ";
-            lab_Drill_measurement.Text = DBfunction.Get_Machine_History_NumericValue("Drill_measurement").ToString() + " 次 ";
-            lab_Drill_clamping.Text = DBfunction.Get_Machine_History_NumericValue("Drill_clamping").ToString() + " 次 ";
-            lab_Drill_feeder.Text = DBfunction.Get_Machine_History_NumericValue("Drill_feeder").ToString() + " 次 ";
+            lab_Drill_origin.Text = DBfunction.Get_Machine_History_NumericValue("Drill_origin").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
+            lab_Drill_loose_tools.Text = DBfunction.Get_Machine_History_NumericValue("Drill_loose_tools").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
+            lab_Drill_measurement.Text = DBfunction.Get_Machine_History_NumericValue("Drill_measurement").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
+            lab_Drill_clamping.Text = DBfunction.Get_Machine_History_NumericValue("Drill_clamping").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
+            lab_Drill_feeder.Text = DBfunction.Get_Machine_History_NumericValue("Drill_feeder").ToString() + "      "  +LanguageManager.Translate("ShowDetail_lab_count");
 
         }
 

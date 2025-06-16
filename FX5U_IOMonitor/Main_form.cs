@@ -165,27 +165,27 @@ namespace FX5U_IOMonitor
         private void swing_main_update()
         {
 
-            lb_swing_current.Text = DBfunction.Get_Machine_now_string("motor_current") + "(安培)";
+            lb_swing_current.Text = DBfunction.Get_Machine_now_string("motor_current") + "(A)";
             lb_sawing_cutingspeed.Text = DBfunction.Get_Machine_now_string("Sawing", "cuttingspeed") + "(m/min)";
-            lb_swing_Voltage.Text = DBfunction.Get_Machine_now_string("Sawing", "voltage") + "(伏特)";
-            lb_swing_motor_current.Text = DBfunction.Get_Machine_now_string("Sawing", "current") + "(安培)";
+            lb_swing_Voltage.Text = DBfunction.Get_Machine_now_string("Sawing", "voltage") + "(V)";
+            lb_swing_motor_current.Text = DBfunction.Get_Machine_now_string("Sawing", "current") + "(A)";
             lb_oilpress.Text = DBfunction.Get_Machine_now_string("Sawing", "oil_pressure");
 
-            lb_swingpower.Text = DBfunction.Get_Machine_now_string("Sawing", "Sawing_power") + "(千瓦小時)";
-            lb_electricity.Text = DBfunction.Get_Machine_now_string("Sawing", "electricity") + "(度)";
+            lb_swingpower.Text = DBfunction.Get_Machine_now_string("Sawing", "Sawing_power") + "(kWh)";
+            lb_electricity.Text = DBfunction.Get_Machine_now_string("Sawing", "electricity") + "(kWh)";
             lb_totaltime.Text = DBfunction.Get_Machine_now_string("Sawing", "total_time");
             lb_countdown_time.Text = DBfunction.Get_Machine_now_string("Sawing", "countdown_time");
-            lb_remain_tools.Text = DBfunction.Get_Machine_now_string("Sawing", "remain_tools") + "刀";
+            lb_remain_tools.Text = DBfunction.Get_Machine_now_string("Sawing", "remain_tools");
 
         }
         private void Drill_main_update()
         {
             lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
             lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
-            lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(伏特)";
-            lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(安培) ";
-            lb_drillpower.Text = DBfunction.Get_Machine_now_string("Drill", "power") + "\n(千瓦小時) ";
-            lb_drill_du.Text = DBfunction.Get_Machine_now_string("Drill", "electricity") + "\n(度)";
+            lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(V)";
+            lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(A) ";
+            lb_drillpower.Text = DBfunction.Get_Machine_now_string("Drill", "power") + "\n(kW) ";
+            lb_drill_du.Text = DBfunction.Get_Machine_now_string("Drill", "electricity") + "\n(kWh)";
 
         }
 
@@ -278,7 +278,7 @@ namespace FX5U_IOMonitor
         private void lab_reset_Click(object sender, EventArgs e)
         {
 
-            Drill_Info.ConfirmAndResetUsetime("Drill", "electricity", "確定要將用電紀錄歸零嗎?", "用電紀錄已成功歸零");
+
         }
 
         private void lab_disconnect_Click(object sender, EventArgs e)
@@ -398,5 +398,38 @@ namespace FX5U_IOMonitor
         {
             MessageBox.Show($"單次更新耗時：{stopwatch.ElapsedMilliseconds} ms");
         }
+
+        private void lb_drill_du_Click(object sender, EventArgs e)
+        {
+            Drill_Info.ConfirmAndResetUsetime("Drill", "electricity", "確定要將用電紀錄歸零嗎?", "用電紀錄已成功歸零");
+            DBfunction.Set_Machine_now_string("Drill", "electricity","0");
+        }
+
+        private void lb_swing_motor_current_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lb_sawing_cutingspeed_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lb_electricity_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lb_totaltime_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lb_swingpower_Click(object sender, EventArgs e)
+        {
+
+        }
+
+       
     }
 }

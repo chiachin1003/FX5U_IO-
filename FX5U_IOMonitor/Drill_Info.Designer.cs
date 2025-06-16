@@ -144,7 +144,7 @@
             lab_Drill_feeder.Name = "lab_Drill_feeder";
             lab_Drill_feeder.Size = new Size(322, 54);
             lab_Drill_feeder.TabIndex = 21;
-            lab_Drill_feeder.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_feeder.TextAlign = ContentAlignment.MiddleCenter;
             lab_Drill_feeder.Click += lab_Drill_feeder_Click;
             // 
             // lab_Drill_feederText
@@ -168,7 +168,7 @@
             lab_Drill_clamping.Name = "lab_Drill_clamping";
             lab_Drill_clamping.Size = new Size(322, 49);
             lab_Drill_clamping.TabIndex = 19;
-            lab_Drill_clamping.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_clamping.TextAlign = ContentAlignment.MiddleCenter;
             lab_Drill_clamping.Click += lab_Drill_clamping_Click;
             // 
             // lab_Drill_clampingText
@@ -192,7 +192,7 @@
             lab_Drill_measurement.Name = "lab_Drill_measurement";
             lab_Drill_measurement.Size = new Size(322, 49);
             lab_Drill_measurement.TabIndex = 17;
-            lab_Drill_measurement.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_measurement.TextAlign = ContentAlignment.MiddleCenter;
             lab_Drill_measurement.Click += lab_Drill_measurement_Click;
             // 
             // lab_Drill_measurementText
@@ -216,7 +216,7 @@
             lab_Drill_loose_tools.Name = "lab_Drill_loose_tools";
             lab_Drill_loose_tools.Size = new Size(322, 49);
             lab_Drill_loose_tools.TabIndex = 15;
-            lab_Drill_loose_tools.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_loose_tools.TextAlign = ContentAlignment.MiddleCenter;
             lab_Drill_loose_tools.Click += lab_Drill_loose_tools_Click;
             // 
             // lab_Drill_loose_toolsText
@@ -240,7 +240,7 @@
             lab_Drill_origin.Name = "lab_Drill_origin";
             lab_Drill_origin.Size = new Size(322, 49);
             lab_Drill_origin.TabIndex = 13;
-            lab_Drill_origin.TextAlign = ContentAlignment.MiddleRight;
+            lab_Drill_origin.TextAlign = ContentAlignment.MiddleCenter;
             lab_Drill_origin.Click += lab_Drill_origin_Click;
             // 
             // lab_Drill_originText
@@ -418,6 +418,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(730, 630);
             Controls.Add(lab_time);

@@ -1315,7 +1315,7 @@ namespace FX5U_IOMonitor.Models
                     .OrderByDescending(r => r.EndTime)
                     .Select(r => (DateTime?)r.EndTime)
                     .FirstOrDefault();
-                DateTime startTime = lastEndTime ?? DateTime.MinValue;
+                DateTime startTime = lastEndTime ?? param.CreatedAt;
                 // 建立歷史紀錄
                 var record = new MachineParameterHistoryRecode
                 {

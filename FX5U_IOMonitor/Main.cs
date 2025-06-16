@@ -64,7 +64,7 @@ namespace FX5U_IOMonitor
             Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
            
             Initialization_BladeBrandFromCSV("Blade_brand.csv");
-         
+            
             Initialization_AlarmFromCSV("alarm.csv");
             LanguageImportHelper.ImportLanguage("language.csv");
             Initialization_MachineprameterFromCSV("Machine_monction_data.csv");

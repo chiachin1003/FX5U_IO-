@@ -129,6 +129,7 @@
             // 
             AutoScaleDimensions = new SizeF(6F, 11F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(559, 493);
             Controls.Add(panel_main);
             Controls.Add(tableLayoutPanel1);

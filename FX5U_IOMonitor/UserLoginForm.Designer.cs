@@ -37,6 +37,7 @@
             // _lblAccount
             // 
             _lblAccount.AutoSize = true;
+            _lblAccount.BackColor = SystemColors.ButtonHighlight;
             _lblAccount.Location = new Point(15, 21);
             _lblAccount.Name = "_lblAccount";
             _lblAccount.Size = new Size(34, 15);
@@ -46,6 +47,7 @@
             // _lblPassword
             // 
             _lblPassword.AutoSize = true;
+            _lblPassword.BackColor = SystemColors.ButtonHighlight;
             _lblPassword.Location = new Point(15, 55);
             _lblPassword.Name = "_lblPassword";
             _lblPassword.Size = new Size(34, 15);
@@ -54,6 +56,8 @@
             // 
             // _txtAccount
             // 
+            _txtAccount.BackColor = SystemColors.ButtonHighlight;
+            _txtAccount.BorderStyle = BorderStyle.FixedSingle;
             _txtAccount.Location = new Point(96, 18);
             _txtAccount.Name = "_txtAccount";
             _txtAccount.Size = new Size(129, 23);
@@ -61,7 +65,9 @@
             // 
             // _txtPassword
             // 
-            _txtPassword.Location = new Point(96, 52);
+            _txtPassword.BackColor = SystemColors.ButtonHighlight;
+            _txtPassword.BorderStyle = BorderStyle.FixedSingle;
+            _txtPassword.Location = new Point(96, 53);
             _txtPassword.Name = "_txtPassword";
             _txtPassword.Size = new Size(129, 23);
             _txtPassword.TabIndex = 3;
@@ -69,18 +75,20 @@
             // 
             // _btnLogin
             // 
+            _btnLogin.BackColor = SystemColors.ButtonHighlight;
             _btnLogin.Location = new Point(150, 91);
             _btnLogin.Name = "_btnLogin";
             _btnLogin.Size = new Size(75, 31);
             _btnLogin.TabIndex = 4;
             _btnLogin.Text = "登入";
-            _btnLogin.UseVisualStyleBackColor = true;
+            _btnLogin.UseVisualStyleBackColor = false;
             _btnLogin.Click += _btnLogin_Click;
             // 
             // UserLoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(254, 137);
             Controls.Add(_btnLogin);
             Controls.Add(_txtPassword);

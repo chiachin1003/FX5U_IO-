@@ -86,6 +86,7 @@ namespace FX5U_IOMonitor
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
             Controls.Add(btn_Alrm_Notify);
             Controls.Add(btn_usersetting);
