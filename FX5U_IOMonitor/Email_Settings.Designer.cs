@@ -162,7 +162,6 @@
             txb_senderEmail.Name = "txb_senderEmail";
             txb_senderEmail.Size = new Size(307, 27);
             txb_senderEmail.TabIndex = 32;
-            txb_senderEmail.Text = "webform@mechalogix.com";
             // 
             // lab_Email
             // 

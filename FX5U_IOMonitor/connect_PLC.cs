@@ -181,14 +181,14 @@ namespace FX5U_IOMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        // 移除 this.Invoke，改為全程背景處理
         private void DB_update_change(object? sender, IOUpdateEventArgs e)
         {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new Action(() => DB_update_change(sender, e)));
-                return;
-            }
+            Task.Run(() => ProcessIOUpdate(sender, e));
+        }
 
+        private void ProcessIOUpdate(object? sender, IOUpdateEventArgs e)
+        {
             try
             {
                 string? datatable = sender switch
@@ -205,17 +205,18 @@ namespace FX5U_IOMonitor
                 if (number < 0)
                 {
                     DBfunction.Set_use_ByAddress(datatable, e.Address, 0);
-                    return;
+                }
+                else
+                {
+                    DBfunction.Set_use_ByAddress(datatable, e.Address, number + 1);
                 }
 
-                DBfunction.Set_use_ByAddress(datatable, e.Address, number + 1);
                 DBfunction.Set_current_single_ByAddress(datatable, e.Address, e.NewValue);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Monitor_DBuse_Updated 發生例外：{ex.Message}");
             }
-
         }
 
         private void btn_disconnect_ethernet_Click(object sender, EventArgs e)
@@ -437,9 +438,11 @@ namespace FX5U_IOMonitor
                 addressList: new List<string> { e.Address },
                 faultLocation,
                 possibleReasons: new List<string> { possibleReasons },
-                suggestions: new List<string> { suggestions, "檢查接線", "更換模組" }
+                suggestions: new List<string> { suggestions }
             );
         }
+
+      
 
         private void btn_delete_Click(object sender, EventArgs e)
         {

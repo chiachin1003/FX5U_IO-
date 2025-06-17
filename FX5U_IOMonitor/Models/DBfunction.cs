@@ -206,12 +206,31 @@ namespace FX5U_IOMonitor.Models
             }
         }
         //------尋找綠燈數量--------------
+        public static int Get_Yellow_number()
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.Machine_IO
+                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow)
+                        .Count();
+            }
+        }
+
+        public static int Get_Red_number()
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.Machine_IO
+                        .Where(io => io.RUL <= io.Setting_red)
+                        .Count();
+            }
+        }
         public static int Get_Yellow_number(string tableName)
         {
             using (var context = new ApplicationDB())
             {
                 return context.Machine_IO
-                        .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && io.Machine_name == tableName)
+                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow && io.Machine_name == tableName)
                         .Count();
             }
         }
@@ -221,7 +240,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 return context.Machine_IO
-                        .Where(io => io.RUL < io.Setting_red && io.Machine_name == tableName)
+                        .Where(io => io.RUL <= io.Setting_red && io.Machine_name == tableName)
                         .Count();
             }
         }
@@ -1687,6 +1706,9 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
+      
+
+    
     }
 
 }

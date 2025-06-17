@@ -97,30 +97,6 @@ namespace FX5U_IOMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("itrid400itri@gmail.com")]
-        public string senderEmail1 {
-            get {
-                return ((string)(this["senderEmail1"]));
-            }
-            set {
-                this["senderEmail1"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("wmfisqognlhnhcsc")]
-        public string senderPassword1 {
-            get {
-                return ((string)(this["senderPassword1"]));
-            }
-            set {
-                this["senderPassword1"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("smtp.gmail.com")]
         public string Gmail_SMTP_server1 {
             get {
@@ -128,6 +104,29 @@ namespace FX5U_IOMonitor.Properties {
             }
             set {
                 this["Gmail_SMTP_server1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.DateTime NotifyTime {
+            get {
+                return ((global::System.DateTime)(this["NotifyTime"]));
+            }
+            set {
+                this["NotifyTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("00:00:00")]
+        public global::System.TimeSpan userDefinedNotifyTime {
+            get {
+                return ((global::System.TimeSpan)(this["userDefinedNotifyTime"]));
+            }
+            set {
+                this["userDefinedNotifyTime"] = value;
             }
         }
     }

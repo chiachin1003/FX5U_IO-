@@ -55,10 +55,9 @@ namespace FX5U_IOMonitor
         public Main()
         {
 
-            DbConfig.LoadFromJson("DbConfig.json");
-         
             InitializeComponent();
-            
+
+
             InitMachineInfoDatabase();
            
             Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
@@ -135,11 +134,6 @@ namespace FX5U_IOMonitor
 
         }
 
-        private void ShowError(string step, Exception ex)
-        {
-            Debug.WriteLine($"❌ 錯誤發生於 [{step}]：{ex.Message}");
-            MessageBox.Show($"錯誤發生於：{step}\n\n錯誤內容：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
         private void btn_connect_Click(object sender, EventArgs e)
         {
             // 設置子窗體屬性以嵌入 Panel
@@ -156,8 +150,6 @@ namespace FX5U_IOMonitor
         private void btn_Main_Click(object sender, EventArgs e)
         { // 清空 Panel 的內容
             panel_main.Controls.Clear();
-            panel_select.Controls.Clear();
-
             main_Form.TopLevel = false; // 禁止作為獨立窗口
             main_Form.FormBorderStyle = FormBorderStyle.None; // 移除邊框
             main_Form.Dock = DockStyle.Fill; // 填滿 Panel
@@ -166,7 +158,6 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear(); // 清空 Panel
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
-            panel_select.Visible = true;  // 🔴 隱藏整個 panel_select
             DisplayLanguage();
         }
 

@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using SLMP;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipelines;
@@ -152,7 +153,7 @@ namespace FX5U_IOMonitor.Models
                 }
                 isFirstRead = false; // ✅ 完成第一次後設定為 false
             }
-         
+
             /// <summary>
             /// 實體元件IO狀態比較與事件觸發
             /// </summary>
@@ -188,7 +189,7 @@ namespace FX5U_IOMonitor.Models
                                     OldValue = oldVal,
                                     NewValue = newVal
                                 });
-
+                   
                             }
                         }
                     }
@@ -687,7 +688,7 @@ namespace FX5U_IOMonitor.Models
                                                         ushort val = match.current_number;
                                                         double resultVal = val * DBfunction.Get_Unit_transfer(name);
                                                         DBfunction.Set_Machine_now_number(machine_name, name, (ushort)resultVal);
-                                                        DBfunction.Set_Machine_now_string(machine_name,name, resultVal.ToString("F2"));
+                                                        DBfunction.Set_Machine_now_string(machine_name,name, resultVal.ToString("F1"));
 
                                                         //Debug.WriteLine($"[0] {name} ({address}) = {resultVal}");
                                                     }
@@ -699,7 +700,7 @@ namespace FX5U_IOMonitor.Models
                                                         {
                                                             ushort[] values = { match.current_number, nextMatch.current_number };
                                                             double merged = MonitorFunction.mergenumber(values) * DBfunction.Get_Unit_transfer(name);
-                                                            DBfunction.Set_Machine_now_string(name, merged.ToString("F2"));
+                                                            DBfunction.Set_Machine_now_string(name, merged.ToString("F1"));
                                                             //Debug.WriteLine($"[0] {name} ({address}+{nextAddress}) = {merged}");
                                                         }
                                                         else
@@ -746,7 +747,7 @@ namespace FX5U_IOMonitor.Models
                                                             ushort[] values = { match.current_number, nextMatch.current_number };
                                                             ushort resultVal = (ushort)(values.Max() - values.Min());
                                                             DBfunction.Set_Machine_now_number(machine_name, name, resultVal);
-                                                            DBfunction.Set_Machine_now_string(name, resultVal.ToString("F2"));
+                                                            DBfunction.Set_Machine_now_string(name, resultVal.ToString());
 
                                                             //Debug.WriteLine($"[2] {name} = {resultVal}");
                                                         }

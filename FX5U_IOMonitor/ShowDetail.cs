@@ -30,6 +30,8 @@ namespace FX5U_IOMonitor
         private readonly Action? onClosedCallback;
         private Panel usagePanel;
         string currentLang;
+        public event EventHandler? FormShowDetailClosed;
+
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             onClosedCallback?.Invoke(); // ✅ 呼叫外部傳入的委派
@@ -38,7 +40,7 @@ namespace FX5U_IOMonitor
         public ShowDetail(string machine, string Tag, ShowDetailPage defaultPage = ShowDetailPage.Default, Action? onClosed = null)
         {
             InitializeComponent();
-            this.currentLang = Properties.Settings.Default.LanguageSetting; 
+            this.currentLang = Properties.Settings.Default.LanguageSetting;
 
             dbtable = machine;
             equipmentTag = Tag;
@@ -60,7 +62,7 @@ namespace FX5U_IOMonitor
 
                     DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
                     string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
-                    string StartTime =$"{DBfunction.FormatNullableDateTime(start)}" + "；第" + numberReplace + "次";
+                    string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；第" + numberReplace ;
 
                     var usagePanel = Panel_design.CreateShowMainPanel(
                         equipmentTag,
@@ -83,15 +85,16 @@ namespace FX5U_IOMonitor
 
                     break;
             }
-             SwitchLanguage();
+            SwitchLanguage();
             LanguageManager.LanguageChanged += OnLanguageChanged;
+            this.FormClosed += (s, e) => FormShowDetailClosed?.Invoke(this, EventArgs.Empty);
 
         }
         private void OnLanguageChanged(string cultureName)
         {
             SwitchLanguage();
         }
-        
+
 
 
         private void btn_history_Click(object sender, EventArgs e)
@@ -146,7 +149,7 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang), StartTime
-                );
+            );
 
             panel_main.Controls.Add(usagePanel);
 
@@ -157,9 +160,9 @@ namespace FX5U_IOMonitor
         private void btn_lifeSetting_Click(object sender, EventArgs e)
         {
             panel_main.Controls.Clear();
-           
 
-            Panel Settings = Panel_design_Setting.CreateSettingPanel(dbtable ,equipmentTag, this.currentLang);
+
+            Panel Settings = Panel_design_Setting.CreateSettingPanel(dbtable, equipmentTag, this.currentLang);
             panel_main.Controls.Add(Settings);
         }
 
@@ -249,11 +252,13 @@ namespace FX5U_IOMonitor
             btn_history.Text = LanguageManager.Translate("ShowDetail_btn_history");
             btn_lifeSetting.Text = LanguageManager.Translate("ShowDetail_btn_lifeSetting");
             btn_showmain.Text = LanguageManager.Translate("ShowDetail_btn_showmain");
-            
+
             //lbl_useCount.Text = LanguageManager.TranslateFormat("Label_UseCount", currentUse);
             //lbl_remainCount.Text = LanguageManager.TranslateFormat("Label_RemainCount", remainCount);
 
 
         }
+
+      
     }
 }

@@ -5,12 +5,15 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
+using Font = System.Drawing.Font;
 
 namespace FX5U_IOMonitor.Models
 {
     internal class MachineInfo
     {
         private static string machine_name = "";
+        public static event EventHandler? NotifyShowdetailToRefresh;
 
         public static class PanelFactory
         {
@@ -161,8 +164,8 @@ namespace FX5U_IOMonitor.Models
                 {
                     double roundedValue = Math.Round(dPercent, 3);
                     // 3. 判斷數值範圍
-                    if (roundedValue < red) return Color.Red;
-                    else if (roundedValue >= red && roundedValue <= yellow) return Color.Yellow;
+                    if (roundedValue <= red) return Color.Red;
+                    else if (roundedValue > red && roundedValue <= yellow) return Color.Yellow;
                     else return Color.Green;
                 }
                 return Color.Gray;
@@ -180,7 +183,6 @@ namespace FX5U_IOMonitor.Models
 
             }
 
-
             private static void PanelLight_Click(object sender, EventArgs e)
             {
 
@@ -189,6 +191,11 @@ namespace FX5U_IOMonitor.Models
                 {
                     string equipmentTag = panelLight.Tag.ToString();  // 從 Tag 屬性中獲取設備名稱
                     ShowDetail detailForm = new ShowDetail(machine_name,equipmentTag);
+                    detailForm.FormShowDetailClosed += (s, e) =>
+                    {
+                        // C 關閉後通知 A
+                        NotifyShowdetailToRefresh?.Invoke(detailForm, EventArgs.Empty);
+                    };
                     detailForm.ShowDialog();
                 }
             }
@@ -220,8 +227,40 @@ namespace FX5U_IOMonitor.Models
                     }
                 }
             }
+            public static void UpdatePanelData(Panel panel, MachineIO item)
+            {
+                string percentText = item.RUL.ToString("F2");
+                int value = ProgressBarValue(percentText);
+                Color lightColor = (Color)SetColor(percentText, item.Setting_green, item.Setting_yellow, item.Setting_red);
 
-           
+                // 更新百分比 Label
+                var labelPercent = panel.Controls.OfType<Label>().FirstOrDefault(l => l.Name == "label_percent");
+                if (labelPercent != null)
+                    labelPercent.Text = percentText + "%";
+
+                // 更新進度條
+                var progressBar = panel.Controls.OfType<ProgressBar>().FirstOrDefault(p => p.Name == "RUL_precent");
+                if (progressBar != null)
+                    progressBar.Value = value;
+
+                // 更新燈號
+                var light = panel.Controls.OfType<Panel>().FirstOrDefault(p => p.Name == "panel_light");
+                if (light != null)
+                {
+                    light.BackColor = lightColor;
+                }
+                // 更新開關狀態
+                var panelON = panel.Controls.OfType<Panel>().FirstOrDefault(p => p.Name == "panel_ON");
+
+                if (panelON != null && item.current_single.HasValue)
+                {
+                    panelON.BackColor = item.current_single.Value ? Color.White : Color.Black;
+                }
+                var labEffect = panel.Controls.OfType<Label>().FirstOrDefault(p => p.Name == "lab_effect");
+                if (labEffect != null)
+                    labEffect.Text = item.GetComment(Properties.Settings.Default.LanguageSetting);
+            }
+
         }
     }
 }

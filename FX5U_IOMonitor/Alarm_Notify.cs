@@ -660,10 +660,10 @@ namespace FX5U_IO元件監控
         private void SwitchLanguage()
         {
             this.Text = LanguageManager.Translate("Alarm_Notify_title");
-            radioButton_alluser.Text = LanguageManager.Translate("Alarm_Notify_type");
-            radioButton_special.Text = LanguageManager.Translate("Alarm_Notify_alluser");
-            radioButton_DesignatedUser.Text = LanguageManager.Translate("Alarm_Notify_special");
-            lab_alarm_notify.Text = LanguageManager.Translate("Alarm_Notify_DesignatedUser");
+            radioButton_alluser.Text = LanguageManager.Translate("Alarm_Notify_alluser");
+            radioButton_special.Text = LanguageManager.Translate("Alarm_Notify_special");
+            radioButton_DesignatedUser.Text = LanguageManager.Translate("Alarm_Notify_DesignatedUser");
+            lab_alarm_notify.Text = LanguageManager.Translate("Alarm_Notify_type");
             lab_machine.Text = LanguageManager.Translate("Alarm_Notify_machine");
             btn_apply.Text = LanguageManager.Translate("Alarm_Notify_btn_apply");
             btn_update.Text = LanguageManager.Translate("Alarm_Notify_btn_update");

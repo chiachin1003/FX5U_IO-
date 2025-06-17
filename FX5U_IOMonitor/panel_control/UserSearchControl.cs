@@ -187,54 +187,65 @@ namespace FX5U_IOMonitor.panel_control
                     Console.WriteLine("傳入的資料為空！");
                     return;
                 }
-                foreach (Control ctrl in flowLayoutPanel2.Controls)
-                {
-                    ctrl.Dispose();
-                }
-                flowLayoutPanel2.Controls.Clear();
-                panelMap.Clear();
-
 
                 using (var context = new ApplicationDB())
                 {
                     var filteredList = context.Machine_IO.Where(io => io.Machine_name == source_table &&
                                     DataList.Contains(io.address)).Include(io => io.Translations)
+                                    .Take(MaxPanelCount)
                                     .ToList();
-                    foreach (var item in filteredList.Take(MaxPanelCount))
+
+                    var newAddresses = filteredList.Select(i => i.address).ToHashSet();
+                    var oldAddresses = panelMap.Keys.ToHashSet();
+
+                    var toRemove = oldAddresses.Except(newAddresses).ToList();
+
+                    foreach (var addr in toRemove)
+                    {
+                        var panel = panelMap[addr];
+                        flowLayoutPanel2.Controls.Remove(panel);
+                        panel.Dispose();
+                        panelMap.Remove(addr);
+                    }
+                    // 🟢 更新或新增
+                    foreach (var item in filteredList)
                     {
                         if (this.IsDisposed) break;
 
-                        Panel panel = MachineInfo.PanelFactory.CreatePanel(
-                            location: new Point(0, 0),
-                            source_table,
-                            Electronic: item.IOType,
-                            equipmentName: item.Description,
-                            percent: item.RUL.ToString("F2"),
-                            rulPercent: item.RUL.ToString("F2"),
-                            effect: item.GetComment(Properties.Settings.Default.LanguageSetting),
-                            address: item.address,
-                            state: item.current_single
-                        );
-
-                        panel.Tag = item.address;
-                        panelMap[item.address] = panel;
-                        flowLayoutPanel2.Controls.Add(panel);
-
+                        if (panelMap.TryGetValue(item.address, out var existingPanel))
+                        {
+                            MachineInfo.PanelFactory.UpdatePanelData(existingPanel, item); // ✅ 請實作此函式以更新屬性
+                        }
+                        else
+                        {
+                            Panel panel = MachineInfo.PanelFactory.CreatePanel(
+                                location: new Point(0, 0),
+                                source_table,
+                                Electronic: item.IOType,
+                                equipmentName: item.Description,
+                                percent: item.RUL.ToString("F2"),
+                                rulPercent: item.RUL.ToString("F2"),
+                                effect: item.GetComment(Properties.Settings.Default.LanguageSetting),
+                                address: item.address,
+                                state: item.current_single
+                            );
+                            panel.Tag = item.address;
+                            panelMap[item.address] = panel;
+                            flowLayoutPanel2.Controls.Add(panel);
+                        }
                     }
-                };
-                List<string> breakdown_part = DBfunction.Get_breakdown_part(source_table);
-                List<string> breakdown_address = new();
-                breakdown_address = DBfunction.Get_address_ByBreakdownParts(source_table, breakdown_part);
 
-                // 將故障對應的項目標紅與綁定點擊事件
-                foreach (string addr in breakdown_address)
-                {
-                    if (panelMap.TryGetValue(addr, out var panel))
+                    // 🔴 重建錯誤標註
+                    var breakdown_part = DBfunction.Get_breakdown_part(source_table);
+                    var breakdown_address = DBfunction.Get_address_ByBreakdownParts(source_table, breakdown_part);
+                    foreach (string addr in breakdown_address)
                     {
-                        HighlightPanel(panel, breakdown_part);
+                        if (panelMap.TryGetValue(addr, out var panel))
+                        {
+                            HighlightPanel(panel, breakdown_part);
+                        }
                     }
                 }
-
             }
             finally
             {
@@ -296,7 +307,7 @@ namespace FX5U_IOMonitor.panel_control
         /// <param name="green"></param>
         /// <param name="yellow"></param>
         /// <param name="red"></param>
-        private void Update_searchPercentPanel(Panel panel, string percent, int green, int yellow, int red)
+        public static void Update_searchPercentPanel(Panel panel, string percent, int green, int yellow, int red)
         {
 
             // ✅ 方法二：找裡面的 label 或 control 更新文字
@@ -342,7 +353,7 @@ namespace FX5U_IOMonitor.panel_control
 
                     if (panel_light.Name == "panel_light")
                     {
-                        labelRUL.BackColor = (Color)MachineInfo.PanelFactory.SetColor(percent, green, yellow, red);
+                        panel_light.BackColor = (Color)MachineInfo.PanelFactory.SetColor(percent, green, yellow, red);
                     }
                 }
             }

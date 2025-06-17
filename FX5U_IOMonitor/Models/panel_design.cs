@@ -283,8 +283,8 @@ namespace FX5U_IOMonitor.Models
                     AutoSize = true,
                     //AutoSize = false, // 關掉 AutoSize 才能控制寬度
                     //Width = 400,      // ❗你可以依畫面需求調整寬度
-                    Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
-                    Location = new Point(8, y),
+                    Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                    Location = new Point(6, y),
                     Text = $"{title}{value}",
                     TextAlign = ContentAlignment.MiddleLeft
                 };
@@ -297,17 +297,17 @@ namespace FX5U_IOMonitor.Models
             //AddLabel("元件儲存器地址", address);
             //AddLabel("更換料號　　　", equipmentDescription);
             //AddLabel("預計可觸發次數", maxLife.ToString()+"次");
-            AddLabel(LanguageManager.Translate("ShowDetail_lb_address"), address);
-            AddLabel(LanguageManager.Translate("ShowDetail_lb_descript"), equipmentDescription);
-            AddLabel(LanguageManager.Translate("CreatPanel_lb_maxCount"), maxLife.ToString() + LanguageManager.Translate("CreatPanel_lb_Count"));
+            AddLabel(LanguageManager.Translate("ShowDetail_lb_address"),address);
+            AddLabel(LanguageManager.Translate("ShowDetail_lb_descript"),equipmentDescription);
+            AddLabel(LanguageManager.Translate("CreatPanel_lb_maxCount"),maxLife.ToString()+LanguageManager.Translate("CreatPanel_lb_Count"));
             int remain = maxLife - currentUse;
             // 加入可更新的 currentUse Label
             Label lbl_useCount = new Label
             {
                 Name = "lb_useCount",
                 AutoSize = true,
-                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
-                Location = new Point(8, y),
+                Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                Location = new Point(6, y),
                 //Text=$"目前已觸發次數   ：{currentUse} 次"
                 Text = LanguageManager.TranslateFormat("ShowDetail_lb_useCount", currentUse)
             };
@@ -317,8 +317,8 @@ namespace FX5U_IOMonitor.Models
             {
                 Name = "lb_remainCount",
                 AutoSize = true,
-                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
-                Location = new Point(8, y),
+                Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                Location = new Point(6, y),
                 //Text = $"剩餘可使用次數   ：" + (maxLife - currentUse).ToString() + " 次"
                 Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remain)
 
@@ -328,10 +328,10 @@ namespace FX5U_IOMonitor.Models
 
             Label lbl_comment = new Label
             {
-                Name = "lb_useCount",
+                Name = "lbl_comment",
                 AutoSize = true,
-                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
-                Location = new Point(8, y),
+                Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                Location = new Point(6, y),
                 //Text = $"設備細節描述　   ："
                 Text = LanguageManager.Translate("ShowDetail_lb_Detail")
             };
@@ -342,10 +342,10 @@ namespace FX5U_IOMonitor.Models
             {
                 Name = "lbl_comment_string",
                 AutoSize = true,                                  // ✅ 自動展開高度
-                Font = new Font("Microsoft JhengHei", 16, FontStyle.Bold),
-                Location = new Point(200, y),
+                Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                Location = new Point(175, y),
                 MaximumSize = new Size(300, 0),                   // ✅ 限制最大寬度（會自動換行）
-                Text = comment,
+                Text =comment,
                 TextAlign = ContentAlignment.TopLeft,
             };
 

@@ -20,14 +20,14 @@
     <Setting Name="TLS_port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">587</Value>
     </Setting>
-    <Setting Name="senderEmail1" Type="System.String" Scope="User">
-      <Value Profile="(Default)">itrid400itri@gmail.com</Value>
-    </Setting>
-    <Setting Name="senderPassword1" Type="System.String" Scope="User">
-      <Value Profile="(Default)">wmfisqognlhnhcsc</Value>
-    </Setting>
     <Setting Name="Gmail_SMTP_server1" Type="System.String" Scope="User">
       <Value Profile="(Default)">smtp.gmail.com</Value>
+    </Setting>
+    <Setting Name="NotifyTime" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="userDefinedNotifyTime" Type="System.TimeSpan" Scope="User">
+      <Value Profile="(Default)">00:00:00</Value>
     </Setting>
   </Settings>
 </SettingsFile>

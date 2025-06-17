@@ -63,6 +63,7 @@ namespace FX5U_IOMonitor
 
             var searchControl = new UserSearchControl(); //  是 UserControl，不是 Form
             searchControl.LoadData(alarms, MachineType);          //  將資料傳入模組
+
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
 
 

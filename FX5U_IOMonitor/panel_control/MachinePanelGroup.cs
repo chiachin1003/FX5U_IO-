@@ -72,6 +72,10 @@ namespace FX5U_IOMonitor.panel_control
             List<string> search = DBfunction.GetClassTag_address(MachineType, baseName);
             var searchControl = new UserSearchControl();
             searchControl.LoadData(search, MachineType);
+            MachineInfo.NotifyShowdetailToRefresh += (s, e) =>
+            {
+                searchControl.Update_Flow(search);
+            };
             Main.Instance.UpdatePanel(searchControl);
         }
 

@@ -15,6 +15,9 @@ namespace FX5U_IOMonitor.Resources
         public Email_Settings()
         {
             InitializeComponent();
+           
+            txb_senderEmail.Text = Properties.Settings.Default.senderEmail;
+            txb_senderPassword.Text = Properties.Settings.Default.senderPassword;
             txb_senderPassword.PasswordChar = '*';  // 隱藏密碼
             comboBox1.SelectedIndex = 0;
             string lang = Properties.Settings.Default.LanguageSetting;
