@@ -373,7 +373,7 @@ namespace FX5U_IOMonitor
             Margin = new Padding(4);
             Name = "Machine_main";
             Text = "s";
-            Load += Swing_main_Load;
+            Load += Machine_main_Load;
             VisibleChanged += Swing_main_VisibleChanged;
             tableLayoutPanel6.ResumeLayout(false);
             tableLayoutPanel6.PerformLayout();

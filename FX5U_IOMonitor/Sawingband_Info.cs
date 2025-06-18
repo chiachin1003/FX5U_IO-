@@ -6,6 +6,7 @@ using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using System.Threading;
 using System.Diagnostics;
+using static FX5U_IOMonitor.Check_point;
 
 
 
@@ -48,13 +49,12 @@ namespace FX5U_IOMonitor
             }
         }
 
-        private Stopwatch stopwatch;
 
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
-                stopwatch = Stopwatch.StartNew(); // ✅ 計時開始
+                Checkpoint_time.Start("Sawband_main");
 
                 try
                 {
@@ -77,12 +77,12 @@ namespace FX5U_IOMonitor
                 {
                     Debug.WriteLine("背景更新錯誤：" + ex.Message);
                 }
-                stopwatch.Stop(); // ✅ 計時結束
+                Checkpoint_time.Stop("Sawband_main");
                 this.Invoke(() =>
                 {
-                    if (stopwatch.ElapsedMilliseconds < 550)
+                    if (Checkpoint_time.GetElapsedMilliseconds("Sawband_main") < 550)
                     {
-                        lab_time.Text = $"單次更新耗時：{stopwatch.ElapsedMilliseconds} ms";
+                        lab_time.Text = Checkpoint_time.GetFormattedTime("Sawband_main");
                     }
                    
                 });

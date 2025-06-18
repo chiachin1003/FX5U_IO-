@@ -25,14 +25,12 @@ namespace FX5U_IOMonitor.Models
     /// <summary>
     /// 地端資料庫
     /// </summary>
-    public class ApplicationDB : IdentityDbContext<IdentityUser>
+    public class ApplicationDB : IdentityDbContext<IdentityUser>  
     {
         readonly string _dbFullName;
 
         public ApplicationDB() : base()
         {
-            //var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\.."));
-            //_dbFullName = Path.Combine(projectRoot, "Database", "element.db");
             _dbFullName = "element";
         }
         public DbSet<Machine_number> index { get; set; }
@@ -83,28 +81,11 @@ namespace FX5U_IOMonitor.Models
         string Local_UserName = DbConfig.Local.UserName;
         string Local_Password = DbConfig.Local.Password;
 
-        //public static string Local_IpAddress = "localhost";
-        //public static string Local_Port = "5430";
-        //public static string Local_UserName = "postgres";
-        //public static string Local_Password = "963200";
-
-        //public static string Local_IpAddress = "ssiopgsql.postgres.database.azure.com";
-        //public static string Local_Port = "5432";
-        //public static string Local_UserName = "itritus";
-        //public static string Local_Password = "Itrics687912O@";
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            //optionsBuilder.UseNpgsql($"Host={Local_IpAddress};Port={Local_Port};Database={_dbFullName};Username={Local_UserName};Password={Local_Password};TrustServerCertificate=True");
             optionsBuilder.UseNpgsql($"Host={Local_IpAddress};Port={Local_Port};Database={_dbFullName};Username={Local_UserName};Password={Local_Password}");
 
-            //// Set database directory
-            //var dbPath = Path.GetDirectoryName(_dbFullName);
-            //if (dbPath != null)
-            //{
-            //    Directory.CreateDirectory(dbPath);
-            //}
-            //optionsBuilder.UseSqlite($"Data Source={_dbFullName}");
         }
         public override int SaveChanges()
         {
@@ -142,26 +123,26 @@ namespace FX5U_IOMonitor.Models
     public class CloudDbContext : IdentityDbContext<IdentityUser>
     {
         readonly string _dbFullName = "element";
-        public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<Machine_number> index { get; set; }
-        public DbSet<History> Histories { get; set; }
-        public DbSet<Alarm> alarm { get; set; }
-        public DbSet<Language> Language { get; set; }
-        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
 
+        public DbSet<MachineIO> Machine_IO { get; set; }
+        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
+        public DbSet<History> Histories { get; set; }
+
+        public DbSet<Alarm> alarm { get; set; }
+        public DbSet<AlarmHistory> AlarmHistories { get; set; }
+        public DbSet<MachineParameter> MachineParameters { get; set; }
+
+        public DbSet<MachineParameterHistoryRecode> MachineParameterHistoryRecodes { get; set; }
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
-        public DbSet<MachineParameter> MachineParameters { get; set; }
+        public DbSet<Language> Language { get; set; }
 
         string Cloud_IpAddress = DbConfig.Cloud.IpAddress;
         string Cloud_Port = DbConfig.Cloud.Port;
         string Cloud_UserName = DbConfig.Cloud.UserName;
         string Cloud_Password = DbConfig.Cloud.Password;
 
-        //public static string Cloud_IpAddress = "ssiopgsql.postgres.database.azure.com";
-        //public static string Cloud_Port = "5432";
-        //public static string Cloud_UserName = "itritus";
-        //public static string Cloud_Password = "Itrics687912O@";
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql($"Host={Cloud_IpAddress};Port={Cloud_Port};Database={_dbFullName};Username={Cloud_UserName};Password={Cloud_Password}");
@@ -171,7 +152,23 @@ namespace FX5U_IOMonitor.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            // 與地端資料庫相同的模型配置
+            var entityTypes = typeof(CloudDbContext).Assembly.GetTypes()
+                .Where(t => t.IsClass && !t.IsAbstract && typeof(SyncableEntity).IsAssignableFrom(t));
+
+            foreach (var entityType in entityTypes)
+            {
+                var entity = modelBuilder.Model.FindEntityType(entityType);
+                if (entity == null)
+                {
+                    modelBuilder.Entity(entityType);
+                }
+                //if (!modelBuilder.Model.FindEntityType(entityType.Name).IsOwned())
+                //{
+                //    modelBuilder.Entity(entityType);
+                //}
+            }
+
+            // 為所有實體表添加同步欄位（與 ApplicationDB 保持一致）
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 if (typeof(SyncableEntity).IsAssignableFrom(entityType.ClrType))
@@ -189,7 +186,18 @@ namespace FX5U_IOMonitor.Models
                         .HasDefaultValueSql("NOW()");
                 }
             }
+
         }
     }
 
 }
+
+//public static string Local_IpAddress = "localhost";
+//public static string Local_Port = "5430";
+//public static string Local_UserName = "postgres";
+//public static string Local_Password = "963200";
+
+//public static string Local_IpAddress = "ssiopgsql.postgres.database.azure.com";
+//public static string Local_Port = "5432";
+//public static string Local_UserName = "itritus";
+//public static string Local_Password = "Itrics687912O@";

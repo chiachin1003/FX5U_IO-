@@ -32,7 +32,7 @@ namespace FX5U_IOMonitor.Models
         private static void DrawDoughnutChart(Graphics g, Rectangle bounds, float[] values, Color[] colors, float total)
         {
             int padding = 10;
-            int holeRatio = 3;
+            int holeRatio = 4;
             float center = values.Sum();
             Rectangle outerRect = new Rectangle(bounds.X + padding, bounds.Y + padding,
                 bounds.Width - 2 * padding, bounds.Height - 2 * padding);
@@ -403,7 +403,7 @@ namespace FX5U_IOMonitor.Models
                 Anchor = AnchorStyles.Left
             };
 
-            legendPanel.Controls.Add(CreateBox(Color.LightGreen), 0, 0);
+            legendPanel.Controls.Add(CreateBox(Color.Green), 0, 0);
             legendPanel.Controls.Add(CreateLabel(redText, "lblRed"), 1, 0);
 
             legendPanel.Controls.Add(CreateBox(Color.Yellow), 2, 0);

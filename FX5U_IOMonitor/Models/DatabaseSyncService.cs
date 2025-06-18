@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,6 +89,7 @@ namespace FX5U_IOMonitor.Models
             catch (Exception ex)
             {
                 OnLogMessage($"同步錯誤: {ex.Message}");
+                Debug.WriteLine(($"同步錯誤: {ex.Message}"));
                 OnSyncStatusChanged(new SyncStatusEventArgs { IsRunning = true, Message = $"同步錯誤: {ex.Message}", HasError = true });
             }
             finally
@@ -111,13 +113,16 @@ namespace FX5U_IOMonitor.Models
                 var syncResult = new SyncResult();
 
                 // 同步各個資料表
-                await SafeSync(localContext, cloudContext, x => x.Machine_IO, x => x.Machine_IO, "MachineIO", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.index, x => x.index, "Machine_number", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.Histories, x => x.Histories, "History", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Machine_IO, x => x.Machine_IO, "Machine_IO", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.index, x => x.index, "index", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Histories, x => x.Histories, "Histories", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.alarm, x => x.alarm, "Alarm", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.Blade_brand, x => x.Blade_brand, "Blade_brand", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.Blade_brand_TPI, x => x.Blade_brand_TPI, "Blade_brand_TPI", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.MachineParameters, x => x.MachineParameters, "MachineParameter", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.MachineParameters, x => x.MachineParameters, "MachineParameters", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.MachineParameterHistoryRecodes, x => x.MachineParameterHistoryRecodes, "MachineParameterHistoryRecodes", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.AlarmHistories, x => x.AlarmHistories, "AlarmHistories", syncResult);
+
                 await SafeSync(localContext, cloudContext, x => x.Language, x => x.Language, "Language", syncResult);
                 //await SafeSync(localContext, cloudContext, x => x.MachineIOTranslations, x => x.MachineIOTranslations, "Translations", syncResult);
                 string message = $"同步完成 - {DateTime.UtcNow:HH:mm:ss} " +
@@ -180,7 +185,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
         /// <summary>
-        /// 只將地端資料同步到雲端（原始邏輯）
+        /// 只將地端資料同步到雲端
         /// </summary>
         private async Task SyncLocalToCloud<T>(
             ApplicationDB localContext,
@@ -239,6 +244,111 @@ namespace FX5U_IOMonitor.Models
             }
             await localContext.SaveChangesAsync();
         }
+        /// <summary>
+        /// 自動補資料表欄位
+        /// </summary>
+        /// <param name="cloudContext"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        private async Task<List<string>> GetCloudTableColumnsAsync(CloudDbContext cloudContext, string tableName)
+        {
+            var sql = $@"
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name = '{tableName.ToLower()}';";
+
+            using var command = cloudContext.Database.GetDbConnection().CreateCommand();
+            command.CommandText = sql;
+            if (command.Connection.State != System.Data.ConnectionState.Open)
+                await command.Connection.OpenAsync();
+
+            var result = new List<string>();
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                result.Add(reader.GetString(0));
+            }
+
+            return result;
+        }
+        /// <summary>
+        /// 自動補表的欄位
+        /// </summary>
+        /// <param name="cloudContext"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        private async Task<bool> CloudTableExistsAsync(CloudDbContext cloudContext, string tableName)
+        {
+            var sql = $@"
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.tables 
+            WHERE table_name = '{tableName.ToLower()}'
+        );";
+
+            using var command = cloudContext.Database.GetDbConnection().CreateCommand();
+            command.CommandText = sql;
+            if (command.Connection.State != System.Data.ConnectionState.Open)
+                await command.Connection.OpenAsync();
+
+            var exists = (bool?)await command.ExecuteScalarAsync();
+            return exists == true;
+        }
+        /// <summary>
+        /// 型別邏輯
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private string GetPostgresColumnType(Type type)
+        {
+            if (type == typeof(int) || type == typeof(int?))
+                return "INTEGER";
+            if (type == typeof(long) || type == typeof(long?))
+                return "BIGINT";
+            if (type == typeof(float) || type == typeof(float?))
+                return "REAL";
+            if (type == typeof(double) || type == typeof(double?))
+                return "DOUBLE PRECISION";
+            if (type == typeof(decimal) || type == typeof(decimal?))
+                return "NUMERIC";
+            if (type == typeof(string))
+                return "TEXT";
+            if (type == typeof(bool) || type == typeof(bool?))
+                return "BOOLEAN";
+            if (type == typeof(DateTime) || type == typeof(DateTime?))
+                return "TIMESTAMP";
+
+            return "TEXT"; // fallback 型別
+        }
+        /// <summary>
+        /// 自動建表
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        private string GenerateCreateTableSql<T>(string tableName)
+        {
+            var props = typeof(T).GetProperties()
+                .Where(p => p.PropertyType.IsPrimitive || p.PropertyType == typeof(string) || p.PropertyType == typeof(DateTime))
+                .ToList();
+
+            var columns = new List<string>();
+            foreach (var prop in props)
+            {
+                string name = prop.Name;
+                string type = GetPostgresColumnType(prop.PropertyType);
+                string nullability = IsNullable(prop.PropertyType) ? "" : "NOT NULL";
+                columns.Add($"\"{name}\" {type} {nullability}".Trim());
+            }
+
+            // 主鍵：自動用 Id 當主鍵
+            if (props.Any(p => p.Name == "Id"))
+                columns.Add("PRIMARY KEY (\"Id\")");
+
+            return $"CREATE TABLE \"{tableName}\" (\n  {string.Join(",\n  ", columns)}\n);";
+        }
+
+        private bool IsNullable(Type type) => !type.IsValueType || Nullable.GetUnderlyingType(type) != null;
 
         /// <summary>
         /// 完整同步：讓雲端資料完全與地端相同
@@ -251,11 +361,62 @@ namespace FX5U_IOMonitor.Models
             string tableName,
             SyncResult syncResult) where T : class
         {
+            
+
+            bool tableExists = await CloudTableExistsAsync(cloudContext, tableName);
+            if (!tableExists)
+            {
+                try
+                {
+                    string createTableSql = GenerateCreateTableSql<T>(tableName);
+                    await cloudContext.Database.ExecuteSqlRawAsync(createTableSql);
+                    OnLogMessage($"✅ 已自動建立雲端資料表 {tableName}");
+                }
+                catch (Exception ex)
+                {
+                    OnLogMessage($"❌ 建立表格 {tableName} 時發生錯誤: {ex.Message}");
+                    return;
+                }
+            }
+
             // 獲取所有地端資料
             var localData = await localSet.ToListAsync();
 
             // 獲取所有雲端資料
             var cloudData = await cloudSet.ToListAsync();
+            var localProps = typeof(T)
+                            .GetProperties()
+                            .Where(p => p.PropertyType.IsPrimitive || p.PropertyType == typeof(string) || p.PropertyType == typeof(DateTime))
+                            .ToList();
+
+            // 取得 cloud 目前欄位
+            var cloudColumns = await GetCloudTableColumnsAsync(cloudContext, tableName);
+
+            // 找出雲端沒有的欄位
+            var missingColumns = localProps
+                .Where(p => !cloudColumns.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+            if (cloudColumns.Count!=missingColumns.Count)
+            {
+                // 如果有缺少欄位，就動態補上
+                foreach (var prop in missingColumns)
+                {
+                    try
+                    {
+                        string columnName = prop.Name;
+                        string columnType = GetPostgresColumnType(prop.PropertyType);
+                        string alterSql = $"ALTER TABLE \"{tableName}\" ADD COLUMN \"{columnName}\" {columnType};";
+
+                        await cloudContext.Database.ExecuteSqlRawAsync(alterSql);
+                        OnLogMessage($"🔧 雲端表格 {tableName} 補上欄位: {columnName} ({columnType})");
+                    }
+                    catch (Exception ex)
+                    {
+                        OnLogMessage($"❌ 雲端補欄位失敗：{prop.Name}，原因：{ex.Message}");
+                    }
+                }
+            }
+           
 
             // 如果是 SyncableEntity，比較主鍵來判斷資料
             if (typeof(SyncableEntity).IsAssignableFrom(typeof(T)))

@@ -392,7 +392,6 @@
             lab_title.TabIndex = 1;
             lab_title.Text = "目前累積時間";
             lab_title.TextAlign = ContentAlignment.MiddleCenter;
-            lab_title.Click += lab_title_Click;
             // 
             // lab_titleText
             // 
@@ -403,7 +402,7 @@
             lab_titleText.Name = "lab_titleText";
             lab_titleText.Size = new Size(321, 54);
             lab_titleText.TabIndex = 0;
-            lab_titleText.Text = "設備與周邊元件壽命總表";
+            lab_titleText.Text = "設備與周邊元件使用總表";
             lab_titleText.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lab_time

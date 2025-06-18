@@ -1,7 +1,5 @@
 using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Models;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using static FX5U_IOMonitor.Models.Email;
 
@@ -28,6 +26,7 @@ namespace FX5U_IOMonitor
             // 啟動警告通知排程器
             var scheduler = new AlarmDailySummaryScheduler(Properties.Settings.Default.userDefinedNotifyTime);
             scheduler.Start();
+
             ///雲端資料庫更新
             var syncService = new DatabaseSyncService();
             syncService.CurrentSyncMode = SyncMode.CompleteSync;

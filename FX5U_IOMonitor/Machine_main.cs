@@ -201,7 +201,7 @@ namespace FX5U_IOMonitor
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
         }
 
-        private void Swing_main_Load(object sender, EventArgs e)
+        private void Machine_main_Load(object sender, EventArgs e)
         {
 
 

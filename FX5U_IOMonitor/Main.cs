@@ -90,7 +90,7 @@ namespace FX5U_IOMonitor
                 }
             }
 
-
+         
 
             // 從資料庫取得當前機台數量（index_name + display_name）
             List<Machine_number> machineList = DBfunction.GetMachineIndexes();

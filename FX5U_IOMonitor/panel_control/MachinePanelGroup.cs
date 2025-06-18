@@ -49,7 +49,7 @@ namespace FX5U_IOMonitor.panel_control
 
             // 建立 Doughnut Chart
             PictureBox chartPanel = Panel_design.CreateDoughnutChartPanel(110, ChartIndex,
-                new Color[] { Color.LightGreen, Color.Yellow, Color.Red });
+                new Color[] { Color.Green, Color.Yellow, Color.Red });
             chartPanel.Location = new Point(0, 00);
             chartPanel.Name = $"Color_{baseName}";
             this.Controls.Add(chartPanel);
@@ -88,7 +88,7 @@ namespace FX5U_IOMonitor.panel_control
 
             // 重新建立圖表（或你可以加上 chartPanel.Refresh 支援）
             var newChart = Panel_design.CreateDoughnutChartPanel(110, newValues,
-                new Color[] { Color.LightGreen, Color.Yellow, Color.Red });
+                new Color[] { Color.Green, Color.Yellow, Color.Red });
 
             // 替換舊圖表
             var oldChart = this.Controls.OfType<PictureBox>().FirstOrDefault(c => c.Name.StartsWith("Color_"));

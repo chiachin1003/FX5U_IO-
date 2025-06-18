@@ -175,7 +175,6 @@
             lb_cutingtime = new Label();
             lb_cutingtimeText = new Label();
             panel_Drill = new Panel();
-            lab_time = new Label();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -1744,15 +1743,6 @@
             panel_Drill.Size = new Size(240, 297);
             panel_Drill.TabIndex = 47;
             // 
-            // lab_time
-            // 
-            lab_time.AutoSize = true;
-            lab_time.BackColor = SystemColors.ButtonHighlight;
-            lab_time.Location = new Point(826, 618);
-            lab_time.Name = "lab_time";
-            lab_time.Size = new Size(0, 15);
-            lab_time.TabIndex = 53;
-            // 
             // Main_form
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1760,7 +1750,6 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(956, 625);
-            Controls.Add(lab_time);
             Controls.Add(panel12);
             Controls.Add(panel11);
             Controls.Add(panel_SwingTime);
@@ -1839,7 +1828,6 @@
             tbPanel_cutingtime.ResumeLayout(false);
             tbPanel_cutingtime.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -1944,7 +1932,6 @@
         private Label lb_totaltime;
         private Label lb_totaltimeText;
         private Label lb_remain_tools;
-        private Label lab_time;
     }
 }
 

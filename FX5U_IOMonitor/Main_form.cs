@@ -146,7 +146,6 @@ namespace FX5U_IOMonitor
             {
                 swing_main_update();
                 lab_connect_swing.Text = existingContext.ConnectSummary.connect.ToString();
-                lab_time.Text = $"單次更新耗時：200 ms";
 
             }
             else
@@ -154,7 +153,6 @@ namespace FX5U_IOMonitor
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
                 swing_main_update();
-                lab_time.Text = "";
 
             }
 

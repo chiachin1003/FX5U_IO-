@@ -51,6 +51,9 @@
     <Compile Update="connect_CNC.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Check_point.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="File_Settings.cs">
       <SubType>Form</SubType>
     </Compile>

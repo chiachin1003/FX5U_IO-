@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -474,6 +475,7 @@ namespace FX5U_IOMonitor.Models
                                 foreach (var block in blocks)
                                 {
                                     string device = prefix + block.Start;
+                                    Checkpoint_time.Start("Drill_main");
 
                                     lock (externalLock ?? new object())
                                     {
@@ -486,6 +488,7 @@ namespace FX5U_IOMonitor.Models
                                     var relevantParams = paramList
                                         .Where(p => p.address.StartsWith(prefix))
                                         .ToList();
+                                    Checkpoint_time.Stop("Drill_main");
 
 
                                     foreach (var (name, address) in relevantParams)
@@ -658,12 +661,14 @@ namespace FX5U_IOMonitor.Models
                                 foreach (var block in blocks)
                                 {
                                     string device = prefix + block.Start;
-                                   
+                                    Checkpoint_time.Start("Saw_main");
+
                                     lock (externalLock ?? new object())
                                     {
+                                        
                                         readResults = plc.ReadWordDevice(device, 256);
+
                                     }
-                                
 
                                     List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
 
@@ -672,6 +677,8 @@ namespace FX5U_IOMonitor.Models
                                         .Where(p => p.address.StartsWith(prefix))
                                         .ToList();
 
+                                    Checkpoint_time.Stop("Saw_main");
+                                    Checkpoint_time.Start("Saw_brand");
 
                                     foreach (var (name, address, address_index) in relevantParams)
                                     {
@@ -804,6 +811,8 @@ namespace FX5U_IOMonitor.Models
                                                     }
                                                 case 4:
                                                     {
+                                                        
+
                                                         int val = match.current_number;
                                                         string input = name switch
                                                         {
@@ -822,6 +831,7 @@ namespace FX5U_IOMonitor.Models
                                                         DBfunction.Set_Machine_now_string(name, input);
                                                         Debug.WriteLine($"[4] {name} = {input}+{val}");
                                                         break;
+
                                                     }
                                                 case 5:
                                                     Debug.WriteLine($"[{type}] 尚未實作 {name}");
@@ -838,6 +848,8 @@ namespace FX5U_IOMonitor.Models
                                         }
 
                                     }
+                                    Checkpoint_time.Stop("Saw_brand");
+
                                 }
                             }
                         }

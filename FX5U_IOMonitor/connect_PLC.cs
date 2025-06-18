@@ -16,12 +16,6 @@ namespace FX5U_IOMonitor
     public partial class Connect_PLC : Form
     {
 
-        public class connect_isOK //提供各介面共用的X_IO監控數據
-        {
-            public static bool Sawing_connect = false;
-            public static bool Drill_connect = false;
-
-        }
 
         Main main_control;
 

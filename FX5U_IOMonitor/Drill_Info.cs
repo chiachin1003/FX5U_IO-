@@ -8,6 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
+using static FX5U_IOMonitor.Check_point;
 
 
 
@@ -16,7 +17,6 @@ namespace FX5U_IOMonitor
     public partial class Drill_Info : Form
     {
         private CancellationTokenSource? _cts;
-        private Stopwatch stopwatch;
 
         public Drill_Info()
         {
@@ -60,8 +60,7 @@ namespace FX5U_IOMonitor
         {
             while (!token.IsCancellationRequested)
             {
-                stopwatch = Stopwatch.StartNew();
-
+                
                 try
                 {
                     // 主執行緒呼叫 UI 更新
@@ -84,7 +83,6 @@ namespace FX5U_IOMonitor
                     Debug.WriteLine("背景更新錯誤：" + ex.Message);
                 }
             }
-            stopwatch.Stop();
 
 
         }
@@ -92,7 +90,6 @@ namespace FX5U_IOMonitor
 
         private void reset_lab_connectText()
         {
-
             lab_Drill_servo_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_servo_usetime") + (DBfunction.Get_Machine_number("Drill_servo_usetime"))));
             lab_Drill_spindle_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
             lab_Drill_plc_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
@@ -104,6 +101,7 @@ namespace FX5U_IOMonitor
             lab_Drill_measurement.Text = DBfunction.Get_Machine_History_NumericValue("Drill_measurement").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
             lab_Drill_clamping.Text = DBfunction.Get_Machine_History_NumericValue("Drill_clamping").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
             lab_Drill_feeder.Text = DBfunction.Get_Machine_History_NumericValue("Drill_feeder").ToString() + "      "  +LanguageManager.Translate("ShowDetail_lab_count");
+            Checkpoint_time.Stop("Drill_main");
 
         }
 
@@ -226,12 +224,6 @@ namespace FX5U_IOMonitor
             }
         }
 
-        private void lab_title_Click(object sender, EventArgs e)
-        {
-            if (stopwatch != null && stopwatch.ElapsedMilliseconds < 900  )
-            {
-                MessageBox.Show($"單次更新耗時：{stopwatch.ElapsedMilliseconds} ms");
-            }
-        }
+       
     }
 }

@@ -36,6 +36,8 @@ namespace FX5U_IOMonitor
             btn_usersetting = new Button();
             btn_Alrm_Notify = new Button();
             btn_history = new Button();
+            btn_emailtest = new Button();
+            btn_checkpoint = new Button();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -45,7 +47,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_file_download
             // 
-            btn_file_download.Location = new Point(73, 118);
+            btn_file_download.Location = new Point(73, 75);
             btn_file_download.Name = "btn_file_download";
             btn_file_download.Size = new Size(124, 42);
             btn_file_download.TabIndex = 8;
@@ -55,7 +57,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Mail_Manager
             // 
-            btn_Mail_Manager.Location = new Point(73, 175);
+            btn_Mail_Manager.Location = new Point(228, 75);
             btn_Mail_Manager.Name = "btn_Mail_Manager";
             btn_Mail_Manager.Size = new Size(124, 42);
             btn_Mail_Manager.TabIndex = 8;
@@ -65,7 +67,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(73, 316);
+            btn_usersetting.Location = new Point(550, 75);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -75,7 +77,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(73, 239);
+            btn_Alrm_Notify.Location = new Point(396, 75);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -85,7 +87,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(73, 389);
+            btn_history.Location = new Point(699, 75);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -93,12 +95,33 @@ namespace FX5U_IOMonitor
             btn_history.UseVisualStyleBackColor = true;
             btn_history.Click += btn_history_Click;
             // 
+            // btn_emailtest
+            // 
+            btn_emailtest.Location = new Point(800, 565);
+            btn_emailtest.Name = "btn_emailtest";
+            btn_emailtest.Size = new Size(124, 33);
+            btn_emailtest.TabIndex = 12;
+            btn_emailtest.Text = "郵件發送測試鈕";
+            btn_emailtest.UseVisualStyleBackColor = true;
+            // 
+            // btn_checkpoint
+            // 
+            btn_checkpoint.Location = new Point(73, 144);
+            btn_checkpoint.Name = "btn_checkpoint";
+            btn_checkpoint.Size = new Size(124, 39);
+            btn_checkpoint.TabIndex = 13;
+            btn_checkpoint.Text = "介面更新";
+            btn_checkpoint.UseVisualStyleBackColor = true;
+            btn_checkpoint.Click += btn_checkpoint_Click;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(btn_checkpoint);
+            Controls.Add(btn_emailtest);
             Controls.Add(btn_history);
             Controls.Add(btn_Alrm_Notify);
             Controls.Add(btn_usersetting);
@@ -107,6 +130,7 @@ namespace FX5U_IOMonitor
             FormBorderStyle = FormBorderStyle.None;
             Margin = new Padding(4);
             Name = "Setting";
+            Load += Setting_Load;
             ResumeLayout(false);
         }
 
@@ -118,5 +142,7 @@ namespace FX5U_IOMonitor
         private Button btn_usersetting;
         private Button btn_Alrm_Notify;
         private Button btn_history;
+        private Button btn_emailtest;
+        private Button btn_checkpoint;
     }
 }
