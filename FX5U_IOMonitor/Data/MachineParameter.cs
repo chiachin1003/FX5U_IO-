@@ -18,12 +18,16 @@ namespace FX5U_IOMonitor.Data
         public string Name { get; set; } = ""; // 監控的參數名稱，例如 "Sawing_electricity"
         public bool Calculate { get; set; } = false;// 是否需要計算
         public int Calculate_type { get; set; } //計算的型態
-        public double Unit_transfer { get; set; }
 
         public string Read_type { get; set; } = ""; // 讀取型態
         public int Read_view { get; set; }  // PLC Address word 一次讀取N個
 
-        public string Read_address { get; set; } = ""; // 讀取地址
+        public string Read_address { get; set; } = ""; // 讀取地址(公制)
+        public double Unit_transfer { get; set; } //公制轉換
+
+        public string? Read_addr { get; set; } = ""; // 讀取地址(英制)
+        public double? Imperial_transfer { get; set; } //英制轉換
+
         public int Read_address_index { get; set; }  // PLC Address word 一次讀取N個
 
         public string Write_address { get; set; } = ""; // 寫入地址
@@ -34,9 +38,32 @@ namespace FX5U_IOMonitor.Data
         public int? now_NumericValue { get; set; } // 數值型
         public string? now_TextValue { get; set; } // 文字型（如果是 string 類型）
         public virtual ICollection<MachineParameterHistoryRecode> HistoryRecodes { get; set; } = new List<MachineParameterHistoryRecode>();
+        /// <summary>
+        /// 根據目前單位回傳對應的位址。若英制位址為空，則 fallback 使用公制位址。
+        /// </summary>
+        public string GetAddress(string unit)
+        {
+            if (unit == "Imperial" && !string.IsNullOrWhiteSpace(Read_addr))
+                return Read_addr;
 
+            return Read_address;
+        }
+        /// <summary>
+        /// 根據目前單位回傳對應倍率。若英制倍率為空或0，則 fallback 使用公制倍率。
+        /// </summary>
+        public double GetScale(string unit)
+        {
+            if (unit == "Imperial" && !string.IsNullOrWhiteSpace(Read_addr))
+            {
+                return Imperial_transfer.HasValue && Imperial_transfer.Value > 0
+                    ? Imperial_transfer.Value
+                    : Unit_transfer;
+            }
 
+            return Unit_transfer;
+        }
     }
+   
     public class MachineParameterHistoryRecode : SyncableEntity
     {
         [Key]

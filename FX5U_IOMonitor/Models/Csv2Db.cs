@@ -484,6 +484,8 @@ namespace FX5U_IOMonitor.Models
                         Read_view = row.Read_view,
                         Read_address = row.Read_address,
                         Read_address_index = row.Read_address_index,
+                        Read_addr = row.Read_addr,
+                        Imperial_transfer = row.Imperial_transfer,
                         Write_address = row.Write_address,
                         Write_address_index = row.Write_address_index,
                         History_NumericValue = row.History_NumericValue

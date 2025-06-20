@@ -129,5 +129,17 @@ namespace FX5U_IOMonitor.Properties {
                 this["userDefinedNotifyTime"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Metric")]
+        public string UnitSetting {
+            get {
+                return ((string)(this["UnitSetting"]));
+            }
+            set {
+                this["UnitSetting"] = value;
+            }
+        }
     }
 }

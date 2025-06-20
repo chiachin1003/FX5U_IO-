@@ -86,8 +86,6 @@ namespace FX5U_IOMonitor
                 lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
                 List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
                 lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, drill_breakdowm_part).Count.ToString();
-                _cts = new CancellationTokenSource();
-                _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
             }
             else
             {
@@ -123,12 +121,17 @@ namespace FX5U_IOMonitor
                         {
                             for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
                             {
+                                Debug.WriteLine($"更新 {matchedBtnTags[i]} => {string.Join(", ", classvalue[i])}");
                                 groupList[i].UpdateDisplay(classvalue[i]);
                             }
+                            //for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
+                            //{
+                            //    groupList[i].UpdateDisplay(classvalue[i]);
+                            //}
                         });
                     }
 
-                    await Task.Delay(1000, token);
+                    await Task.Delay(500, token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -247,6 +250,9 @@ namespace FX5U_IOMonitor
                 this.Controls.Add(group);
                 groupList.Add(group);
             }
+            _cts = new CancellationTokenSource();
+            _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
+
             //Monitor_alarm();
 
         }

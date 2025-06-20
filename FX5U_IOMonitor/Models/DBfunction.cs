@@ -215,7 +215,15 @@ namespace FX5U_IOMonitor.Models
                         .Count();
             }
         }
-
+        public static int Get_Yellow_element()
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.Machine_IO
+                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow)
+                        .Count();
+            }
+        }
         public static int Get_Red_number()
         {
             using (var context = new ApplicationDB())
@@ -1182,14 +1190,24 @@ namespace FX5U_IOMonitor.Models
         }
         public static List<(string, string, ushort)> Get_Read_word_machineparameter_address(string machine_name, List<string> Machineprameter_name)
         {
+
             using (var context = new ApplicationDB())
             {
+                //var result = context.MachineParameters
+                //            .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
+                //            .Select(m => new { m.Name, m.Read_address, m.Read_address_index, m.Read_addr })
+                //            .ToList()
+                //            .Select(x => (x.Name, x.Read_address, (ushort)x.Read_address_index))
+                //            .ToList();
                 var result = context.MachineParameters
-                            .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
-                            .Select(m => new { m.Name, m.Read_address, m.Read_address_index })
-                            .ToList()
-                            .Select(x => (x.Name, x.Read_address, (ushort)x.Read_address_index))
-                            .ToList();
+                                    .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
+                                    .AsEnumerable() // ⚠️ 改成在記憶體中操作，才能使用 GetAddress
+                                    .Select(m => (
+                                        Name: m.Name,
+                                        Address: m.GetAddress(UnitManager.CurrentUnit),
+                                        AddressIndex: (ushort)m.Read_address_index
+                                    ))
+                                    .ToList();
 
                 return result;
             }
@@ -1377,13 +1395,28 @@ namespace FX5U_IOMonitor.Models
         }
         public static double Get_Unit_transfer(string name)
         {
+
             using (var context = new ApplicationDB())
             {
                 var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                return machine?.Unit_transfer ?? 0;
+                if (machine == null)
+                    return 0;
+
+                return machine.GetScale(UnitManager.CurrentUnit); // 使用你已實作的倍率轉換方法
             }
         }
+        public static double Get_Unit_transfer(string machine,string name)
+        {
 
+            using (var context = new ApplicationDB())
+            {
+                var param = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name==machine);
+                if (param == null)
+                    return 0;
+
+                return param.GetScale(UnitManager.CurrentUnit); // 使用你已實作的倍率轉換方法
+            }
+        }
         public static string Get_Blade_brand_name(int brand_id)
         {
             using (var context = new ApplicationDB())

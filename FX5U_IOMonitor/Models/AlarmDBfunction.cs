@@ -25,9 +25,9 @@ namespace FX5U_IOMonitor.Models
                                                 .Select(u => u.Trim())
                                                 .ToList();
 
-            // 2. 查詢對應的 Email
+            // 2. 查詢對應的 email
             using var userService = new UserService<ApplicationDB>();
-            var allUsers = await userService.GetAllUser();
+            var allUsers = userService.GetAllUser();
 
             var emails = allUsers
                 .Where(u => userNames.Contains(u.UserName))

@@ -8,6 +8,10 @@ namespace FX5U_IOMonitor.Models
 {
     internal class Text_design
     {
+        /// <summary>
+        /// 設定combox的字體在正中央
+        /// </summary>
+        /// <param name="comboBox"></param>
         public static void SetComboBoxCenteredDraw(ComboBox comboBox)
         {
             // 設定 DrawMode 為 OwnerDrawFixed 才能使用自訂繪製
@@ -34,6 +38,11 @@ namespace FX5U_IOMonitor.Models
             };
         }
 
+        /// <summary>
+        /// 字體調整
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="text"></param>
         public static void SafeAdjustFont(Label? label, string text)
         {
             try
@@ -120,6 +129,26 @@ namespace FX5U_IOMonitor.Models
 
             label.Font = testFont;
             prevFont?.Dispose();
+        }
+
+        /// <summary>
+        /// 根據設定檔將單位標籤（如 "m/min"）轉換為對應單位（如 "inch/min"）
+        /// </summary>
+        public static string ConvertUnitLabel(string metricLabel)
+        {
+
+            if (UnitManager.CurrentUnit == "Metric")
+                return metricLabel;
+
+            return metricLabel switch
+            {
+                "(mm)" => "(inch)",
+                "(mm/min)" => "(inch/min)",
+                "(m/min)" => "(feet/min)",
+                "(°C)" => "(°F)",
+                "(m²)" => "(inch²)",
+                _ => metricLabel // 預設不轉換
+            };
         }
     }
 

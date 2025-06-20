@@ -403,6 +403,7 @@
             lab_time.Name = "lab_time";
             lab_time.Size = new Size(0, 15);
             lab_time.TabIndex = 1;
+            lab_time.Visible = false;
             // 
             // Sawingband_Info
             // 

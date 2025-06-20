@@ -1,5 +1,6 @@
 ﻿using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Email;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Data.Recordmode;
+using static FX5U_IOMonitor.Email.Notify_Message;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static FX5U_IOMonitor.Models.UI_Display;
@@ -56,41 +58,101 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
-
-
-            InitMachineInfoDatabase();
-           
-            Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
-           
-            Initialization_BladeBrandFromCSV("Blade_brand.csv");
-            
-            Initialization_AlarmFromCSV("alarm.csv");
-            LanguageImportHelper.ImportLanguage("language.csv");
-            Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
-
-          
-            // 檢查是否已初始化
-            using (var context = new ApplicationDB())
+            try
             {
-                string[] targetMachines = { "Drill", "Sawing" };
-                var duplicated = context.Machine_IO
-                                         .Where(m => targetMachines.Contains(m.Machine_name))
-                                         .Select(m => m.Machine_name)
-                                         .ToList();
-
-                if (duplicated.Any())
-                {
-                    string duplicatedNames = string.Join("、", duplicated.Distinct());
-                    Debug.WriteLine($"❌ 機台已初始化，請重新命名後再匯入。");
-                }
-                else
-                {
-                    Csv2Db.Initialization_MachineElementFromCSV("Drill", "Drill_Data2.csv");
-                    Csv2Db.Initialization_MachineElementFromCSV("Sawing", "Saw_Data2.csv");
-                }
+                InitMachineInfoDatabase();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"InitMachineInfoDatabase 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-         
+            try
+            {
+                Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Blade TPI 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+
+            }
+
+            try
+            {
+                Initialization_BladeBrandFromCSV("Blade_brand.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Blade Brand 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+
+            }
+
+            try
+            {
+                Initialization_AlarmFromCSV("alarm.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Alarm 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+
+            }
+
+            try
+            {
+                LanguageImportHelper.ImportLanguage("language.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"語言檔匯入失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+
+            }
+
+            try
+            {
+                Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Machine parameter 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+
+            }
+
+            // 檢查是否已初始化
+            try
+            {
+                using (var context = new ApplicationDB())
+                {
+                    string[] targetMachines = { "Drill", "Sawing" };
+                    var duplicated = context.Machine_IO
+                                             .Where(m => targetMachines.Contains(m.Machine_name))
+                                             .Select(m => m.Machine_name)
+                                             .ToList();
+
+                    if (duplicated.Any())
+                    {
+                        string duplicatedNames = string.Join("、", duplicated.Distinct());
+                        MessageBox.Show($"❌ 機台已初始化（{duplicatedNames}），請重新命名後再匯入。", "資料重複", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                    else
+                    {
+                        Csv2Db.Initialization_MachineElementFromCSV("Drill", "Drill_Data2.csv");
+                        Csv2Db.Initialization_MachineElementFromCSV("Sawing", "Saw_Data2.csv");
+                        MessageBox.Show("✅ 機台資料匯入完成。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Machine_IO 初始化或檢查失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+
 
             // 從資料庫取得當前機台數量（index_name + display_name）
             List<Machine_number> machineList = DBfunction.GetMachineIndexes();
@@ -112,7 +174,8 @@ namespace FX5U_IOMonitor
             }
 
             InitLanguageComboBox();
-           
+            InitUnitComboBox();
+
 
             _instance = this;  // 確保單例指向目前的主視窗
             plcForm = new Connect_PLC(this);
@@ -162,9 +225,10 @@ namespace FX5U_IOMonitor
         }
 
 
-        private void DisplayLanguage() 
+        private void DisplayLanguage()
         {
             panel_language.Visible = true;
+            panel_select.Controls.Add(panel_unit);
             panel_select.Controls.Add(panel_language);
             panel_select.Controls.Add(btn_log_out);
 
@@ -173,6 +237,8 @@ namespace FX5U_IOMonitor
 
             panel_language.Visible = true;
         }
+
+
 
         private void Main_Load(object sender, EventArgs e)
         {
@@ -290,6 +356,27 @@ namespace FX5U_IOMonitor
 
 
         }
+        private void InitUnitComboBox()
+        {
+
+            var unitOptions = new List<KeyValuePair<string, string>>
+            {
+                new("Metric", LanguageManager.Translate("Mainform_Metric")),  // 公制
+                new("Imperial", LanguageManager.Translate("Mainform_Imperial"))  // 英制
+            };
+
+            comb_unit.DisplayMember = "Value"; // 顯示用
+            comb_unit.ValueMember = "Key";     // 儲存值用
+            comb_unit.DataSource = unitOptions;
+
+            // 顯示標題（如按鈕標籤）
+            btn_unit.Text = LanguageManager.Translate("Mainform_unit");
+
+            // 設定選取值（從設定檔）
+            string unit = Properties.Settings.Default.UnitSetting;
+            comb_unit.SelectedValue = unit;
+        }
+
 
         private void SwitchLanguage()
         {
@@ -301,9 +388,8 @@ namespace FX5U_IOMonitor
             btn_log_out.Text = LanguageManager.Translate("Mainform_Logout");
             btn_language.Text = LanguageManager.Translate("Mainform_language");
             btn_setting.Text = LanguageManager.Translate("Mainform_Settings");
-
             this.Text = LanguageManager.Translate("Mainform_title");
-
+            InitUnitComboBox();
             for (int i = 0; i < machineButtons.Count && i < machineButtons.Count; i++)
             {
                 string displayName = LanguageManager.Translate(machineButtons[i].Name);
@@ -342,9 +428,16 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear(); // 清空 Panel
             panel_main.Controls.Add(form); // 添加子窗體
             form.Show(); // 顯示子窗體
-            DisplayLanguage();
+            //DisplayLanguage();
         }
 
-     
+        private void btn_unit_Click(object sender, EventArgs e)
+        {
+            if (comb_unit.SelectedValue is string unitValue)
+            {
+                UnitManager.SetUnit(unitValue); // ✅ 使用事件通知所有訂閱者
+            }
+        }
+
     }
 }

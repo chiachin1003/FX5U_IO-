@@ -107,7 +107,7 @@
             tableLayoutPanel1.ForeColor = SystemColors.ActiveCaptionText;
             tableLayoutPanel1.Location = new Point(42, 25);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 8;
+            tableLayoutPanel1.RowCount = 7;
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 10F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 9F));
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 9F));
@@ -129,9 +129,9 @@
             lab_sawbrand_time.Dock = DockStyle.Fill;
             lab_sawbrand_time.Font = new Font("微軟正黑體", 9.75F);
             lab_sawbrand_time.ForeColor = SystemColors.ActiveCaptionText;
-            lab_sawbrand_time.Location = new Point(212, 269);
+            lab_sawbrand_time.Location = new Point(212, 306);
             lab_sawbrand_time.Name = "lab_sawbrand_time";
-            lab_sawbrand_time.Size = new Size(203, 44);
+            lab_sawbrand_time.Size = new Size(203, 53);
             lab_sawbrand_time.TabIndex = 13;
             lab_sawbrand_time.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -141,9 +141,9 @@
             lab_sawbrand.Dock = DockStyle.Fill;
             lab_sawbrand.Font = new Font("微軟正黑體", 9.75F);
             lab_sawbrand.ForeColor = SystemColors.ActiveCaptionText;
-            lab_sawbrand.Location = new Point(3, 269);
+            lab_sawbrand.Location = new Point(3, 306);
             lab_sawbrand.Name = "lab_sawbrand";
-            lab_sawbrand.Size = new Size(203, 44);
+            lab_sawbrand.Size = new Size(203, 53);
             lab_sawbrand.TabIndex = 12;
             lab_sawbrand.Text = "鋸帶監控元件總時間";
             lab_sawbrand.TextAlign = ContentAlignment.MiddleLeft;
@@ -154,9 +154,9 @@
             lab_Sawing_main_time.Dock = DockStyle.Fill;
             lab_Sawing_main_time.Font = new Font("微軟正黑體", 9.75F);
             lab_Sawing_main_time.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Sawing_main_time.Location = new Point(212, 225);
+            lab_Sawing_main_time.Location = new Point(212, 256);
             lab_Sawing_main_time.Name = "lab_Sawing_main_time";
-            lab_Sawing_main_time.Size = new Size(203, 44);
+            lab_Sawing_main_time.Size = new Size(203, 50);
             lab_Sawing_main_time.TabIndex = 11;
             lab_Sawing_main_time.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -166,9 +166,9 @@
             lab_Sawing_main.Dock = DockStyle.Fill;
             lab_Sawing_main.Font = new Font("微軟正黑體", 9.75F);
             lab_Sawing_main.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Sawing_main.Location = new Point(3, 225);
+            lab_Sawing_main.Location = new Point(3, 256);
             lab_Sawing_main.Name = "lab_Sawing_main";
-            lab_Sawing_main.Size = new Size(203, 44);
+            lab_Sawing_main.Size = new Size(203, 50);
             lab_Sawing_main.TabIndex = 10;
             lab_Sawing_main.Text = "鋸床資訊監控總時間";
             lab_Sawing_main.TextAlign = ContentAlignment.MiddleLeft;
@@ -179,9 +179,9 @@
             lab_Sawing_element_time.Dock = DockStyle.Fill;
             lab_Sawing_element_time.Font = new Font("微軟正黑體", 9.75F);
             lab_Sawing_element_time.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Sawing_element_time.Location = new Point(212, 181);
+            lab_Sawing_element_time.Location = new Point(212, 206);
             lab_Sawing_element_time.Name = "lab_Sawing_element_time";
-            lab_Sawing_element_time.Size = new Size(203, 44);
+            lab_Sawing_element_time.Size = new Size(203, 50);
             lab_Sawing_element_time.TabIndex = 9;
             lab_Sawing_element_time.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -191,9 +191,9 @@
             lab_Sawing_element.Dock = DockStyle.Fill;
             lab_Sawing_element.Font = new Font("微軟正黑體", 9.75F);
             lab_Sawing_element.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Sawing_element.Location = new Point(3, 181);
+            lab_Sawing_element.Location = new Point(3, 206);
             lab_Sawing_element.Name = "lab_Sawing_element";
-            lab_Sawing_element.Size = new Size(203, 44);
+            lab_Sawing_element.Size = new Size(203, 50);
             lab_Sawing_element.TabIndex = 8;
             lab_Sawing_element.Text = "鋸床監控元件總時間";
             lab_Sawing_element.TextAlign = ContentAlignment.MiddleLeft;
@@ -204,9 +204,9 @@
             lab_Drill_mail_time.Dock = DockStyle.Fill;
             lab_Drill_mail_time.Font = new Font("微軟正黑體", 9.75F);
             lab_Drill_mail_time.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Drill_mail_time.Location = new Point(212, 137);
+            lab_Drill_mail_time.Location = new Point(212, 156);
             lab_Drill_mail_time.Name = "lab_Drill_mail_time";
-            lab_Drill_mail_time.Size = new Size(203, 44);
+            lab_Drill_mail_time.Size = new Size(203, 50);
             lab_Drill_mail_time.TabIndex = 7;
             lab_Drill_mail_time.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -216,9 +216,9 @@
             lab_Drill_mail.Dock = DockStyle.Fill;
             lab_Drill_mail.Font = new Font("微軟正黑體", 9.75F);
             lab_Drill_mail.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Drill_mail.Location = new Point(3, 137);
+            lab_Drill_mail.Location = new Point(3, 156);
             lab_Drill_mail.Name = "lab_Drill_mail";
-            lab_Drill_mail.Size = new Size(203, 44);
+            lab_Drill_mail.Size = new Size(203, 50);
             lab_Drill_mail.TabIndex = 6;
             lab_Drill_mail.Text = "鑽床資訊監控時間";
             lab_Drill_mail.TextAlign = ContentAlignment.MiddleLeft;
@@ -229,9 +229,9 @@
             lab_Drill_element_time.Dock = DockStyle.Fill;
             lab_Drill_element_time.Font = new Font("微軟正黑體", 9.75F);
             lab_Drill_element_time.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Drill_element_time.Location = new Point(212, 93);
+            lab_Drill_element_time.Location = new Point(212, 106);
             lab_Drill_element_time.Name = "lab_Drill_element_time";
-            lab_Drill_element_time.Size = new Size(203, 44);
+            lab_Drill_element_time.Size = new Size(203, 50);
             lab_Drill_element_time.TabIndex = 5;
             lab_Drill_element_time.Text = " ";
             lab_Drill_element_time.TextAlign = ContentAlignment.MiddleCenter;
@@ -242,9 +242,9 @@
             lab_Drill_element.Dock = DockStyle.Fill;
             lab_Drill_element.Font = new Font("微軟正黑體", 9.75F);
             lab_Drill_element.ForeColor = SystemColors.ActiveCaptionText;
-            lab_Drill_element.Location = new Point(3, 93);
+            lab_Drill_element.Location = new Point(3, 106);
             lab_Drill_element.Name = "lab_Drill_element";
-            lab_Drill_element.Size = new Size(203, 44);
+            lab_Drill_element.Size = new Size(203, 50);
             lab_Drill_element.TabIndex = 4;
             lab_Drill_element.Text = "鑽床監控元件總時間";
             lab_Drill_element.TextAlign = ContentAlignment.MiddleLeft;
@@ -255,9 +255,9 @@
             lab_main_time.Dock = DockStyle.Fill;
             lab_main_time.Font = new Font("微軟正黑體", 9.75F);
             lab_main_time.ForeColor = SystemColors.ActiveCaptionText;
-            lab_main_time.Location = new Point(212, 49);
+            lab_main_time.Location = new Point(212, 56);
             lab_main_time.Name = "lab_main_time";
-            lab_main_time.Size = new Size(203, 44);
+            lab_main_time.Size = new Size(203, 50);
             lab_main_time.TabIndex = 3;
             lab_main_time.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -268,9 +268,9 @@
             lab_main.Dock = DockStyle.Fill;
             lab_main.Font = new Font("微軟正黑體", 9.75F);
             lab_main.ForeColor = SystemColors.ActiveCaptionText;
-            lab_main.Location = new Point(3, 49);
+            lab_main.Location = new Point(3, 56);
             lab_main.Name = "lab_main";
-            lab_main.Size = new Size(203, 44);
+            lab_main.Size = new Size(203, 50);
             lab_main.TabIndex = 2;
             lab_main.Text = "主頁面監控時間";
             lab_main.TextAlign = ContentAlignment.MiddleLeft;
@@ -283,7 +283,7 @@
             lab_title.ForeColor = SystemColors.ActiveCaptionText;
             lab_title.Location = new Point(212, 0);
             lab_title.Name = "lab_title";
-            lab_title.Size = new Size(203, 49);
+            lab_title.Size = new Size(203, 56);
             lab_title.TabIndex = 1;
             lab_title.Text = "偵測時間";
             lab_title.TextAlign = ContentAlignment.MiddleCenter;
@@ -296,7 +296,7 @@
             lab_titleText.ForeColor = SystemColors.ActiveCaptionText;
             lab_titleText.Location = new Point(3, 0);
             lab_titleText.Name = "lab_titleText";
-            lab_titleText.Size = new Size(203, 49);
+            lab_titleText.Size = new Size(203, 56);
             lab_titleText.TabIndex = 0;
             lab_titleText.Text = "監控總表";
             lab_titleText.TextAlign = ContentAlignment.MiddleCenter;

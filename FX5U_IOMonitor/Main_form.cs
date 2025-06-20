@@ -34,7 +34,6 @@ namespace FX5U_IOMonitor
             LanguageManager.LoadLanguageFromDatabase(lang);
             SwitchLanguage();
             LanguageManager.LanguageChanged += OnLanguageChanged;
-
         }
         private void OnLanguageChanged(string cultureName)
         {
@@ -42,6 +41,7 @@ namespace FX5U_IOMonitor
 
             SwitchLanguage();
         }
+      
         private void Info_FormClosing(object? sender, FormClosingEventArgs e)
         {
             _cts?.Cancel(); // 關閉時自動取消背景任務
@@ -164,7 +164,7 @@ namespace FX5U_IOMonitor
         {
 
             lb_swing_current.Text = DBfunction.Get_Machine_now_string("motor_current") + "(A)";
-            lb_sawing_cutingspeed.Text = DBfunction.Get_Machine_now_string("Sawing", "cuttingspeed") + "(m/min)";
+            lb_sawing_cutingspeed.Text = DBfunction.Get_Machine_now_string("Sawing", "cuttingspeed") + Text_design.ConvertUnitLabel("(mm/min)");
             lb_swing_Voltage.Text = DBfunction.Get_Machine_now_string("Sawing", "voltage") + "(V)";
             lb_swing_motor_current.Text = DBfunction.Get_Machine_now_string("Sawing", "current") + "(A)";
             lb_oilpress.Text = DBfunction.Get_Machine_now_string("Sawing", "oil_pressure");
@@ -178,7 +178,7 @@ namespace FX5U_IOMonitor
         }
         private void Drill_main_update()
         {
-            lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
+            lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
             lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
             lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(V)";
             lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(A) ";

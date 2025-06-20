@@ -95,12 +95,12 @@ namespace FX5U_IOMonitor
             lab_Sawblade_material.Text = DBfunction.Get_Machine_text("Sawblade_material");
             lab_Sawblade_type.Text = DBfunction.Get_Machine_text("Sawblade_type");
             lab_Sawblade_teeth.Text = DBfunction.Get_Machine_text("Sawblade_teeth") + "  (TOOL / INCH)";
-            lab_Sawband_speed.Text = DBfunction.Get_Machine_text("Sawband_speed") + "(m/min)";
+            lab_Sawband_speed.Text = DBfunction.Get_Machine_text("Sawband_speed") + Text_design.ConvertUnitLabel("(m/min)");
             lab_Sawband_motors_usetime.Text = DBfunction.Get_Machine_text("Sawband_motors_usetime");
 
             lab_Sawband_power.Text = DBfunction.Get_Machine_text("Sawband_power").ToString() + " (Hp)";
             lab_Sawband_current.Text = DBfunction.Get_Machine_text("Sawband_current").ToString() + "(A)";
-            lab_Sawband_area.Text = DBfunction.Get_Machine_text("Sawband_area").ToString() + "(m²)";
+            lab_Sawband_area.Text = DBfunction.Get_Machine_text("Sawband_area").ToString() + Text_design.ConvertUnitLabel("(m²)");
             lab_saw_life.Text = DBfunction.Get_Machine_text("Sawband_life").ToString();
             lab_Sawband_tension.Text = DBfunction.Get_Machine_text("Sawband_tension").ToString();
 

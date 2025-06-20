@@ -8,11 +8,30 @@ using System.Threading.Tasks;
 using FX5U_IOMonitor.Data;
 using Microsoft.EntityFrameworkCore;
 using FX5U_IOMonitor.Login;
+using Microsoft.AspNetCore.Identity;
+using FX5U_IOMonitor.Models;
 
-namespace FX5U_IOMonitor.Models
+namespace FX5U_IOMonitor.Email
 {
-    public class Email
+    public class email
     {
+        public static List<string> GetAllUserEmailsAsync()
+        {
+            using var _userManager = new UserService<ApplicationDB>();
+
+            // 從 UserManager 抓出所有使用者
+            var users = _userManager.GetAllUser().ToList();
+
+            // 只取 email 並建立清單
+            var emails = users
+                .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
+                .Select(u => u.Email!)
+                .Distinct() // 如果你想要去除重複信箱，可加這行
+                .ToList();
+
+            return emails;
+        }
+
         /// <summary>
         /// 非同步發送郵件
         /// </summary>
@@ -27,10 +46,10 @@ namespace FX5U_IOMonitor.Models
                 Port = Properties.Settings.Default.TLS_port,
 
                 Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword),
-              
+
                 EnableSsl = true
             };
-           
+
             var mail = new MailMessage
             {
                 From = new MailAddress(Properties.Settings.Default.senderEmail),
@@ -73,7 +92,7 @@ namespace FX5U_IOMonitor.Models
         {
             try
             {
-               
+
                 MailMessage mail = new MailMessage
                 {
                     From = new MailAddress(Properties.Settings.Default.senderEmail),
@@ -218,7 +237,7 @@ namespace FX5U_IOMonitor.Models
                 return false;
             }
 
-           
+
 
             // 實際執行每日通知邏輯
             private async Task SendDailyAlarmSummaryAsync()
@@ -249,7 +268,7 @@ namespace FX5U_IOMonitor.Models
 
                 foreach (var group in groupedByUsers)
                 {
-                    // 取得收件者 Email 清單（支援 , 或 ; 分隔）
+                    // 取得收件者 email 清單（支援 , 或 ; 分隔）
                     var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
                                          .Select(x => x.Trim())
                                          .ToList();
@@ -258,7 +277,7 @@ namespace FX5U_IOMonitor.Models
                     var body = BuildEmailBody(group.ToList());
                     var subject = $"📬 每日未排除警告摘要（{now:yyyy/MM/dd}）";
 
-                    // 發送 Email 給每位收件人
+                    // 發送 email 給每位收件人
                     foreach (var email in users)
                     {
                         await SendAsync(email, subject, body);
@@ -289,7 +308,7 @@ namespace FX5U_IOMonitor.Models
                 Properties.Settings.Default.Save();
             }
 
-            // 建立 Email 內容（將多筆警告合併為一封摘要）
+            // 建立 email 內容（將多筆警告合併為一封摘要）
             private string BuildEmailBody(List<AlarmHistory> alarms)
             {
                 var sb = new StringBuilder();
@@ -383,8 +402,8 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-     
-        
+
+
 
 
     }

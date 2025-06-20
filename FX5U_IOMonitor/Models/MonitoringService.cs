@@ -623,18 +623,20 @@ namespace FX5U_IOMonitor.Models
             /// 
             public async Task Read_Word_Monitor_AllModesAsync(string machine_name, int[] ReadTypes, CancellationToken? token = null)
             {
-                // 初始化對應監控清單
-                var modeAddressMap = new Dictionary<int, List<(string name, string address, ushort address_index)>>();
-
-                foreach (int now_readType in ReadTypes.Distinct())
-                {
-                    var names = DBfunction.Get_Machine_read_view(now_readType, machine_name);
-                    var addresses = DBfunction.Get_Read_word_machineparameter_address(machine_name, names);
-                    modeAddressMap[now_readType] = addresses;
-                }
+               
 
                 while (token == null || !token.Value.IsCancellationRequested)
                 {
+                    // 初始化對應監控清單
+                    var modeAddressMap = new Dictionary<int, List<(string name, string address, ushort address_index)>>();
+
+                    foreach (int now_readType in ReadTypes.Distinct())
+                    {
+                        var names = DBfunction.Get_Machine_read_view(now_readType, machine_name);
+                        var addresses = DBfunction.Get_Read_word_machineparameter_address(machine_name, names);
+                        modeAddressMap[now_readType] = addresses;
+                    }
+
                     try
                     {
 

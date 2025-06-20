@@ -130,6 +130,9 @@ namespace FX5U_IOMonitor.panel_control
             if (btn != null)
                 btn.Text = newDisplayText;
         }
+
+      
+
     }
     
 }

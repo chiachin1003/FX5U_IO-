@@ -1,12 +1,12 @@
 using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Models;
 using Microsoft.Extensions.Logging;
-using static FX5U_IOMonitor.Models.Email;
+using static FX5U_IOMonitor.Email.email;
 
 
 namespace FX5U_IOMonitor
 {
-	internal static class Program
+    internal static class Program
 	{
         public static DatabaseSyncService SyncService { get; private set; }
 

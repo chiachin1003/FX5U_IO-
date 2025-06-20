@@ -22,7 +22,7 @@ namespace FX5U_IOMonitor
             private static readonly Dictionary<string, Stopwatch> _timers = new();
 
             // 開始計時（如果不存在就建立）
-            public static void Start(string key, bool resetBeforeStart =true)
+            public static void Start(string key, bool resetBeforeStart = true)
             {
                 if (!_timers.ContainsKey(key))
                     _timers[key] = new Stopwatch();
@@ -50,14 +50,21 @@ namespace FX5U_IOMonitor
             // 取得毫秒數（long）
             public static long GetElapsedMilliseconds(string key)
             {
-                return _timers.ContainsKey(key) ? _timers[key].ElapsedMilliseconds : -1;
+                if (_timers.ContainsKey(key))
+                {
+                    long elapsed = _timers[key].ElapsedMilliseconds;
+                    return (elapsed == 0) ? 1 : elapsed;
+
+                }
+                return -1;
             }
+
             public static string GetFormattedTime(string key)
             {
                 if (_timers.ContainsKey(key))
                 {
                     var ts = _timers[key].Elapsed;
-                    return $"{ts.Milliseconds:D3} ms";
+                    return $"{ts.Milliseconds} 毫秒(ms)";
                 }
                 return "00:00.000";
             }
@@ -68,10 +75,10 @@ namespace FX5U_IOMonitor
         {
             InitializeComponent();
             this.Load += Main_Load;
-       
+
 
         }
-     
+
         private void Main_Load(object sender, EventArgs e)
         {
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
@@ -130,59 +137,39 @@ namespace FX5U_IOMonitor
             var Drill = GlobalMachineHub.GetContext("Drill") as IMachineContext;
             var Saw = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
 
-            if (Drill != null && Drill.IsConnected)
+            // ✅ 工具方法：避免顯示0ms
+            string FormatElapsed(long value, long limit, string fallback)
             {
-                if (int.Parse(Drill.ConnectSummary.read_time) > 70)
-                {
-                    lab_Drill_element_time.Text = ("當前監控總數更新時間：70ms");
+                long safeVal = (value <= 0) ? 1 : value;
+                return safeVal < limit ? $"{safeVal} ms" : fallback;
+            }
 
-                }
-                else
-                {
-                    lab_Drill_element_time.Text = ("當前監控總數更新時間：" + Drill.ConnectSummary.read_time + "ms");
-                }
+            // 鑽床狀態
+            if (Drill?.IsConnected == true)
+            {
+                int drillReadTime = int.TryParse(Drill.ConnectSummary.read_time, out var t1) ? (t1 == 0 ? 1 : t1) : 1;
+                lab_Drill_element_time.Text = $"當前監控總數更新時間：{(drillReadTime > 70 ? 70 : drillReadTime)}ms";
 
-                if (Checkpoint_time.GetElapsedMilliseconds("Drill_main") < 480)
-                {
-                    lab_Drill_mail_time.Text = Checkpoint_time.GetFormattedTime("Drill_main");
-                }
-                else
-                {
-                    lab_Drill_mail_time.Text = "480 ms";
-                }
-                
+                long drillMainElapsed = Checkpoint_time.GetElapsedMilliseconds("Drill_main");
+                lab_Drill_mail_time.Text = FormatElapsed(drillMainElapsed, 480, "480 ms");
             }
             else
             {
                 lab_Drill_element_time.Text = "未連接鑽床";
                 lab_Drill_mail_time.Text = "未連接鑽床";
             }
-            if (Saw != null && Saw.IsConnected)
+
+            // 鋸床狀態
+            if (Saw?.IsConnected == true)
             {
-                if (int.Parse(Saw.ConnectSummary.read_time) > 70)
-                {
-                    lab_Sawing_element_time.Text = ("當前監控總數更新時間：70ms");
-                }
-                else
-                {
-                    lab_Sawing_element_time.Text = ("當前監控總數更新時間：" + Saw.ConnectSummary.read_time + "ms");
-                }
-                if (Checkpoint_time.GetElapsedMilliseconds("Saw_brand") < 550)
-                {
-                    lab_sawbrand_time.Text = Checkpoint_time.GetFormattedTime("Saw_brand");
-                }
-                else
-                {
-                    lab_sawbrand_time.Text = "220 ms";
-                }
-                if (Checkpoint_time.GetElapsedMilliseconds("Saw_main") < 500 )
-                {
-                    lab_Sawing_main_time.Text = Checkpoint_time.GetFormattedTime("Saw_main");
-                }
-                else
-                {
-                    lab_Sawing_main_time.Text = "397 ms";
-                }
+                int sawReadTime = int.TryParse(Saw.ConnectSummary.read_time, out var t2) ? (t2 == 0 ? 1 : t2) : 1;
+                lab_Sawing_element_time.Text = $"當前監控總數更新時間：{(sawReadTime > 70 ? 70 : sawReadTime)}ms";
+
+                long sawBrandElapsed = Checkpoint_time.GetElapsedMilliseconds("Saw_brand");
+                lab_sawbrand_time.Text = FormatElapsed(sawBrandElapsed, 550, "220 ms");
+
+                long sawMainElapsed = Checkpoint_time.GetElapsedMilliseconds("Saw_main");
+                lab_Sawing_main_time.Text = FormatElapsed(sawMainElapsed, 500, "397 ms");
             }
             else
             {
@@ -191,14 +178,8 @@ namespace FX5U_IOMonitor
                 lab_sawbrand_time.Text = "未連接鋸床";
             }
 
+            // 主畫面顯示固定值
             lab_main_time.Text = "500 ms";
-
-            
-
-
-
         }
-
-
     }
 }

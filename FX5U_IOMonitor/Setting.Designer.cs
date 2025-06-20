@@ -38,6 +38,9 @@ namespace FX5U_IOMonitor
             btn_history = new Button();
             btn_emailtest = new Button();
             btn_checkpoint = new Button();
+            button1 = new Button();
+            button2 = new Button();
+            button3 = new Button();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -97,16 +100,17 @@ namespace FX5U_IOMonitor
             // 
             // btn_emailtest
             // 
-            btn_emailtest.Location = new Point(800, 565);
+            btn_emailtest.Location = new Point(768, 512);
             btn_emailtest.Name = "btn_emailtest";
             btn_emailtest.Size = new Size(124, 33);
             btn_emailtest.TabIndex = 12;
             btn_emailtest.Text = "郵件發送測試鈕";
             btn_emailtest.UseVisualStyleBackColor = true;
+            btn_emailtest.Click += btn_emailtest_Click;
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(73, 144);
+            btn_checkpoint.Location = new Point(699, 147);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -114,12 +118,44 @@ namespace FX5U_IOMonitor
             btn_checkpoint.UseVisualStyleBackColor = true;
             btn_checkpoint.Click += btn_checkpoint_Click;
             // 
+            // button1
+            // 
+            button1.Location = new Point(768, 584);
+            button1.Name = "button1";
+            button1.Size = new Size(124, 33);
+            button1.TabIndex = 14;
+            button1.Text = "每分定期發送通知";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
+            // button2
+            // 
+            button2.Location = new Point(768, 473);
+            button2.Name = "button2";
+            button2.Size = new Size(124, 33);
+            button2.TabIndex = 15;
+            button2.Text = "每分";
+            button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click;
+            // 
+            // button3
+            // 
+            button3.Location = new Point(73, 578);
+            button3.Name = "button3";
+            button3.Size = new Size(101, 39);
+            button3.TabIndex = 16;
+            button3.Text = "監控單位切換";
+            button3.UseVisualStyleBackColor = true;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(button3);
+            Controls.Add(button2);
+            Controls.Add(button1);
             Controls.Add(btn_checkpoint);
             Controls.Add(btn_emailtest);
             Controls.Add(btn_history);
@@ -144,5 +180,8 @@ namespace FX5U_IOMonitor
         private Button btn_history;
         private Button btn_emailtest;
         private Button btn_checkpoint;
+        private Button button1;
+        private Button button2;
+        private Button button3;
     }
 }

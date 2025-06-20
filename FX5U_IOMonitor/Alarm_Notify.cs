@@ -215,7 +215,7 @@ namespace FX5U_IO元件監控
             if (radioButton_alluser.Checked)
             {
                 using var userService = new UserService<ApplicationDB>();
-                var userNameList = await userService.GetAllUser();
+                var userNameList = userService.GetAllUser();
                 _ = All_NotifyUser(userNameList, datatable);
                 MessageBox.Show("更新成功！");
 
@@ -274,7 +274,7 @@ namespace FX5U_IO元件監控
         private async Task Add_NotifyUser(checkcombobox combo, string datatable, NotifyUserMode mode = NotifyUserMode.All)
         {
             using var userService = new UserService<ApplicationDB>();
-            var allUsers = await userService.GetAllUser();
+            var allUsers = userService.GetAllUser();
 
             List<string> filterUserNames;
 
@@ -534,7 +534,7 @@ namespace FX5U_IO元件監控
             if (hit.Location != TreeViewHitTestLocations.Label)
                 return; // 不處理勾勾或空白
             using var userService = new UserService<ApplicationDB>();
-            var allUsers = await userService.GetAllUser();
+            var allUsers = userService.GetAllUser();
             var db = new ApplicationDB();
 
             string alarmKey;

@@ -36,12 +36,16 @@
             btn_connect = new Button();
             panel_main = new Panel();
             panel_select = new Panel();
+            panel_unit = new Panel();
+            btn_unit = new Button();
+            comb_unit = new ComboBox();
             panel_language = new Panel();
             comb_language = new ComboBox();
             btn_language = new Button();
             btn_log_out = new Button();
             panel_choose.SuspendLayout();
             panel_select.SuspendLayout();
+            panel_unit.SuspendLayout();
             panel_language.SuspendLayout();
             SuspendLayout();
             // 
@@ -150,6 +154,7 @@
             // panel_select
             // 
             panel_select.BackColor = SystemColors.ButtonHighlight;
+            panel_select.Controls.Add(panel_unit);
             panel_select.Controls.Add(panel_language);
             panel_select.Controls.Add(btn_log_out);
             panel_select.Dock = DockStyle.Top;
@@ -158,6 +163,38 @@
             panel_select.Name = "panel_select";
             panel_select.Size = new Size(966, 50);
             panel_select.TabIndex = 1;
+            // 
+            // panel_unit
+            // 
+            panel_unit.BackColor = SystemColors.ButtonHighlight;
+            panel_unit.Controls.Add(btn_unit);
+            panel_unit.Controls.Add(comb_unit);
+            panel_unit.Dock = DockStyle.Left;
+            panel_unit.Location = new Point(0, 0);
+            panel_unit.Name = "panel_unit";
+            panel_unit.Size = new Size(86, 50);
+            panel_unit.TabIndex = 16;
+            // 
+            // btn_unit
+            // 
+            btn_unit.BackColor = SystemColors.ButtonHighlight;
+            btn_unit.Location = new Point(3, 26);
+            btn_unit.Name = "btn_unit";
+            btn_unit.Size = new Size(78, 22);
+            btn_unit.TabIndex = 17;
+            btn_unit.Text = "單位切換";
+            btn_unit.UseVisualStyleBackColor = false;
+            btn_unit.Click += btn_unit_Click;
+            // 
+            // comb_unit
+            // 
+            comb_unit.BackColor = SystemColors.ButtonHighlight;
+            comb_unit.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_unit.FormattingEnabled = true;
+            comb_unit.Location = new Point(3, 3);
+            comb_unit.Name = "comb_unit";
+            comb_unit.Size = new Size(80, 23);
+            comb_unit.TabIndex = 18;
             // 
             // panel_language
             // 
@@ -174,6 +211,7 @@
             // 
             comb_language.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comb_language.BackColor = SystemColors.ButtonHighlight;
+            comb_language.DropDownStyle = ComboBoxStyle.DropDownList;
             comb_language.FormattingEnabled = true;
             comb_language.Location = new Point(9, 3);
             comb_language.Name = "comb_language";
@@ -223,6 +261,7 @@
             Load += Main_Load;
             panel_choose.ResumeLayout(false);
             panel_select.ResumeLayout(false);
+            panel_unit.ResumeLayout(false);
             panel_language.ResumeLayout(false);
             ResumeLayout(false);
         }
@@ -241,6 +280,9 @@
         private ComboBox comb_language;
         private Button btn_setting;
         public Button btn_Main;
+        private Panel panel_unit;
+        private ComboBox comb_unit;
+        private Button btn_unit;
     }
 }
 

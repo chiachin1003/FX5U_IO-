@@ -30,7 +30,6 @@
         {
             btn_Update = new Button();
             tableLayoutPanel1 = new TableLayoutPanel();
-            txb_TLS_port = new TextBox();
             lab_Port = new Label();
             comboBox1 = new ComboBox();
             lab_Protocal = new Label();
@@ -38,6 +37,7 @@
             lab_Password = new Label();
             txb_senderEmail = new TextBox();
             lab_Email = new Label();
+            comb_port = new ComboBox();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -59,7 +59,7 @@
             tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 32.68817F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 67.31183F));
-            tableLayoutPanel1.Controls.Add(txb_TLS_port, 1, 3);
+            tableLayoutPanel1.Controls.Add(comb_port, 1, 3);
             tableLayoutPanel1.Controls.Add(lab_Port, 0, 3);
             tableLayoutPanel1.Controls.Add(comboBox1, 1, 2);
             tableLayoutPanel1.Controls.Add(lab_Protocal, 0, 2);
@@ -76,18 +76,6 @@
             tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tableLayoutPanel1.Size = new Size(465, 156);
             tableLayoutPanel1.TabIndex = 42;
-            // 
-            // txb_TLS_port
-            // 
-            txb_TLS_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            txb_TLS_port.BackColor = SystemColors.ButtonHighlight;
-            txb_TLS_port.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            txb_TLS_port.Location = new Point(155, 123);
-            txb_TLS_port.Name = "txb_TLS_port";
-            txb_TLS_port.Size = new Size(307, 27);
-            txb_TLS_port.TabIndex = 44;
-            txb_TLS_port.Text = "465";
-            txb_TLS_port.TextAlign = HorizontalAlignment.Center;
             // 
             // lab_Port
             // 
@@ -176,6 +164,20 @@
             lab_Email.Text = "寄件者信箱：";
             lab_Email.TextAlign = ContentAlignment.MiddleLeft;
             // 
+            // comb_port
+            // 
+            comb_port.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_port.BackColor = SystemColors.ButtonHighlight;
+            comb_port.DrawMode = DrawMode.OwnerDrawFixed;
+            comb_port.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_port.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            comb_port.FormattingEnabled = true;
+            comb_port.Items.AddRange(new object[] { "465", "587" });
+            comb_port.Location = new Point(155, 122);
+            comb_port.Name = "comb_port";
+            comb_port.Size = new Size(307, 28);
+            comb_port.TabIndex = 44;
+            // 
             // Email_Settings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -197,12 +199,12 @@
         private Button btn_Update;
         private TableLayoutPanel tableLayoutPanel1;
         private Label lab_Email;
-        private TextBox txb_TLS_port;
         private Label lab_Port;
         private ComboBox comboBox1;
         private Label lab_Protocal;
         private TextBox txb_senderPassword;
         private Label lab_Password;
         private TextBox txb_senderEmail;
+        private ComboBox comb_port;
     }
 }

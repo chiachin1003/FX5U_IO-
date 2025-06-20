@@ -60,7 +60,7 @@ namespace FX5U_IOMonitor
         {
             while (!token.IsCancellationRequested)
             {
-                
+
                 try
                 {
                     // 主執行緒呼叫 UI 更新
@@ -91,16 +91,18 @@ namespace FX5U_IOMonitor
         private void reset_lab_connectText()
         {
             lab_Drill_servo_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_servo_usetime") + (DBfunction.Get_Machine_number("Drill_servo_usetime"))));
-            lab_Drill_spindle_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle_usetime") + (DBfunction.Get_Machine_number("Drill_spindle_usetime"))));
+            lab_Drill_spindle1_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle1_usetime") + (DBfunction.Get_Machine_number("Drill_spindle1_usetime"))));
+            lab_Drill_spindle2_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle2_usetime") + (DBfunction.Get_Machine_number("Drill_spindle2_usetime"))));
+            lab_Drill_spindle3_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_spindle3_usetime") + (DBfunction.Get_Machine_number("Drill_spindle3_usetime"))));
             lab_Drill_plc_usetime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
             lab_Drill_inverter.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_inverter") + (DBfunction.Get_Machine_number("Drill_inverter"))));
+            lab_Drill_outverter.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_outverter") + (DBfunction.Get_Machine_number("Drill_outverter"))));
             lab_Drill_total_Time.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
 
             lab_Drill_origin.Text = DBfunction.Get_Machine_History_NumericValue("Drill_origin").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
             lab_Drill_loose_tools.Text = DBfunction.Get_Machine_History_NumericValue("Drill_loose_tools").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
             lab_Drill_measurement.Text = DBfunction.Get_Machine_History_NumericValue("Drill_measurement").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
             lab_Drill_clamping.Text = DBfunction.Get_Machine_History_NumericValue("Drill_clamping").ToString() + "      " + LanguageManager.Translate("ShowDetail_lab_count");
-            lab_Drill_feeder.Text = DBfunction.Get_Machine_History_NumericValue("Drill_feeder").ToString() + "      "  +LanguageManager.Translate("ShowDetail_lab_count");
             Checkpoint_time.Stop("Drill_main");
 
         }
@@ -118,15 +120,17 @@ namespace FX5U_IOMonitor
             lab_titleText.Text = LanguageManager.Translate("DrillInfo_title");
             lab_title.Text = LanguageManager.Translate("DrillInfo_titleTime");
             lab_Drill_servo_usetimeText.Text = LanguageManager.Translate("DrillInfo_DrillservousetimeText");
-            lab_Drill_spindle_usetimeText.Text = LanguageManager.Translate("DrillInfo_DrillspindleusetimeText");
+            lab_Drill_spindle1_usetimeText.Text = LanguageManager.Translate("DrillInfo_Drillspindle1usetimeText");
+            lab_Drill_spindle2_usetimeText.Text = LanguageManager.Translate("DrillInfo_Drillspindle2usetimeText");
+            lab_Drill_spindle3_usetimeText.Text = LanguageManager.Translate("DrillInfo_Drillspindle3usetimeText");
             lab_Drill_plc_usetimeText.Text = LanguageManager.Translate("DrillInfo_DrillplcusetimeText");
             lab_Drill_inverterText.Text = LanguageManager.Translate("DrillInfo_DrillinverterText");
+            lab_Drill_outverterText.Text = LanguageManager.Translate("DrillInfo_DrilloutverterText");
             lab_Drill_total_TimeText.Text = LanguageManager.Translate("DrillInfo_DrilltotalTimeText");
             lab_Drill_originText.Text = LanguageManager.Translate("DrillInfo_DrilloriginText");
             lab_Drill_loose_toolsText.Text = LanguageManager.Translate("DrillInfo_DrillloosetoolsText");
             lab_Drill_measurementText.Text = LanguageManager.Translate("DrillInfo_DrillmeasurementText");
             lab_Drill_clampingText.Text = LanguageManager.Translate("DrillInfo_DrillclampingText");
-            lab_Drill_feederText.Text = LanguageManager.Translate("DrillInfo_DrillfeederText");
         }
 
         private void lab_Drill_servo_usetime_Click(object sender, EventArgs e)
@@ -184,11 +188,6 @@ namespace FX5U_IOMonitor
             reset_lab_connectText();
         }
 
-        private void lab_Drill_feeder_Click(object sender, EventArgs e)
-        {
-            ConfirmAndResetUsetime("Drill", "Drill_feeder", "確定要將送料機夾鬆次數歸零嗎？", "送料機夾鬆次數已成功歸零");
-            reset_lab_connectText();
-        }
         /// <summary>
         /// 累計使用次數/時間重新計算
         /// </summary>
@@ -223,6 +222,7 @@ namespace FX5U_IOMonitor
                 MessageBox.Show("❎ 已取消歸零操作", "取消", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
 
        
     }

@@ -139,7 +139,7 @@ namespace FX5U_IOMonitor.Login
             return result;
         }
 
-        public async Task<List<ApplicationUser>> GetAllUser()
+        public List<ApplicationUser> GetAllUser()
         {
             var users = _userManager.Users.ToList(); // Fetch users from the database
             var result = new List<ApplicationUser>();
@@ -149,15 +149,21 @@ namespace FX5U_IOMonitor.Login
             }
             return result;
         }
-
-
+       
         public bool CheckUserExist(string userName)
         {
             var user = _userManager.Users
                 .FirstOrDefault(u => u.UserName == userName);
             return user != null;
         }
-
+        /// <summary>
+        /// 創建帳號
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
+        /// <param name="role"></param>
+        /// <param name="email"></param>
+        /// <returns></returns>
         public async Task CreateUserAsync(string userName, string password, string role ,string email)
         {
             // Create the admin user
@@ -181,7 +187,11 @@ namespace FX5U_IOMonitor.Login
                 }
             }
         }
-
+        /// <summary>
+        /// 刪除使用者
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
         public async Task DeleteUserAsync(string userName)
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == userName);

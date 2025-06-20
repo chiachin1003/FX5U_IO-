@@ -1,5 +1,6 @@
 ﻿
 using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.Email;
 using SLMP;
 using System.IO.Ports;
 using Modbus.Device; // 來自 NModbus4
@@ -410,7 +411,7 @@ namespace FX5U_IOMonitor
 
 
         }
-        private async Task HandleAlarmAndSendEmailAsync(IOUpdateEventArgs e)
+        public async Task HandleAlarmAndSendEmailAsync(IOUpdateEventArgs e)
         {
             string notifyUsers = Alarm_sendmail.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
             var alarm = new Alarm_sendmail();
@@ -425,7 +426,7 @@ namespace FX5U_IOMonitor
             if (receivers.Count == 0)
                 return;
 
-            Email.SendFailureAlertMail(
+            email.SendFailureAlertMail(
                 receivers,
                 machineName,
                 partNumber,

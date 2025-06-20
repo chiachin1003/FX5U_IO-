@@ -18,8 +18,11 @@ namespace FX5U_IOMonitor.Resources
            
             txb_senderEmail.Text = Properties.Settings.Default.senderEmail;
             txb_senderPassword.Text = Properties.Settings.Default.senderPassword;
+            
             txb_senderPassword.PasswordChar = '*';  // 隱藏密碼
             comboBox1.SelectedIndex = 0;
+            comb_port.SelectedIndex = 0;
+
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
             LanguageManager.LanguageChanged += OnLanguageChanged;
@@ -53,7 +56,7 @@ namespace FX5U_IOMonitor.Resources
                 MailMessage mail = new MailMessage();
                 mail.From = new MailAddress(senderEmail);
                 //mail.To.Add(receiverEmail);
-                mail.Subject = "測試 Email";
+                mail.Subject = "測試 email";
                 mail.Body = "這是一封由 WinForms 程式發送的測試郵件。";
 
                 // 發送郵件
@@ -73,12 +76,12 @@ namespace FX5U_IOMonitor.Resources
         private void btn_setting_Click(object sender, EventArgs e)
         {
 
-            // 設定寄件人 Email 與密碼 (注意：若使用 Gmail，請確認帳戶已開啟「低安全性應用程式存取」或使用應用程式密碼)
+            // 設定寄件人 email 與密碼 (注意：若使用 Gmail，請確認帳戶已開啟「低安全性應用程式存取」或使用應用程式密碼)
             Properties.Settings.Default.senderEmail = txb_senderEmail.Text;
             Properties.Settings.Default.senderPassword = txb_senderPassword.Text; // 建議使用應用程式專用密碼
 
             Properties.Settings.Default.Gmail_SMTP_server = "smtp.gmail.com"; 
-            Properties.Settings.Default.TLS_port = Convert.ToInt32(txb_TLS_port.Text); // 建議使用應用程式專用密碼
+            Properties.Settings.Default.TLS_port = Convert.ToInt32(comb_port.Text); // 建議使用應用程式專用密碼
             Properties.Settings.Default.Save(); // ✅ 寫入設定檔
             MessageBox.Show("Gmail 設定已儲存！", "設定成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -97,7 +100,7 @@ namespace FX5U_IOMonitor.Resources
         {
             txb_senderEmail.Text = Properties.Settings.Default.senderEmail;
             txb_senderPassword.Text = Properties.Settings.Default.senderPassword;
-            txb_TLS_port.Text = Properties.Settings.Default.TLS_port.ToString();
+
             comboBox1.DrawItem += (s, e) =>
             {
                 e.DrawBackground();
@@ -112,6 +115,26 @@ namespace FX5U_IOMonitor.Resources
                         sf.LineAlignment = StringAlignment.Center;    // 垂直置中
 
                         e.Graphics.DrawString(text, comboBox1.Font, Brushes.Black, e.Bounds, sf);
+                    }
+                }
+
+                e.DrawFocusRectangle();
+            };
+
+            comb_port.DrawItem += (s, e) =>
+            {
+                e.DrawBackground();
+
+                if (e.Index >= 0)
+                {
+                    string text = comb_port.Items[e.Index].ToString();
+
+                    using (StringFormat sf = new StringFormat())
+                    {
+                        sf.Alignment = StringAlignment.Center;        // 水平置中
+                        sf.LineAlignment = StringAlignment.Center;    // 垂直置中
+
+                        e.Graphics.DrawString(text, comb_port.Font, Brushes.Black, e.Bounds, sf);
                     }
                 }
 

@@ -25,40 +25,9 @@ namespace FX5U_IOMonitor.Models
     internal class Test_
     {
 
-
-        void read_view0()
-        {
-            SlmpConfig cfg = new("192.168.9.1", 2000);
-            cfg.ConnTimeout = 3000;
-            SlmpClient plc = new(cfg);
-            plc.Connect();
-
-            List<string> machine_output = DBfunction.Get_Machine_read_view(0, "Sawing");
-            List<(string, string, ushort)> a = DBfunction.Get_Read_word_machineparameter_address("Sawing", machine_output);
-
-            foreach (var (name, address, index) in a)
-            {
-                if (index == 1)
-                {
-                    ushort number = plc.ReadWordDevice(address);
-                    Debug.WriteLine($"地址: {address}  數值: {number}  監控名稱: {name}");
-                    double input_number = number * DBfunction.Get_Unit_transfer(name);
-                    //DBfunction.Set_Machine_now_number(name, (ushort)input_number);
+       
 
 
-                }
-                else if (index == 2)
-                {
-                    ushort[] number = plc.ReadWordDevice(address, index);
-                    double input_number = MonitorFunction.mergenumber(number) * DBfunction.Get_Unit_transfer(name);
-
-                    DBfunction.Set_Machine_now_string(name, input_number.ToString());
-                    Debug.WriteLine($"地址: {address} 數值: {input_number}  監控名稱: {name}");
-
-                }
-
-            }
-        }
 
         void read_view1()
         {
@@ -547,85 +516,6 @@ namespace FX5U_IOMonitor.Models
         //DBfunction.SetMachineIOToHistory(dbtable, "L0", "alarm");
 
 
-
-        public void importcsv()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
-                Filter = "CSV 檔案 (*.csv)|*.csv",
-                Title = "選擇要匯入的 CSV 檔案"
-            };
-
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-                    {
-                        HasHeaderRecord = true,
-                        Encoding = System.Text.Encoding.UTF8,
-                        PrepareHeaderForMatch = args => args.Header.Trim(),
-                        MissingFieldFound = null,
-                        HeaderValidated = null
-                    };
-
-                    using var reader = new StreamReader(openFileDialog.FileName);
-                    using var csv = new CsvReader(reader, config);
-                    var records = csv.GetRecords<Bladebrandcsv>().ToList();
-
-                    using var context = new ApplicationDB();
-                    var existingData = context.Blade_brand.ToDictionary(b => b.blade_brand_id);
-
-                    int insertCount = 0, updateCount = 0;
-                    
-                    foreach (var row in records)
-                    {
-                        if (existingData.TryGetValue(row.blade_brand_id, out var existing))
-                        {
-                            bool updated = false;
-                            if (existing.blade_brand_name != row.blade_brand_name) { existing.blade_brand_name = row.blade_brand_name; updated = true; }
-                            if (existing.blade_material_id != row.blade_material_id) { existing.blade_material_id = row.blade_material_id; updated = true; }
-                            if (existing.blade_material_name != row.blade_material_name) { existing.blade_material_name = row.blade_material_name; updated = true; }
-                            if (existing.blade_Type_id != row.blade_Type_id) { existing.blade_Type_id = row.blade_Type_id; updated = true; }
-                            if (existing.blade_Type_name != row.blade_Type_name) { existing.blade_Type_name = row.blade_Type_name; updated = true; }
-                            if (updated) updateCount++;
-                        }
-                        else
-                        {
-                            context.Blade_brand.Add(new Blade_brand
-                            {
-                                blade_brand_id = row.blade_brand_id,
-                                blade_brand_name = row.blade_brand_name,
-                                blade_material_id = row.blade_material_id,
-                                blade_material_name = row.blade_material_name,
-                                blade_Type_id = row.blade_Type_id,
-                                blade_Type_name = row.blade_Type_name,
-                                Machine_Number = 1
-                            });
-                            insertCount++;
-                        }
-                    }
-
-                    context.SaveChanges();
-
-                    MessageBox.Show($"✅ 匯入完成：新增 {insertCount} 筆、更新 {updateCount} 筆！");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("❌ 匯入失敗：" + ex.Message);
-                }
-            }
-        }
-        private class Bladebrandcsv
-        {
-            public int blade_brand_id { get; set; }
-            public string blade_brand_name { get; set; } = "";
-            public int blade_material_id { get; set; }
-            public string blade_material_name { get; set; } = "";
-            public int blade_Type_id { get; set; }
-            public string blade_Type_name { get; set; } = "";
-        }
-      
 
 
     }

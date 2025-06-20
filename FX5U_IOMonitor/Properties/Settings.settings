@@ -29,5 +29,8 @@
     <Setting Name="userDefinedNotifyTime" Type="System.TimeSpan" Scope="User">
       <Value Profile="(Default)">00:00:00</Value>
     </Setting>
+    <Setting Name="UnitSetting" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Metric</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

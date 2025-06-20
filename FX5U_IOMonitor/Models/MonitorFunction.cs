@@ -40,7 +40,7 @@ namespace FX5U_IOMonitor.Models
             TimeSpan span = TimeSpan.FromSeconds(totalSeconds);
 
             // 回傳格式化字串
-            return $"{span.Days}天 {span.Hours}時 {span.Minutes}分 {span.Seconds}秒";
+            return span.ToString(@"hh\:mm\:ss");
         }
         ///
         /// 
