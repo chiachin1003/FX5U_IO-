@@ -4,6 +4,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Utilities.Net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -714,16 +715,34 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-                return alarm?.Error ?? "無對應說明";
+                var alarm = context.alarm
+                .Include(a => a.Translations)
+                    .FirstOrDefault(a => a.address == address);
+                if (alarm == null)
+                    return "無對應說明";
+
+                var translation = alarm.Translations
+                    .FirstOrDefault(t => t.LanguageCode == LanguageManager.Currentlanguge);
+
+                return translation?.Error ?? alarm.Error ?? "無找到對應說明";
+
             }
         }
         public static string Get_Possible_ByAddress(string address)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-                return alarm?.Possible ?? "無對應說明";
+                var alarm = context.alarm
+                           .Include(a => a.Translations)
+                           .FirstOrDefault(a => a.address == address);
+
+                if (alarm == null)
+                    return "⚠️ 無對應說明";
+
+                var translation = alarm.Translations
+                    .FirstOrDefault(t => t.LanguageCode == LanguageManager.Currentlanguge);
+
+                return translation?.Possible ?? alarm.Possible ?? "無對應說明";
             }
         }
         public static string Get_classTag_ByAddress(string address)
@@ -731,6 +750,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+
                 return alarm?.classTag ?? "無對應說明";
             }
         }

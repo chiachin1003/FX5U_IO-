@@ -40,7 +40,6 @@ namespace FX5U_IOMonitor
             btn_checkpoint = new Button();
             button1 = new Button();
             button2 = new Button();
-            button3 = new Button();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -138,22 +137,12 @@ namespace FX5U_IOMonitor
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
-            // button3
-            // 
-            button3.Location = new Point(73, 578);
-            button3.Name = "button3";
-            button3.Size = new Size(101, 39);
-            button3.TabIndex = 16;
-            button3.Text = "監控單位切換";
-            button3.UseVisualStyleBackColor = true;
-            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
-            Controls.Add(button3);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(btn_checkpoint);
@@ -182,6 +171,5 @@ namespace FX5U_IOMonitor
         private Button btn_checkpoint;
         private Button button1;
         private Button button2;
-        private Button button3;
     }
 }

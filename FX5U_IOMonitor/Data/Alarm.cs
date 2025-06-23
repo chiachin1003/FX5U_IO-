@@ -29,8 +29,45 @@ namespace FX5U_IOMonitor.Data
         public string? AlarmNotifyuser { get; set; }  // 警告通知使用者
 
         public bool current_single { get; set; }  // 當前狀態
+        public virtual ICollection<AlarmTranslation> Translations { get; set; } = new List<AlarmTranslation>();
 
         public virtual ICollection<AlarmHistory> AlarmHistories { get; set; } = new List<AlarmHistory>();
+
+        public string GetError()
+        {
+            return Translations?.FirstOrDefault(t => t.LanguageCode == LanguageManager.Currentlanguge)?.Error ?? "";
+        }
+
+        public string GetPossible(string languageCode = "US")
+        {
+            return Translations?.FirstOrDefault(t => t.LanguageCode == languageCode)?.Possible ?? "";
+        }
+        public string GetRepair_steps(string languageCode = "US")
+        {
+            return Translations?.FirstOrDefault(t => t.LanguageCode == languageCode)?.Repair_steps ?? "";
+        }
+        public void Setalarm_trans_language(string languageCode,string error, string possible, string Repairsteps)
+        {
+            var translation = Translations.FirstOrDefault(t => t.LanguageCode == languageCode);
+            if (translation != null)
+            {
+                translation.Error = error;
+                translation.Possible = possible;
+                translation.Repair_steps = Repairsteps;
+
+            }
+            else
+            {
+                Translations.Add(new AlarmTranslation
+                {
+                    LanguageCode = languageCode,
+                    Error = error,
+                    Possible = possible,
+                    Repair_steps = Repairsteps,
+                    AlarmId = this.Id
+                });
+            }
+        }
     }
 
     public class AlarmHistory : SyncableEntity

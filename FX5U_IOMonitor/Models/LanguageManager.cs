@@ -156,6 +156,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
+        public static string Currentlanguge => Properties.Settings.Default.LanguageSetting;
 
     }
 }

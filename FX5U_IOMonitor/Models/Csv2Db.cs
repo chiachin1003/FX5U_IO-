@@ -144,61 +144,124 @@ namespace FX5U_IOMonitor.Models
 
             try
             {
-                var records = csv.GetRecords<AlarmCsvRow>().ToList();
+                var records = csv.GetRecords<dynamic>().ToList(); // 先用 dynamic 解析欄位名稱
+                var headers = csv.Context.Reader.HeaderRecord;
+
+                // 判斷語系欄位（e.g., Error_en-US）
+                var translationGroups = headers
+                    .Where(h => h.StartsWith("Error_") || h.StartsWith("Possible_") || h.StartsWith("Repair_steps_"))
+                    .GroupBy(h => h.Split('_')[1]) // 語系碼
+                    .ToDictionary(
+                        g => g.Key, // en-US
+                        g => g.ToList()
+                    );
 
                 using var context = new ApplicationDB();
 
-                // 先取得已存在的 address + SourceMachine 組合
-                var existingKeys = context.alarm
-                    .Select(a => new { a.address, a.SourceMachine })
-                    .ToHashSet();
+                int updateCount = 0, insertCount = 0;
 
-                int addCount = 0;
                 foreach (var row in records)
                 {
-                    if (string.IsNullOrWhiteSpace(row.address))
+                    string? address = row.address;
+                    string? sourceMachine = row.SourceMachine;
+
+                    if (string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(sourceMachine))
                         continue;
 
-                    string drillType = row.SourceMachine?.Trim().ToLower();
+                    string drillType = sourceMachine.Trim().ToLower();
                     string sourceDb = drillType == "drill" ? "Drill" :
                                       drillType == "sawing" ? "Sawing" :
-                                      row.address.StartsWith("L8") ? "Drill" :
-                                      row.address.StartsWith("L9") ? "Sawing" :
-                                      "Unknown";
+                                      address.StartsWith("L8") ? "Drill" :
+                                      address.StartsWith("L9") ? "Sawing" : "Unknown";
 
-                    // 防呆：若此 address + SourceMachine 已存在，就跳過
-                    var key = new { address = row.address, SourceMachine = sourceDb };
-                    if (existingKeys.Contains(key))
-                        continue;
-                   
-                    var alarm = new Alarm
+                    var alarm = context.alarm
+                        .Include(a => a.Translations)
+                        .FirstOrDefault(a => a.address == address && a.SourceMachine == sourceDb);
+
+                    if (alarm != null)
                     {
-                        SourceMachine = sourceDb,
-                        address = row.address,
-                        IPC_table = row.IPC_table,
-                        Description = row.Description,
-                        Error = row.Error,
-                        Possible = row.Possible,
-                        Repair_steps = row.Repair_steps,
-                        classTag = row.ClassTag,
-                        AlarmNotifyClass = 2,
-                        AlarmNotifyuser = SD.Admin_Account
-                    };
+                        // 更新基本資料
+                        alarm.IPC_table = row.IPC_table;
+                        alarm.Description = row.Description;
+                        alarm.Error = GetDynamicValue(row, "Error") ?? "";
+                        alarm.Possible = GetDynamicValue(row, "Possible") ?? "";
+                        alarm.Repair_steps = GetDynamicValue(row, "Repair_steps") ?? "";
+                        alarm.classTag = row.ClassTag;
 
-                    context.alarm.Add(alarm);
-                    addCount++;
+                        // 多語系翻譯更新
+                        foreach (var lang in translationGroups.Keys)
+                        {
+                            string? error = GetDynamicValue(row, $"Error_{lang}");
+                            string? possible = GetDynamicValue(row, $"Possible_{lang}");
+                            string? steps = GetDynamicValue(row, $"Repair_steps_{lang}");
+
+                            if (!string.IsNullOrWhiteSpace(error) || !string.IsNullOrWhiteSpace(possible) || !string.IsNullOrWhiteSpace(steps))
+                            {
+                                alarm.Setalarm_trans_language(lang, error ?? "", possible ?? "", steps ?? "");
+                            }
+                        }
+
+                        updateCount++;
+                    }
+                    else
+                    {
+                        // 新增資料
+                        var newAlarm = new Alarm
+                        {
+                            SourceMachine = sourceDb,
+                            address = address,
+                            IPC_table = row.IPC_table,
+                            Description = row.Description,
+                            Error = GetDynamicValue(row, "Error") ?? "",
+                            Possible = GetDynamicValue(row, "Possible") ?? "",
+                            Repair_steps = GetDynamicValue(row, "Repair_steps") ?? "",
+                            classTag = row.ClassTag,
+                            AlarmNotifyClass = 2,
+                            AlarmNotifyuser = SD.Admin_Account
+                        };
+
+                        // 多語系初始化
+                        foreach (var lang in translationGroups.Keys)
+                        {
+                            string? error = GetDynamicValue(row, $"Error_{lang}");
+                            string? possible = GetDynamicValue(row, $"Possible_{lang}");
+                            string? steps = GetDynamicValue(row, $"Repair_steps_{lang}");
+
+                            if (!string.IsNullOrWhiteSpace(error) || !string.IsNullOrWhiteSpace(possible) || !string.IsNullOrWhiteSpace(steps))
+                            {
+                                newAlarm.Translations.Add(new AlarmTranslation
+                                {
+                                    LanguageCode = lang,
+                                    Error = error ?? "",
+                                    Possible = possible ?? "",
+                                    Repair_steps = steps ?? "",
+                                    AlarmId= newAlarm.Id
+                                });
+                            }
+                        }
+
+                        context.alarm.Add(newAlarm);
+                        insertCount++;
+                    }
                 }
 
                 context.SaveChanges();
 
-                Console.WriteLine(addCount > 0
-                    ? $"✅ 新增 {addCount} 筆 Alarm 資料。"
-                    : "🟡 所有 Alarm 資料已存在，未新增任何資料。");
+                Console.WriteLine($"✅ 新增 {insertCount} 筆，更新 {updateCount} 筆 Alarm 資料。");
             }
             catch (HeaderValidationException ex)
             {
                 Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
             }
+        }
+
+        // 工具：從 dynamic record 取值
+        private static string? GetDynamicValue(dynamic row, string key)
+        {
+            var dict = row as IDictionary<string, object>;
+            if (dict != null && dict.TryGetValue(key, out object? value))
+                return value?.ToString();
+            return null;
         }
 
         private class AlarmCsvRow

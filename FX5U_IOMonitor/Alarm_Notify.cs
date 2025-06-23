@@ -183,7 +183,9 @@ namespace FX5U_IO元件監控
 
                 foreach (var alarm in alarms)
                 {
-                    TreeNode errorNode = new TreeNode(alarm.Error)
+                    string displayError = DBfunction.Get_Error_ByAddress(alarm.address);
+
+                    TreeNode errorNode = new TreeNode(displayError)
                     {
                         Tag = alarm.Id // ➤ 子節點直接儲存 Alarm Id
                     };
