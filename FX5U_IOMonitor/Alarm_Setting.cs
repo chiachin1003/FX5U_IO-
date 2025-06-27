@@ -37,7 +37,7 @@ namespace FX5U_IOMonitor
             lab_class.Text = DBfunction.Get_classTag_ByAddress(equipmentTag);
             txB_Error.Text = DBfunction.Get_Error_ByAddress(equipmentTag);
             txB_Possible.Text = DBfunction.Get_Possible_ByAddress(equipmentTag);
-            txB_Step.Text = DBfunction.Get_RepairStep_ByAddress(equipmentTag);
+            txB_Step.Text = DBfunction.Get_Repair_steps_ByAddress(equipmentTag);
         }
 
    

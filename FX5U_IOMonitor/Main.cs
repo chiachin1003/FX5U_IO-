@@ -137,7 +137,7 @@ namespace FX5U_IOMonitor
                     if (duplicated.Any())
                     {
                         string duplicatedNames = string.Join("、", duplicated.Distinct());
-                        MessageBox.Show($"❌ 機台已初始化（{duplicatedNames}），請重新命名後再匯入。", "資料重複", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        //MessageBox.Show($"❌ 機台已初始化（{duplicatedNames}），請重新命名後再匯入。", "資料重複", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     else
                     {

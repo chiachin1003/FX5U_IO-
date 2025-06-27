@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Login;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,32 +62,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        public static string Get_Error_ByAddress(string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-                return alarm?.Error ?? "";
-            }
-        }
-
-        public static string Get_Possible_ByAddress(string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-                return alarm?.Possible ?? "";
-            }
-        }
 
 
-        public static string Get_Repair_steps_ByAddress(string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-                return alarm?.Repair_steps ?? "";
-            }
-        }
     }
 }

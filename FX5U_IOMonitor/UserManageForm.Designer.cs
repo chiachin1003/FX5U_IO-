@@ -42,7 +42,11 @@
             _lblSelectedRole = new Label();
             lab_emailsetting = new Label();
             _txtEmail = new TextBox();
+            lab_line = new Label();
+            _txt_Line = new TextBox();
+            pictureBox_Official_Account = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)_dgvUsers).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_Official_Account).BeginInit();
             SuspendLayout();
             // 
             // _dgvUsers
@@ -60,7 +64,7 @@
             // 
             _lblAccount.AutoSize = true;
             _lblAccount.BackColor = SystemColors.ButtonHighlight;
-            _lblAccount.Location = new Point(313, 21);
+            _lblAccount.Location = new Point(305, 22);
             _lblAccount.Name = "_lblAccount";
             _lblAccount.Size = new Size(34, 15);
             _lblAccount.TabIndex = 1;
@@ -70,7 +74,7 @@
             // 
             _lblPassword.AutoSize = true;
             _lblPassword.BackColor = SystemColors.ButtonHighlight;
-            _lblPassword.Location = new Point(313, 51);
+            _lblPassword.Location = new Point(305, 52);
             _lblPassword.Name = "_lblPassword";
             _lblPassword.Size = new Size(34, 15);
             _lblPassword.TabIndex = 2;
@@ -80,7 +84,7 @@
             // 
             _lblConfirmPassword.AutoSize = true;
             _lblConfirmPassword.BackColor = SystemColors.ButtonHighlight;
-            _lblConfirmPassword.Location = new Point(313, 83);
+            _lblConfirmPassword.Location = new Point(305, 84);
             _lblConfirmPassword.Name = "_lblConfirmPassword";
             _lblConfirmPassword.Size = new Size(58, 15);
             _lblConfirmPassword.TabIndex = 3;
@@ -124,7 +128,7 @@
             // 
             _lblRole.AutoSize = true;
             _lblRole.BackColor = SystemColors.ButtonHighlight;
-            _lblRole.Location = new Point(313, 120);
+            _lblRole.Location = new Point(305, 121);
             _lblRole.Name = "_lblRole";
             _lblRole.Size = new Size(34, 15);
             _lblRole.TabIndex = 7;
@@ -146,7 +150,7 @@
             // 
             _btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnAdd.BackColor = SystemColors.ButtonHighlight;
-            _btnAdd.Location = new Point(486, 220);
+            _btnAdd.Location = new Point(471, 256);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(75, 33);
             _btnAdd.TabIndex = 9;
@@ -158,7 +162,7 @@
             // 
             _btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnDelete.BackColor = SystemColors.ButtonHighlight;
-            _btnDelete.Location = new Point(486, 259);
+            _btnDelete.Location = new Point(471, 309);
             _btnDelete.Name = "_btnDelete";
             _btnDelete.Size = new Size(75, 33);
             _btnDelete.TabIndex = 10;
@@ -172,7 +176,7 @@
             _cbSelectedRole.BackColor = SystemColors.ButtonHighlight;
             _cbSelectedRole.DropDownStyle = ComboBoxStyle.DropDownList;
             _cbSelectedRole.FormattingEnabled = true;
-            _cbSelectedRole.Location = new Point(97, 19);
+            _cbSelectedRole.Location = new Point(171, 18);
             _cbSelectedRole.Name = "_cbSelectedRole";
             _cbSelectedRole.Size = new Size(119, 23);
             _cbSelectedRole.TabIndex = 12;
@@ -192,7 +196,7 @@
             // 
             lab_emailsetting.AutoSize = true;
             lab_emailsetting.BackColor = SystemColors.ButtonHighlight;
-            lab_emailsetting.Location = new Point(313, 164);
+            lab_emailsetting.Location = new Point(305, 165);
             lab_emailsetting.Name = "lab_emailsetting";
             lab_emailsetting.Size = new Size(34, 15);
             lab_emailsetting.TabIndex = 13;
@@ -208,12 +212,43 @@
             _txtEmail.Size = new Size(139, 23);
             _txtEmail.TabIndex = 14;
             // 
+            // lab_line
+            // 
+            lab_line.AutoSize = true;
+            lab_line.BackColor = SystemColors.ButtonHighlight;
+            lab_line.Location = new Point(302, 208);
+            lab_line.Name = "lab_line";
+            lab_line.Size = new Size(114, 15);
+            lab_line.TabIndex = 15;
+            lab_line.Text = "LINE Access Token:";
+            // 
+            // _txt_Line
+            // 
+            _txt_Line.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _txt_Line.BackColor = SystemColors.ButtonHighlight;
+            _txt_Line.BorderStyle = BorderStyle.FixedSingle;
+            _txt_Line.Location = new Point(422, 202);
+            _txt_Line.Name = "_txt_Line";
+            _txt_Line.Size = new Size(139, 23);
+            _txt_Line.TabIndex = 16;
+            // 
+            // pictureBox_Official_Account
+            // 
+            pictureBox_Official_Account.Location = new Point(305, 244);
+            pictureBox_Official_Account.Name = "pictureBox_Official_Account";
+            pictureBox_Official_Account.Size = new Size(128, 119);
+            pictureBox_Official_Account.TabIndex = 17;
+            pictureBox_Official_Account.TabStop = false;
+            // 
             // UserManageForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(585, 381);
+            Controls.Add(pictureBox_Official_Account);
+            Controls.Add(_txt_Line);
+            Controls.Add(lab_line);
             Controls.Add(_txtEmail);
             Controls.Add(lab_emailsetting);
             Controls.Add(_cbSelectedRole);
@@ -233,6 +268,7 @@
             StartPosition = FormStartPosition.CenterParent;
             Text = "使用者管理";
             ((System.ComponentModel.ISupportInitialize)_dgvUsers).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox_Official_Account).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -254,5 +290,8 @@
 		private Label _lblSelectedRole;
         private Label lab_emailsetting;
         private TextBox _txtEmail;
+        private Label lab_line;
+        private TextBox _txt_Line;
+        private PictureBox pictureBox_Official_Account;
     }
 }

@@ -125,7 +125,7 @@ namespace FX5U_IOMonitor
                 465 => SendViaSmtp465Async(mailInfo),
                 _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
             });
-            
+
 
         }
         private FlexibleScheduler _scheduler;
@@ -157,8 +157,8 @@ namespace FX5U_IOMonitor
             };
 
             _scheduler.AddTask(config1);
-            _scheduler.StartTask(config1); // ← ★這一行讓它啟動
-     
+            _scheduler.StartTask(config1);
+
 
         }
 
@@ -187,13 +187,18 @@ namespace FX5U_IOMonitor
             };
 
             _scheduler.AddTask(config);
-            _scheduler.StartTask(config); // ← ★這一行讓它啟動
+            _scheduler.StartTask(config); // ★啟動
 
 
-         
+
+        }
+
+        private void btn_notify_Click(object sender, EventArgs e)
+        {
+
         }
     }
-   
+
 
 }
 

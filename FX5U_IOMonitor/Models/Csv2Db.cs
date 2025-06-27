@@ -472,26 +472,14 @@ namespace FX5U_IOMonitor.Models
 
 
                 case "alarm":
-                    importService.ImportCsvToTable<Alarm, alarmcsv,string>(
-                       tableName: tableName,
-                       dbSet: context.alarm,
-                       mapFunction: csvRecord => new Alarm
-                       {
-                           SourceMachine = csvRecord.SourceMachine,
-                           address = csvRecord.address,
-                           IPC_table = csvRecord.IPC_table,
-                           Description = csvRecord.Description,
-                           Error = csvRecord.Error,
-                           Possible = csvRecord.Possible,
-                           Repair_steps = csvRecord.Repair_steps,
-                           classTag = csvRecord.classTag,
-                           AlarmNotifyClass = 2,
-                           AlarmNotifyuser = SD.Admin_Account
-                       },
-                       entityKeySelector: entity => entity.IPC_table,
-                       recordKeySelector: csv => csv.IPC_table,
-                       enableSync: true
-                   );
+                    importService.ImportdynamicCsvToTable<Alarm>(
+                                tableName: tableName,
+                                dbSetQuery: context.alarm.Include(a => a.Translations),
+                                recordKeySelector: row =>(string)((IDictionary<string, object>)row)["IPC_table"],
+                                entityKeySelector: entity => entity.IPC_table,
+                                mapFunction: (row, existing) => importService.MapAlarmWithTranslations(row, existing),
+                                enableSync: true
+                    );
                     break;
 
                 default:

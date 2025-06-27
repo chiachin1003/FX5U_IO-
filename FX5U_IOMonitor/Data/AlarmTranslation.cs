@@ -19,8 +19,8 @@ namespace FX5U_IOMonitor.Data
 
         public string LanguageCode { get; set; } // e.g. "zh-TW", "en-US"
 
-        public string Error { get; set; }         // 當地語系下的錯誤訊息
-        public string Possible { get; set; }      // 當地語系下的可能原因
-        public string Repair_steps { get; set; }   // 當地語系下的維修步驟
+        public string Error { get; set; } = ""; // ✅ 預設值非 null
+        public string Possible { get; set; } = "";
+        public string Repair_steps { get; set; } = ""; // ✅ 一定要非 null
     }
 }

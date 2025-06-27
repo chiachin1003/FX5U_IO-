@@ -413,28 +413,43 @@ namespace FX5U_IOMonitor
         }
         public async Task HandleAlarmAndSendEmailAsync(IOUpdateEventArgs e)
         {
-            string notifyUsers = Alarm_sendmail.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
-            var alarm = new Alarm_sendmail();
-            List<string> receivers = await alarm.GetAlarmNotifyEmails(notifyUsers);
-            string machineName = Alarm_sendmail.Get_Machine_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
-            string partNumber = Alarm_sendmail.Get_Description_ByAddress(e.Address);
-            string addressList = e.Address;
-            string faultLocation = Alarm_sendmail.Get_Error_ByAddress(e.Address);
-            string possibleReasons = Alarm_sendmail.Get_Possible_ByAddress(e.Address);
-            string suggestions = Alarm_sendmail.Get_Repair_steps_ByAddress(e.Address);
+            try
+            {
+                string notifyUsers = Alarm_sendmail.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
+                var alarm = new Alarm_sendmail();
+                List<string> receivers = await alarm.GetAlarmNotifyEmails(notifyUsers);
+                string machineName = Alarm_sendmail.Get_Machine_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
+                string partNumber = Alarm_sendmail.Get_Description_ByAddress(e.Address);
+                string addressList = e.Address;
+                string faultLocation = DBfunction.Get_Error_ByAddress(e.Address);
+                string possibleReasons = DBfunction.Get_Possible_ByAddress(e.Address);
+                string suggestions = DBfunction.Get_Repair_steps_ByAddress(e.Address);
 
-            if (receivers.Count == 0)
-                return;
-
-            email.SendFailureAlertMail(
-                receivers,
-                machineName,
-                partNumber,
-                addressList: new List<string> { e.Address },
-                faultLocation,
-                possibleReasons: new List<string> { possibleReasons },
-                suggestions: new List<string> { suggestions }
-            );
+                if (receivers == null || receivers.Count == 0)
+                {
+                    Console.WriteLine($"⚠️ 無收件者，警報 {e.Address} 未發送。");
+                    return;
+                }
+                try
+                {
+                    email.SendFailureAlertMail(
+                    receivers,
+                    machineName,
+                    partNumber,
+                    addressList: new List<string> { e.Address },
+                    faultLocation,
+                    possibleReasons: new List<string> { possibleReasons },
+                    suggestions: new List<string> { suggestions });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ 寄送郵件失敗：{ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ HandleAlarmAndSendEmailAsync 執行失敗：{ex.Message}");
+            };
         }
 
       

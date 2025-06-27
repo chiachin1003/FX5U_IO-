@@ -60,6 +60,10 @@ namespace FX5U_IOMonitor.Resources
                 {
                     LanguageImportHelper.ExportLanguageTemplate(saveMode);
                 }
+                if (tableName == "alarm")
+                {
+                    TableImportExportManager.Export_AlarmToCSV(saveMode);
+                }
                 else
                 {
                     TableImportExportManager.ExportTableToCsv(tableName, saveMode);  // 呼叫對應函數
@@ -100,6 +104,7 @@ namespace FX5U_IOMonitor.Resources
                 {
                     Csv2Db.UpdateTable(tableName);
                 }
+
 
 
             }

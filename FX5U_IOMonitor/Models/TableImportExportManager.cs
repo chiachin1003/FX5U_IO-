@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 using Npgsql;
 using FX5U_IOMonitor.Config;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Login;
 
 namespace FX5U_IOMonitor.Models
 {
@@ -22,7 +25,114 @@ namespace FX5U_IOMonitor.Models
         {
             _context = context;
         }
+        /// <summary>
+        /// 下載帶語系的警告資料表
+        /// </summary>
+        /// <param name="exportPath"></param>
+        public static void Export_AlarmToCSV(string mode = "auto")
+        {
+            using var context = new ApplicationDB();
 
+            var alarms = context.alarm
+                .Include(a => a.Translations)
+                .ToList();
+
+            // 收集所有用到的語系
+            var languageCodes = alarms
+                .SelectMany(a => a.Translations.Select(t => t.LanguageCode))
+                .Distinct()
+                .ToList();
+
+            // 動態物件建立
+            var exportRows = new List<Dictionary<string, object>>();
+
+            foreach (var alarm in alarms)
+            {
+                var row = new Dictionary<string, object>
+                {
+                    ["address"] = alarm.address,
+                    ["SourceMachine"] = alarm.SourceMachine,
+                    ["IPC_table"] = alarm.IPC_table,
+                    ["Description"] = alarm.Description,
+                    ["classTag"] = alarm.classTag
+                };
+
+                // 加入各語系翻譯欄位
+                foreach (var lang in languageCodes)
+                {
+                    var trans = alarm.Translations.FirstOrDefault(t => t.LanguageCode == lang);
+                    row[$"Error_{lang}"] = trans?.Error ?? "";
+                    row[$"Possible_{lang}"] = trans?.Possible ?? "";
+                    row[$"Repair_steps_{lang}"] = trans?.Repair_steps ?? "";
+                }
+
+                exportRows.Add(row);
+            }
+
+            // 寫入 CSV
+
+            string filePath;
+            if (mode.ToLower() == "manual")
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "CSV 檔案 (*.csv)|*.csv",
+                    FileName = $"Alarm.csv",
+                    Title = $"儲存資料表為Alarm"
+                };
+
+                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+
+                filePath = saveFileDialog.FileName;
+            }
+            else
+            {
+                string downloadFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Downloads"
+                );
+
+                Directory.CreateDirectory(downloadFolder);
+                filePath = Path.Combine(downloadFolder, $"Alarm.csv");
+            }
+
+
+            try
+            {
+                using var writer = new StreamWriter(filePath, false, new UTF8Encoding(true));
+
+                using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+                if (exportRows.Count > 0)
+                {
+                    var headerKeys = exportRows.First().Keys.ToList();
+
+                    foreach (var header in headerKeys)
+                    {
+                        csv.WriteField(header);
+                    }
+
+                    csv.NextRecord();
+
+                    foreach (var row in exportRows)
+                    {
+                        foreach (var key in headerKeys)
+                        {
+                            csv.WriteField(row[key]);
+                        }
+                        csv.NextRecord();
+                    }
+                }
+                MessageBox.Show($"✅ 匯出完成：\n📄 {filePath}", "匯出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            }
+            catch (Exception ex) 
+            {
+                MessageBox.Show($"匯出失敗");
+
+            }
+        }
 
         /// <summary>
         /// 下載當前資料庫資料表
@@ -211,7 +321,86 @@ namespace FX5U_IOMonitor.Models
                 MessageBox.Show($"❌ {tableName} 匯入失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        public void ImportdynamicCsvToTable<TEntity>(
+                string tableName,
+                IQueryable<TEntity> dbSetQuery,
+                Func<dynamic, object> recordKeySelector,
+                Func<TEntity, object> entityKeySelector,
+                Func<dynamic, TEntity?, TEntity> mapFunction,
+                bool enableSync = false
+            ) where TEntity : class, new()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "CSV 檔案 (*.csv)|*.csv",
+                Title = $"選擇要匯入的 {tableName} CSV 檔案"
+            };
 
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+            try
+            {
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HasHeaderRecord = true,
+                    Encoding = System.Text.Encoding.UTF8,
+                    PrepareHeaderForMatch = args => args.Header.Trim(),
+                    MissingFieldFound = null,
+                    HeaderValidated = null
+                };
+
+                using var reader = new StreamReader(openFileDialog.FileName);
+                using var csv = new CsvReader(reader, config);
+
+                var records = csv.GetRecords<dynamic>().ToList();
+                var dbEntities = dbSetQuery.ToList(); // ← 將查詢轉為 List 儲存比對用
+
+                int insertCount = 0, updateCount = 0, deleteCount = 0;
+
+                // 1. 建立 CSV 中出現的主鍵集合
+                var csvKeys = new HashSet<object>(records.Select(recordKeySelector));
+
+                foreach (var record in records)
+                {
+                    var recordKey = recordKeySelector(record);
+                    var existingEntity = dbEntities.FirstOrDefault(e => entityKeySelector(e).Equals(recordKey));
+
+                    var entity = mapFunction(record, existingEntity);
+
+                    if (existingEntity != null)
+                    {
+                        _context.Entry(existingEntity).CurrentValues.SetValues(entity); // 使用 context 不是 dbSetQuery
+                        updateCount++;
+                    }
+                    else
+                    {
+                        _context.Set<TEntity>().Add(entity); // 改用 context 新增
+                        insertCount++;
+                    }
+                }
+
+                // 2. 比對資料庫中但 CSV 中缺少的項目 → 執行刪除
+                var toDelete = dbEntities
+                    .Where(e => !csvKeys.Contains(entityKeySelector(e)))
+                    .ToList();
+
+                if (toDelete.Any())
+                {
+                    _context.Set<TEntity>().RemoveRange(toDelete);
+                    deleteCount = toDelete.Count;
+                }
+
+                _context.SaveChanges();
+
+                MessageBox.Show($"✅ Table [{tableName}] 匯入成功，新增 {insertCount} 筆，更新 {updateCount} 筆，刪除：{deleteCount} 筆");
+            }
+            catch (Exception ex)
+            {
+                var inner = ex.InnerException?.ToString() ?? "(無內部錯誤)";
+                MessageBox.Show($"❌ {tableName} 匯入失敗：{ex.Message}\n\n【內部例外】\n{inner}",
+                                "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         /// <summary>
         /// 資料新增/更新/刪除的實作	
         /// </summary>
@@ -296,6 +485,79 @@ namespace FX5U_IOMonitor.Models
 
             return hasChanged;
         }
+
+
+        public List<dynamic> LoadDynamicCsv(string csvPath)
+        {
+            using var reader = new StreamReader(csvPath, Encoding.UTF8);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            return csv.GetRecords<dynamic>().ToList();
+        }
+        public Alarm MapAlarmWithTranslations(dynamic row, Alarm? existing)
+        {
+            var dict = row as IDictionary<string, object>;
+
+            var alarm = existing ?? new Alarm
+            {
+
+               
+                AlarmNotifyClass = 2,
+                AlarmNotifyuser = SD.Admin_Account,
+                Translations = new List<AlarmTranslation>(),
+
+                // 預設空字串防止 null
+                Error = "",
+                Possible = "",
+                Repair_steps = ""
+            };
+            alarm.SourceMachine = dict.TryGetValue("SourceMachine", out var sm) ? sm?.ToString() ?? "" : "";
+            alarm.address = dict.TryGetValue("address", out var addr) ? addr?.ToString() ?? "" : "";
+            alarm.IPC_table = dict.TryGetValue("IPC_table", out var ipc) ? ipc?.ToString() ?? "" : "";
+
+            alarm.Description = dict.TryGetValue("Description", out var desc) ? desc?.ToString() ?? "" : "";
+            alarm.classTag = dict.TryGetValue("classTag", out var tag) ? tag?.ToString() ?? "" : "";
+
+            // --------------------------
+            // ✅ 自動從 zh-TW 補主表欄位
+            // --------------------------
+            if (string.IsNullOrWhiteSpace(alarm.Error) && dict.TryGetValue("Error_zh-TW", out var zhError))
+                alarm.Error = zhError?.ToString() ?? "";
+
+            if (string.IsNullOrWhiteSpace(alarm.Possible) && dict.TryGetValue("Possible_zh-TW", out var zhPossible))
+                alarm.Possible = zhPossible?.ToString() ?? "";
+
+            if (string.IsNullOrWhiteSpace(alarm.Repair_steps) && dict.TryGetValue("Repair_steps_zh-TW", out var zhRepair))
+                alarm.Repair_steps = zhRepair?.ToString() ?? "";
+
+            // --------------------------
+            // ✅ 處理多語系翻譯資料
+            // --------------------------
+            var existingTranslations = alarm.Translations.ToDictionary(t => t.LanguageCode);
+
+            foreach (var kv in dict)
+            {
+                if (kv.Key.StartsWith("Error_"))
+                {
+                    string lang = kv.Key.Substring("Error_".Length);
+                    alarm.Setalarm_trans_language(lang, kv.Value?.ToString() ?? "", "", "");
+                }
+                else if (kv.Key.StartsWith("Possible_"))
+                {
+                    string lang = kv.Key.Substring("Possible_".Length);
+                    var trans = alarm.Translations.FirstOrDefault(t => t.LanguageCode == lang);
+                    if (trans != null) trans.Possible = kv.Value?.ToString() ?? "";
+                }
+                else if (kv.Key.StartsWith("Repair_steps_"))
+                {
+                    string lang = kv.Key.Substring("Repair_steps_".Length);
+                    var trans = alarm.Translations.FirstOrDefault(t => t.LanguageCode == lang);
+                    if (trans != null) trans.Repair_steps = kv.Value?.ToString() ?? "";
+                }
+            }
+
+            return alarm;
+        }
+
     }
 
     public class ImportResult
@@ -304,7 +566,5 @@ namespace FX5U_IOMonitor.Models
     public int UpdateCount { get; set; }
     public int DeleteCount { get; set; }
     }
-
-     
-
-}
+      
+    }

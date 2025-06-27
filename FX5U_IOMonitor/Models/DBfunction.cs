@@ -754,15 +754,23 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.classTag ?? "無對應說明";
             }
         }
-        public static string Get_RepairStep_ByAddress(string address)
+        public static string Get_Repair_steps_ByAddress(string address)
         {
             using (var context = new ApplicationDB())
             {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-                return alarm?.Repair_steps ?? "無對應說明";
+                var alarm = context.alarm
+                           .Include(a => a.Translations)
+                           .FirstOrDefault(a => a.address == address);
+
+                if (alarm == null)
+                    return "⚠️ 無對應說明";
+
+                var translation = alarm.Translations
+                    .FirstOrDefault(t => t.LanguageCode == LanguageManager.Currentlanguge);
+
+                return translation?.Repair_steps ?? alarm.Repair_steps ?? "無對應說明";
             }
         }
-
         public static List<string> Get_address_ByBreakdownParts(string database, List<string> breakdownParts_address) // 取得所有故障料件名稱
         {
             using (var context = new ApplicationDB())

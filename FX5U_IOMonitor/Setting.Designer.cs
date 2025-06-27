@@ -40,6 +40,7 @@ namespace FX5U_IOMonitor
             btn_checkpoint = new Button();
             button1 = new Button();
             button2 = new Button();
+            btn_notify = new Button();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -69,7 +70,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(550, 75);
+            btn_usersetting.Location = new Point(73, 203);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -79,7 +80,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(396, 75);
+            btn_Alrm_Notify.Location = new Point(228, 139);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -89,7 +90,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(699, 75);
+            btn_history.Location = new Point(73, 139);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -109,11 +110,11 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(699, 147);
+            btn_checkpoint.Location = new Point(12, 613);
             btn_checkpoint.Name = "btn_checkpoint";
-            btn_checkpoint.Size = new Size(124, 39);
+            btn_checkpoint.Size = new Size(91, 39);
             btn_checkpoint.TabIndex = 13;
-            btn_checkpoint.Text = "介面更新";
+            btn_checkpoint.Text = "介面更新速度";
             btn_checkpoint.UseVisualStyleBackColor = true;
             btn_checkpoint.Click += btn_checkpoint_Click;
             // 
@@ -137,12 +138,23 @@ namespace FX5U_IOMonitor
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
+            // btn_notify
+            // 
+            btn_notify.Location = new Point(228, 206);
+            btn_notify.Name = "btn_notify";
+            btn_notify.Size = new Size(124, 39);
+            btn_notify.TabIndex = 16;
+            btn_notify.Text = "通訊方式選擇";
+            btn_notify.UseVisualStyleBackColor = true;
+            btn_notify.Click += btn_notify_Click;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(btn_notify);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(btn_checkpoint);
@@ -171,5 +183,6 @@ namespace FX5U_IOMonitor
         private Button btn_checkpoint;
         private Button button1;
         private Button button2;
+        private Button btn_notify;
     }
 }
