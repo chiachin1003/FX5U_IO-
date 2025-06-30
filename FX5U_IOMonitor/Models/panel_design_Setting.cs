@@ -42,7 +42,7 @@ namespace FX5U_IOMonitor.Models
             label_detail.Text =
                  $"{LanguageManager.Translate("ShowDetail_lb_address").PadRight(10)} {address}\n" +
                  $"{LanguageManager.Translate("ShowDetail_lb_descript").PadRight(10)} {DBfunction.Get_Decription_ByAddress(datatable, address)}\n" +
-                 $"{LanguageManager.Translate("ShowDetail_history_lb_Detail").PadRight(10)} {DBfunction.Get_Comment_ByAddress(datatable, address, currentLang)}";
+                 $"{LanguageManager.Translate("ShowDetail_history_lb_Detail").PadRight(10)} {DBfunction.Get_Comment_ByAddress(datatable, address)}";
 
             topPanel.Controls.Add(label_detail);
 

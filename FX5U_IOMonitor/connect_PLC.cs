@@ -151,8 +151,13 @@ namespace FX5U_IOMonitor
 
             if (context.IsMaster) // 只針對主機執行 alarm 監控
             {
+                //補上若是程式關閉時解除警報的話則寫入解除時間
+                DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+
+                //開始進行警告監控
                 _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(
                     context.TokenSource.Token));
+                //發送警告訊息等功用
                 context.Monitor.alarm_event += FailureAlertMail;
             }
 
@@ -391,7 +396,17 @@ namespace FX5U_IOMonitor
                 if (e.NewValue == true)
                 {
                     DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
-                    _ = HandleAlarmAndSendEmailAsync(e);
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await HandleAlarmAndSendEmailAsync(e);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"❌ 背景郵件任務錯誤：{ex.Message}");
+                        }
+                    });
 
                 }
                 else 
@@ -415,11 +430,11 @@ namespace FX5U_IOMonitor
         {
             try
             {
-                string notifyUsers = Alarm_sendmail.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
-                var alarm = new Alarm_sendmail();
+                string notifyUsers = DBfunction.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
+                var alarm = new Alarm_config();
                 List<string> receivers = await alarm.GetAlarmNotifyEmails(notifyUsers);
-                string machineName = Alarm_sendmail.Get_Machine_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
-                string partNumber = Alarm_sendmail.Get_Description_ByAddress(e.Address);
+                string machineName = DBfunction.Get_Machine_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
+                string partNumber = DBfunction.Get_Description_ByAddress(e.Address);
                 string addressList = e.Address;
                 string faultLocation = DBfunction.Get_Error_ByAddress(e.Address);
                 string possibleReasons = DBfunction.Get_Possible_ByAddress(e.Address);

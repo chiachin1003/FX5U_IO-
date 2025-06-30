@@ -20,8 +20,8 @@ namespace FX5U_IOMonitor.Email
         {
             public static readonly Dictionary<MessageSubjectType, string> SubjectMap = new()
             {
-                { MessageSubjectType.DailyHealthStatus, "【每週通知】元件健康狀態" },
-                { MessageSubjectType.UnresolvedWarnings, "【每日提醒】尚未解除的警告維護" },
+                { MessageSubjectType.DailyHealthStatus, "【定期通知】元件健康狀態" },
+                { MessageSubjectType.UnresolvedWarnings, "【定期提醒】尚未解除的警告維護" },
                 { MessageSubjectType.TriggeredAlarm, "【警告】已觸發的異常警告" },
                 { MessageSubjectType.TriggeredLifeNotification, "【壽命提醒】元件壽命即將耗盡" }
             };

@@ -14,6 +14,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Login;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics;
 
 namespace FX5U_IOMonitor.Models
 {
@@ -61,6 +63,7 @@ namespace FX5U_IOMonitor.Models
                 foreach (var lang in languageCodes)
                 {
                     var trans = alarm.Translations.FirstOrDefault(t => t.LanguageCode == lang);
+
                     row[$"Error_{lang}"] = trans?.Error ?? "";
                     row[$"Possible_{lang}"] = trans?.Possible ?? "";
                     row[$"Repair_steps_{lang}"] = trans?.Repair_steps ?? "";
@@ -321,6 +324,16 @@ namespace FX5U_IOMonitor.Models
                 MessageBox.Show($"❌ {tableName} 匯入失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        /// <summary>
+        /// 多語系表格匯入方式
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="tableName"></param>
+        /// <param name="dbSetQuery"></param>
+        /// <param name="recordKeySelector"></param>
+        /// <param name="entityKeySelector"></param>
+        /// <param name="mapFunction"></param>
+        /// <param name="enableSync"></param>
         public void ImportdynamicCsvToTable<TEntity>(
                 string tableName,
                 IQueryable<TEntity> dbSetQuery,
@@ -487,20 +500,13 @@ namespace FX5U_IOMonitor.Models
         }
 
 
-        public List<dynamic> LoadDynamicCsv(string csvPath)
-        {
-            using var reader = new StreamReader(csvPath, Encoding.UTF8);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            return csv.GetRecords<dynamic>().ToList();
-        }
+       
         public Alarm MapAlarmWithTranslations(dynamic row, Alarm? existing)
         {
             var dict = row as IDictionary<string, object>;
 
             var alarm = existing ?? new Alarm
-            {
-
-               
+            { 
                 AlarmNotifyClass = 2,
                 AlarmNotifyuser = SD.Admin_Account,
                 Translations = new List<AlarmTranslation>(),
@@ -518,40 +524,68 @@ namespace FX5U_IOMonitor.Models
             alarm.classTag = dict.TryGetValue("classTag", out var tag) ? tag?.ToString() ?? "" : "";
 
             // --------------------------
-            // ✅ 自動從 zh-TW 補主表欄位
+            // ❌ 不補主表欄位（保持為空）
             // --------------------------
-            if (string.IsNullOrWhiteSpace(alarm.Error) && dict.TryGetValue("Error_zh-TW", out var zhError))
-                alarm.Error = zhError?.ToString() ?? "";
-
-            if (string.IsNullOrWhiteSpace(alarm.Possible) && dict.TryGetValue("Possible_zh-TW", out var zhPossible))
-                alarm.Possible = zhPossible?.ToString() ?? "";
-
-            if (string.IsNullOrWhiteSpace(alarm.Repair_steps) && dict.TryGetValue("Repair_steps_zh-TW", out var zhRepair))
-                alarm.Repair_steps = zhRepair?.ToString() ?? "";
+            alarm.Error = "";
+            alarm.Possible = "";
+            alarm.Repair_steps = "";
 
             // --------------------------
-            // ✅ 處理多語系翻譯資料
-            // --------------------------
-            var existingTranslations = alarm.Translations.ToDictionary(t => t.LanguageCode);
+            // 直接刪除既有翻譯
+            alarm.Translations.Clear();
+
+            var langDict = new Dictionary<string, (string error, string possible, string steps)>();
 
             foreach (var kv in dict)
             {
                 if (kv.Key.StartsWith("Error_"))
                 {
-                    string lang = kv.Key.Substring("Error_".Length);
-                    alarm.Setalarm_trans_language(lang, kv.Value?.ToString() ?? "", "", "");
+                    var lang = kv.Key.Substring("Error_".Length);
+                    string value = kv.Value?.ToString() ?? "";
+                    if (!langDict.ContainsKey(lang))
+                        langDict[lang] = (value, "", "");
+                    else
+                        langDict[lang] = (value, langDict[lang].possible, langDict[lang].steps);
                 }
                 else if (kv.Key.StartsWith("Possible_"))
                 {
-                    string lang = kv.Key.Substring("Possible_".Length);
-                    var trans = alarm.Translations.FirstOrDefault(t => t.LanguageCode == lang);
-                    if (trans != null) trans.Possible = kv.Value?.ToString() ?? "";
+                    var lang = kv.Key.Substring("Possible_".Length);
+                    string value = kv.Value?.ToString() ?? "";
+                    if (!langDict.ContainsKey(lang))
+                        langDict[lang] = ("", value, "");
+                    else
+                        langDict[lang] = (langDict[lang].error, value, langDict[lang].steps);
                 }
                 else if (kv.Key.StartsWith("Repair_steps_"))
                 {
-                    string lang = kv.Key.Substring("Repair_steps_".Length);
-                    var trans = alarm.Translations.FirstOrDefault(t => t.LanguageCode == lang);
-                    if (trans != null) trans.Repair_steps = kv.Value?.ToString() ?? "";
+                    var lang = kv.Key.Substring("Repair_steps_".Length);
+                    string value = kv.Value?.ToString() ?? "";
+                    if (!langDict.ContainsKey(lang))
+                        langDict[lang] = ("", "", value);
+                    else
+                        langDict[lang] = (langDict[lang].error, langDict[lang].possible, value);
+                }
+
+            }
+            // 建立翻譯資料
+            foreach (var kv in langDict)
+            {
+                string lang = kv.Key;
+                string error = kv.Value.error;
+                string possible = kv.Value.possible;
+                string steps = kv.Value.steps;
+
+                if (!string.IsNullOrWhiteSpace(error) ||
+                    !string.IsNullOrWhiteSpace(possible) ||
+                    !string.IsNullOrWhiteSpace(steps))
+                {
+                    alarm.Translations.Add(new AlarmTranslation
+                    {
+                        LanguageCode = lang,
+                        Error = error,
+                        Possible = possible,
+                        Repair_steps = steps
+                    });
                 }
             }
 

@@ -41,6 +41,7 @@ namespace FX5U_IOMonitor
             button1 = new Button();
             button2 = new Button();
             btn_notify = new Button();
+            btn_alarm = new Button();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -120,7 +121,7 @@ namespace FX5U_IOMonitor
             // 
             // button1
             // 
-            button1.Location = new Point(768, 584);
+            button1.Location = new Point(573, 473);
             button1.Name = "button1";
             button1.Size = new Size(124, 33);
             button1.TabIndex = 14;
@@ -134,7 +135,7 @@ namespace FX5U_IOMonitor
             button2.Name = "button2";
             button2.Size = new Size(124, 33);
             button2.TabIndex = 15;
-            button2.Text = "每分";
+            button2.Text = "郵件每分鐘發送測試";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 
@@ -148,12 +149,23 @@ namespace FX5U_IOMonitor
             btn_notify.UseVisualStyleBackColor = true;
             btn_notify.Click += btn_notify_Click;
             // 
+            // btn_alarm
+            // 
+            btn_alarm.Location = new Point(573, 512);
+            btn_alarm.Name = "btn_alarm";
+            btn_alarm.Size = new Size(124, 33);
+            btn_alarm.TabIndex = 17;
+            btn_alarm.Text = "警告發送測試鈕";
+            btn_alarm.UseVisualStyleBackColor = true;
+            btn_alarm.Click += btn_alarm_Click;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(btn_alarm);
             Controls.Add(btn_notify);
             Controls.Add(button2);
             Controls.Add(button1);
@@ -184,5 +196,6 @@ namespace FX5U_IOMonitor
         private Button button1;
         private Button button2;
         private Button btn_notify;
+        private Button btn_alarm;
     }
 }

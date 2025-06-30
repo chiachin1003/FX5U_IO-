@@ -69,7 +69,7 @@ namespace FX5U_IOMonitor
                         DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                        DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang),
+                        DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag),
                         StartTime
                     );
                     // 記得先抓 lbl_useCount 才能背景更新
@@ -109,7 +109,7 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang), history
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), history
 
             );
             panel_main.Controls.Add(usagePanel);
@@ -148,7 +148,7 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang), StartTime
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), StartTime
             );
 
             panel_main.Controls.Add(usagePanel);
@@ -181,7 +181,7 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag, currentLang),
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag),
                 StartTime
             );
             // 抓取 Label

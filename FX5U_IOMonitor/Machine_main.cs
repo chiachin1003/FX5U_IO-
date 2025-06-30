@@ -47,7 +47,7 @@ namespace FX5U_IOMonitor
             LanguageManager.LoadLanguageFromDatabase(lang);
             LanguageManager.LanguageChanged += OnLanguageChanged;
             SwitchLanguage();
-
+            Monitor_alarm();
         }
         private void OnLanguageChanged(string cultureName)
         {
@@ -86,6 +86,7 @@ namespace FX5U_IOMonitor
                 lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
                 List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
                 lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, drill_breakdowm_part).Count.ToString();
+
             }
             else
             {
@@ -97,7 +98,20 @@ namespace FX5U_IOMonitor
                 lab_partalarm.Text = "0";
             }
 
+            var Drill_Context = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+
+            if (Drill_Context != null && Drill_Context.IsConnected)
+            {
+                List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
+                lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, drill_breakdowm_part).Count.ToString();
+            }
+            
+
+
+
         }
+        bool isEventRegistered = false;
+
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             List<float[]>? lastClassValue = null;
@@ -142,6 +156,8 @@ namespace FX5U_IOMonitor
                     Debug.WriteLine("背景更新錯誤：" + ex.Message);
                 }
             }
+            
+
 
         }
         private bool IsDifferent(List<float[]> current, List<float[]>? previous)
@@ -292,13 +308,13 @@ namespace FX5U_IOMonitor
             searchControl.LoadData(search_data, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
         }
-
+        
         private void lab_partalarm_Click(object sender, EventArgs e)
         {
+
             var existingContext = MachineHub.Get("Drill");
             if (existingContext != null && existingContext.IsConnected)
             {
-
                 List<string> breakdown_part = DBfunction.Get_breakdown_part(MachineType);
                 if (breakdown_part.Count != 0)
                 {
@@ -314,12 +330,71 @@ namespace FX5U_IOMonitor
             }
             else
             {
-                MessageBox.Show("請連線機台");
+                MessageBox.Show("鑽床機尚未連線，請連線後再確認故障元件");
             }
-
+         
 
         }
-        bool isEventRegistered = false;
+        private void Monitor_alarm()
+        {
+            Task.Run(async () =>
+            {
+                while (!this.IsDisposed)
+                {
+                    await Task.Delay(1000); // 每秒檢查連線
+
+                    this.Invoke(() =>
+                    {
+                        var hub = MachineHub.Get("Drill");
+                        if (hub?.IsConnected == true)
+                        {
+                            AlarmMonitorManager.EnsureRegistered("Drill", OnDrillAlarm);
+                        }
+                    });
+                }
+            });
+        }
+        private void OnDrillAlarm(IOUpdateEventArgs e)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(() => OnDrillAlarm(e));
+                return;
+            }
+
+            // Reset 警告 UI
+            reset_labText();
+            List<string> breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
+            lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, breakdowm_part).Count.ToString();
+
+            if (e.NewValue == true && e.OldValue == false)
+            {
+                string des = DBfunction.Get_Description_ByAddress(e.Address);
+                (string table, string Description) = DBfunction.Get_AlarmInfo_ByAddress(e.Address);
+                string IOelement = DBfunction.Get_Address_ByDecription(table, Description);
+
+                if (!string.IsNullOrEmpty(table) && !string.IsNullOrEmpty(Description))
+                {
+                    string error = DBfunction.Get_Error_ByAddress(e.Address);
+                    string comment = DBfunction.Get_Comment_ByAddress(table, IOelement);
+                    string possible = DBfunction.Get_Possible_ByAddress(e.Address);
+                    string repair = DBfunction.Get_Repair_steps_ByAddress(e.Address);
+
+                    MessageBox.Show(
+                        $"⚠️ 錯誤警告\n來源：{table} | 錯誤信息位址：{e.Address}\n錯誤料件：{Description}\n" +
+                        $"錯誤訊息：{error}\n料件描述：{comment}\n可能原因：{possible}\n" +
+                        $"錯誤排除步驟：\n{repair}",
+                        "偵測警告系統已觸發錯誤",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                }
+                else
+                {
+                    MessageBox.Show($"⚠ 找不到對應 Description：{des} 的 Drill 或 Saw 資料。");
+                }
+            }
+        }
         //private void Monitor_alarm()
         //{
         //    Task.Run(async () =>
@@ -328,30 +403,29 @@ namespace FX5U_IOMonitor
         //        {
         //            await Task.Delay(1000); // 每秒檢查一次
 
-        //            bool connected = connect_isOK.Drill_connect;
         //            this.Invoke(() =>
         //            {
-        //                var DB_update = MachineHub.GetMonitor("Drill");
-
-        //                //var DB_update = MonitorHub.GetMonitor("Drill");
+        //                var DB_update = MachineHub.Get("Drill");
         //                if (DB_update == null)
         //                {
         //                    Console.WriteLine("⚠️ MonitorHub 尚未註冊 Drill 監控對象");
         //                    return;
         //                }
 
-        //                if (connected && !isEventRegistered)
+        //                if (DB_update.IsConnected && !isEventRegistered)
         //                {
-        //                    DB_update.alarm_event += Warning_signs;
+        //                    DB_update.Monitor.alarm_event += Warning_signs;
         //                    isEventRegistered = true;
         //                }
-        //                else if (!connected && isEventRegistered)
+        //                else if (!DB_update.IsConnected && isEventRegistered)
         //                {
-        //                    DB_update.alarm_event -= Warning_signs;
+        //                    DB_update.Monitor.alarm_event -= Warning_signs;
         //                    isEventRegistered = false;
         //                }
 
         //            });
+
+
         //        }
         //    });
         //}
@@ -366,38 +440,39 @@ namespace FX5U_IOMonitor
         //    reset_labText();
         //    List<string> breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
         //    lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, breakdowm_part).Count.ToString();
-            //if (e.NewValue == true && e.OldValue == false)
-            //{
-            //    // 顯示變化
-            //    MessageBox.Show($"📡 偵測到 I/O 變化：{e.Address} from {e.OldValue} ➜ {e.NewValue}");
+        //    if (e.NewValue == true && e.OldValue == false)
+        //    {
+        //        // 顯示變化
+        //        MessageBox.Show($"📡 偵測到 I/O 變化：{e.Address} from {e.OldValue} ➜ {e.NewValue}");
 
-            //    // 查出這個 address 對應的 Description
-            //    string des = DBfunction.Get_Description_ByAddress(e.Address);
+        //        // 查出這個 address 對應的 Description
+        //        string des = DBfunction.Get_Description_ByAddress(e.Address);
 
-            //    // 比對查出 Alarm 表中對應的 address & table（Drill/Swing）
-            //    (string matchedAddress, string table) = DBfunction.FindIOByAlarmDescription(des);
+        //        // 比對查出 Alarm 表中對應的 address & table（Drill/Swing）
+        //        (string table, string Description) = DBfunction.Get_AlarmInfo_ByAddress(e.Address);
+        //        //取得元件的料號位置
+        //        string IOelement = DBfunction.Get_Address_ByDecription(table, Description);
 
-            //    if (!string.IsNullOrEmpty(matchedAddress) && !string.IsNullOrEmpty(table))
-            //    {
-            //        string Possible = DBfunction.Get_Possible_ByAddress(e.Address);
-            //        string error = DBfunction.Get_Error_ByDescription(des);
-            //        string comment = DBfunction.Get_Comment_ByAddress(table, matchedAddress);
-
-            //        MessageBox.Show(
-            //            $"⚠️ 錯誤警告\n來源：{table} | 位址：{matchedAddress}\n料件：{des}\n錯誤訊息：{error}\n描述：{comment}\n可能原因：{Possible}",
-            //            "I/O 錯誤偵測",
-            //            MessageBoxButtons.OK,
-            //            MessageBoxIcon.Warning
-            //        );
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show($"⚠ 找不到對應 Description：{des} 的 Drill 或 Swing 資料。");
-            //    }
-            //}
-
-
-
+        //        if (!string.IsNullOrEmpty(table) && !string.IsNullOrEmpty(Description))
+        //        {
+        //            string error = DBfunction.Get_Error_ByAddress(e.Address);
+        //            string comment = DBfunction.Get_Comment_ByAddress(table, IOelement);
+        //            string Possible = DBfunction.Get_Possible_ByAddress(e.Address);
+        //            string Repair_steps = DBfunction.Get_Repair_steps_ByAddress(e.Address);
+        //            MessageBox.Show(
+        //                $"⚠️ 錯誤警告\n來源：{table} | 錯誤信息位址：{e.Address}\n錯誤料件：{Description}\n" +
+        //                $"錯誤訊息：{error}\n料件描述：{comment}\n可能原因：{Possible}\n " +
+        //                $"錯誤排除步驟：\n{Repair_steps}",
+        //                "偵測警告系統已觸發錯誤",
+        //                MessageBoxButtons.OK,
+        //                MessageBoxIcon.Warning
+        //            );
+        //        }
+        //        else
+        //        {
+        //            MessageBox.Show($"⚠ 找不到對應 Description：{des} 的 Drill 或 saw 資料。");
+        //        }
+        //    }
         //}
 
         private void lab_sum_Click(object sender, EventArgs e)

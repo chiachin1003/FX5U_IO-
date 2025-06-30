@@ -98,12 +98,9 @@ namespace FX5U_IOMonitor.panel_control
                 // 將 Address 傳遞給 Label.Tag
                 labEquipment.Tag = panel.Tag;  // 假設 panel.Tag 已經是 address 字串
 
-                // 移除重複事件綁定保險
-                // 保險移除現有事件（無法移除 lambda，只能這樣保留一次註冊）
-                labEquipment.Click -= (s, e) => { }; // 通常略過
-
-                // ✅ 使用 lambda 包含 address 傳遞進去
-                labEquipment.Click += (s, e) => LabEquipment_Click(s, e, breakdown_part_address, labEquipment.Text);
+                //// 移除重複事件綁定保險
+                labEquipment.Click -= LabEquipment_Click_Handler;
+                labEquipment.Click += LabEquipment_Click_Handler;
 
             }
             else
@@ -119,35 +116,36 @@ namespace FX5U_IOMonitor.panel_control
         /// <param name="e"></param>
         /// <param name="breakdown_part_address"></param>
         /// <param name="description"></param>
-        private void LabEquipment_Click(object? sender, EventArgs e, List<string> breakdown_part_address, string description)
+        private void LabEquipment_Click_Handler(object? sender, EventArgs e)
         {
-            if (sender is Label lbl)
+            if (sender is Label lbl && lbl.Tag is string address)
             {
-                // 從 address 查出 Description
-                var alarms = DBfunction.Get_Addresses_ByCurrentSingle(description);
+                var alarms = DBfunction.Get_Addresses_ByCurrentSingle(lbl.Text);
 
                 if (alarms == null || alarms.Count == 0)
                 {
-                    MessageBox.Show($"🔍 未找到該設備（{description}）的異常資料。", "查詢結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"🔍 未找到該設備（{lbl.Text}）的異常資料。", "查詢結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 if (alarms.Count == 1)
                 {
-                    var alarm = (alarms[0].ToString());
+                    var alarm = alarms[0].ToString();
                     string possible = DBfunction.Get_Possible_ByAddress(alarm);
                     string error = DBfunction.Get_Error_ByAddress(alarm);
+                    string repair = DBfunction.Get_Repair_steps_ByAddress(alarm);
+
                     MessageBox.Show(
-                        $"⚠️ 錯誤警告\n料件：{description}\n\n錯誤訊息：{error}\n可能原因：{possible}",
-                        "I/O 錯誤偵測",
+                        $"⚠️ 錯誤警告\n料件：{lbl.Text}\n\n錯誤訊息：{error}\n" +
+                        $"錯誤排除步驟：\n{repair}",
+                        "料件錯誤警告",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );
                 }
                 else
                 {
-                    // 多筆顯示整合訊息
-                    string all = $"⚠️ 錯誤警告\n料件：{description}\n共發現 {alarms.Count} 筆異常：\n\n";
+                    string all = $"⚠️ 錯誤警告\n料件：{lbl.Text}\n共發現 {alarms.Count} 筆異常：\n\n";
 
                     foreach (var alarm in alarms)
                     {
@@ -160,7 +158,6 @@ namespace FX5U_IOMonitor.panel_control
                 }
             }
         }
-
         const int MaxPanelCount = 1000;
 
         /// <summary>

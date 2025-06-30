@@ -420,8 +420,10 @@ namespace FX5U_IOMonitor.Email
             // 查詢所有尚未排除的警告，且今天尚未發送提醒過
             var histories = db.AlarmHistories
                 .Include(h => h.Alarm)  // 載入關聯 Alarm 資料
-                .Where(h => h.EndTime == null && h.RecordTime.Date != now.Date)
+                .Where(h => h.EndTime == null && h.RecordTime != now)
                 .ToList();
+
+            
 
             // 如果沒有未排除的警告，不需要發送
             if (!histories.Any())
@@ -448,6 +450,7 @@ namespace FX5U_IOMonitor.Email
                 var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
                                      .Select(x => x.Trim())
                                      .ToList();
+                List<string> allUser = email.GetUserEmails(users);
 
                 // 建立該使用者對應的彙總信件內容
                 var body = BuildEmailBody(group.ToList());
@@ -459,7 +462,7 @@ namespace FX5U_IOMonitor.Email
                 // 統整要送出的收件人跟資訊
                 var mailInfo = new MailInfo
                 {
-                    Receivers = users,
+                    Receivers = allUser,
                     Subject = subject,
                     Body = body
                 };
@@ -499,16 +502,18 @@ namespace FX5U_IOMonitor.Email
         /// <param name="alarms"></param>
         /// <returns></returns>
 
-        private static string BuildEmailBody(List<AlarmHistory> alarms)
+        public static string BuildEmailBody(List<AlarmHistory> alarms)
         {
             var sb = new StringBuilder();
             sb.AppendLine("📌 以下為尚未排除的警告摘要：\n");
 
             foreach (var h in alarms)
             {
-                sb.AppendLine($"故障地址：{h.Alarm.address}");                        // 警告位置
+                sb.AppendLine($"故障地址：{h.Alarm.address}");                       // 警告位置
                 sb.AppendLine($"警告描述：{h.Alarm.Description}");                  // 更換料件
-                sb.AppendLine($"可能錯誤錯誤：{h.Alarm.Error}");                        // 錯誤內容
+                sb.AppendLine($"錯誤內容：{h.Alarm.Error}");                        // 錯誤內容
+                sb.AppendLine($"錯誤可能原因：{h.Alarm.Possible}");                     // 錯誤內容
+                sb.AppendLine($"錯誤維修方式：{h.Alarm.Repair_steps}");                     // 錯誤內容
                 sb.AppendLine($"發生時間：{h.StartTime:yyyy-MM-dd HH:mm}");   // 發生時間
                 sb.AppendLine($"已發送次數：{h.Records + 1}");                 // 預估下一次寄送是第幾次
                 sb.AppendLine("-------------------------------------------");

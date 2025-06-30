@@ -139,6 +139,8 @@ namespace FX5U_IOMonitor.Login
             return result;
         }
 
+       
+
         public List<ApplicationUser> GetAllUser()
         {
             var users = _userManager.Users.ToList(); // Fetch users from the database

@@ -1,5 +1,6 @@
 ﻿using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Login;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -278,7 +279,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 return context.Machine_IO
-                                .Where(io => io.RUL >= io.Setting_red && io.RUL <= io.Setting_yellow && stringaddress.Contains(io.address) && io.Machine_name == tableName)
+                                .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow && stringaddress.Contains(io.address) && io.Machine_name == tableName)
                                 .Count();
             }
         }
@@ -287,7 +288,7 @@ namespace FX5U_IOMonitor.Models
             using (var context = new ApplicationDB())
             {
                 return context.Machine_IO
-                                .Where(io => io.RUL < io.Setting_red && stringaddress.Contains(io.address) && io.Machine_name == tableName)
+                                .Where(io => io.RUL <= io.Setting_red && stringaddress.Contains(io.address) && io.Machine_name == tableName)
                                .Count();
 
             }
@@ -587,7 +588,7 @@ namespace FX5U_IOMonitor.Models
         }
 
         //----------獲取設備描述---------
-        public static string Get_Comment_ByAddress(string tableName, string address, string languageCode = "US")
+        public static string Get_Comment_ByAddress(string tableName, string address)
         {
             using (var context = new ApplicationDB())
             {
@@ -603,7 +604,7 @@ namespace FX5U_IOMonitor.Models
 
                 // 優先找該語系的翻譯
                 string translated = io.Translations
-                    .FirstOrDefault(t => t.LanguageCode == languageCode)?
+                    .FirstOrDefault(t => t.LanguageCode == LanguageManager.Currentlanguge)?
                     .Comment;
 
                 return !string.IsNullOrWhiteSpace(translated)
@@ -745,15 +746,7 @@ namespace FX5U_IOMonitor.Models
                 return translation?.Possible ?? alarm.Possible ?? "無對應說明";
             }
         }
-        public static string Get_classTag_ByAddress(string address)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
-
-                return alarm?.classTag ?? "無對應說明";
-            }
-        }
+       
         public static string Get_Repair_steps_ByAddress(string address)
         {
             using (var context = new ApplicationDB())
@@ -769,6 +762,15 @@ namespace FX5U_IOMonitor.Models
                     .FirstOrDefault(t => t.LanguageCode == LanguageManager.Currentlanguge);
 
                 return translation?.Repair_steps ?? alarm.Repair_steps ?? "無對應說明";
+            }
+        }
+        public static string Get_classTag_ByAddress(string address)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+
+                return alarm?.classTag ?? "無對應說明";
             }
         }
         public static List<string> Get_address_ByBreakdownParts(string database, List<string> breakdownParts_address) // 取得所有故障料件名稱
@@ -791,6 +793,7 @@ namespace FX5U_IOMonitor.Models
             }
 
         }
+       
 
         //--------找到警告中的故障料件-----------//
         public static List<string> Get_breakdown_part(string datatable, bool distinct = true)
@@ -841,6 +844,10 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+        /// <summary>
+        /// 設定警告啟動時間
+        /// </summary>
+        /// <param name="address"></param>
         public static void Set_Alarm_StartTimeByAddress(string address)
         {
             using (var context = new ApplicationDB())
@@ -866,6 +873,10 @@ namespace FX5U_IOMonitor.Models
             }
 
         }
+        /// <summary>
+        /// 輸入警告解除時間
+        /// </summary>
+        /// <param name="address"></param>
         public static void Set_Alarm_EndTimeByAddress(string address)
         {
             using (var context = new ApplicationDB())
@@ -901,6 +912,12 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+        
+        /// <summary>
+        /// 查詢警告對應指定的維修步驟
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="steps"></param>
         public static void Set_RepairStep_ByAddress(string address, string steps)
         {
             using (var context = new ApplicationDB())
@@ -919,6 +936,12 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
+       
+        /// <summary>
+        /// 查詢警告對應可能發生的原因
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="Possible"></param>
         public static void Set_Possible_ByAddress(string address, string Possible)
         {
             using (var context = new ApplicationDB())
@@ -938,7 +961,10 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        //獲得警告當前的所有信號
+        /// <summary>
+        /// 獲得警告當前的所有訊號
+        /// </summary>
+        /// <returns></returns>
         public static List<now_single> Get_alarm_current_single_all()
         {
             using var context = new ApplicationDB();
@@ -967,30 +993,78 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-
-        //初始化信號
-        public static void Initiali_current_single()
+        /// <summary>
+        /// 補寫解除時間
+        /// </summary>
+        public static void Fix_UnclosedAlarms_ByCurrentState()
         {
+            // 1. 取得目前 current_single 為 false 的警報 address
+            var currentlyInactiveAddresses = DBfunction.Get_alarm_current_single_all()
+                .Where(x => x.current_single == false)
+                .Select(x => x.address)
+                .ToHashSet();
 
             using (var context = new ApplicationDB())
             {
-                var io = context.Machine_IO.ToList();
+                // 2. 查詢所有還沒 EndTime 的歷史記錄
+                var unclosedAlarms = context.AlarmHistories
+                    .Include(h => h.Alarm)
+                    .Where(h => h.EndTime == null)
+                    .ToList();
 
-                foreach (var IO in io)
+                foreach (var history in unclosedAlarms)
                 {
-                    IO.current_single = null;
+                    if (currentlyInactiveAddresses.Contains(history.Alarm.address))
+                    {
+                        history.EndTime = DateTime.UtcNow;
+                        Console.WriteLine($"⏱ 補寫解除時間：{history.Alarm.address}");
+                    }
                 }
 
-                //var Alarm_io = context.alarm.ToList();
-
-                //foreach (var alarm_io in Alarm_io)
-                //{
-                //    alarm_io.current_single = false;
-                //}
-                context.SaveChanges(); // ✅ 儲存變更
+                context.SaveChanges();
             }
+        }
 
+        /// <summary>
+        /// 獲得對應警告的通知人員
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public static string Get_AlarmNotifyuser_ByAddress(string address)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+                return alarm?.AlarmNotifyuser ?? "";
+            }
+        }
+        public static string Get_Machine_ByAddress(string address)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+                return alarm?.SourceMachine ?? "";
+            }
+        }
 
+        /// <summary>
+        /// 查詢警告歷史紀錄表中哪些元件的警告狀態還沒被解除
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        public static List<string> Get_ActiveAlarmAddresses()
+        {
+            using (var context = new ApplicationDB())
+            {
+                var addressList = context.AlarmHistories
+                    .Include(h => h.Alarm)
+                    .Where(h => h.EndTime == null)
+                    .Select(h => h.Alarm.address)
+                    .Distinct()
+                    .ToList();
+
+                return addressList;
+            }
         }
         /// <summary>
         /// 搜尋元件位置
@@ -1739,6 +1813,7 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
+
         //警告歷史紀錄搜尋
         public static List<AlarmHistoryViewModel> Get_Searchalarm_Records(DateTime startDateLocal, DateTime endDateLocal)
         {

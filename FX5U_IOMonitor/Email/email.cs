@@ -15,6 +15,10 @@ namespace FX5U_IOMonitor.Email
 {
     public class email
     {
+        /// <summary>
+        /// 所有使用者信箱
+        /// </summary>
+        /// <returns></returns>
         public static List<string> GetAllUserEmailsAsync()
         {
             using var _userManager = new UserService<ApplicationDB>();
@@ -24,6 +28,24 @@ namespace FX5U_IOMonitor.Email
 
             // 只取 email 並建立清單
             var emails = users
+                .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
+                .Select(u => u.Email!)
+                .Distinct() // 如果你想要去除重複信箱，可加這行
+                .ToList();
+
+            return emails;
+        }
+
+        public static List<string> GetUserEmails(List<string> usernames)
+        {
+            using var _userManager = new UserService<ApplicationDB>();
+
+            // 從 UserManager 抓出所有使用者
+            var users = _userManager.GetAllUser().ToList();
+
+            // 只取 email 並建立清單
+            var emails = users
+                .Where(u => usernames.Contains(u.UserName))
                 .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
                 .Select(u => u.Email!)
                 .Distinct() // 如果你想要去除重複信箱，可加這行
