@@ -91,7 +91,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(73, 139);
+            btn_history.Location = new Point(552, 75);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -111,9 +111,9 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(12, 613);
+            btn_checkpoint.Location = new Point(73, 268);
             btn_checkpoint.Name = "btn_checkpoint";
-            btn_checkpoint.Size = new Size(91, 39);
+            btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
             btn_checkpoint.Text = "介面更新速度";
             btn_checkpoint.UseVisualStyleBackColor = true;
@@ -141,7 +141,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_notify
             // 
-            btn_notify.Location = new Point(228, 206);
+            btn_notify.Location = new Point(382, 75);
             btn_notify.Name = "btn_notify";
             btn_notify.Size = new Size(124, 39);
             btn_notify.TabIndex = 16;

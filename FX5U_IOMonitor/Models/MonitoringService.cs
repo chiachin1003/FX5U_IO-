@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using SLMP;
 using System;
@@ -393,13 +394,25 @@ namespace FX5U_IOMonitor.Models
                                             else
                                             {
                                                 // 寫入多變數
-                                                int value = DBfunction.Get_History_NumericValue(machine_name, name); 
-                                                ushort[] write2plc = MonitorFunction.SmartWordSplit(value, (int)address_index);
+                                                int? value = DBfunction.Get_History_NumericValue(machine_name, name);
+                                                if (!value.HasValue)
+                                                {
+                                                    Debug.WriteLine($"❌ 寫入失敗 [{name}] 位址：{match.address}，原因：資料為 null");
+                                                    return;
+                                                }
+
+                                                ushort[] write2plc = MonitorFunction.SmartWordSplit(value.Value, 2,1);
+
                                                 lock (externalLock ?? new object())
                                                 {
                                                     plc.WriteWordDevice(match.address, write2plc);
                                                 }
-                                                //Debug.WriteLine($" [{name}] 寫入位址 {match.address}，值：{value} → WordData = [{string.Join(", ", write2plc)}]");
+                                                //ushort[] write2plc = MonitorFunction.SmartWordSplit(value, (int)address_index);
+                                                //lock (externalLock ?? new object())
+                                                //{
+                                                //    plc.WriteWordDevice(match.address, write2plc);
+                                                //}
+                                                ////Debug.WriteLine($" [{name}] 寫入位址 {match.address}，值：{value} → WordData = [{string.Join(", ", write2plc)}]");
                                             }
                                         }
                                         catch (Exception ex)
@@ -557,7 +570,7 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     timer.NowValue += (int)elapsed.TotalSeconds;
                                                     timer.LastUpdateTime = DateTime.UtcNow;
-                                                    Debug.WriteLine($"{timer.LastUpdateTime}、{timer.NowValue}");
+                                                    //Debug.WriteLine($"{timer.LastUpdateTime}、{timer.NowValue}");
                                                     ushort now_total = (ushort)(DBfunction.Get_Machine_NowValue(machine_name, name)+ (ushort)elapsed.TotalSeconds);
                                                     DBfunction.Set_Machine_now_number(machine_name, name, now_total);
 
@@ -585,9 +598,11 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     DBfunction.Inital_MachineParameters_number(machine_name, name);
 
-                                                    timer.HistoryValue += timer.NowValue;
+                                                    int now_time = DBfunction.Get_Machine_NowValue(machine_name, name);
+                                                    int history_time = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
+                                                    DBfunction.Set_Machine_History_NumericValue(machine_name, name, (ushort)(now_time + history_time));
 
-                                                    DBfunction.Set_Machine_History_NumericValue(machine_name, name, (ushort)timer.HistoryValue);
+                                                    //DBfunction.Set_Machine_History_NumericValue(machine_name, name, (ushort)timer.HistoryValue);
                                                     DBfunction.Set_Machine_now_number(machine_name, name, 0);
                                                     timer.NowValue = 0;
                                                 }

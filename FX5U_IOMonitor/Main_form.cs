@@ -9,6 +9,7 @@ using FX5U_IOMonitor.Login;
 using System.Diagnostics;
 using FX5U_IOMonitor.panel_control;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
+using static FX5U_IOMonitor.Models.ParameterHistoryManager;
 
 
 
@@ -54,6 +55,11 @@ namespace FX5U_IOMonitor
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
+            _ = Task.Run(async () =>
+            {
+                await ParameterHistoryScheduler.InitializeMonthlySchedule();
+            });
+
 
         }
         private Stopwatch stopwatch;

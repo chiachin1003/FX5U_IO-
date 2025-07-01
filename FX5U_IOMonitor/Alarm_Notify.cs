@@ -35,11 +35,9 @@ namespace FX5U_IO元件監控
         {
 
             InitializeComponent();
-            UpdatemachineComboBox();
-            datatable = control_choose.Text;
-            BuildTree(datatable);
+            BuildTree();
 
-            int mode = DBfunction.Get_alarm_Notifyclass(datatable);
+            int mode = DBfunction.Get_alarm_classnumber();
             UpdateRadioButtonColor(mode);
 
             switch (mode)
@@ -54,7 +52,7 @@ namespace FX5U_IO元件監控
                     radioButton_special.Checked = true;
 
                     checkcombobox_special.Clear();
-                    _ = Add_NotifyUser(checkcombobox_special, datatable, NotifyUserMode.FromAlarm);
+                    _ = Add_NotifyUser(checkcombobox_special, NotifyUserMode.FromAlarm);
                     checkcombobox_special.SelectedItemsUpdated += (s, e) =>
                     {
                         selectedUsers = checkcombobox_special.GetCheckedItems();
@@ -89,62 +87,36 @@ namespace FX5U_IO元件監控
             SwitchLanguage();
         }
 
-        // ✅ 封裝 classTag 空白處理
-        private string NormalizeClassTag(string? classTag)
-        {
-            return string.IsNullOrWhiteSpace(classTag) ? "other" : classTag;
-        }
 
-        private void UpdatemachineComboBox()
-        {
+        //private void control_choose_SelectedIndexChanged(object sender, EventArgs e)
+        //{
+        //    datatable = control_choose.Text;
+        //    BuildTree(datatable);
+        //    int mode = DBfunction.Get_alarm_classnumber();
+        //    switch (mode)
+        //    {
+        //        case 1:
+        //            radioButton_alluser.Checked = true;
+        //            treeView1.CheckBoxes = false;
 
-            using (var context = new ApplicationDB())
-            {
+        //            break;
+        //        case 2:
+        //            radioButton_special.Checked = true;
 
-                var machineNames = context.index
-                                   .Select(io => io.Name);
+        //            treeView1.CheckBoxes = false;
 
-                control_choose.Items.Clear();
+        //            break;
+        //        case 3:
+        //            radioButton_DesignatedUser.Checked = true;
+        //            treeView1.CheckBoxes = true;
 
-                foreach (var machine in machineNames)
-                {
-                    control_choose.Items.Add(machine);
-                }
-                control_choose.SelectedIndex = 0;
-            }
-
-
-        }
-
-        private void control_choose_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            datatable = control_choose.Text;
-            BuildTree(datatable);
-            int mode = DBfunction.Get_alarm_Notifyclass(datatable);
-            switch (mode)
-            {
-                case 1:
-                    radioButton_alluser.Checked = true;
-                    treeView1.CheckBoxes = false;
-
-                    break;
-                case 2:
-                    radioButton_special.Checked = true;
-
-                    treeView1.CheckBoxes = false;
-
-                    break;
-                case 3:
-                    radioButton_DesignatedUser.Checked = true;
-                    treeView1.CheckBoxes = true;
-
-                    break;
-                default:
-                    // 預設選項（必要時）
-                    radioButton_alluser.Checked = true;
-                    break;
-            }
-        }
+        //            break;
+        //        default:
+        //            // 預設選項（必要時）
+        //            radioButton_alluser.Checked = true;
+        //            break;
+        //    }
+        //}
         private void UpdateRadioButtonColor(int mode)
         {
             var normalColor = Color.Gray;
@@ -154,31 +126,31 @@ namespace FX5U_IO元件監控
             radioButton_special.ForeColor = (mode == 2) ? selectedColor : normalColor;
             radioButton_DesignatedUser.ForeColor = (mode == 3) ? selectedColor : normalColor;
         }
-        
-        private void BuildTree(string machineName)
+
+        private void BuildTree()
         {
             treeView1.Nodes.Clear();
 
-            List<string> classList = DBfunction.Get_alarm_class(machineName)
-                                    .Select(NormalizeClassTag)
+            List<string> classList = DBfunction.Get_alarm_class()
                                     .Distinct()
                                     .OrderBy(c => c)
                                     .ToList();
-
             using var context = new ApplicationDB();
-            var allAlarms = context.alarm
-                .Where(a => a.SourceMachine == machineName)
-                .ToList();
+            var allAlarms = context.alarm.ToList();
 
             foreach (var className in classList)
             {
-                TreeNode classNode = new TreeNode(className)
+                // 翻譯分類名稱
+                string translationKey = "AlarmNotify_ClassTag_" + className;
+                string localizedClassName = LanguageManager.Translate(translationKey);
+
+                TreeNode classNode = new TreeNode(localizedClassName)
                 {
-                    Tag = className // ➤ 儲存 classTag 名稱
+                    Tag = className  // ➤ 保留原始分類代碼
                 };
 
                 var alarms = allAlarms
-                    .Where(a => NormalizeClassTag(a.classTag) == className)
+                    .Where(a => a.classTag == className)
                     .ToList();
 
                 foreach (var alarm in alarms)
@@ -187,16 +159,17 @@ namespace FX5U_IO元件監控
 
                     TreeNode errorNode = new TreeNode(displayError)
                     {
-                        Tag = alarm.Id // ➤ 子節點直接儲存 Alarm Id
+                        Tag = alarm.Id
                     };
                     classNode.Nodes.Add(errorNode);
                 }
 
                 treeView1.Nodes.Add(classNode);
 
-                // ✅ 根據資料庫資料自動判斷勾選狀態（如果任一子節點有設通知人）
+                // 自動勾選已設定通知的節點
                 bool anyChildHasUser = alarms.Any(a => !string.IsNullOrWhiteSpace(a.AlarmNotifyuser));
                 classNode.Checked = anyChildHasUser;
+
                 foreach (TreeNode child in classNode.Nodes)
                 {
                     if (child.Tag is int alarmId)
@@ -206,6 +179,46 @@ namespace FX5U_IO元件監控
                     }
                 }
             }
+
+
+
+
+            //foreach (var className in classList)
+            //{
+            //    TreeNode classNode = new TreeNode(className)
+            //    {
+            //        Tag = className // ➤ 儲存 classTag 名稱
+            //    };
+
+            //    var alarms = allAlarms
+            //        .Where(a => NormalizeClassTag(a.classTag) == className)
+            //        .ToList();
+
+            //    foreach (var alarm in alarms)
+            //    {
+            //        string displayError = DBfunction.Get_Error_ByAddress(alarm.address);
+
+            //        TreeNode errorNode = new TreeNode(displayError)
+            //        {
+            //            Tag = alarm.Id // ➤ 子節點直接儲存 Alarm Id
+            //        };
+            //        classNode.Nodes.Add(errorNode);
+            //    }
+
+            //    treeView1.Nodes.Add(classNode);
+
+            //    // ✅ 根據資料庫資料自動判斷勾選狀態（如果任一子節點有設通知人）
+            //    bool anyChildHasUser = alarms.Any(a => !string.IsNullOrWhiteSpace(a.AlarmNotifyuser));
+            //    classNode.Checked = anyChildHasUser;
+            //    foreach (TreeNode child in classNode.Nodes)
+            //    {
+            //        if (child.Tag is int alarmId)
+            //        {
+            //            var alarm = alarms.FirstOrDefault(a => a.Id == alarmId);
+            //            child.Checked = alarm != null && !string.IsNullOrWhiteSpace(alarm.AlarmNotifyuser);
+            //        }
+            //    }
+            //}
         }
 
 
@@ -226,7 +239,7 @@ namespace FX5U_IO元件監控
             {
 
                 checkcombobox_special.Visible = true;
-               
+
 
 
                 if (selectedUsers == null || selectedUsers.Length == 0)
@@ -251,7 +264,7 @@ namespace FX5U_IO元件監控
                 using var db = new ApplicationDB();
                 foreach (TreeNode node in treeView1.Nodes)
                 {
-                    string category = node.Text;
+                    string category = node.Tag.ToString();
                     var hasUser = db.alarm
                         .Where(a => a.classTag == category)
                         .Any(a => !string.IsNullOrWhiteSpace(a.AlarmNotifyuser));
@@ -268,12 +281,12 @@ namespace FX5U_IO元件監控
                     }
                 }
             }
-            int mode = DBfunction.Get_alarm_Notifyclass(datatable);
+            int mode = DBfunction.Get_alarm_classnumber();
             UpdateRadioButtonColor(mode);
         }
 
 
-        private async Task Add_NotifyUser(checkcombobox combo, string datatable, NotifyUserMode mode = NotifyUserMode.All)
+        private async Task Add_NotifyUser(checkcombobox combo, NotifyUserMode mode = NotifyUserMode.All)
         {
             using var userService = new UserService<ApplicationDB>();
             var allUsers = userService.GetAllUser();
@@ -289,7 +302,7 @@ namespace FX5U_IO元件監控
                 // 從 alarm 資料取得已被指定的使用者
                 using var db = new ApplicationDB();
                 var notifyUserStrs = db.alarm
-                    .Where(a => a.SourceMachine == datatable && !string.IsNullOrWhiteSpace(a.AlarmNotifyuser))
+                    .Where(a => !string.IsNullOrWhiteSpace(a.AlarmNotifyuser))
                     .Select(a => a.AlarmNotifyuser)
                     .ToList();
 
@@ -396,7 +409,7 @@ namespace FX5U_IO元件監控
             foreach (TreeNode node in nodes)
             {
                 if (node.Checked)
-                    result.Add(node.Text);
+                    result.Add(node.Tag.ToString());
 
                 if (node.Nodes.Count > 0)
                     result.AddRange(GetCheckedCategories(node.Nodes));
@@ -418,7 +431,7 @@ namespace FX5U_IO元件監控
             {
                 checkcombobox_special.Visible = true;
                 checkcombobox_special.Clear();
-                _ = Add_NotifyUser(checkcombobox_special, datatable, NotifyUserMode.FromAlarm);
+                _ = Add_NotifyUser(checkcombobox_special, NotifyUserMode.FromAlarm);
                 treeView1.CheckBoxes = false;
                 checkcombobox_special.SelectedItemsUpdated += (s, e) =>
                 {
@@ -429,7 +442,7 @@ namespace FX5U_IO元件監控
             }
             else if (radioButton_DesignatedUser.Checked)
             {
-                int mode = DBfunction.Get_alarm_Notifyclass(datatable);
+                int mode = DBfunction.Get_alarm_classnumber();
 
                 if (mode != 3)
                 {
@@ -474,7 +487,7 @@ namespace FX5U_IO元件監控
 
                 using (var db = new ApplicationDB())
                 {
-                    var alarm = db.alarm.Where(a => a.SourceMachine == machineName).ToList();
+                    var alarm = db.alarm.ToList();
 
                     if (alarm == null)
                     {
@@ -523,7 +536,7 @@ namespace FX5U_IO元件監控
             {
                 return;
             }
-            int mode = DBfunction.Get_alarm_Notifyclass(datatable);
+            int mode = DBfunction.Get_alarm_classnumber();
 
             if (mode != 3)
             {
@@ -549,7 +562,7 @@ namespace FX5U_IO元件監控
                 string category = (string)e.Node.Tag;
                 alarmKey = category;
                 var allMatching = db.alarm.ToList(); // ➤ 強制先取回所有 alarm
-                targetAlarms = allMatching.Where(a => NormalizeClassTag(a.classTag) == category).ToList();
+                targetAlarms = allMatching.Where(a => a.classTag == category).ToList();
 
                 formTitle = $"設定分類：{category}";
             }
@@ -633,11 +646,9 @@ namespace FX5U_IO元件監控
             {
                 string classTag = (string)classNode.Tag;
 
-                var alarms = db.alarm.Where(a => a.SourceMachine == datatable)
-                                    .ToList()
-                                    .Where(a => NormalizeClassTag(a.classTag) == classTag)
+                var alarms = db.alarm.Where(a => a.classTag == classTag)
                                     .ToList();
-
+         
                 // 子節點自動勾選
                 foreach (TreeNode child in classNode.Nodes)
                 {
@@ -669,6 +680,11 @@ namespace FX5U_IO元件監控
             lab_machine.Text = LanguageManager.Translate("Alarm_Notify_machine");
             btn_apply.Text = LanguageManager.Translate("Alarm_Notify_btn_apply");
             btn_update.Text = LanguageManager.Translate("Alarm_Notify_btn_update");
+        }
+
+        private void btn_apply_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -56,9 +56,8 @@ namespace FX5U_IOMonitor.Models
             return totalnumber;
         }
         /// <summary>
-        /// 將秒數轉為兩個 Word（ushort）並寫入 PLC 指定地址（D、W 等）。
+        /// 將秒數轉為兩個 Word（ushort）並寫入 PLC 指定地址。
         /// </summary>
-        
         public static ushort[] WriteTimeToPlc( int totalSeconds)
         {
             // 拆成小端序的 ushort[]
@@ -83,11 +82,24 @@ namespace FX5U_IOMonitor.Models
 
             List<ushort> result = new List<ushort>();
 
-            for (int i = 0; i < wordCount; i++)
+            if (value >= 0 && value <= ushort.MaxValue)
             {
-                ushort word = (ushort)((value >> (i * 16)) & 0xFFFF);
-                result.Add(word);
+                // 單 word
+                result.Add((ushort)value);
             }
+            else
+            {
+                // 兩 word（補正 signed int）
+                ushort low = (ushort)(value & 0xFFFF);
+                ushort high = (ushort)((value >> 16) & 0xFFFF);
+                result.Add(low);
+                result.Add(high);
+            }
+            //for (int i = 0; i < wordCount; i++)
+            //{
+            //    ushort word = (ushort)((value >> (i * 16)) & 0xFFFF);
+            //    result.Add(word);
+            //}
 
             if (inputnumber == 1)
                 result.Reverse(); // 大端序
@@ -137,6 +149,7 @@ namespace FX5U_IOMonitor.Models
                 _ => "未知狀態"
             };
         }
+       
         public class RuntimebitTimer
         {
             public int NowValue { get; set; } = 0;         // 當前秒數（每秒 +1）

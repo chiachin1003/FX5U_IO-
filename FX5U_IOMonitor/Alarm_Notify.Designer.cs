@@ -73,9 +73,9 @@ namespace FX5U_IO元件監控
             panel1.Controls.Add(radioButton_DesignatedUser);
             panel1.Controls.Add(radioButton_special);
             panel1.Controls.Add(radioButton_alluser);
-            panel1.Location = new Point(26, 53);
+            panel1.Location = new Point(26, 14);
             panel1.Name = "panel1";
-            panel1.Size = new Size(482, 192);
+            panel1.Size = new Size(480, 192);
             panel1.TabIndex = 1;
             // 
             // checkcombobox_special
@@ -94,7 +94,7 @@ namespace FX5U_IO元件監控
             panel3.Dock = DockStyle.Top;
             panel3.Location = new Point(0, 0);
             panel3.Name = "panel3";
-            panel3.Size = new Size(480, 37);
+            panel3.Size = new Size(478, 37);
             panel3.TabIndex = 5;
             // 
             // lab_alarm_notify
@@ -113,7 +113,7 @@ namespace FX5U_IO元件監控
             // 
             btn_update.BackColor = SystemColors.ButtonHighlight;
             btn_update.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold);
-            btn_update.Location = new Point(397, 109);
+            btn_update.Location = new Point(397, 143);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(69, 33);
             btn_update.TabIndex = 3;
@@ -158,7 +158,7 @@ namespace FX5U_IO元件監控
             panel2.Dock = DockStyle.Fill;
             panel2.Location = new Point(0, 0);
             panel2.Name = "panel2";
-            panel2.Size = new Size(578, 625);
+            panel2.Size = new Size(523, 625);
             panel2.TabIndex = 3;
             // 
             // control_choose
@@ -171,7 +171,7 @@ namespace FX5U_IO元件監控
             control_choose.Name = "control_choose";
             control_choose.Size = new Size(307, 32);
             control_choose.TabIndex = 15;
-            control_choose.SelectedIndexChanged += control_choose_SelectedIndexChanged;
+            control_choose.Visible = false;
             // 
             // btn_apply
             // 
@@ -182,6 +182,8 @@ namespace FX5U_IO元件監控
             btn_apply.TabIndex = 4;
             btn_apply.Text = "應用";
             btn_apply.UseVisualStyleBackColor = false;
+            btn_apply.Visible = false;
+            btn_apply.Click += btn_apply_Click;
             // 
             // lab_machine
             // 
@@ -193,15 +195,16 @@ namespace FX5U_IO元件監控
             lab_machine.Size = new Size(105, 24);
             lab_machine.TabIndex = 14;
             lab_machine.Text = "選擇機台：";
+            lab_machine.Visible = false;
             // 
             // panel4
             // 
             panel4.BackColor = SystemColors.ButtonHighlight;
             panel4.BorderStyle = BorderStyle.FixedSingle;
             panel4.Controls.Add(treeView1);
-            panel4.Location = new Point(26, 263);
+            panel4.Location = new Point(26, 212);
             panel4.Name = "panel4";
-            panel4.Size = new Size(481, 348);
+            panel4.Size = new Size(481, 399);
             panel4.TabIndex = 2;
             // 
             // treeView1
@@ -211,7 +214,7 @@ namespace FX5U_IO元件監控
             treeView1.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
             treeView1.Location = new Point(0, 0);
             treeView1.Name = "treeView1";
-            treeView1.Size = new Size(479, 346);
+            treeView1.Size = new Size(479, 397);
             treeView1.TabIndex = 0;
             treeView1.BeforeCheck += treeView1_BeforeCheck;
             treeView1.AfterCheck += treeView1_AfterCheck;
@@ -221,7 +224,7 @@ namespace FX5U_IO元件監控
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(578, 625);
+            ClientSize = new Size(523, 625);
             Controls.Add(panel2);
             Margin = new Padding(4);
             MaximizeBox = false;

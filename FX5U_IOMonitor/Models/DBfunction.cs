@@ -645,23 +645,22 @@ namespace FX5U_IOMonitor.Models
         }
 
         //-----------找到alarm資料表中的料件(用於後續比對)--------//
-        public static List<string> Get_alarm_class(string machine_name)
+        public static List<string> Get_alarm_class()
         {
             using (var context = new ApplicationDB())
             {
-                var alarmClasses = context.alarm.Where(a => a.SourceMachine == machine_name)
+                var alarmClasses = context.alarm
                     .Select(a => string.IsNullOrWhiteSpace(a.classTag) ? "other" : a.classTag)
                     .Distinct() // 2. 去除重複
                     .ToList();
                 return alarmClasses;
             }
         }
-        public static int Get_alarm_Notifyclass(string machine_name)
+        public static int Get_alarm_classnumber()
         {
             using (var context = new ApplicationDB())
             {
                 var alarmClass = context.alarm
-                    .Where(a => a.SourceMachine == machine_name)
                     .Select(a => a.AlarmNotifyClass)
                     .Distinct()
                     .FirstOrDefault(); // 取第一筆，若沒有資料回傳 0
