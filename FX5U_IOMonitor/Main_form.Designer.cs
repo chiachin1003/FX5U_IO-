@@ -291,6 +291,7 @@
             lab_sumS.BackColor = SystemColors.ButtonHighlight;
             lab_sumS.Dock = DockStyle.Fill;
             lab_sumS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_sumS.ForeColor = Color.FromArgb(51, 51, 51);
             lab_sumS.Location = new Point(3, 45);
             lab_sumS.Name = "lab_sumS";
             lab_sumS.Size = new Size(92, 43);
@@ -304,6 +305,7 @@
             lab_sum_swing.BackColor = SystemColors.ButtonHighlight;
             lab_sum_swing.Dock = DockStyle.Fill;
             lab_sum_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_sum_swing.ForeColor = Color.FromArgb(51, 51, 51);
             lab_sum_swing.Location = new Point(3, 0);
             lab_sum_swing.Name = "lab_sum_swing";
             lab_sum_swing.Size = new Size(92, 45);
@@ -334,6 +336,7 @@
             lab_connectS.BackColor = SystemColors.ButtonHighlight;
             lab_connectS.Dock = DockStyle.Fill;
             lab_connectS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connectS.ForeColor = Color.FromArgb(51, 51, 51);
             lab_connectS.Location = new Point(3, 44);
             lab_connectS.Name = "lab_connectS";
             lab_connectS.Size = new Size(92, 44);
@@ -347,6 +350,7 @@
             lab_connect_swing.BackColor = SystemColors.ButtonHighlight;
             lab_connect_swing.Dock = DockStyle.Fill;
             lab_connect_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connect_swing.ForeColor = Color.FromArgb(51, 51, 51);
             lab_connect_swing.Location = new Point(3, 0);
             lab_connect_swing.Name = "lab_connect_swing";
             lab_connect_swing.Size = new Size(92, 44);
@@ -398,6 +402,7 @@
             lab_rS.BackColor = SystemColors.ButtonHighlight;
             lab_rS.Dock = DockStyle.Fill;
             lab_rS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_rS.ForeColor = Color.FromArgb(211, 47, 47);
             lab_rS.Location = new Point(3, 45);
             lab_rS.Name = "lab_rS";
             lab_rS.Size = new Size(92, 43);
@@ -411,6 +416,7 @@
             lab_red_swing.BackColor = SystemColors.ButtonHighlight;
             lab_red_swing.Dock = DockStyle.Fill;
             lab_red_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_red_swing.ForeColor = Color.FromArgb(211, 47, 47);
             lab_red_swing.Location = new Point(3, 0);
             lab_red_swing.Name = "lab_red_swing";
             lab_red_swing.Size = new Size(92, 45);
@@ -441,6 +447,7 @@
             lab_disS.BackColor = SystemColors.ButtonHighlight;
             lab_disS.Dock = DockStyle.Fill;
             lab_disS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_disS.ForeColor = Color.FromArgb(229, 57, 53);
             lab_disS.Location = new Point(3, 47);
             lab_disS.Name = "lab_disS";
             lab_disS.Size = new Size(92, 41);
@@ -454,6 +461,7 @@
             lab_disconnect_sawing.BackColor = SystemColors.ButtonHighlight;
             lab_disconnect_sawing.Dock = DockStyle.Fill;
             lab_disconnect_sawing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_disconnect_sawing.ForeColor = Color.FromArgb(229, 57, 53);
             lab_disconnect_sawing.Location = new Point(3, 0);
             lab_disconnect_sawing.Name = "lab_disconnect_sawing";
             lab_disconnect_sawing.Size = new Size(92, 47);
@@ -483,6 +491,7 @@
             lab_gS.BackColor = SystemColors.ButtonHighlight;
             lab_gS.Dock = DockStyle.Fill;
             lab_gS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_gS.ForeColor = Color.FromArgb(67, 160, 71);
             lab_gS.Location = new Point(3, 46);
             lab_gS.Name = "lab_gS";
             lab_gS.Size = new Size(92, 42);
@@ -496,6 +505,7 @@
             lab_green_swing.BackColor = SystemColors.ButtonHighlight;
             lab_green_swing.Dock = DockStyle.Fill;
             lab_green_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_green_swing.ForeColor = Color.FromArgb(67, 160, 71);
             lab_green_swing.Location = new Point(3, 0);
             lab_green_swing.Name = "lab_green_swing";
             lab_green_swing.Size = new Size(92, 46);
@@ -524,6 +534,7 @@
             lab_yS.BackColor = SystemColors.ButtonHighlight;
             lab_yS.Dock = DockStyle.Fill;
             lab_yS.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_yS.ForeColor = Color.FromArgb(251, 192, 45);
             lab_yS.Location = new Point(3, 46);
             lab_yS.Name = "lab_yS";
             lab_yS.Size = new Size(92, 42);
@@ -537,6 +548,7 @@
             lab_yellow_swing.BackColor = SystemColors.ButtonHighlight;
             lab_yellow_swing.Dock = DockStyle.Fill;
             lab_yellow_swing.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_yellow_swing.ForeColor = Color.FromArgb(251, 192, 45);
             lab_yellow_swing.Location = new Point(3, 0);
             lab_yellow_swing.Name = "lab_yellow_swing";
             lab_yellow_swing.Size = new Size(92, 46);
@@ -584,6 +596,7 @@
             lab_sumD.BackColor = SystemColors.ButtonHighlight;
             lab_sumD.Dock = DockStyle.Fill;
             lab_sumD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_sumD.ForeColor = Color.FromArgb(51, 51, 51);
             lab_sumD.Location = new Point(3, 50);
             lab_sumD.Name = "lab_sumD";
             lab_sumD.Size = new Size(92, 38);
@@ -597,6 +610,7 @@
             lab_sum.BackColor = SystemColors.ButtonHighlight;
             lab_sum.Dock = DockStyle.Fill;
             lab_sum.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_sum.ForeColor = Color.FromArgb(51, 51, 51);
             lab_sum.Location = new Point(3, 0);
             lab_sum.Name = "lab_sum";
             lab_sum.Size = new Size(92, 50);
@@ -625,6 +639,7 @@
             lab_connectD.BackColor = SystemColors.ButtonHighlight;
             lab_connectD.Dock = DockStyle.Fill;
             lab_connectD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connectD.ForeColor = Color.FromArgb(51, 51, 51);
             lab_connectD.Location = new Point(3, 50);
             lab_connectD.Name = "lab_connectD";
             lab_connectD.Size = new Size(92, 38);
@@ -638,6 +653,7 @@
             lab_connect.BackColor = SystemColors.ButtonHighlight;
             lab_connect.Dock = DockStyle.Fill;
             lab_connect.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connect.ForeColor = Color.FromArgb(51, 51, 51);
             lab_connect.Location = new Point(3, 0);
             lab_connect.Name = "lab_connect";
             lab_connect.Size = new Size(92, 50);
@@ -666,6 +682,7 @@
             lab_rD.BackColor = SystemColors.ButtonHighlight;
             lab_rD.Dock = DockStyle.Fill;
             lab_rD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_rD.ForeColor = Color.FromArgb(211, 47, 47);
             lab_rD.Location = new Point(3, 47);
             lab_rD.Name = "lab_rD";
             lab_rD.Size = new Size(92, 41);
@@ -679,6 +696,7 @@
             lab_red.BackColor = SystemColors.ButtonHighlight;
             lab_red.Dock = DockStyle.Fill;
             lab_red.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_red.ForeColor = Color.FromArgb(211, 47, 47);
             lab_red.Location = new Point(3, 0);
             lab_red.Name = "lab_red";
             lab_red.Size = new Size(92, 47);
@@ -707,6 +725,7 @@
             lab_disD.BackColor = SystemColors.ButtonHighlight;
             lab_disD.Dock = DockStyle.Fill;
             lab_disD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_disD.ForeColor = Color.FromArgb(229, 57, 53);
             lab_disD.Location = new Point(3, 50);
             lab_disD.Name = "lab_disD";
             lab_disD.Size = new Size(92, 38);
@@ -720,6 +739,7 @@
             lab_disconnect.BackColor = SystemColors.ButtonHighlight;
             lab_disconnect.Dock = DockStyle.Fill;
             lab_disconnect.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_disconnect.ForeColor = Color.FromArgb(229, 57, 53);
             lab_disconnect.Location = new Point(3, 0);
             lab_disconnect.Name = "lab_disconnect";
             lab_disconnect.Size = new Size(92, 50);
@@ -749,6 +769,7 @@
             lab_gD.BackColor = SystemColors.ButtonHighlight;
             lab_gD.Dock = DockStyle.Fill;
             lab_gD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_gD.ForeColor = Color.FromArgb(67, 160, 71);
             lab_gD.Location = new Point(3, 48);
             lab_gD.Name = "lab_gD";
             lab_gD.Size = new Size(92, 40);
@@ -762,6 +783,7 @@
             lab_green.BackColor = SystemColors.ButtonHighlight;
             lab_green.Dock = DockStyle.Fill;
             lab_green.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_green.ForeColor = Color.FromArgb(67, 160, 71);
             lab_green.Location = new Point(3, 0);
             lab_green.Name = "lab_green";
             lab_green.Size = new Size(92, 48);
@@ -790,6 +812,7 @@
             lab_yD.BackColor = SystemColors.ButtonHighlight;
             lab_yD.Dock = DockStyle.Fill;
             lab_yD.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_yD.ForeColor = Color.FromArgb(251, 192, 45);
             lab_yD.Location = new Point(3, 48);
             lab_yD.Name = "lab_yD";
             lab_yD.Size = new Size(92, 40);
@@ -803,6 +826,7 @@
             lab_yellow.BackColor = SystemColors.ButtonHighlight;
             lab_yellow.Dock = DockStyle.Fill;
             lab_yellow.Font = new Font("Microsoft JhengHei UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_yellow.ForeColor = Color.FromArgb(251, 192, 45);
             lab_yellow.Location = new Point(3, 0);
             lab_yellow.Name = "lab_yellow";
             lab_yellow.Size = new Size(92, 48);

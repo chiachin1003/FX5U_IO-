@@ -79,7 +79,6 @@
             lab_Drill_servo_usetimeText = new Label();
             lab_title = new Label();
             lab_titleText = new Label();
-            lab_duringtime = new Label();
             panel1.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -459,15 +458,6 @@
             lab_titleText.Text = "鑽床設備與周邊元件紀錄";
             lab_titleText.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // lab_duringtime
-            // 
-            lab_duringtime.AutoSize = true;
-            lab_duringtime.Location = new Point(437, 48);
-            lab_duringtime.Name = "lab_duringtime";
-            lab_duringtime.Size = new Size(67, 15);
-            lab_duringtime.TabIndex = 1;
-            lab_duringtime.Text = "累積期間：";
-            // 
             // Drill_Info
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -475,7 +465,6 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(730, 630);
-            Controls.Add(lab_duringtime);
             Controls.Add(panel1);
             Margin = new Padding(4);
             Name = "Drill_Info";
@@ -486,7 +475,6 @@
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -519,7 +507,6 @@
         private Label lab_Drill_clampingText;
         private Label lab_Drill_inverter;
         private Label lab_Drill_inverterText;
-        private Label lab_duringtime;
     }
 }
 

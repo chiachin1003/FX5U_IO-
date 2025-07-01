@@ -389,7 +389,7 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     plc.WriteWordDevice(match.address, value);
                                                 }
-                                                //Debug.WriteLine($" [{name}] index=1 → 寫入次數：{value}");
+                                                //Debug.WriteLine($" [{name}] Machine=1 → 寫入次數：{value}");
                                             }
                                             else
                                             {
@@ -712,6 +712,8 @@ namespace FX5U_IOMonitor.Models
                                                         ushort val = match.current_number;
                                                         double resultVal = val * DBfunction.Get_Unit_transfer(name);
                                                         DBfunction.Set_Machine_now_number(machine_name, name, (ushort)resultVal);
+                                                        DBfunction.Set_Machine_History_NumericValue(machine_name, name, val);
+
                                                         DBfunction.Set_Machine_now_string(machine_name,name, resultVal.ToString("F1"));
 
                                                         //Debug.WriteLine($"[0] {name} ({address}) = {resultVal}");
@@ -724,6 +726,9 @@ namespace FX5U_IOMonitor.Models
                                                         {
                                                             ushort[] values = { match.current_number, nextMatch.current_number };
                                                             double merged = MonitorFunction.mergenumber(values) * DBfunction.Get_Unit_transfer(name);
+                                                           
+                                                            int currentvalue = (int)MonitorFunction.mergenumber(values);
+                                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, currentvalue);
                                                             DBfunction.Set_Machine_now_string(name, merged.ToString("F1"));
                                                             //Debug.WriteLine($"[0] {name} ({address}+{nextAddress}) = {merged}");
                                                         }
@@ -734,7 +739,7 @@ namespace FX5U_IOMonitor.Models
                                                     }
                                                     else
                                                     {
-                                                        Debug.WriteLine($"❌ 無效 index：{address_index}");
+                                                        Debug.WriteLine($"❌ 無效 Machine：{address_index}");
                                                     }
                                                     break;
 
@@ -748,6 +753,9 @@ namespace FX5U_IOMonitor.Models
                                                             ushort[] values = { match.current_number, nextMatch.current_number };
                                                             string formatted = MonitorFunction.FormatPlcTime(values);
                                                             DBfunction.Set_Machine_now_string(name, formatted);
+                                                            int currentvalue = (int)MonitorFunction.mergenumber(values);
+                                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, currentvalue);
+
                                                             //Debug.WriteLine($"[1] {name} = {formatted}");
                                                         }
                                                         else

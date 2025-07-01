@@ -10,6 +10,7 @@ using System.Diagnostics;
 using FX5U_IOMonitor.panel_control;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.ParameterHistoryManager;
+using FX5U_IOMonitor.Resources;
 
 
 
@@ -55,10 +56,10 @@ namespace FX5U_IOMonitor
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
-            _ = Task.Run(async () =>
-            {
-                await ParameterHistoryScheduler.InitializeMonthlySchedule();
-            });
+            //_ = Task.Run(async () =>
+            //{
+            //    await ParameterHistoryScheduler.InitializeMonthlySchedule();
+            //});
 
 
         }
@@ -249,16 +250,20 @@ namespace FX5U_IOMonitor
 
         private void btn_Drill_Info_Click(object sender, EventArgs e)
         {
-            if (addInfo_Form == null || addInfo_Form.IsDisposed)
+            //if (addInfo_Form == null || addInfo_Form.IsDisposed)
+            //{
+            //    addInfo_Form = new Drill_Info();
+            //    addInfo_Form.Show();
+            //}
+            //else
+            //{
+            //    addInfo_Form.BringToFront();  // 若已開啟，拉到最前面
+            //}
+            using (var form = new Machine_monitoring_interface_card())
             {
-                addInfo_Form = new Drill_Info();
-                addInfo_Form.Show();
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
             }
-            else
-            {
-                addInfo_Form.BringToFront();  // 若已開啟，拉到最前面
-            }
-
         }
 
         private void lab_power_Click(object sender, EventArgs e)

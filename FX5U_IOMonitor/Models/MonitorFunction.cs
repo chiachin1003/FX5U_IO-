@@ -18,9 +18,12 @@ namespace FX5U_IOMonitor.Models
             int hours = (totalSeconds % 86400) / 3600;
             int minutes = (totalSeconds % 3600) / 60;
             int seconds = totalSeconds % 60;
+            TimeSpan span = TimeSpan.FromSeconds(totalSeconds);
+            string note = LanguageManager.Translate("Time_Notes"); 
 
-            //return $"{days} 天 {hours} 時 {minutes} 分 {seconds} 秒";
-            return $" {hours} : {minutes} : {seconds} ";
+           
+            //return $" {span.Hours:D2} : {span.Minutes:D2} : {span.Seconds:D2}   {note}";
+            return $" {span.Hours:D2} : {span.Minutes:D2} : {span.Seconds:D2}";
 
         }
 
@@ -40,7 +43,9 @@ namespace FX5U_IOMonitor.Models
             TimeSpan span = TimeSpan.FromSeconds(totalSeconds);
 
             // 回傳格式化字串
-            return span.ToString(@"hh\:mm\:ss");
+            // return $"{span:hh\\:mm\\:ss} {LanguageManager.Translate("Time_Notes")}";
+            return $"{span:hh\\:mm\\:ss}";
+
         }
         ///
         /// 

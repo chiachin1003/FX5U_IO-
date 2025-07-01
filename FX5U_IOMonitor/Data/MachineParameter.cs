@@ -127,5 +127,10 @@ namespace FX5U_IOMonitor.Data
 
     }
 
-  
+    public class HistoryRecordDto
+    {
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public int Delta { get; set; }
+    }
 }

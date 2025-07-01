@@ -577,11 +577,11 @@ namespace FX5U_IOMonitor.Models
                     );
 
                 // 建立機台記錄
-                Machine_number? machine = context.index.FirstOrDefault(m => m.Name == targetMachine);
+                Machine_number? machine = context.Machine.FirstOrDefault(m => m.Name == targetMachine);
                 if (machine == null)
                 {
-                    machine = new() { Name = targetMachine };
-                    context.index.Add(machine);
+                    machine = new() { Name = targetMachine ,IP_address = "", Port = 0};
+                    context.Machine.Add(machine);
                     context.SaveChanges();
                 }
 

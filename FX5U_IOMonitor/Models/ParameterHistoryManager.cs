@@ -117,50 +117,50 @@ namespace FX5U_IOMonitor.Models
         /// 自動判斷這個月是否已記錄過
         /// </summary>
         /// <returns></returns>
-        public static async Task RecordMonthlySummaryIfNotExists()
-        {
-            using var db = new ApplicationDB();
-            var now = DateTime.UtcNow;
-            var monthTag = now.ToString("yyyyMM");
+        //public static async Task RecordMonthlySummaryIfNotExists()
+        //{
+        //    using var db = new ApplicationDB();
+        //    var now = DateTime.UtcNow;
+        //    var monthTag = now.ToString("yyyyMM");
 
-            bool alreadyHas = db.MachineParameterHistoryRecodes.Any(r => r.PeriodTag == monthTag && r.ResetBy == "系統月彙整");
-            if (!alreadyHas)
-            {
-                await RecordMonthlySummary(); // ➤ 執行你原本的彙整邏輯
-            }
-        }
-        public static class ParameterHistoryScheduler
-        {
-            private static Timer? _monthlyTimer;
+        //    bool alreadyHas = db.MachineParameterHistoryRecodes.Any(r => r.PeriodTag == monthTag && r.ResetBy == "系統月彙整");
+        //    if (!alreadyHas)
+        //    {
+        //        await RecordMonthlySummary(); // ➤ 執行你原本的彙整邏輯
+        //    }
+        //}
+        //public static class ParameterHistoryScheduler
+        //{
+        //    private static Timer? _monthlyTimer;
 
-            public static async Task InitializeMonthlySchedule()
-            {
-                await ParameterHistoryManager.RecordMonthlySummaryIfNotExists();
+        //    public static async Task InitializeMonthlySchedule()
+        //    {
+        //        await ParameterHistoryManager.RecordMonthlySummaryIfNotExists();
 
-                ScheduleNextRun(); // 安排下次執行
-            }
+        //        ScheduleNextRun(); // 安排下次執行
+        //    }
 
-            private static void ScheduleNextRun()
-            {
-                DateTime now = DateTime.Now;
+        //    private static void ScheduleNextRun()
+        //    {
+        //        DateTime now = DateTime.Now;
 
-                // ➤ 找下個月的 1 號 08:00
-                DateTime nextRunTime = new DateTime(now.Year, now.Month, 1, 8, 0, 0).AddMonths(1);
+        //        // ➤ 找下個月的 1 號 08:00
+        //        DateTime nextRunTime = new DateTime(now.Year, now.Month, 1, 8, 0, 0).AddMonths(1);
 
-                TimeSpan timeUntilNextRun = nextRunTime - now;
-                if (timeUntilNextRun.TotalMilliseconds <= 0)
-                    timeUntilNextRun = TimeSpan.FromMinutes(1); // 安全容錯（萬一時間錯誤）
+        //        TimeSpan timeUntilNextRun = nextRunTime - now;
+        //        if (timeUntilNextRun.TotalMilliseconds <= 0)
+        //            timeUntilNextRun = TimeSpan.FromMinutes(1); // 安全容錯（萬一時間錯誤）
 
-                _monthlyTimer = new Timer(async _ =>
-                {
-                    await ParameterHistoryManager.RecordMonthlySummaryIfNotExists();
+        //        _monthlyTimer = new Timer(async _ =>
+        //        {
+        //            await ParameterHistoryManager.RecordMonthlySummaryIfNotExists();
 
-                    // 執行完後，重新安排下一次
-                    ScheduleNextRun();
+        //            // 執行完後，重新安排下一次
+        //            ScheduleNextRun();
 
-                }, null, timeUntilNextRun, Timeout.InfiniteTimeSpan); // 一次性任務
-            }
-        }
+        //        }, null, timeUntilNextRun, Timeout.InfiniteTimeSpan); // 一次性任務
+        //    }
+        //}
     }
 
 }

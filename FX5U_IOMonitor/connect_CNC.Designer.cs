@@ -65,7 +65,6 @@ namespace FX5U_IOMonitor
             label2 = new Label();
             label5 = new Label();
             panel1 = new Panel();
-            button2 = new Button();
             tableLayoutPanel1 = new TableLayoutPanel();
             connect_choose = new ComboBox();
             lab_Type = new Label();
@@ -522,19 +521,6 @@ namespace FX5U_IOMonitor
             panel1.TabIndex = 22;
             panel1.Visible = false;
             // 
-            // button2
-            // 
-            button2.BackColor = SystemColors.ButtonHighlight;
-            button2.FlatStyle = FlatStyle.Flat;
-            button2.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            button2.Location = new Point(889, 176);
-            button2.Name = "button2";
-            button2.Size = new Size(55, 31);
-            button2.TabIndex = 23;
-            button2.Text = "刪除";
-            button2.UseVisualStyleBackColor = false;
-            button2.Visible = false;
-            // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.BackColor = SystemColors.ButtonHighlight;
@@ -628,7 +614,6 @@ namespace FX5U_IOMonitor
             Controls.Add(tableLayoutPanel1);
             Controls.Add(panel_Ethernet);
             Controls.Add(panel_RS485);
-            Controls.Add(button2);
             Controls.Add(panel1);
             FormBorderStyle = FormBorderStyle.None;
             Name = "Connect_CNC";
@@ -664,7 +649,6 @@ namespace FX5U_IOMonitor
         private Label label2;
         private Label label5;
         private Panel panel1;
-        private Button button2;
         private System.Windows.Forms.Timer timer1;
         private TableLayoutPanel tableLayoutPanel1;
         private ComboBox connect_choose;

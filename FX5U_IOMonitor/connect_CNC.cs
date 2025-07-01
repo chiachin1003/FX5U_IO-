@@ -51,15 +51,12 @@ namespace FX5U_IOMonitor
                 panel_RS485.Visible = false;
                 button_FILE.Visible = false;
 
-                button2.Visible = false;
-
             }
             if (connect_choose.SelectedIndex == 1)
             {
                 panel_RS485.Visible = true;
                 panel_Ethernet.Visible = false;
                 button_FILE.Visible = true;
-                button2.Visible = false;
                 combobox_text_center();
 
 
@@ -69,7 +66,6 @@ namespace FX5U_IOMonitor
                 panel_RS485.Visible = true;
                 panel_Ethernet.Visible = false;
                 button_FILE.Visible = true;
-                button2.Visible = false;
                 combobox_text_center();
 
             }
@@ -230,7 +226,6 @@ namespace FX5U_IOMonitor
             {
                 panel1.Visible = false;
                 button_FILE.Visible = true;
-                button2.Visible = true;
 
             }
 

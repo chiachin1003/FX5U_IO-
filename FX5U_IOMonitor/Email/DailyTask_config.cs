@@ -201,7 +201,11 @@ namespace FX5U_IOMonitor.Email
                 return _taskConfigurations.ToList();
             }
 
-            // 檢查是否需要立即執行
+            /// <summary>
+            /// 檢查是否需要立即執行
+            /// </summary>
+            /// <param name="config"></param>
+            /// <returns></returns>
             private bool ShouldExecuteImmediately(TaskConfiguration config)
             {
                 if (!config.LastExecutionTime.HasValue)
@@ -288,6 +292,7 @@ namespace FX5U_IOMonitor.Email
             // 執行任務的核心方法
             private async Task<TaskResult> ExecuteTaskAsync(TaskConfiguration config)
             {
+
                 try
                 {
                     if (!_taskExecutors.TryGetValue(config.TaskType, out var executor))
@@ -347,8 +352,11 @@ namespace FX5U_IOMonitor.Email
             }
       
         }
-
-        public static async Task<TaskResult> SendTestEmailAsync()
+        /// <summary>
+        /// 寄出每日健康元件系統總結
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<TaskResult> SendElementEmailAsync()
         {
             try
             {
@@ -357,7 +365,7 @@ namespace FX5U_IOMonitor.Email
                     var form = Application.OpenForms[0];
                     form.Invoke(() =>
                     {
-                        MessageBox.Show("正在執行 SendTestEmailAsync() 任務", "排程提醒");
+                        MessageBox.Show("正在執行 SendElementEmailAsync() 任務", "排程提醒");
                     });
                 }
                 List<string> allUser = email.GetAllUserEmailsAsync();
@@ -403,7 +411,10 @@ namespace FX5U_IOMonitor.Email
             }
         }
 
-       
+        /// <summary>
+        /// 寄出尚未排除警告的總結
+        /// </summary>
+        /// <returns></returns>
         public static async Task<TaskResult> SendDailyAlarmSummaryAsync()
         {
             if (Application.OpenForms.Count > 0)
@@ -501,7 +512,6 @@ namespace FX5U_IOMonitor.Email
         /// </summary>
         /// <param name="alarms"></param>
         /// <returns></returns>
-
         public static string BuildEmailBody(List<AlarmHistory> alarms)
         {
             var sb = new StringBuilder();
@@ -520,6 +530,140 @@ namespace FX5U_IOMonitor.Email
             }
 
             return sb.ToString();
+        }
+        /// <summary>
+        /// 定時紀錄機台參數
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<TaskResult> RecordCurrentParameterSnapshotAsync(ScheduleFrequency config)
+        {
+            try
+            {
+                using var db = new ApplicationDB();
+                var now = DateTime.UtcNow;
+                var roundedTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
+                // ✅ 動態計算區間長度
+                TimeSpan period = config switch
+                {
+                    ScheduleFrequency.Minutely => TimeSpan.FromMinutes(1),
+                    ScheduleFrequency.Hourly => TimeSpan.FromHours(1),
+                    ScheduleFrequency.Daily => TimeSpan.FromDays(1),
+                    ScheduleFrequency.Weekly => TimeSpan.FromDays(7),
+                    ScheduleFrequency.Monthly => TimeSpan.FromDays(30), // 建議自行根據月份再計算
+                    _ => throw new NotSupportedException($"不支援的排程頻率：{config}")
+                };
+
+                var previousTime = roundedTime - period;
+                var parameters = db.MachineParameters.ToList();
+
+
+                foreach (var param in parameters)
+                {
+                    // 防止重複寫入
+
+                    bool alreadyExists = db.MachineParameterHistoryRecodes.Any(r =>
+                r.MachineParameterId == param.Id &&
+                r.StartTime == roundedTime &&
+                r.PeriodTag.EndsWith("_Metric"));
+
+                    if (alreadyExists)
+                        continue;
+
+                    int currentValue = DBfunction.Get_Machine_History_NumericValue(param.Name) +
+                                       DBfunction.Get_Machine_number(param.Name);
+
+                    var lastMetricRecord = db.MachineParameterHistoryRecodes
+                        .FirstOrDefault(r =>
+                            r.MachineParameterId == param.Id &&
+                            r.StartTime == previousTime &&
+                            r.PeriodTag.EndsWith("_Metric"));
+
+                    if (lastMetricRecord == null)
+                    {
+                        db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                        {
+                            MachineParameterId = param.Id,
+                            StartTime = roundedTime,
+                            EndTime = roundedTime.Add(period).AddSeconds(-1),
+                            History_NumericValue = currentValue,
+                            ResetBy = "SystemRecord_Metric",
+                            PeriodTag = $"{roundedTime:yyyyMMdd_HHmm}_{config}"
+                        });
+
+                        continue;
+                    }
+                    // === 英制（若支援） ===
+                    if (!string.IsNullOrWhiteSpace(param.Read_addr) && param.Imperial_transfer.HasValue)
+                    {
+                        double imperialFactor = param.Imperial_transfer.Value / param.Unit_transfer;
+                        int? currentImperial = param.now_NumericValue.HasValue
+                            ? (int?)(param.now_NumericValue.Value * imperialFactor)
+                            : null;
+
+                        var lastImperialRecord = db.MachineParameterHistoryRecodes
+                            .FirstOrDefault(r =>
+                                r.MachineParameterId == param.Id &&
+                                r.StartTime == previousTime &&
+                                r.PeriodTag.EndsWith("_Imperial"));
+
+                        int? deltaImperial = null;
+                        if (lastImperialRecord != null && currentImperial.HasValue)
+                        {
+                            deltaImperial = currentImperial.Value;
+                        }
+
+                        db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                        {
+                            MachineParameterId = param.Id,
+                            StartTime = roundedTime,
+                            EndTime = roundedTime.Add(period).AddSeconds(-1),
+                            History_NumericValue = deltaImperial,
+                            ResetBy = "SystemRecord_Imperial",
+                            PeriodTag = $"{roundedTime:yyyyMMdd_HHmm}"
+                        });
+                    }
+                }
+                await db.SaveChangesAsync();
+
+                return new TaskResult
+                {
+                    Success = true,
+                    Message = $"每分鐘快照完成，共處理 {parameters.Count} 筆參數",
+                    ExecutionTime = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+
+                return new TaskResult
+                {
+                    Success = false,
+                    Message = $"記錄參數快照失敗：{ex.Message}",
+                    ExecutionTime = DateTime.UtcNow
+                };
+
+            }
+        }
+        private async Task<TaskResult> ExecuteCustomTaskAsync(TaskConfiguration config)
+        {
+            if (config.Parameters.TryGetValue("CustomAction", out var actionObj))
+            {
+                if (actionObj is Func<TaskConfiguration, Task<TaskResult>> actionWithConfig)
+                {
+                    return await actionWithConfig(config); // ✅ 支援帶入 TaskConfiguration
+                }
+                else if (actionObj is Func<Task<TaskResult>> actionNoParam)
+                {
+                    return await actionNoParam();
+                }
+            }
+
+            return new TaskResult
+            {
+                Success = true,
+                Message = "Custom task completed",
+                ExecutionTime = DateTime.UtcNow
+            };
         }
     }
 }

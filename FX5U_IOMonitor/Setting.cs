@@ -178,7 +178,7 @@ namespace FX5U_IOMonitor
                 ExecutionTime = TimeSpan.Zero,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(SendTestEmailAsync)
+                    ["CustomAction"] = new Func<Task<TaskResult>>(SendElementEmailAsync)
                 }
             };
 
@@ -218,7 +218,7 @@ namespace FX5U_IOMonitor
                 .GroupBy(h => h.Alarm.AlarmNotifyuser);                           // 以通知對象分組
 
             bool emailSent = false;
-            
+
 
             foreach (var group in groupedByUsers)
             {
@@ -230,7 +230,7 @@ namespace FX5U_IOMonitor
 
                 // 建立該使用者對應的彙總信件內容
                 var body = BuildEmailBody(group.ToList());
-               
+
                 //選擇發送郵件的主旨格式
                 MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;
                 string subject = MessageSubjectHelper.GetSubject(selectedType);
@@ -245,7 +245,7 @@ namespace FX5U_IOMonitor
                 try
                 {
                     int port = Properties.Settings.Default.TLS_port;
-                    await(port switch
+                    await (port switch
                     {
                         587 => SendViaSmtp587Async(mailInfo),
                         465 => SendViaSmtp465Async(mailInfo),
@@ -258,7 +258,7 @@ namespace FX5U_IOMonitor
                         h.RecordTime = DateTime.UtcNow;
                         h.Records += 1;
                     }
-                    emailSent= true;
+                    emailSent = true;
                 }
                 catch (Exception ex)
                 {
@@ -271,10 +271,36 @@ namespace FX5U_IOMonitor
             {
                 db.SaveChanges();
             }
-            
+
         }
 
-        
+        private void button3_Click(object sender, EventArgs e)
+        {
+            _scheduler = new FlexibleScheduler();
+
+            const string taskName = "Param_historyTask";
+
+            if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
+            {
+                MessageBox.Show("任務已經存在，將不重複啟動。");
+                return;
+            }
+
+            var config1 = new TaskConfiguration
+            {
+                TaskName = taskName,
+                TaskType = ScheduleTaskType.CustomTask,
+                Frequency = ScheduleFrequency.Minutely,
+                ExecutionTime = TimeSpan.Zero,
+                Parameters = new Dictionary<string, object>
+                {
+                    ["CustomAction"] = new Func<Task<TaskResult>>(() => RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely))
+                }
+            };
+
+            _scheduler.AddTask(config1);
+            _scheduler.StartTask(config1);
+        }
     }
 
 

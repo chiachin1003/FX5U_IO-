@@ -234,9 +234,11 @@
             // 
             // pictureBox_Official_Account
             // 
+            pictureBox_Official_Account.Image = Properties.Resources.Line;
             pictureBox_Official_Account.Location = new Point(305, 244);
             pictureBox_Official_Account.Name = "pictureBox_Official_Account";
             pictureBox_Official_Account.Size = new Size(128, 119);
+            pictureBox_Official_Account.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox_Official_Account.TabIndex = 17;
             pictureBox_Official_Account.TabStop = false;
             // 
