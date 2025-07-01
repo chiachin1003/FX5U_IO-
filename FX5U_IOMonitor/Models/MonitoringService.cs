@@ -389,7 +389,7 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     plc.WriteWordDevice(match.address, value);
                                                 }
-                                                //Debug.WriteLine($" [{name}] index=1 → 寫入次數：{value}");
+                                                //Debug.WriteLine($" [{name}] Machine=1 → 寫入次數：{value}");
                                             }
                                             else
                                             {
@@ -734,7 +734,7 @@ namespace FX5U_IOMonitor.Models
                                                     }
                                                     else
                                                     {
-                                                        Debug.WriteLine($"❌ 無效 index：{address_index}");
+                                                        Debug.WriteLine($"❌ 無效 Machine：{address_index}");
                                                     }
                                                     break;
 

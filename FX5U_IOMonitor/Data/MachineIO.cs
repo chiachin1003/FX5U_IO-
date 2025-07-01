@@ -103,7 +103,9 @@ namespace FX5U_IOMonitor.Data
 
         [Required]
         public string Name { get; set; }
+        public string? IP_address { get; set; }
 
+        public int Port { get; set; }
     }
 
     public enum RelayType

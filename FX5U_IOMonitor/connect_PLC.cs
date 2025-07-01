@@ -9,6 +9,7 @@ using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 
 
@@ -48,6 +49,7 @@ namespace FX5U_IOMonitor
             control_choose.SelectedIndexChanged += control_choose_SelectedIndexChanged;
 
         }
+
         private void OnLanguageChanged(string cultureName)
         {
             SwitchLanguage();
@@ -56,7 +58,82 @@ namespace FX5U_IOMonitor
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
 
         }
+        /// <summary>
+        /// 自動連線當前機台
+        /// </summary>
+        public static void AutoConnectAllMachines(Connect_PLC plcForm)
+        {
+            using var context = new ApplicationDB();
+            var machineList = context.Machine.ToList();
 
+            var ipPortSet = new HashSet<string>();
+
+            foreach (var machine in machineList)
+            {
+                if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
+                    continue;
+
+                string ipPortKey = $"{machine.IP_address}:{machine.Port}";
+                if (ipPortSet.Contains(ipPortKey))
+                {
+                    Debug.WriteLine($"⚠ IP/Port 重複：{ipPortKey}");
+                    continue;
+                }
+                ipPortSet.Add(ipPortKey);
+
+                // 檢查是否已連線
+                var existing = MachineHub.Get(machine.Name);
+                if (existing != null && existing.IsConnected)
+                    continue;
+
+                var plc = SLMP_connect(machine.IP_address, machine.Port);
+                if (plc == null)
+                {
+                    Debug.WriteLine($"❌ {machine.Name} 無法連線");
+                    continue;
+                }
+
+                MachineHub.RegisterMachine(machine.Name, plc);
+                var contextItem = MachineHub.Get(machine.Name);
+                if (contextItem == null || !contextItem.IsConnected)
+                {
+                    Debug.WriteLine($"❌ {machine.Name} 註冊失敗");
+                    continue;
+                }
+
+                contextItem.Monitor.SetExternalLock(contextItem.LockObject);
+                _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
+                
+                if (contextItem.IsMaster) // 只針對主機執行 alarm 監控
+                {
+                    //補上若是程式關閉時解除警報的話則寫入解除時間
+                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+
+                    //開始進行警告監控
+                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(
+                        contextItem.TokenSource.Token));
+                    //發送警告訊息等功用
+                    contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
+                }
+
+                int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
+                int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
+
+
+
+                _ = Task.Run(() => contextItem.Monitor.Read_Bit_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Read_Word_Monitor_AllModesAsync(contextItem.MachineName, read_modes, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Read_None_Monitor_AllModesAsync(contextItem.MachineName, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
+
+
+
+
+                contextItem.Monitor.IOUpdated += DB_update_change;
+
+                Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
+            }
+        }
         private void connect_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -95,7 +172,7 @@ namespace FX5U_IOMonitor
             }
 
         }
-        private SlmpClient? SLMP_connect(string IP, int port)
+        private static SlmpClient? SLMP_connect(string IP, int port)
         {
             SlmpConfig cfg = new(IP, port);
             cfg.ConnTimeout = 3000;
@@ -171,6 +248,13 @@ namespace FX5U_IOMonitor
             _ = Task.Run(() => context.Monitor.Read_None_Monitor_AllModesAsync(context.MachineName, context.TokenSource.Token));
             _ = Task.Run(() => context.Monitor.Write_Word_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
 
+            string? errorMessage;
+            bool result = DBfunction.SetMachineIP(connect_machine, txb_IP.Text.Trim(), txb_port.Text, out errorMessage);
+
+            if (!result)
+            {
+                MessageBox.Show($"❌ 儲存失敗：{errorMessage}");
+            }
 
             // 註冊變更事件
             context.Monitor.IOUpdated += DB_update_change;
@@ -182,12 +266,12 @@ namespace FX5U_IOMonitor
         /// <param name="sender"></param>
         /// <param name="e"></param>
         // 移除 this.Invoke，改為全程背景處理
-        private void DB_update_change(object? sender, IOUpdateEventArgs e)
+        private static void DB_update_change(object? sender, IOUpdateEventArgs e)
         {
             Task.Run(() => ProcessIOUpdate(sender, e));
         }
 
-        private void ProcessIOUpdate(object? sender, IOUpdateEventArgs e)
+        private static void ProcessIOUpdate(object? sender, IOUpdateEventArgs e)
         {
             try
             {
@@ -349,7 +433,7 @@ namespace FX5U_IOMonitor
         {
             using (var context = new ApplicationDB())
             {
-                var machineNames = context.index
+                var machineNames = context.Machine
                                    .Select(io => io.Name);
 
                 control_choose.Items.Clear();
@@ -369,7 +453,7 @@ namespace FX5U_IOMonitor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FailureAlertMail(object? sender, IOUpdateEventArgs e)
+        private  void FailureAlertMail(object? sender, IOUpdateEventArgs e)
         {
             if (this.InvokeRequired)
             {
@@ -548,7 +632,9 @@ namespace FX5U_IOMonitor
             main_control.panel_main.Controls.Add(cncForm); // 添加子窗體
             cncForm.Show(); // 顯示子窗體
         }
+
     }
+      
 }
 
 

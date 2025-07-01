@@ -33,7 +33,7 @@ namespace FX5U_IOMonitor.Models
         {
             _dbFullName = "element";
         }
-        public DbSet<Machine_number> index { get; set; }
+        public DbSet<Machine_number> Machine { get; set; }
 
         public DbSet<MachineIO> Machine_IO { get; set; }
         //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
@@ -55,6 +55,7 @@ namespace FX5U_IOMonitor.Models
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<ScheduleTag>().HasData(
                 new ScheduleTag { Id = 1, Name = SD.Default_Schedule_Tag });
+
 
             // 為所有實體表添加同步欄位
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -123,7 +124,7 @@ namespace FX5U_IOMonitor.Models
     public class CloudDbContext : IdentityDbContext<IdentityUser>
     {
         readonly string _dbFullName = "element";
-        public DbSet<Machine_number> index { get; set; }
+        public DbSet<Machine_number> Machine { get; set; }
 
         public DbSet<MachineIO> Machine_IO { get; set; }
         //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }

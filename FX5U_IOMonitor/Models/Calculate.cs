@@ -37,7 +37,7 @@ namespace FX5U_IOMonitor.Models
 
             return plc.Select((value, index) =>
             {
-                // 根據指定進位 (例如 8, 10, 16) 轉換 index
+                // 根據指定進位 (例如 8, 10, 16) 轉換 Machine
                 string numberPart = Convert.ToString(startIndex + index, baseNum);
 
                 // 如果是 16 進位 → 轉為大寫

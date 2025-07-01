@@ -12,9 +12,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Reflection.PortableExecutable;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Data.Recordmode;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -22,6 +24,55 @@ namespace FX5U_IOMonitor.Models
 {
     internal class DBfunction
     {
+
+        //-------
+        public static Machine_number? GetMachineIP(string connect_machine)
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.Machine.FirstOrDefault(a => a.Name == connect_machine);
+            }
+        }
+
+        public static bool SetMachineIP(string connect_machine, string ip, string port, out string? errorMessage)
+        {
+            using (var context = new ApplicationDB())
+            {
+                errorMessage = null;
+
+                // 轉型檢查
+                if (!int.TryParse(port, out int parsedPort))
+                {
+                    errorMessage = "Port 格式錯誤";
+                    return false;
+                }
+
+                // 查找是否有其他機台已使用此 ip + port
+                var duplicate = context.Machine
+                    .FirstOrDefault(m => m.Name != connect_machine &&
+                                         m.IP_address == ip &&
+                                         m.Port == parsedPort);
+                if (duplicate != null)
+                {
+                    errorMessage = $"已有機台 {duplicate.Name} 使用 IP:{ip}, Port:{port}";
+                    return false;
+                }
+                // 更新資料
+                var machine = context.Machine.FirstOrDefault(m => m.Name == connect_machine);
+                if (machine != null)
+                {
+                    machine.IP_address = ip.Trim();
+                    machine.Port = parsedPort;
+                    context.SaveChanges();
+                    return true;
+                }
+
+                errorMessage = "找不到指定機台";
+                return false;
+            }
+        }
+
+
 
         //-----------尋找資料表內容-------------------------//
 
@@ -1630,7 +1681,7 @@ namespace FX5U_IOMonitor.Models
         public static List<Machine_number> GetMachineIndexes()
         {
             using var context = new ApplicationDB();
-            return context.index
+            return context.Machine
                 .Select(x => new Machine_number
                 {
                     Name = x.Name,
@@ -1668,10 +1719,10 @@ namespace FX5U_IOMonitor.Models
             var ioItems = context.Machine_IO.Where(m => m.Machine_name == machineName).ToList();
             context.Machine_IO.RemoveRange(ioItems);
 
-            var ioItem = context.index.FirstOrDefault(m => m.Name == machineName);
+            var ioItem = context.Machine.FirstOrDefault(m => m.Name == machineName);
             if (ioItem != null)
             {
-                context.index.Remove(ioItem);
+                context.Machine.Remove(ioItem);
 
             }
 

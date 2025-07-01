@@ -88,7 +88,7 @@ namespace FX5U_IOMonitor.panel_control
                 .Where(b => b.Name.StartsWith("Mainform_"))
                 .ToDictionary(b => b.Name.Replace("Mainform_", ""), b => b);
 
-            // 找出「最後一顆已存在的機台按鈕」的 index（以插在它後面）
+            // 找出「最後一顆已存在的機台按鈕」的 Machine（以插在它後面）
             int baseInsertIndex = container.Controls
                 .OfType<Button>()
                 .Where(b => b.Name.StartsWith("Mainform_") && currentIndexNames.Contains(b.Name.Replace("Mainform_", "")))

@@ -114,7 +114,7 @@ namespace FX5U_IOMonitor.Models
 
                 // 同步各個資料表
                 await SafeSync(localContext, cloudContext, x => x.Machine_IO, x => x.Machine_IO, "Machine_IO", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.index, x => x.index, "index", syncResult);
+                await SafeSync(localContext, cloudContext, x => x.Machine, x => x.Machine, "Machine", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.Histories, x => x.Histories, "Histories", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.alarm, x => x.alarm, "Alarm", syncResult);
                 await SafeSync(localContext, cloudContext, x => x.Blade_brand, x => x.Blade_brand, "Blade_brand", syncResult);
