@@ -22,7 +22,6 @@ namespace FX5U_IOMonitor.Email
             AlarmDailySummary,
             CustomTask
         }
-
         // 定義排程頻率
         public enum ScheduleFrequency
         {
@@ -123,7 +122,9 @@ namespace FX5U_IOMonitor.Email
                     Task.Run(async () => await ExecuteTaskAsync(config));
                 }
 
-                var delay = GetInitialDelay(config);
+                var delay = ShouldExecuteImmediately(config)
+                    ? GetPeriod(config.Frequency) // 排程下次執行就好
+                    : GetInitialDelay(config);
                 var period = GetPeriod(config.Frequency);
 
                 var timer = new Timer(async _ => await ExecuteTaskAsync(config), null, delay, period);
@@ -624,7 +625,7 @@ namespace FX5U_IOMonitor.Email
                     }
                 }
                 await db.SaveChangesAsync();
-
+                MessageBox.Show("成功");
                 return new TaskResult
                 {
                     Success = true,
@@ -634,6 +635,7 @@ namespace FX5U_IOMonitor.Email
             }
             catch (Exception ex)
             {
+                MessageBox.Show("失敗");
 
                 return new TaskResult
                 {
@@ -644,26 +646,7 @@ namespace FX5U_IOMonitor.Email
 
             }
         }
-        private async Task<TaskResult> ExecuteCustomTaskAsync(TaskConfiguration config)
-        {
-            if (config.Parameters.TryGetValue("CustomAction", out var actionObj))
-            {
-                if (actionObj is Func<TaskConfiguration, Task<TaskResult>> actionWithConfig)
-                {
-                    return await actionWithConfig(config); // ✅ 支援帶入 TaskConfiguration
-                }
-                else if (actionObj is Func<Task<TaskResult>> actionNoParam)
-                {
-                    return await actionNoParam();
-                }
-            }
 
-            return new TaskResult
-            {
-                Success = true,
-                Message = "Custom task completed",
-                ExecutionTime = DateTime.UtcNow
-            };
-        }
+        
     }
 }

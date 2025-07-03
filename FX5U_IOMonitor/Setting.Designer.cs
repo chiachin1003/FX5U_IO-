@@ -73,7 +73,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(245, 146);
+            btn_usersetting.Location = new Point(73, 145);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -83,7 +83,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(73, 146);
+            btn_Alrm_Notify.Location = new Point(245, 145);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -93,7 +93,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(245, 209);
+            btn_history.Location = new Point(552, 75);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -109,11 +109,12 @@ namespace FX5U_IOMonitor
             btn_emailtest.TabIndex = 12;
             btn_emailtest.Text = "郵件發送測試鈕";
             btn_emailtest.UseVisualStyleBackColor = true;
+            btn_emailtest.Visible = false;
             btn_emailtest.Click += btn_emailtest_Click;
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(73, 212);
+            btn_checkpoint.Location = new Point(73, 228);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -129,6 +130,7 @@ namespace FX5U_IOMonitor
             button1.TabIndex = 14;
             button1.Text = "每分定期發送通知";
             button1.UseVisualStyleBackColor = true;
+            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // button2
@@ -139,6 +141,7 @@ namespace FX5U_IOMonitor
             button2.TabIndex = 15;
             button2.Text = "郵件每分鐘發送測試";
             button2.UseVisualStyleBackColor = true;
+            button2.Visible = false;
             button2.Click += button2_Click;
             // 
             // btn_notify
@@ -159,6 +162,7 @@ namespace FX5U_IOMonitor
             btn_alarm.TabIndex = 17;
             btn_alarm.Text = "警告發送測試鈕";
             btn_alarm.UseVisualStyleBackColor = true;
+            btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
             // label1
@@ -178,6 +182,7 @@ namespace FX5U_IOMonitor
             button3.TabIndex = 19;
             button3.Text = "設定排程";
             button3.UseVisualStyleBackColor = true;
+            button3.Visible = false;
             button3.Click += button3_Click;
             // 
             // Setting

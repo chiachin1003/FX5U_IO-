@@ -27,10 +27,20 @@ namespace FX5U_IOMonitor
             var scheduler = new AlarmDailySummaryScheduler(Properties.Settings.Default.userDefinedNotifyTime);
             scheduler.Start();
 
+
             ///雲端資料庫更新
             var syncService = new DatabaseSyncService();
             syncService.CurrentSyncMode = SyncMode.CompleteSync;
             syncService.Start();
+
+
+
+            // 啟動每日各項排程
+            Email.DailyTask.StartAlarmScheduler();
+            Email.DailyTask.StartElementScheduler();
+            Email.DailyTask.StartParam_historyTaskScheduler();
+
+
 
             Application.Run( new Main() );
             SyncService?.Dispose();

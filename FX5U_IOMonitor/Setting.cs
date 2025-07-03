@@ -153,7 +153,7 @@ namespace FX5U_IOMonitor
             };
 
             _scheduler.AddTask(config1);
-            _scheduler.StartTask(config1);
+            //_scheduler.StartTask(config1);
 
 
         }
@@ -181,12 +181,8 @@ namespace FX5U_IOMonitor
                     ["CustomAction"] = new Func<Task<TaskResult>>(SendElementEmailAsync)
                 }
             };
-
             _scheduler.AddTask(config);
-            _scheduler.StartTask(config); // ★啟動
-
-
-
+            
         }
 
         private void btn_notify_Click(object sender, EventArgs e)
@@ -299,7 +295,6 @@ namespace FX5U_IOMonitor
             };
 
             _scheduler.AddTask(config1);
-            _scheduler.StartTask(config1);
         }
     }
 
