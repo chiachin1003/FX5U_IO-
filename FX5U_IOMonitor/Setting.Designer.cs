@@ -73,7 +73,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(245, 146);
+            btn_usersetting.Location = new Point(73, 203);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -83,7 +83,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(73, 146);
+            btn_Alrm_Notify.Location = new Point(228, 139);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -93,7 +93,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(245, 209);
+            btn_history.Location = new Point(552, 75);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -113,7 +113,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(73, 212);
+            btn_checkpoint.Location = new Point(73, 268);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
