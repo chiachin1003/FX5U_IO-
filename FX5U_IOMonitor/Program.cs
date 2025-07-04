@@ -54,7 +54,11 @@ namespace FX5U_IOMonitor
 
                 if (result == DialogResult.OK)
                 {
-                    Application.Run(new Main());
+                    var currentUser = loginForm.CurrentUser;
+                    if (currentUser != null)
+                    {
+                        Application.Run(new Main());
+                    }
                 }
                 else
                 {

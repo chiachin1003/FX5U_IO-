@@ -10,6 +10,7 @@ using static FX5U_IOMonitor.Email.DailyTask_config;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
 using FX5U_IOMonitor.Login;
+using Microsoft.AspNetCore.Identity;
 
 
 
@@ -196,7 +197,15 @@ namespace FX5U_IOMonitor
 
         private void btn_notify_Click(object sender, EventArgs e)
         {
+            using var userService = new UserService<ApplicationDB>();
+            var user = UserService<ApplicationDB>.CurrentUser;
 
+
+            using (var form = new Receive_Notification(userService.UserManager, user))
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
+            }
         }
 
         private async void btn_alarm_Click(object sender, EventArgs e)
@@ -306,7 +315,7 @@ namespace FX5U_IOMonitor
             _scheduler.AddTask(config1);
         }
 
-        
+
     }
 
 

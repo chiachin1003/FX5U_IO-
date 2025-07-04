@@ -72,6 +72,7 @@ namespace FX5U_IOMonitor.Login
 
         public static ApplicationUser CurrentUser => _curUser;
         public static string CurrentRole => _curRole;
+        public UserManager<ApplicationUser> UserManager => _userManager;
 
         public async Task CreateDefaultUserAsync()
         {
@@ -147,7 +148,6 @@ namespace FX5U_IOMonitor.Login
         }
 
        
-
         public List<ApplicationUser> GetAllUser()
         {
             var users = _userManager.Users.ToList(); // Fetch users from the database

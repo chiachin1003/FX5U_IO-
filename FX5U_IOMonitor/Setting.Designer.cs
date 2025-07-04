@@ -66,25 +66,13 @@ namespace FX5U_IOMonitor
             btn_Mail_Manager.Name = "btn_Mail_Manager";
             btn_Mail_Manager.Size = new Size(124, 42);
             btn_Mail_Manager.TabIndex = 8;
-            btn_Mail_Manager.Text = "發送者帳號設定";
+            btn_Mail_Manager.Text = "發送郵件管理人";
             btn_Mail_Manager.UseVisualStyleBackColor = true;
             btn_Mail_Manager.Click += btn_Mail_Manager_Click;
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(73, 137);
-            btn_usersetting.Location = new Point(73, 362);
-=========
-            btn_usersetting.Location = new Point(245, 146);
->>>>>>>>> Temporary merge branch 2
-            btn_usersetting.Location = new Point(73, 362);
-=========
-            btn_usersetting.Location = new Point(245, 146);
->>>>>>>>> Temporary merge branch 2
-            btn_usersetting.Location = new Point(73, 362);
-=========
-            btn_usersetting.Location = new Point(245, 146);
->>>>>>>>> Temporary merge branch 2
+            btn_usersetting.Location = new Point(73, 139);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -94,13 +82,9 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-<<<<<<<<< Temporary merge branch 1
-            btn_Alrm_Notify.Location = new Point(228, 146);
-=========
-            btn_Alrm_Notify.Location = new Point(73, 146);
->>>>>>>>> Temporary merge branch 2
+            btn_Alrm_Notify.Location = new Point(245, 139);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
-            btn_Alrm_Notify.Size = new Size(110, 42);
+            btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
             btn_Alrm_Notify.Text = "警告通知設定";
             btn_Alrm_Notify.UseVisualStyleBackColor = true;
@@ -122,17 +106,13 @@ namespace FX5U_IOMonitor
             btn_emailtest.Name = "btn_emailtest";
             btn_emailtest.Size = new Size(124, 33);
             btn_emailtest.TabIndex = 12;
-            btn_emailtest.Text = "Line推撥發送測試鈕";
+            btn_emailtest.Text = "郵件發送測試鈕";
             btn_emailtest.UseVisualStyleBackColor = true;
             btn_emailtest.Click += btn_emailtest_Click;
             // 
             // btn_checkpoint
             // 
-<<<<<<<<< Temporary merge branch 1
-            btn_checkpoint.Location = new Point(73, 428);
-=========
-            btn_checkpoint.Location = new Point(73, 212);
->>>>>>>>> Temporary merge branch 2
+            btn_checkpoint.Location = new Point(73, 219);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -148,7 +128,6 @@ namespace FX5U_IOMonitor
             button1.TabIndex = 14;
             button1.Text = "每分定期發送通知";
             button1.UseVisualStyleBackColor = true;
-            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // button2
@@ -159,12 +138,11 @@ namespace FX5U_IOMonitor
             button2.TabIndex = 15;
             button2.Text = "郵件每分鐘發送測試";
             button2.UseVisualStyleBackColor = true;
-            button2.Visible = false;
             button2.Click += button2_Click;
             // 
             // btn_notify
             // 
-            btn_notify.Location = new Point(407, 137);
+            btn_notify.Location = new Point(407, 77);
             btn_notify.Name = "btn_notify";
             btn_notify.Size = new Size(110, 39);
             btn_notify.TabIndex = 16;
@@ -180,18 +158,16 @@ namespace FX5U_IOMonitor
             btn_alarm.TabIndex = 17;
             btn_alarm.Text = "警告發送測試鈕";
             btn_alarm.UseVisualStyleBackColor = true;
-            btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
             // button3
             // 
-            button3.Location = new Point(573, 423);
+            button3.Location = new Point(407, 473);
             button3.Name = "button3";
             button3.Size = new Size(77, 33);
             button3.TabIndex = 19;
             button3.Text = "設定排程";
             button3.UseVisualStyleBackColor = true;
-            button3.Visible = false;
             button3.Click += button3_Click;
             // 
             // Setting
