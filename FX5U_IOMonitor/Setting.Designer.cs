@@ -73,6 +73,18 @@ namespace FX5U_IOMonitor
             // btn_usersetting
             // 
             btn_usersetting.Location = new Point(73, 137);
+            btn_usersetting.Location = new Point(73, 362);
+=========
+            btn_usersetting.Location = new Point(245, 146);
+>>>>>>>>> Temporary merge branch 2
+            btn_usersetting.Location = new Point(73, 362);
+=========
+            btn_usersetting.Location = new Point(245, 146);
+>>>>>>>>> Temporary merge branch 2
+            btn_usersetting.Location = new Point(73, 362);
+=========
+            btn_usersetting.Location = new Point(245, 146);
+>>>>>>>>> Temporary merge branch 2
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -82,7 +94,11 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(407, 75);
+<<<<<<<<< Temporary merge branch 1
+            btn_Alrm_Notify.Location = new Point(228, 146);
+=========
+            btn_Alrm_Notify.Location = new Point(73, 146);
+>>>>>>>>> Temporary merge branch 2
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(110, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -112,7 +128,11 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(552, 137);
+<<<<<<<<< Temporary merge branch 1
+            btn_checkpoint.Location = new Point(73, 428);
+=========
+            btn_checkpoint.Location = new Point(73, 212);
+>>>>>>>>> Temporary merge branch 2
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
