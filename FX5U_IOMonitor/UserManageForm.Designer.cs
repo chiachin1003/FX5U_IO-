@@ -45,6 +45,7 @@
             lab_line = new Label();
             _txt_Line = new TextBox();
             pictureBox_Official_Account = new PictureBox();
+            label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)_dgvUsers).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox_Official_Account).BeginInit();
             SuspendLayout();
@@ -57,7 +58,7 @@
             _dgvUsers.Location = new Point(12, 51);
             _dgvUsers.Name = "_dgvUsers";
             _dgvUsers.ReadOnly = true;
-            _dgvUsers.Size = new Size(278, 312);
+            _dgvUsers.Size = new Size(278, 356);
             _dgvUsers.TabIndex = 0;
             // 
             // _lblAccount
@@ -96,7 +97,7 @@
             _txtAccount.BackColor = SystemColors.ButtonHighlight;
             _txtAccount.BorderStyle = BorderStyle.FixedSingle;
             _txtAccount.CausesValidation = false;
-            _txtAccount.Location = new Point(422, 19);
+            _txtAccount.Location = new Point(450, 19);
             _txtAccount.Name = "_txtAccount";
             _txtAccount.Size = new Size(139, 23);
             _txtAccount.TabIndex = 4;
@@ -107,7 +108,7 @@
             _txtPassword.BackColor = SystemColors.ButtonHighlight;
             _txtPassword.BorderStyle = BorderStyle.FixedSingle;
             _txtPassword.CausesValidation = false;
-            _txtPassword.Location = new Point(422, 49);
+            _txtPassword.Location = new Point(450, 49);
             _txtPassword.Name = "_txtPassword";
             _txtPassword.Size = new Size(139, 23);
             _txtPassword.TabIndex = 5;
@@ -118,7 +119,7 @@
             _txtConfirmPassword.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _txtConfirmPassword.BackColor = SystemColors.ButtonHighlight;
             _txtConfirmPassword.BorderStyle = BorderStyle.FixedSingle;
-            _txtConfirmPassword.Location = new Point(422, 81);
+            _txtConfirmPassword.Location = new Point(450, 81);
             _txtConfirmPassword.Name = "_txtConfirmPassword";
             _txtConfirmPassword.Size = new Size(139, 23);
             _txtConfirmPassword.TabIndex = 6;
@@ -141,7 +142,7 @@
             _cbRole.CausesValidation = false;
             _cbRole.DropDownStyle = ComboBoxStyle.DropDownList;
             _cbRole.FormattingEnabled = true;
-            _cbRole.Location = new Point(422, 118);
+            _cbRole.Location = new Point(450, 118);
             _cbRole.Name = "_cbRole";
             _cbRole.Size = new Size(139, 23);
             _cbRole.TabIndex = 8;
@@ -150,7 +151,7 @@
             // 
             _btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnAdd.BackColor = SystemColors.ButtonHighlight;
-            _btnAdd.Location = new Point(471, 256);
+            _btnAdd.Location = new Point(514, 300);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(75, 33);
             _btnAdd.TabIndex = 9;
@@ -162,7 +163,7 @@
             // 
             _btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnDelete.BackColor = SystemColors.ButtonHighlight;
-            _btnDelete.Location = new Point(471, 309);
+            _btnDelete.Location = new Point(514, 354);
             _btnDelete.Name = "_btnDelete";
             _btnDelete.Size = new Size(75, 33);
             _btnDelete.TabIndex = 10;
@@ -207,7 +208,7 @@
             _txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _txtEmail.BackColor = SystemColors.ButtonHighlight;
             _txtEmail.BorderStyle = BorderStyle.FixedSingle;
-            _txtEmail.Location = new Point(422, 161);
+            _txtEmail.Location = new Point(450, 161);
             _txtEmail.Name = "_txtEmail";
             _txtEmail.Size = new Size(139, 23);
             _txtEmail.TabIndex = 14;
@@ -227,27 +228,36 @@
             _txt_Line.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _txt_Line.BackColor = SystemColors.ButtonHighlight;
             _txt_Line.BorderStyle = BorderStyle.FixedSingle;
-            _txt_Line.Location = new Point(422, 202);
+            _txt_Line.Location = new Point(450, 202);
             _txt_Line.Name = "_txt_Line";
             _txt_Line.Size = new Size(139, 23);
             _txt_Line.TabIndex = 16;
             // 
             // pictureBox_Official_Account
             // 
-            pictureBox_Official_Account.Image = Properties.Resources.Line;
-            pictureBox_Official_Account.Location = new Point(305, 244);
+            pictureBox_Official_Account.Location = new Point(305, 288);
             pictureBox_Official_Account.Name = "pictureBox_Official_Account";
             pictureBox_Official_Account.Size = new Size(128, 119);
             pictureBox_Official_Account.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox_Official_Account.TabIndex = 17;
             pictureBox_Official_Account.TabStop = false;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(305, 240);
+            label1.Name = "label1";
+            label1.Size = new Size(294, 30);
+            label1.TabIndex = 0;
+            label1.Text = "ℹ️ 請掃描下方 QR Code 加入 Line Notify 官方帳號，\r\n加入後可取得您的發送權杖（Token）用於訊息通知。";
+            // 
             // UserManageForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
-            ClientSize = new Size(585, 381);
+            ClientSize = new Size(613, 419);
+            Controls.Add(label1);
             Controls.Add(pictureBox_Official_Account);
             Controls.Add(_txt_Line);
             Controls.Add(lab_line);
@@ -295,5 +305,6 @@
         private Label lab_line;
         private TextBox _txt_Line;
         private PictureBox pictureBox_Official_Account;
+        private Label label1;
     }
 }

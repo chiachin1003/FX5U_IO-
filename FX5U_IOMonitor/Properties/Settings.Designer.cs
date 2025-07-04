@@ -109,17 +109,6 @@ namespace FX5U_IOMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.DateTime NotifyTime {
-            get {
-                return ((global::System.DateTime)(this["NotifyTime"]));
-            }
-            set {
-                this["NotifyTime"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("00:00:00")]
         public global::System.TimeSpan userDefinedNotifyTime {
             get {
@@ -139,6 +128,43 @@ namespace FX5U_IOMonitor.Properties {
             }
             set {
                 this["UnitSetting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5e3yIPf5bcbSJh4ebTs45xAgRsCKj6oj9M8GsCIOMbp4Oadrv1YZpt7WsY1kqk4AXmz8nfGzC9tRH8Kvg" +
+            "mQWsXu0AXWh5BiMiJ6FU+YqeOi9duMvYv5yiLMAmlqxkFyvhT5ZwREsBVY/xuYIU05EyAdB04t89/1O/" +
+            "w1cDnyilFU=")]
+        public string LineAccessToken {
+            get {
+                return ((string)(this["LineAccessToken"]));
+            }
+            set {
+                this["LineAccessToken"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LineImagePath {
+            get {
+                return ((string)(this["LineImagePath"]));
+            }
+            set {
+                this["LineImagePath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.DateTime NotifyTime {
+            get {
+                return ((global::System.DateTime)(this["NotifyTime"]));
+            }
+            set {
+                this["NotifyTime"] = value;
             }
         }
     }

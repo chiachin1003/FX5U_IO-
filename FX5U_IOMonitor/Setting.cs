@@ -38,7 +38,7 @@ namespace FX5U_IOMonitor
 
         private void btn_Mail_Manager_Click(object sender, EventArgs e)
         {
-            using (var form = new Email_Settings())
+            using (var form = new Notification_Settings())
             {
                 form.StartPosition = FormStartPosition.CenterParent;
                 var result = form.ShowDialog(this);
@@ -182,7 +182,7 @@ namespace FX5U_IOMonitor
                 }
             };
             _scheduler.AddTask(config);
-            
+
         }
 
         private void btn_notify_Click(object sender, EventArgs e)
@@ -296,6 +296,8 @@ namespace FX5U_IOMonitor
 
             _scheduler.AddTask(config1);
         }
+
+        
     }
 
 

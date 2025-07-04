@@ -42,7 +42,6 @@ namespace FX5U_IOMonitor
             button2 = new Button();
             btn_notify = new Button();
             btn_alarm = new Button();
-            label1 = new Label();
             button3 = new Button();
             SuspendLayout();
             // 
@@ -67,13 +66,13 @@ namespace FX5U_IOMonitor
             btn_Mail_Manager.Name = "btn_Mail_Manager";
             btn_Mail_Manager.Size = new Size(124, 42);
             btn_Mail_Manager.TabIndex = 8;
-            btn_Mail_Manager.Text = "發送郵件管理人";
+            btn_Mail_Manager.Text = "發送者帳號設定";
             btn_Mail_Manager.UseVisualStyleBackColor = true;
             btn_Mail_Manager.Click += btn_Mail_Manager_Click;
             // 
             // btn_usersetting
             // 
-            btn_usersetting.Location = new Point(73, 145);
+            btn_usersetting.Location = new Point(73, 137);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -83,9 +82,9 @@ namespace FX5U_IOMonitor
             // 
             // btn_Alrm_Notify
             // 
-            btn_Alrm_Notify.Location = new Point(245, 145);
+            btn_Alrm_Notify.Location = new Point(407, 75);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
-            btn_Alrm_Notify.Size = new Size(124, 42);
+            btn_Alrm_Notify.Size = new Size(110, 42);
             btn_Alrm_Notify.TabIndex = 10;
             btn_Alrm_Notify.Text = "警告通知設定";
             btn_Alrm_Notify.UseVisualStyleBackColor = true;
@@ -114,7 +113,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(73, 228);
+            btn_checkpoint.Location = new Point(552, 137);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -146,7 +145,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_notify
             // 
-            btn_notify.Location = new Point(407, 77);
+            btn_notify.Location = new Point(407, 137);
             btn_notify.Name = "btn_notify";
             btn_notify.Size = new Size(110, 39);
             btn_notify.TabIndex = 16;
@@ -165,18 +164,9 @@ namespace FX5U_IOMonitor
             btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(270, 263);
-            label1.Name = "label1";
-            label1.Size = new Size(79, 15);
-            label1.TabIndex = 18;
-            label1.Text = "還需要更新的";
-            // 
             // button3
             // 
-            button3.Location = new Point(407, 473);
+            button3.Location = new Point(815, 434);
             button3.Name = "button3";
             button3.Size = new Size(77, 33);
             button3.TabIndex = 19;
@@ -192,7 +182,6 @@ namespace FX5U_IOMonitor
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
             Controls.Add(button3);
-            Controls.Add(label1);
             Controls.Add(btn_alarm);
             Controls.Add(btn_notify);
             Controls.Add(button2);
@@ -209,7 +198,6 @@ namespace FX5U_IOMonitor
             Name = "Setting";
             Load += Setting_Load;
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -226,7 +214,6 @@ namespace FX5U_IOMonitor
         private Button button2;
         private Button btn_notify;
         private Button btn_alarm;
-        private Label label1;
         private Button button3;
     }
 }

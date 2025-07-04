@@ -33,6 +33,7 @@ namespace FX5U_IOMonitor.Login
         public const string Default_Schedule_Tag = "None";
 
         public const string Default_Email = "jenny963200@hotmail.com";
+        public const string Default_Line ="U9941555f9b9a028b5e89b587ef8877cf";
 
     }
      
@@ -47,6 +48,7 @@ namespace FX5U_IOMonitor.Login
     {
         public string UserName { get; set; }
         public string Email { get; set; }
+        public string Line { get; set; }
     }
     public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<IdentityUser>
     {
@@ -90,7 +92,7 @@ namespace FX5U_IOMonitor.Login
                 await _roleManager.CreateAsync(new IdentityRole(SD.Role_User));
             }
 
-            await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin ,SD.Default_Email);
+            await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin ,SD.Default_Email ,SD.Default_Line);
         }
 
         public async Task<UserErrorCode> LoginAsync(string userName, string password)
@@ -166,7 +168,7 @@ namespace FX5U_IOMonitor.Login
         /// <param name="role"></param>
         /// <param name="email"></param>
         /// <returns></returns>
-        public async Task CreateUserAsync(string userName, string password, string role ,string email)
+        public async Task CreateUserAsync(string userName, string password, string role ,string email, string line)
         {
             // Create the admin user
             var user = new IdentityUser
@@ -174,6 +176,7 @@ namespace FX5U_IOMonitor.Login
                 UserName = userName,
                 Email = email,        // ✅ 設定 email
                 EmailConfirmed = true               // ✅ 若你不需要驗證流程，可以直接標記已驗證
+
             };
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)

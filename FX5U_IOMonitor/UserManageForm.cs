@@ -2,7 +2,9 @@
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.Resources;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
+using Microsoft.AspNetCore.Identity;
 
 namespace FX5U_IOMonitor
 {
@@ -32,6 +34,7 @@ namespace FX5U_IOMonitor
         private async void UserManageForm_Shown(object? sender, EventArgs e)
         {
             await UpdateDGV();
+            Notification_Settings.LoadUserImageTo(pictureBox_Official_Account);
         }
 
         private async Task UpdateDGV()
@@ -84,7 +87,7 @@ namespace FX5U_IOMonitor
                     return;
                 }
 
-                await userService.CreateUserAsync(_txtAccount.Text, _txtPassword.Text, _cbRole.Text, _txtEmail.Text);
+                await userService.CreateUserAsync(_txtAccount.Text, _txtPassword.Text, _cbRole.Text, _txtEmail.Text, _txt_Line.Text);
             }
 
             await UpdateDGV();
