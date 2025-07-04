@@ -24,6 +24,7 @@ namespace FX5U_IOMonitor.Models
             { "TW", "繁體中文" },
             { "US", "English" }
         };
+
         public static void SetLanguage(string cultureCode)
         {
             // 儲存到系統設定
@@ -157,6 +158,32 @@ namespace FX5U_IOMonitor.Models
         }
 
         public static string Currentlanguge => Properties.Settings.Default.LanguageSetting;
+        /// <summary>
+        /// 選取語系資料
+        /// </summary>
+        /// <returns></returns>
+        public static Dictionary<string, string> GetAvailableLanguages(string displayCultureCode = "US")
+        {
+            using var context = new ApplicationDB();
 
+            // 取出 LangName_xx 開頭的 Key
+            var allLangRows = context.Language
+                .AsNoTracking()
+                .Where(l => l.Key.StartsWith("LangName_"))
+                .ToList();
+
+            // 建立語言代碼與顯示名稱（欄位）對應
+            var langMap = new Dictionary<string, string>();
+            foreach (var row in allLangRows)
+            {
+                string langCode = row.Key.Replace("LangName_", "");
+                // 用反射取得指定欄位（預設 TW）作為顯示名稱
+                var prop = typeof(Language).GetProperty(displayCultureCode);
+                string displayName = prop?.GetValue(row)?.ToString() ?? langCode;
+                langMap[langCode] = displayName;
+            }
+
+            return langMap;
+        }
     }
 }

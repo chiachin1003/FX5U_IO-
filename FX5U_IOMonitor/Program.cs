@@ -2,6 +2,7 @@ using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Models;
 using Microsoft.Extensions.Logging;
 using static FX5U_IOMonitor.Email.email;
+using FX5U_IOMonitor.Login;
 
 
 namespace FX5U_IOMonitor
@@ -23,26 +24,45 @@ namespace FX5U_IOMonitor
             Application.SetCompatibleTextRenderingDefault(false);
 
             DbConfig.LoadFromJson("DbConfig.json");
-            // 啟動警告通知排程器
-            var scheduler = new AlarmDailySummaryScheduler(Properties.Settings.Default.userDefinedNotifyTime);
-            scheduler.Start();
+            try
+            {
+                DBfunction.InitMachineInfoDatabase();
+                using var userService = new UserService<ApplicationDB>();
+                userService.CreateDefaultUserAsync().Wait(); 
 
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"InitMachineInfoDatabase 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             ///雲端資料庫更新
             var syncService = new DatabaseSyncService();
             syncService.CurrentSyncMode = SyncMode.CompleteSync;
             syncService.Start();
 
-
-
             // 啟動每日各項排程
-            Email.DailyTask.StartAlarmScheduler();
-            Email.DailyTask.StartElementScheduler();
-            Email.DailyTask.StartParam_historyTaskScheduler();
+            //Email.DailyTask.StartAlarmScheduler();
+            //Email.DailyTask.StartElementScheduler();
+            //Email.DailyTask.StartParam_historyTaskScheduler();
 
+            // 先顯示登入畫面
+            using (var loginForm = new UserLoginForm())
+            {
+                var result = loginForm.ShowDialog();
 
+                if (result == DialogResult.OK)
+                {
+                    Application.Run(new Main());
+                }
+                else
+                {
+                    Application.Exit();
+                }
+            }
 
-            Application.Run( new Main() );
+            //Application.Run( new Main() );
             SyncService?.Dispose();
 
         }

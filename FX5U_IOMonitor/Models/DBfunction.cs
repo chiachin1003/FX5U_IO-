@@ -24,7 +24,13 @@ namespace FX5U_IOMonitor.Models
 {
     internal class DBfunction
     {
-
+        public static void InitMachineInfoDatabase()
+        {
+            using (var context = new ApplicationDB())
+            {
+                context.Database.EnsureCreated();
+            }
+        }
         //-------
         public static Machine_number? GetMachineIP(string connect_machine)
         {

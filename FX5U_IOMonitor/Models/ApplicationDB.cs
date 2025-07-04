@@ -25,7 +25,7 @@ namespace FX5U_IOMonitor.Models
     /// <summary>
     /// 地端資料庫
     /// </summary>
-    public class ApplicationDB : IdentityDbContext<IdentityUser>  
+    public class ApplicationDB : IdentityDbContext<ApplicationUser>  
     {
         readonly string _dbFullName;
 
@@ -42,6 +42,8 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<AlarmHistory> AlarmHistories { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+
 
         public DbSet<MachineParameterHistoryRecode> MachineParameterHistoryRecodes { get; set; }
         public DbSet<Blade_brand> Blade_brand { get; set; }

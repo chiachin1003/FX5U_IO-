@@ -10,10 +10,12 @@ namespace FX5U_IOMonitor
 {
 	public partial class UserLoginForm : Form
 	{
-		public UserLoginForm()
+        public ApplicationUser CurrentUser { get; private set; }
+
+        public UserLoginForm()
 		{
 			InitializeComponent();
-			//UpdateLanguage();
+			UpdateLanguage();
 		}
 
 		private void UpdateLanguage()
@@ -43,7 +45,11 @@ namespace FX5U_IOMonitor
 
 			switch( errorCode ) {
 				case UserErrorCode.None:
-					DialogResult = DialogResult.OK;
+                    using (var userService = new UserService<ApplicationDB>())
+                    {
+                        CurrentUser = await userService.GetUserByNameAsync(_txtAccount.Text);
+                    }
+                    DialogResult = DialogResult.OK;
 					break;
 
 				case UserErrorCode.NotExist:

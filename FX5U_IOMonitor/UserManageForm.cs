@@ -17,7 +17,12 @@ namespace FX5U_IOMonitor
             this.Shown += UserManageForm_Shown;
             UpdateLanguage();
         }
-
+        public class UserDisplay
+        {
+            public string UserName { get; set; }
+            public string Email { get; set; }
+            public string Token { get; set; }
+        }
         private void UpdateLanguage()
         {
             this.Text = LanguageManager.Translate("UserManageForm_Title");
@@ -43,7 +48,20 @@ namespace FX5U_IOMonitor
             using var userService = new UserService<ApplicationDB>();
             var userNameList = await userService.GetAllAsync(curSelectedRole);
 
-            _dgvUsers.DataSource = new BindingList<ApplicationUser>(userNameList);
+            var filteredUserList = userNameList.Select(u => new UserDisplay
+            {
+                UserName = u.UserName,
+                Email = u.Email,
+                Token = u.LineNotifyToken
+
+            }).ToList();
+
+            _dgvUsers.DataSource = filteredUserList.ToList();
+            _dgvUsers.Columns["UserName"].HeaderText = LanguageManager.Translate("UserManageForm_Lbl_Name");
+            _dgvUsers.Columns["Email"].HeaderText = LanguageManager.Translate("UserManageForm_Lab_mail");
+            _dgvUsers.Columns["Token"].HeaderText = "Line Notify"; 
+
+            // _dgvUsers.DataSource = new BindingList<ApplicationUser>(userNameList);
         }
 
         void InitRolesComboBox()
@@ -102,7 +120,7 @@ namespace FX5U_IOMonitor
                 return;
             }
 
-            var selectedUser = _dgvUsers.SelectedRows[0].DataBoundItem as ApplicationUser;
+            var selectedUser = _dgvUsers.SelectedRows[0].DataBoundItem as UserDisplay;
             if (selectedUser == null)
             {
                 MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_DataNotFound"));

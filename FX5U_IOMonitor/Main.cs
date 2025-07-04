@@ -58,15 +58,7 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
-            try
-            {
-                InitMachineInfoDatabase();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"InitMachineInfoDatabase 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+           
 
             try
             {
@@ -337,13 +329,7 @@ namespace FX5U_IOMonitor
 
         }
 
-        void InitMachineInfoDatabase()
-        {
-            using (var context = new ApplicationDB())
-            {
-                context.Database.EnsureCreated();
-            }
-        }
+      
 
         private void InitLanguageComboBox()
         {

@@ -44,13 +44,14 @@ namespace FX5U_IOMonitor.Login
         PasswordError,
     }
 
-    public class ApplicationUser
+    public class ApplicationUser: IdentityUser
     {
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string Line { get; set; }
+        public string? LineNotifyToken { get; set; }
+        public bool NotifyByEmail { get; set; } = true;
+        public bool NotifyByLine { get; set; } = true;
     }
-    public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<IdentityUser>
+    
+    public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<ApplicationUser>
     {
        
         public UserService()
@@ -65,11 +66,11 @@ namespace FX5U_IOMonitor.Login
             var serviceProvider = services.BuildServiceProvider();
 
             _context = serviceProvider.GetRequiredService<TContext>();
-            _userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            _userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             _roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         }
 
-        public static IdentityUser CurrentUser => _curUser;
+        public static ApplicationUser CurrentUser => _curUser;
         public static string CurrentRole => _curRole;
 
         public async Task CreateDefaultUserAsync()
@@ -94,10 +95,14 @@ namespace FX5U_IOMonitor.Login
 
             await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin ,SD.Default_Email ,SD.Default_Line);
         }
+        public async Task<ApplicationUser?> GetUserByNameAsync(string userName)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+        }
 
         public async Task<UserErrorCode> LoginAsync(string userName, string password)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            var user = await _userManager.FindByNameAsync(userName) as ApplicationUser;
 
             if (user != null)
             {
@@ -135,7 +140,7 @@ namespace FX5U_IOMonitor.Login
                 bool isInRole = await _userManager.IsInRoleAsync(user, role);
                 if (isInRole)
                 {
-                    result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email });
+                    result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken });
                 }
             }
             return result;
@@ -149,7 +154,7 @@ namespace FX5U_IOMonitor.Login
             var result = new List<ApplicationUser>();
             foreach (var user in users)
             {
-                result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email });
+                result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken });
             }
             return result;
         }
@@ -171,11 +176,12 @@ namespace FX5U_IOMonitor.Login
         public async Task CreateUserAsync(string userName, string password, string role ,string email, string line)
         {
             // Create the admin user
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = userName,
                 Email = email,        // ✅ 設定 email
-                EmailConfirmed = true               // ✅ 若你不需要驗證流程，可以直接標記已驗證
+                EmailConfirmed = true,       // ✅ 若你不需要驗證流程，可以直接標記已驗證
+                LineNotifyToken = line
 
             };
             var result = await _userManager.CreateAsync(user, password);
@@ -205,7 +211,7 @@ namespace FX5U_IOMonitor.Login
                 await _userManager.DeleteAsync(user);
             }
         }
-
+       
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -242,10 +248,10 @@ namespace FX5U_IOMonitor.Login
     public partial class UserService<TContext>
     {
         readonly TContext _context;
-        readonly UserManager<IdentityUser> _userManager;
+        readonly UserManager<ApplicationUser> _userManager;
         readonly RoleManager<IdentityRole> _roleManager;
 
-        static IdentityUser _curUser = null;
+        static ApplicationUser _curUser = null;
         static string _curRole = null;
 
         bool disposedValue;
@@ -256,7 +262,7 @@ namespace FX5U_IOMonitor.Login
             services.AddDbContext<TContext>();
 
             // 註冊 UserManager 和 RoleManager
-            services.AddIdentityCore<IdentityUser>(options =>
+            services.AddIdentityCore<ApplicationUser>(options =>
             {
                 //options.Password.RequireDigit = true;
                 //options.Password.RequiredLength = 6;

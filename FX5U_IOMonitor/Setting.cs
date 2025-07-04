@@ -97,7 +97,8 @@ namespace FX5U_IOMonitor
         {
 
             //選擇郵件的接收者
-            List<string> allUser = email.GetAllUserEmailsAsync();
+            List<string> allEmailUser = email.GetAllUserEmailsAsync();
+            List<string> allLineUser = email.GetAllUserLineAsync();
 
             //選擇發送郵件的主旨格式
             MessageSubjectType selectedType = MessageSubjectType.DailyHealthStatus;
@@ -109,16 +110,24 @@ namespace FX5U_IOMonitor
 
             var mailInfo = new MailInfo
             {
-                Receivers = allUser,
+                Receivers = allLineUser,
                 Subject = subject,
                 Body = body
             };
 
+            var mailEmailInfo = new MailInfo
+            {
+                Receivers = allEmailUser,
+                Subject = subject,
+                Body = body
+            };
+            await SendLineNotificationAsync(mailInfo);
+
             int port = Properties.Settings.Default.TLS_port;
             await (port switch
             {
-                587 => SendViaSmtp587Async(mailInfo),
-                465 => SendViaSmtp465Async(mailInfo),
+                587 => SendViaSmtp587Async(mailEmailInfo),
+                465 => SendViaSmtp465Async(mailEmailInfo),
                 _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
             });
 
@@ -148,7 +157,7 @@ namespace FX5U_IOMonitor
                 ExecutionTime = TimeSpan.Zero,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(SendDailyAlarmSummaryAsync)
+                    ["CustomAction"] = new Func<Task<TaskResult>>(SendDailyAlarmSummaryEmailAsync)
                 }
             };
 

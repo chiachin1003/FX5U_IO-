@@ -19,7 +19,6 @@ namespace FX5U_IOMonitor.Email
         // 定義任務類型枚舉
         public enum ScheduleTaskType
         {
-            AlarmDailySummary,
             CustomTask
         }
         // 定義排程頻率
@@ -416,14 +415,14 @@ namespace FX5U_IOMonitor.Email
         /// 寄出尚未排除警告的總結
         /// </summary>
         /// <returns></returns>
-        public static async Task<TaskResult> SendDailyAlarmSummaryAsync()
+        public static async Task<TaskResult> SendDailyAlarmSummaryEmailAsync()
         {
             if (Application.OpenForms.Count > 0)
             {
                 var form = Application.OpenForms[0];
                 form.Invoke(() =>
                 {
-                    MessageBox.Show("正在執行 SendDailyAlarmSummaryAsync() 任務", "排程提醒");
+                    MessageBox.Show("正在執行 SendDailyAlarmSummaryEmailAsync() 任務", "排程提醒");
                 });
             }
             using var db = new ApplicationDB();
@@ -503,13 +502,14 @@ namespace FX5U_IOMonitor.Email
             return new TaskResult
             {
                 Success = true,
-                Message = "測試郵件寄送成功",
+                Message = "郵件寄送成功",
                 ExecutionTime = DateTime.UtcNow
             };
 
         }
+       
         /// <summary>
-        /// 建立 email 內容（將多筆警告合併為一封摘要）
+        /// 建立 多筆警告信件內容及摘要(將多筆警告合併為一封摘要)
         /// </summary>
         /// <param name="alarms"></param>
         /// <returns></returns>
@@ -648,5 +648,10 @@ namespace FX5U_IOMonitor.Email
         }
 
         
+
+
+
+
+
     }
 }

@@ -32,7 +32,7 @@ namespace FX5U_IOMonitor.Email
                 IsEnabled = true,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(SendDailyAlarmSummaryAsync)
+                    ["CustomAction"] = new Func<Task<TaskResult>>(SendDailyAlarmSummaryEmailAsync)
                 }
             };
 

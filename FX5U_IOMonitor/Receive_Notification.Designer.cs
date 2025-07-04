@@ -27,50 +27,64 @@
         /// </summary>
         private void InitializeComponent()
         {
-            check_email = new CheckBox();
-            check_line = new CheckBox();
+            check_Email = new CheckBox();
+            check_Line = new CheckBox();
+            btn_Confirm = new Button();
             SuspendLayout();
             // 
-            // check_email
+            // check_Email
             // 
-            check_email.AutoSize = true;
-            check_email.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            check_email.Location = new Point(12, 25);
-            check_email.Name = "check_email";
-            check_email.Size = new Size(79, 28);
-            check_email.TabIndex = 5;
-            check_email.Text = "Email";
-            check_email.UseVisualStyleBackColor = true;
+            check_Email.AutoSize = true;
+            check_Email.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            check_Email.Location = new Point(12, 25);
+            check_Email.Name = "check_Email";
+            check_Email.Size = new Size(79, 28);
+            check_Email.TabIndex = 5;
+            check_Email.Text = "Email";
+            check_Email.UseVisualStyleBackColor = true;
             // 
-            // check_line
+            // check_Line
             // 
-            check_line.AutoSize = true;
-            check_line.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            check_line.Location = new Point(12, 70);
-            check_line.Name = "check_line";
-            check_line.Size = new Size(181, 28);
-            check_line.TabIndex = 6;
-            check_line.Text = "Line Notification";
-            check_line.UseVisualStyleBackColor = true;
+            check_Line.AutoSize = true;
+            check_Line.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            check_Line.Location = new Point(12, 70);
+            check_Line.Name = "check_Line";
+            check_Line.Size = new Size(181, 28);
+            check_Line.TabIndex = 6;
+            check_Line.Text = "Line Notification";
+            check_Line.UseVisualStyleBackColor = true;
+            // 
+            // btn_Confirm
+            // 
+            btn_Confirm.Location = new Point(118, 113);
+            btn_Confirm.Name = "btn_Confirm";
+            btn_Confirm.Size = new Size(75, 29);
+            btn_Confirm.TabIndex = 7;
+            btn_Confirm.Text = "設定";
+            btn_Confirm.UseVisualStyleBackColor = true;
+            btn_Confirm.Click += btn_Confirm_Click;
             // 
             // Receive_Notification
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
-            ClientSize = new Size(254, 137);
-            Controls.Add(check_line);
-            Controls.Add(check_email);
+            ClientSize = new Size(217, 154);
+            Controls.Add(btn_Confirm);
+            Controls.Add(check_Line);
+            Controls.Add(check_Email);
             Name = "Receive_Notification";
             StartPosition = FormStartPosition.CenterParent;
             Text = "接收通知設定";
+            Load += Receive_Notification_Load;
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private CheckBox check_email;
-        private CheckBox check_line;
+        private CheckBox check_Email;
+        private CheckBox check_Line;
+        private Button btn_Confirm;
     }
 }

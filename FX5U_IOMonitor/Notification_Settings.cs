@@ -155,9 +155,16 @@ namespace FX5U_IOMonitor.Resources
                     // ✅ 若目標圖檔已存在，先刪除（安全做法）
                     if (File.Exists(savedImagePath))
                     {
-                        File.Delete(savedImagePath);
+                        try
+                        {
+                            File.Delete(savedImagePath);
+                        }
+                        catch (IOException ex)
+                        {
+                            MessageBox.Show($"無法刪除圖片：{ex.Message}");
+                            return;
+                        }
                     }
-
                     File.Copy(selectedPath, savedImagePath, true);
 
                     using (FileStream fs = new FileStream(savedImagePath, FileMode.Open, FileAccess.Read))

@@ -106,9 +106,8 @@ namespace FX5U_IOMonitor
             btn_emailtest.Name = "btn_emailtest";
             btn_emailtest.Size = new Size(124, 33);
             btn_emailtest.TabIndex = 12;
-            btn_emailtest.Text = "郵件發送測試鈕";
+            btn_emailtest.Text = "Line推撥發送測試鈕";
             btn_emailtest.UseVisualStyleBackColor = true;
-            btn_emailtest.Visible = false;
             btn_emailtest.Click += btn_emailtest_Click;
             // 
             // btn_checkpoint
@@ -166,7 +165,7 @@ namespace FX5U_IOMonitor
             // 
             // button3
             // 
-            button3.Location = new Point(815, 434);
+            button3.Location = new Point(573, 423);
             button3.Name = "button3";
             button3.Size = new Size(77, 33);
             button3.TabIndex = 19;

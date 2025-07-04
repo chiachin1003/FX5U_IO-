@@ -112,7 +112,6 @@
             txb_senderPassword.Name = "txb_senderPassword";
             txb_senderPassword.Size = new Size(307, 27);
             txb_senderPassword.TabIndex = 34;
-            txb_senderPassword.Text = "jvvswkymcyokcvug";
             // 
             // lab_Protocal
             // 
@@ -309,7 +308,6 @@
             Controls.Add(tabControl1);
             Name = "Notification_Settings";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "郵件設定";
             Load += Email_Settings_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
