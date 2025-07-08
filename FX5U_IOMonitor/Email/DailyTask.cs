@@ -27,8 +27,8 @@ namespace FX5U_IOMonitor.Email
             {
                 TaskName = taskName,
                 TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Minutely,
-                ExecutionTime = TimeSpan.Zero,
+                Frequency = ScheduleFrequency.Daily,
+                ExecutionTime = new TimeSpan(8, 0, 0), 
                 IsEnabled = true,
                 Parameters = new Dictionary<string, object>
                 {
@@ -53,8 +53,8 @@ namespace FX5U_IOMonitor.Email
             {
                 TaskName = taskName,
                 TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Minutely, // 或其他
-                ExecutionTime = TimeSpan.Zero,
+                Frequency = ScheduleFrequency.Daily, // 或其他
+                ExecutionTime = new TimeSpan(8, 0, 0),
                 Parameters = new Dictionary<string, object>
                 {
                     ["CustomAction"] = new Func<Task<TaskResult>>(SendElementEmailAsync)
@@ -77,11 +77,11 @@ namespace FX5U_IOMonitor.Email
             {
                 TaskName = taskName,
                 TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Daily,
-                ExecutionTime = new TimeSpan(8, 0, 0), // 每天早上8點
+                Frequency = ScheduleFrequency.Hourly,
+                ExecutionTime = TimeSpan.Zero,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(() => RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
+                    ["CustomAction"] = new Func<Task<TaskResult>>(() => RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Hourly))
                 }
             };
 

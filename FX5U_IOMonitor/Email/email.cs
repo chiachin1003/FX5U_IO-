@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using FX5U_IOMonitor.Models;
 using static FX5U_IOMonitor.Email.Notify_Message;
 using static FX5U_IOMonitor.Email.Send_mode;
+using Microsoft.VisualBasic.ApplicationServices;
 
 namespace FX5U_IOMonitor.Email
 {
@@ -21,32 +22,24 @@ namespace FX5U_IOMonitor.Email
         /// 所有使用者信箱
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetAllUserEmailsAsync()
+      
+        public static List<string> GetAllUserEmails()
         {
-            using var _userManager = new UserService<ApplicationDB>();
+            using var context = new ApplicationDB();
 
-            // 從 UserManager 抓出所有使用者
-            var users = _userManager.GetAllUser().ToList();
-
-            // 只取 email 並建立清單
-            var emails = users
-                .Where(u => !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail == true)  // 避免空值
+            return context.Users
+                .Where(u => !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail)
                 .Select(u => u.Email!)
-                .Distinct() 
+                .Distinct()
                 .ToList();
-
-            return emails;
         }
 
         public static List<string> GetUserEmails(List<string> usernames)
         {
-            using var _userManager = new UserService<ApplicationDB>();
-
-            // 從 UserManager 抓出所有使用者
-            var users = _userManager.GetAllUser().ToList();
-
+            using var context = new ApplicationDB();
+            
             // 只取 email 並建立清單
-            var emails = users
+            var emails = context.Users
                 .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail==true)
                 .Select(u => u.Email!)
                 .Distinct() // 去除重複
@@ -56,12 +49,9 @@ namespace FX5U_IOMonitor.Email
         }
         public static List<string> GetAllUserLineAsync()
         {
-            using var _userManager = new UserService<ApplicationDB>();
+            using var context = new ApplicationDB();
 
-            // 從 UserManager 抓出所有使用者
-            var users = _userManager.GetAllUser().ToList();
-
-            var lines = users
+            var lines = context.Users
                 .Where(u => !string.IsNullOrWhiteSpace(u.LineNotifyToken) && u.NotifyByLine == true)  // 避免空值
                 .Select(u => u.LineNotifyToken!)
                 .Distinct()
@@ -71,12 +61,8 @@ namespace FX5U_IOMonitor.Email
         }
         public static List<string> GetUserLine(List<string> usernames)
         {
-            using var _userManager = new UserService<ApplicationDB>();
-
-            // 從 UserManager 抓出所有使用者
-            var users = _userManager.GetAllUser().ToList();
-
-            var lines = users
+            using var context = new ApplicationDB();
+            var lines = context.Users
                 .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.LineNotifyToken) && u.NotifyByEmail == true)
                 .Select(u => u.LineNotifyToken!)
                 .Distinct() 

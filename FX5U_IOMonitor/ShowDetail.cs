@@ -62,7 +62,7 @@ namespace FX5U_IOMonitor
 
                     DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
                     string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
-                    string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；第" + numberReplace ;
+                    string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；No. " + numberReplace ;
 
                     var usagePanel = Panel_design.CreateShowMainPanel(
                         equipmentTag,
@@ -142,7 +142,8 @@ namespace FX5U_IOMonitor
             //更新頁面
             panel_main.Controls.Clear();
 
-            string StartTime = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag) + "；第" + numberReplace + "次";
+            DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
+            string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；No. " + numberReplace;
             var usagePanel = Panel_design.CreateShowMainPanel(
                 equipmentTag,
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
@@ -174,7 +175,7 @@ namespace FX5U_IOMonitor
 
             DateTime? start = DBfunction.GetMountTimeByAddress(dbtable, equipmentTag);
             string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
-            string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；第" + numberReplace + "次";
+            string StartTime = $"{DBfunction.FormatNullableDateTime(start)}" + "；No. " + numberReplace;
 
             var usagePanel = Panel_design.CreateShowMainPanel(
                 equipmentTag,

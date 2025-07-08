@@ -154,7 +154,8 @@ namespace FX5U_IOMonitor.Login
             var result = new List<ApplicationUser>();
             foreach (var user in users)
             {
-                result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken });
+                result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken,
+                    NotifyByEmail = user.NotifyByEmail, NotifyByLine = user.NotifyByLine });
             }
             return result;
         }

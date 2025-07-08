@@ -20,15 +20,15 @@ namespace FX5U_IOMonitor.Email
         {
             public static readonly Dictionary<MessageSubjectType, string> SubjectMap = new()
             {
-                { MessageSubjectType.DailyHealthStatus, "【定期通知】元件健康狀態" },
-                { MessageSubjectType.UnresolvedWarnings, "【定期提醒】尚未解除的警告維護" },
-                { MessageSubjectType.TriggeredAlarm, "【警告】已觸發的異常警告" },
-                { MessageSubjectType.TriggeredLifeNotification, "【壽命提醒】元件壽命即將耗盡" }
+                { MessageSubjectType.DailyHealthStatus, LanguageManager.TranslateFormat("MessageSubjectType_DailyHealthStatus")},
+                { MessageSubjectType.UnresolvedWarnings, LanguageManager.TranslateFormat("MessageSubjectType_UnresolvedWarnings") },
+                { MessageSubjectType.TriggeredAlarm,  LanguageManager.TranslateFormat("MessageSubjectType_TriggeredAlarm")},
+                { MessageSubjectType.TriggeredLifeNotification, LanguageManager.TranslateFormat("MessageSubjectType_TriggeredLifeNotification") }
             };
 
             public static string GetSubject(MessageSubjectType type)
             {
-                return SubjectMap.TryGetValue(type, out var subject) ? subject : "【系統通知】未定義主旨";
+                return SubjectMap.TryGetValue(type, out var subject) ? subject : LanguageManager.TranslateFormat("MessageSubjectType_System");
             }
 
         }
@@ -46,7 +46,7 @@ namespace FX5U_IOMonitor.Email
                     .ToList();
 
                 if (!yellowItems.Any())
-                    return "✅ 目前無黃燈狀態元件";
+                    return LanguageManager.TranslateFormat("Element_Message_NoFaultDetected");
 
                 var groupedByMachine = yellowItems
                     .GroupBy(io => io.Machine_name)
@@ -54,17 +54,17 @@ namespace FX5U_IOMonitor.Email
 
                 StringBuilder sb = new StringBuilder();
 
-                sb.AppendLine($"發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}");
-                sb.AppendLine("系統判定此元件處於「黃燈狀態」\n");
+                sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_SentTime") + $"{DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+                sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_YellowStatus"));
 
                 foreach (var group in groupedByMachine)
                 {
                     string machineName = group.Key;
                     var descriptions = group.Select(io => io.Description).Distinct();
 
-                    sb.AppendLine($"設備名稱：{machineName}");
-                    sb.AppendLine($"欲更換料號名稱：{string.Join("、", descriptions)}\n");
-                    sb.AppendLine("元件儲存器位置：");
+                    sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_MachineName") + $"{machineName}");
+                    sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_ComponentReplaced") +$"{string.Join("、", descriptions)}\n");
+                    sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_ComponentLocation"));
 
                     int index = 1;
                     foreach (var item in group)
@@ -75,7 +75,10 @@ namespace FX5U_IOMonitor.Email
                         int currentUsage = item.equipment_use;
                         double usagePercent = item.RUL; ;
 
-                        sb.AppendLine($"{index}. {address}、{description}、最大使用次數：{maxUsage:N0}、目前使用次數：{currentUsage:N0}、剩餘壽命百分比：{usagePercent:F2} %");
+                        sb.AppendLine($"{index}. {address}、{description}、" + LanguageManager.TranslateFormat("Element_Message_MaxUsage") +
+                            $"{maxUsage:N0}、" + LanguageManager.TranslateFormat("Element_Message_CurrentUsage") +
+                            $"{currentUsage:N0}、" + LanguageManager.TranslateFormat("Element_Message_RemainingLife") +
+                            $"{usagePercent:F2} %");
                         index++;
                     }
 
@@ -98,7 +101,7 @@ namespace FX5U_IOMonitor.Email
                     .ToList();
 
                 if (!yellowItems.Any())
-                    return "✅ 目前無紅燈狀態元件";
+                    return LanguageManager.TranslateFormat("Element_Message_NoFaultDetected");
 
                 var groupedByMachine = yellowItems
                     .GroupBy(io => io.Machine_name)
@@ -106,17 +109,17 @@ namespace FX5U_IOMonitor.Email
 
                 StringBuilder sb = new StringBuilder();
 
-                sb.AppendLine($"發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}");
-                sb.AppendLine("系統判定此元件處於「紅燈狀態」\n");
+                sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_SentTime") + $"{DateTime.Now:yyyy/MM/dd HH:mm:ss}");
+                sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_RedStatus"));
 
                 foreach (var group in groupedByMachine)
                 {
                     string machineName = group.Key;
                     var descriptions = group.Select(io => io.Description).Distinct();
 
-                    sb.AppendLine($"設備名稱：{machineName}");
-                    sb.AppendLine($"欲更換料號名稱：{string.Join("、", descriptions)}\n");
-                    sb.AppendLine("元件儲存器位置：");
+                    sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_MachineName") + $"{machineName}");
+                    sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_ComponentReplaced") + $"{string.Join("、", descriptions)}\n");
+                    sb.AppendLine(LanguageManager.TranslateFormat("Element_Message_ComponentLocation"));
 
                     int index = 1;
                     foreach (var item in group)
@@ -128,7 +131,10 @@ namespace FX5U_IOMonitor.Email
 
                         double usagePercent = item.RUL; ;
 
-                        sb.AppendLine($"{index}. {address}、{description}、最大使用次數：{maxUsage:N0}、目前使用次數：{currentUsage:N0}、剩餘壽命百分比：{usagePercent:F2} %");
+                        sb.AppendLine($"{index}. {address}、{description}、" + LanguageManager.TranslateFormat("Element_Message_MaxUsage") +
+                             $"{maxUsage:N0}、" + LanguageManager.TranslateFormat("Element_Message_CurrentUsage") +
+                             $"{currentUsage:N0}、" + LanguageManager.TranslateFormat("Element_Message_RemainingLife") +
+                             $"{usagePercent:F2} %");
                         index++;
                     }
 

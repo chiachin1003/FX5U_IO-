@@ -117,10 +117,10 @@ namespace FX5U_IOMonitor.Email
 
                 StopTask(config); // 先停止現有的計時器
 
-                if (ShouldExecuteImmediately(config))
-                {
-                    Task.Run(async () => await ExecuteTaskAsync(config));
-                }
+                //if (ShouldExecuteImmediately(config))
+                //{
+                //    Task.Run(async () => await ExecuteTaskAsync(config));
+                //}
 
                 var delay = ShouldExecuteImmediately(config)
                     ? GetPeriod(config.Frequency) // 排程下次執行就好
@@ -369,7 +369,7 @@ namespace FX5U_IOMonitor.Email
                         MessageBox.Show("正在執行 SendElementEmailAsync() 任務", "排程提醒");
                     });
                 }
-                List<string> allUser = email.GetAllUserEmailsAsync();
+                List<string> allUser = email.GetAllUserEmails();
                 List<string> allUser_line = email.GetAllUserLineAsync();
 
                 MessageSubjectType selectedType = MessageSubjectType.DailyHealthStatus;

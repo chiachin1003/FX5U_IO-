@@ -98,7 +98,7 @@ namespace FX5U_IOMonitor
         {
 
             //選擇郵件的接收者
-            List<string> allEmailUser = email.GetAllUserEmailsAsync();
+            List<string> allEmailUser = email.GetAllUserEmails();
             List<string> allLineUser = email.GetAllUserLineAsync();
 
             //選擇發送郵件的主旨格式

@@ -117,9 +117,10 @@ namespace FX5U_IOMonitor.panel_control
                 string time = MonitorFunction.ConvertSecondsToDHMS(seconds);
                 var record_late = DBfunction.GetLatestHistoryRecordByName(paramName);
                 var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName);
+                var secondDelta = SecondLate != null ? SecondLate.Delta : record_late.Delta;
 
                 string re = record_late.StartTime.ToString("yyyy/MM/dd HH:mm") + "\n" + record_late.EndTime.ToString("yyyy/MM/dd HH:mm");
-                cardMap[paramName].SetData(LanguageManager.Translate(langKey), time, SecondLate.Delta, record_late.Delta, re);
+                cardMap[paramName].SetData(LanguageManager.Translate(langKey), time, secondDelta, record_late.Delta, re);
             }
 
             foreach (var (paramName, langKey) in countCardSourceList)

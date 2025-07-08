@@ -132,6 +132,60 @@ namespace FX5U_IOMonitor.Models
         }
 
         /// <summary>
+        /// 根據 Button 大小自動調整字體大小（適用多語系）
+        /// </summary>
+        /// <param name="button">目標按鈕</param>
+        /// <param name="text">要顯示的文字</param>
+        public static void SafeAdjustFont(Button? button, string text)
+        {
+            try
+            {
+                
+                    if (button == null || string.IsNullOrEmpty(text)) return;
+
+                    button.Padding = new Padding(0); // ❗ 避免被 Padding 影響
+                    button.FlatStyle = FlatStyle.Standard; // ❗ 避免系統樣式干擾
+
+                    Size proposedSize = button.ClientSize;
+                    float baseFontSize = button.Font.Size;
+                    float fontSize = baseFontSize;
+                    Font? finalFont = null;
+
+                    float marginFactor = 0.9f; // ✅ 加容錯，不用塞到滿
+
+                    while (fontSize > 5f)
+                    {
+                        using (Font testFont = new Font(button.Font.FontFamily, fontSize, button.Font.Style))
+                        {
+                            Size textSize = TextRenderer.MeasureText(text, testFont,
+                                proposedSize,
+                                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+
+                            if (textSize.Width <= proposedSize.Width * marginFactor &&
+                                textSize.Height <= proposedSize.Height * marginFactor)
+                            {
+                                finalFont = new Font(testFont.FontFamily, fontSize, testFont.Style);
+                                break;
+                            }
+
+                            fontSize -= 0.5f;
+                        }
+                    }
+
+                    // ✅ 不讓字變太小
+                    if (finalFont != null && finalFont.Size >= 6f)
+                    {
+                        button.Font = finalFont;
+                    }
+
+                    button.Text = text;
+            }
+            catch (ObjectDisposedException)
+            {
+                // 控制項已釋放，忽略
+            }
+        }
+        /// <summary>
         /// 根據設定檔將單位標籤（如 "m/min"）轉換為對應單位（如 "inch/min"）
         /// </summary>
         public static string ConvertUnitLabel(string metricLabel)

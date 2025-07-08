@@ -200,7 +200,7 @@ namespace FX5U_IOMonitor.Models
                 txb_yellow_light.Value = DBfunction.Get_SetY_ByAddress(datatable, address);
                 txb_red_light.Value = DBfunction.Get_SetR_ByAddress(datatable, address);
 
-                MessageBox.Show("設定已重置");
+                MessageBox.Show(LanguageManager.Translate("ShowDetail_Messagebox_reset"));
             };
             panel.Controls.Add(btn_update);
 
@@ -217,9 +217,14 @@ namespace FX5U_IOMonitor.Models
                 DBfunction.Set_MaxLife_ByAddress(datatable, address, (int)txb_max_number.Value);
                 DBfunction.Set_SetY_ByAddress(datatable, address, (int)txb_yellow_light.Value);
                 DBfunction.Set_SetR_ByAddress(datatable, address, (int)txb_red_light.Value);
-                MessageBox.Show("資料已更新");
+                MessageBox.Show(LanguageManager.Translate("ShowDetail_Messagebox_update"));
             };
             panel.Controls.Add(btn_add);
+            Text_design.SafeAdjustFont(btn_add, btn_add.Text);
+            Text_design.SafeAdjustFont(btn_update, btn_update.Text);
+
+
+
 
             return panel;
         }
