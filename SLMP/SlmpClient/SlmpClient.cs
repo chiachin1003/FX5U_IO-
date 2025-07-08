@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Sockets;
 
 namespace SLMP {
@@ -34,14 +35,29 @@ namespace SLMP {
         public void Connect() {
             _client = new TcpClient();
 
-            if (!_client.ConnectAsync(_config.Address, _config.Port).Wait(_config.ConnTimeout))
-                throw new TimeoutException("connection timed out");
+            try
+            {
+                var connectTask = _client.ConnectAsync(_config.Address, _config.Port);
 
-            // connection is successful
-            _client.SendTimeout = _config.SendTimeout;
-            _client.ReceiveTimeout = _config.RecvTimeout;
+                // Wait Connect 
+                bool success = connectTask.Wait(_config.ConnTimeout);
 
-            _stream = _client.GetStream();
+                if (!success)
+                    throw new TimeoutException("connection timed out");
+
+                // 
+                if (connectTask.IsFaulted)
+                    throw connectTask.Exception?.InnerException ?? new Exception("Connect Error");
+
+                _client.SendTimeout = _config.SendTimeout;
+                _client.ReceiveTimeout = _config.RecvTimeout;
+                _stream = _client.GetStream();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error¡G{ex.Message}");
+                throw; // or return null / °O¿ý
+            }
         }
 
         /// <summary>

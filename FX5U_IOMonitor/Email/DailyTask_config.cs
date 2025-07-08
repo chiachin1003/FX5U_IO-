@@ -10,6 +10,7 @@ using static FX5U_IOMonitor.Email.Notify_Message;
 using static FX5U_IOMonitor.Email.Send_mode;
 using Timer = System.Threading.Timer;
 using FX5U_IOMonitor.Email;
+using System.Diagnostics;
 
 
 namespace FX5U_IOMonitor.Email
@@ -369,6 +370,7 @@ namespace FX5U_IOMonitor.Email
                     });
                 }
                 List<string> allUser = email.GetAllUserEmailsAsync();
+                List<string> allUser_line = email.GetAllUserLineAsync();
 
                 MessageSubjectType selectedType = MessageSubjectType.DailyHealthStatus;
                 string subject = MessageSubjectHelper.GetSubject(selectedType);
@@ -376,9 +378,15 @@ namespace FX5U_IOMonitor.Email
                 string body2 = Notify_Message.GenerateRedComponentGroupSummary();
                 string body = body1 + "\n----------------------------------------------------------------\n\n" + body2;
 
-                var mailInfo = new MailInfo
+                var mailInfo = new MessageInfo
                 {
                     Receivers = allUser,
+                    Subject = subject,
+                    Body = body
+                };
+                var lineInfo = new MessageInfo
+                {
+                    Receivers = allUser_line,
                     Subject = subject,
                     Body = body
                 };
@@ -390,6 +398,8 @@ namespace FX5U_IOMonitor.Email
                     465 => SendViaSmtp465Async(mailInfo),
                     _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
                 });
+
+                await SendLineNotificationAsync(lineInfo);
 
                 return new TaskResult
                 {
@@ -422,7 +432,8 @@ namespace FX5U_IOMonitor.Email
                 var form = Application.OpenForms[0];
                 form.Invoke(() =>
                 {
-                    MessageBox.Show("正在執行 SendDailyAlarmSummaryEmailAsync() 任務", "排程提醒");
+                    //MessageBox.Show("正在執行 SendDailyAlarmSummaryEmailAsync() 任務", "排程提醒");
+                    Debug.WriteLine("開始執行每日警告提示");
                 });
             }
             using var db = new ApplicationDB();
@@ -433,8 +444,6 @@ namespace FX5U_IOMonitor.Email
                 .Include(h => h.Alarm)  // 載入關聯 Alarm 資料
                 .Where(h => h.EndTime == null && h.RecordTime != now)
                 .ToList();
-
-            
 
             // 如果沒有未排除的警告，不需要發送
             if (!histories.Any())
@@ -462,6 +471,7 @@ namespace FX5U_IOMonitor.Email
                                      .Select(x => x.Trim())
                                      .ToList();
                 List<string> allUser = email.GetUserEmails(users);
+                List<string> User_line = email.GetUserEmails(users);
 
                 // 建立該使用者對應的彙總信件內容
                 var body = BuildEmailBody(group.ToList());
@@ -471,13 +481,18 @@ namespace FX5U_IOMonitor.Email
                 string subject = MessageSubjectHelper.GetSubject(selectedType);
 
                 // 統整要送出的收件人跟資訊
-                var mailInfo = new MailInfo
+                var mailInfo = new MessageInfo
                 {
                     Receivers = allUser,
                     Subject = subject,
                     Body = body
                 };
-
+                var lineInfo = new MessageInfo
+                {
+                    Receivers = User_line,
+                    Subject = subject,
+                    Body = body
+                };
                 int port = Properties.Settings.Default.TLS_port;
                 await (port switch
                 {
@@ -485,6 +500,7 @@ namespace FX5U_IOMonitor.Email
                     465 => SendViaSmtp465Async(mailInfo),
                     _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
                 });
+                await SendLineNotificationAsync(lineInfo);
 
                 // 更新每筆紀錄的發送時間與次數
                 foreach (var h in group)
@@ -543,7 +559,6 @@ namespace FX5U_IOMonitor.Email
                 using var db = new ApplicationDB();
                 var now = DateTime.UtcNow;
                 var roundedTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
-                // ✅ 動態計算區間長度
                 TimeSpan period = config switch
                 {
                     ScheduleFrequency.Minutely => TimeSpan.FromMinutes(1),
@@ -646,10 +661,6 @@ namespace FX5U_IOMonitor.Email
 
             }
         }
-
-        
-
-
 
 
 

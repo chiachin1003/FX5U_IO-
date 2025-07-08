@@ -63,9 +63,10 @@ namespace FX5U_IOMonitor
         /// </summary>
         public static void AutoConnectAllMachines(Connect_PLC plcForm)
         {
+         
             using var context = new ApplicationDB();
             var machineList = context.Machine.ToList();
-
+            var failedMachines = new List<string>();
             var ipPortSet = new HashSet<string>();
 
             foreach (var machine in machineList)
@@ -81,7 +82,6 @@ namespace FX5U_IOMonitor
                 }
                 ipPortSet.Add(ipPortKey);
 
-                // 檢查是否已連線
                 var existing = MachineHub.Get(machine.Name);
                 if (existing != null && existing.IsConnected)
                     continue;
@@ -90,6 +90,7 @@ namespace FX5U_IOMonitor
                 if (plc == null)
                 {
                     Debug.WriteLine($"❌ {machine.Name} 無法連線");
+                    failedMachines.Add(machine.Name);
                     continue;
                 }
 
@@ -98,41 +99,41 @@ namespace FX5U_IOMonitor
                 if (contextItem == null || !contextItem.IsConnected)
                 {
                     Debug.WriteLine($"❌ {machine.Name} 註冊失敗");
+                    failedMachines.Add(machine.Name);
                     continue;
                 }
 
                 contextItem.Monitor.SetExternalLock(contextItem.LockObject);
                 _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
-                
-                if (contextItem.IsMaster) // 只針對主機執行 alarm 監控
-                {
-                    //補上若是程式關閉時解除警報的話則寫入解除時間
-                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
 
-                    //開始進行警告監控
-                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(
-                        contextItem.TokenSource.Token));
-                    //發送警告訊息等功用
+                if (contextItem.IsMaster)
+                {
+                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
                     contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
                 }
 
                 int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
                 int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
 
-
-
                 _ = Task.Run(() => contextItem.Monitor.Read_Bit_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
                 _ = Task.Run(() => contextItem.Monitor.Read_Word_Monitor_AllModesAsync(contextItem.MachineName, read_modes, contextItem.TokenSource.Token));
                 _ = Task.Run(() => contextItem.Monitor.Read_None_Monitor_AllModesAsync(contextItem.MachineName, contextItem.TokenSource.Token));
                 _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
 
-
-
-
                 contextItem.Monitor.IOUpdated += DB_update_change;
 
                 Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
             }
+            string summary = $"失敗機台數：{failedMachines.Count}";
+
+            if (failedMachines.Count > 0)
+            {
+                summary += "\n失敗機台如下：\n" + string.Join("\n", failedMachines);
+                MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+
         }
         private void connect_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -180,7 +181,15 @@ namespace FX5U_IOMonitor
             try
             {
                 _plc.Connect();
-                return _plc;
+                if (_plc.IsConnected())
+                {
+                    return _plc;
+                }
+                else 
+                { 
+                    return null; 
+                }
+
             }
             catch (Exception ex)
             {

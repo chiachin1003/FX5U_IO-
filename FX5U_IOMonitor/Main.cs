@@ -93,16 +93,7 @@ namespace FX5U_IOMonitor
 
             }
 
-            try
-            {
-                LanguageImportHelper.ImportLanguage("language.csv");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"語言檔匯入失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-
-            }
+          
 
             try
             {
@@ -188,6 +179,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Clear(); // 清空 Panel
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
+
 
         }
 
@@ -305,9 +297,33 @@ namespace FX5U_IOMonitor
             {
                 userService.Logout();
             }
-            btn_search.Enabled = false;
-            btn_connect.Enabled = false;
             LogoutSucceeded?.Invoke(this, EventArgs.Empty);
+
+            this.Hide();            // 隱藏當前主畫面
+
+            bool loginSucceeded = false;
+
+            while (!loginSucceeded)
+            {
+                var loginForm = new UserLoginForm();
+                var result = loginForm.ShowDialog();
+
+                if (result == DialogResult.OK)
+                {
+                    loginSucceeded = true;
+                }
+                else
+                {
+                    var retry = MessageBox.Show(LanguageManager.Translate("User_Login_Form_Message"), LanguageManager.Translate("User_Login_Form_hint"), MessageBoxButtons.YesNo);
+                    if (retry == DialogResult.No)
+                    {
+                        this.Close(); // 使用者選擇不重試 => 關閉主畫面 => 結束程式
+                        return;
+                    }
+                }
+            }
+
+            this.Show();  // 成功登入後再顯示主畫面
 
         }
 

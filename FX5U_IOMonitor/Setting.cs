@@ -109,26 +109,26 @@ namespace FX5U_IOMonitor
             String body2 = Notify_Message.GenerateRedComponentGroupSummary();
             String body = body1 + "\n----------------------------------------------------------------\n\n" + body2;
 
-            var mailInfo = new MailInfo
+            var lineInfo = new MessageInfo
             {
                 Receivers = allLineUser,
                 Subject = subject,
                 Body = body
             };
 
-            var mailEmailInfo = new MailInfo
+            var mailInfo = new MessageInfo
             {
                 Receivers = allEmailUser,
                 Subject = subject,
                 Body = body
             };
-            await SendLineNotificationAsync(mailInfo);
+            await SendLineNotificationAsync(lineInfo);
 
             int port = Properties.Settings.Default.TLS_port;
             await (port switch
             {
-                587 => SendViaSmtp587Async(mailEmailInfo),
-                465 => SendViaSmtp465Async(mailEmailInfo),
+                587 => SendViaSmtp587Async(mailInfo),
+                465 => SendViaSmtp465Async(mailInfo),
                 _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
             });
 
@@ -168,30 +168,34 @@ namespace FX5U_IOMonitor
 
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private async void button2_Click(object sender, EventArgs e)
         {
-            const string taskName = "Email_Element_Task";
-            _scheduler = new FlexibleScheduler();
+            await SendElementEmailAsync();
 
-            // 若任務已存在就不重複加
-            if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
-            {
-                MessageBox.Show("任務已經存在，將不重複啟動。");
-                return;
-            }
 
-            var config = new TaskConfiguration
-            {
-                TaskName = taskName,
-                TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Minutely, // 或其他
-                ExecutionTime = TimeSpan.Zero,
-                Parameters = new Dictionary<string, object>
-                {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(SendElementEmailAsync)
-                }
-            };
-            _scheduler.AddTask(config);
+
+            //const string taskName = "Email_Element_Task";
+            //_scheduler = new FlexibleScheduler();
+
+            //// 若任務已存在就不重複加
+            //if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
+            //{
+            //    MessageBox.Show("任務已經存在，將不重複啟動。");
+            //    return;
+            //}
+
+            //var config = new TaskConfiguration
+            //{
+            //    TaskName = taskName,
+            //    TaskType = ScheduleTaskType.CustomTask,
+            //    Frequency = ScheduleFrequency.Minutely, // 或其他
+            //    ExecutionTime = TimeSpan.Zero,
+            //    Parameters = new Dictionary<string, object>
+            //    {
+            //        ["CustomAction"] = new Func<Task<TaskResult>>(SendElementEmailAsync)
+            //    }
+            //};
+            //_scheduler.AddTask(config);
 
         }
 
@@ -250,7 +254,7 @@ namespace FX5U_IOMonitor
                 string subject = MessageSubjectHelper.GetSubject(selectedType);
 
                 // 統整要送出的收件人跟資訊
-                var mailInfo = new MailInfo
+                var mailInfo = new MessageInfo
                 {
                     Receivers = allUser,
                     Subject = subject,
@@ -304,15 +308,16 @@ namespace FX5U_IOMonitor
             {
                 TaskName = taskName,
                 TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Minutely,
+                Frequency = ScheduleFrequency.Daily,
                 ExecutionTime = TimeSpan.Zero,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(() => RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely))
+                    ["CustomAction"] = new Func<Task<TaskResult>>(() => RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
                 }
             };
 
             _scheduler.AddTask(config1);
+
         }
 
 

@@ -12,7 +12,7 @@ namespace FX5U_IOMonitor.Email
     public class Send_mode
     {
 
-        public class MailInfo
+        public class MessageInfo
         {
             public List<string> Receivers { get; set; } = new();
             public string Subject { get; set; } = "";   //文章標題
@@ -24,7 +24,7 @@ namespace FX5U_IOMonitor.Email
         /// </summary>
         /// <param name="mailInfo"></param>
         /// <returns></returns>
-        public static async Task SendViaSmtp587Async(MailInfo mailInfo)
+        public static async Task SendViaSmtp587Async(MessageInfo mailInfo)
         {
             using var client = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
             {
@@ -52,7 +52,7 @@ namespace FX5U_IOMonitor.Email
         /// </summary>
         /// <param name="mailInfo"></param>
         /// <returns></returns>
-        public static async Task SendViaSmtp465Async(MailInfo mailInfo)
+        public static async Task SendViaSmtp465Async(MessageInfo mailInfo)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("你的名稱", Properties.Settings.Default.senderEmail));
@@ -103,34 +103,34 @@ namespace FX5U_IOMonitor.Email
         /// </summary>
         /// <param name="manager"></param>
         /// <param name="userId"></param>
-        /// <param name="mailInfo"></param>
+        /// <param name="messageInfo"></param>
         /// <returns></returns>
-        public static async Task<bool> SendLineNotificationAsync(MailInfo mailInfo)
+        public static async Task<bool> SendLineNotificationAsync(MessageInfo messageInfo)
         {
             string channelAccessToken = Properties.Settings.Default.LineAccessToken;
             var lineClient = new LineNotifyClient(channelAccessToken);
             var notificationManager = new LineNotificationManager(lineClient);
 
-            if (mailInfo == null || !mailInfo.Receivers.Any())
+            if (messageInfo == null || !messageInfo.Receivers.Any())
             {
                 MessageBox.Show("沒有接收到使用者！");
                 return false;
             }
 
-            if (mailInfo == null || string.IsNullOrWhiteSpace(mailInfo.Body))
+            if (messageInfo == null || string.IsNullOrWhiteSpace(messageInfo.Body))
             {
                 MessageBox.Show("推播內容不可為空！");
                 return false;
             }
 
             // 將主旨與內文組合為一段文字（可依需求格式化）
-            string message = $"📢 {mailInfo.Subject}\n\n{mailInfo.Body}";
+            string message = $"📢 {messageInfo.Subject}\n\n{messageInfo.Body}";
 
             try
             {
                 bool allSuccess = true;
 
-                foreach (var userId in mailInfo.Receivers)
+                foreach (var userId in messageInfo.Receivers)
                 {
                     bool success = await notificationManager.SendToSingleUserAsync(userId, message);
                     allSuccess &= success; // 只要有一個失敗就為 false

@@ -30,7 +30,7 @@ namespace FX5U_IOMonitor.Email
 
             // 只取 email 並建立清單
             var emails = users
-                .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
+                .Where(u => !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail == true)  // 避免空值
                 .Select(u => u.Email!)
                 .Distinct() 
                 .ToList();
@@ -47,8 +47,7 @@ namespace FX5U_IOMonitor.Email
 
             // 只取 email 並建立清單
             var emails = users
-                .Where(u => usernames.Contains(u.UserName))
-                .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
+                .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail==true)
                 .Select(u => u.Email!)
                 .Distinct() // 去除重複
                 .ToList();
@@ -63,7 +62,7 @@ namespace FX5U_IOMonitor.Email
             var users = _userManager.GetAllUser().ToList();
 
             var lines = users
-                .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
+                .Where(u => !string.IsNullOrWhiteSpace(u.LineNotifyToken) && u.NotifyByLine == true)  // 避免空值
                 .Select(u => u.LineNotifyToken!)
                 .Distinct()
                 .ToList();
@@ -77,12 +76,10 @@ namespace FX5U_IOMonitor.Email
             // 從 UserManager 抓出所有使用者
             var users = _userManager.GetAllUser().ToList();
 
-            // 只取 email 並建立清單
             var lines = users
-                .Where(u => usernames.Contains(u.UserName))
-                .Where(u => !string.IsNullOrWhiteSpace(u.Email))  // 避免空值
+                .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.LineNotifyToken) && u.NotifyByEmail == true)
                 .Select(u => u.LineNotifyToken!)
-                .Distinct() // 如果你想要去除重複信箱，可加這行
+                .Distinct() 
                 .ToList();
 
             return lines;
@@ -260,7 +257,7 @@ namespace FX5U_IOMonitor.Email
                     （自動通報信息）
                     ";
                 // 統整要送出的收件人跟資訊
-                var mailInfo = new MailInfo
+                var mailInfo = new MessageInfo
                 {
                     Receivers = receivers,
                     Subject = subject,

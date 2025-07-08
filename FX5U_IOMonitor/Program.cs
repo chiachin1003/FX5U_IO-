@@ -28,8 +28,8 @@ namespace FX5U_IOMonitor
             {
                 DBfunction.InitMachineInfoDatabase();
                 using var userService = new UserService<ApplicationDB>();
-                userService.CreateDefaultUserAsync().Wait(); 
-
+                userService.CreateDefaultUserAsync().Wait();
+               
             }
             catch (Exception ex)
             {
@@ -43,13 +43,28 @@ namespace FX5U_IOMonitor
             syncService.Start();
 
             // 啟動每日各項排程
-            //Email.DailyTask.StartAlarmScheduler();
-            //Email.DailyTask.StartElementScheduler();
-            //Email.DailyTask.StartParam_historyTaskScheduler();
+            Email.DailyTask.StartAlarmScheduler();
+            Email.DailyTask.StartElementScheduler();
+            Email.DailyTask.StartParam_historyTaskScheduler();
 
-            // 先顯示登入畫面
-            using (var loginForm = new UserLoginForm())
+            try
             {
+                LanguageImportHelper.ImportLanguage("language.csv");
+                string lang = Properties.Settings.Default.LanguageSetting;
+                LanguageManager.LoadLanguageFromDatabase(lang);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"語言檔匯入失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+
+            }
+
+            bool loginSucceeded = false;
+            // 登入
+            while (!loginSucceeded)
+            {
+                var loginForm = new UserLoginForm();
                 var result = loginForm.ShowDialog();
 
                 if (result == DialogResult.OK)
@@ -59,13 +74,22 @@ namespace FX5U_IOMonitor
                     {
                         Application.Run(new Main());
                     }
+                    loginSucceeded = true;
                 }
                 else
                 {
-                    Application.Exit();
+                    var retry = MessageBox.Show(LanguageManager.Translate("User_Login_Form_Message"), LanguageManager.Translate("User_Login_Form_hint"), MessageBoxButtons.YesNo);
+                    if (retry == DialogResult.No)
+                    {
+                        return;
+                    }
+                    else 
+                    {
+                        Application.Exit();
+                    }
                 }
             }
-
+          
             //Application.Run( new Main() );
             SyncService?.Dispose();
 

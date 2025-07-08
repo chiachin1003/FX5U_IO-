@@ -136,7 +136,7 @@ namespace FX5U_IOMonitor
             button2.Name = "button2";
             button2.Size = new Size(124, 33);
             button2.TabIndex = 15;
-            button2.Text = "郵件每分鐘發送測試";
+            button2.Text = "函數測試";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 

@@ -47,8 +47,8 @@ namespace FX5U_IOMonitor.Login
     public class ApplicationUser: IdentityUser
     {
         public string? LineNotifyToken { get; set; }
-        public bool NotifyByEmail { get; set; } = true;
-        public bool NotifyByLine { get; set; } = true;
+        public bool NotifyByEmail { get; set; } 
+        public bool NotifyByLine { get; set; } 
     }
     
     public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<ApplicationUser>
@@ -175,14 +175,17 @@ namespace FX5U_IOMonitor.Login
         /// <returns></returns>
         public async Task CreateUserAsync(string userName, string password, string role ,string email, string line)
         {
+            bool hasEmail = !string.IsNullOrWhiteSpace(email);
+            bool hasLine = !string.IsNullOrWhiteSpace(line);
             // Create the admin user
             var user = new ApplicationUser
             {
                 UserName = userName,
                 Email = email,        // ✅ 設定 email
                 EmailConfirmed = true,       // ✅ 若你不需要驗證流程，可以直接標記已驗證
-                LineNotifyToken = line
-
+                LineNotifyToken = line,
+                NotifyByEmail = hasEmail,
+                NotifyByLine = hasLine
             };
             var result = await _userManager.CreateAsync(user, password);
             if (result.Succeeded)
