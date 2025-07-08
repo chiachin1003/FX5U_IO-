@@ -1,0 +1,323 @@
+﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Email.Notify_Message;
+using static FX5U_IOMonitor.Email.Send_mode;
+
+namespace FX5U_IOMonitor.Email
+{
+    internal class DailyTaskExecutors
+    {
+        /// <summary>
+        /// 寄出每日健康元件系統總結
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<TaskResult> SendElementEmailAsync()
+        {
+            try
+            {
+                if (Application.OpenForms.Count > 0)
+                {
+                    var form = Application.OpenForms[0];
+                    form.Invoke(() =>
+                    {
+                        MessageBox.Show("正在執行 SendElementEmailAsync() 任務", "排程提醒");
+                    });
+                }
+                List<string> allUser = email.GetAllUserEmails();
+                List<string> allUser_line = email.GetAllUserLineAsync();
+
+                MessageSubjectType selectedType = MessageSubjectType.DailyHealthStatus;
+                string subject = MessageSubjectHelper.GetSubject(selectedType);
+                string body1 = Notify_Message.GenerateYellowComponentGroupSummary();
+                string body2 = Notify_Message.GenerateRedComponentGroupSummary();
+                string body = body1 + "\n----------------------------------------------------------------\n\n" + body2;
+
+                var mailInfo = new MessageInfo
+                {
+                    Receivers = allUser,
+                    Subject = subject,
+                    Body = body
+                };
+                var lineInfo = new MessageInfo
+                {
+                    Receivers = allUser_line,
+                    Subject = subject,
+                    Body = body
+                };
+
+                int port = Properties.Settings.Default.TLS_port;
+                await (port switch
+                {
+                    587 => SendViaSmtp587Async(mailInfo),
+                    465 => SendViaSmtp465Async(mailInfo),
+                    _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
+                });
+
+                await SendLineNotificationAsync(lineInfo);
+
+                return new TaskResult
+                {
+                    Success = true,
+                    Message = "測試郵件寄送成功",
+                    ExecutionTime = DateTime.UtcNow
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new TaskResult
+                {
+                    Success = false,
+                    Message = $"寄送失敗：{ex.Message}",
+                    ExecutionTime = DateTime.UtcNow,
+                    Exception = ex
+                };
+            }
+        }
+
+        /// <summary>
+        /// 寄出尚未排除警告的總結
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<TaskResult> SendDailyAlarmSummaryEmailAsync()
+        {
+            if (Application.OpenForms.Count > 0)
+            {
+                var form = Application.OpenForms[0];
+                form.Invoke(() =>
+                {
+                    //MessageBox.Show("正在執行 SendDailyAlarmSummaryEmailAsync() 任務", "排程提醒");
+                    Debug.WriteLine("開始執行每日警告提示");
+                });
+            }
+            using var db = new ApplicationDB();
+            var now = DateTime.UtcNow;
+
+            // 查詢所有尚未排除的警告，且今天尚未發送提醒過
+            var histories = db.AlarmHistories
+                .Include(h => h.Alarm)  // 載入關聯 Alarm 資料
+                .Where(h => h.EndTime == null && h.RecordTime != now)
+                .ToList();
+
+            // 如果沒有未排除的警告，不需要發送
+            if (!histories.Any())
+            {
+
+                return new TaskResult
+                {
+                    Success = false,
+                    Message = $"無警告需要寄送",
+                    ExecutionTime = DateTime.UtcNow,
+                };
+            }
+
+            // 根據每筆警告的 AlarmNotifyuser 欄位分組
+            var groupedByUsers = histories
+                .Where(h => !string.IsNullOrWhiteSpace(h.Alarm.AlarmNotifyuser))  // 排除未設定收件者
+                .GroupBy(h => h.Alarm.AlarmNotifyuser);                           // 以通知對象分組
+
+            bool emailSent = false;
+
+            foreach (var group in groupedByUsers)
+            {
+                // 取得收件者 email 清單（支援 , 或 ; 分隔）
+                var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
+                                     .Select(x => x.Trim())
+                                     .ToList();
+                List<string> allUser = email.GetUserEmails(users);
+                List<string> User_line = email.GetUserEmails(users);
+
+                // 建立該使用者對應的彙總信件內容
+                var body = BuildEmailBody(group.ToList());
+
+                //選擇發送郵件的主旨格式
+                MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;
+                string subject = MessageSubjectHelper.GetSubject(selectedType);
+
+                // 統整要送出的收件人跟資訊
+                var mailInfo = new MessageInfo
+                {
+                    Receivers = allUser,
+                    Subject = subject,
+                    Body = body
+                };
+                var lineInfo = new MessageInfo
+                {
+                    Receivers = User_line,
+                    Subject = subject,
+                    Body = body
+                };
+                int port = Properties.Settings.Default.TLS_port;
+                await (port switch
+                {
+                    587 => SendViaSmtp587Async(mailInfo),
+                    465 => SendViaSmtp465Async(mailInfo),
+                    _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
+                });
+                await SendLineNotificationAsync(lineInfo);
+
+                // 更新每筆紀錄的發送時間與次數
+                foreach (var h in group)
+                {
+                    h.RecordTime = DateTime.UtcNow;
+                    h.Records += 1;
+                }
+            }
+
+            // 寫回資料庫
+            if (emailSent)
+            {
+                db.SaveChanges();
+            }
+            return new TaskResult
+            {
+                Success = true,
+                Message = "郵件寄送成功",
+                ExecutionTime = DateTime.UtcNow
+            };
+
+        }
+
+        /// <summary>
+        /// 建立 多筆警告信件內容及摘要(將多筆警告合併為一封摘要)
+        /// </summary>
+        /// <param name="alarms"></param>
+        /// <returns></returns>
+        public static string BuildEmailBody(List<AlarmHistory> alarms)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("📌 以下為尚未排除的警告摘要：\n");
+
+            foreach (var h in alarms)
+            {
+                sb.AppendLine($"故障地址：{h.Alarm.address}");                       // 警告位置
+                sb.AppendLine($"警告描述：{h.Alarm.Description}");                  // 更換料件
+                sb.AppendLine($"錯誤內容：{h.Alarm.Error}");                        // 錯誤內容
+                sb.AppendLine($"錯誤可能原因：{h.Alarm.Possible}");                     // 錯誤內容
+                sb.AppendLine($"錯誤維修方式：{h.Alarm.Repair_steps}");                     // 錯誤內容
+                sb.AppendLine($"發生時間：{h.StartTime:yyyy-MM-dd HH:mm}");   // 發生時間
+                sb.AppendLine($"已發送次數：{h.Records + 1}");                 // 預估下一次寄送是第幾次
+                sb.AppendLine("-------------------------------------------");
+            }
+
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 定時紀錄機台參數
+        /// </summary>
+        /// <returns></returns>
+        public static async Task<TaskResult> RecordCurrentParameterSnapshotAsync(ScheduleFrequency config)
+        {
+            try
+            {
+                using var db = new ApplicationDB();
+                var now = DateTime.UtcNow;
+
+                DateTime roundedStartTime;
+                DateTime roundedEndTime;
+
+                switch (config)
+                {
+                    case ScheduleFrequency.Minutely:
+                        roundedStartTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
+                        roundedEndTime = roundedStartTime.AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Hourly:
+                        roundedStartTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc);
+                        roundedEndTime = roundedStartTime.AddMinutes(59).AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Daily:
+                        roundedStartTime = now.Date;
+                        roundedEndTime = roundedStartTime.AddHours(23).AddMinutes(59).AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Weekly:
+                        int diff = (int)now.DayOfWeek; // Sunday = 0
+                        roundedStartTime = now.Date.AddDays(-diff);
+                        roundedEndTime = roundedStartTime.AddDays(6).AddHours(23).AddMinutes(59).AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Monthly:
+                        roundedStartTime = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var lastDay = DateTime.DaysInMonth(now.Year, now.Month);
+                        roundedEndTime = new DateTime(now.Year, now.Month, lastDay, 23, 59, 59, DateTimeKind.Utc);
+                        break;
+                    default:
+                        throw new NotSupportedException($"不支援的排程頻率：{config}");
+                }
+
+                var parameters = db.MachineParameters.ToList();
+
+                foreach (var param in parameters)
+                {
+                    bool alreadyExists = db.MachineParameterHistoryRecodes.Any(r =>
+                        r.MachineParameterId == param.Id &&
+                        r.StartTime == roundedStartTime &&
+                        r.PeriodTag.EndsWith("_Metric"));
+
+                    if (alreadyExists)
+                        continue;
+
+                    int currentValue = DBfunction.Get_Machine_History_NumericValue(param.Name) +
+                                       DBfunction.Get_Machine_number(param.Name);
+
+                    db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                    {
+                        MachineParameterId = param.Id,
+                        StartTime = roundedStartTime,
+                        EndTime = roundedEndTime,
+                        History_NumericValue = currentValue,
+                        ResetBy = "SystemRecord_Metric",
+                        PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}"
+                    });
+
+                    // === 英制（若支援） ===
+                    if (!string.IsNullOrWhiteSpace(param.Read_addr) && param.Imperial_transfer.HasValue)
+                    {
+                        double imperialFactor = param.Imperial_transfer.Value / param.Unit_transfer;
+                        int? currentImperial = param.now_NumericValue.HasValue
+                            ? (int?)(param.now_NumericValue.Value * imperialFactor)
+                            : null;
+
+                        db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                        {
+                            MachineParameterId = param.Id,
+                            StartTime = roundedStartTime,
+                            EndTime = roundedEndTime,
+                            History_NumericValue = currentImperial,
+                            ResetBy = "SystemRecord_Imperial",
+                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Imperial"
+                        });
+                    }
+                }
+
+                await db.SaveChangesAsync();
+                MessageBox.Show("成功");
+
+                return new TaskResult
+                {
+                    Success = true,
+                    Message = $"{config} 快照完成，共處理 {parameters.Count} 筆參數",
+                    ExecutionTime = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("失敗");
+
+                return new TaskResult
+                {
+                    Success = false,
+                    Message = $"記錄參數快照失敗：{ex.Message}",
+                    ExecutionTime = DateTime.UtcNow
+                };
+            }
+        }
+    }
+}

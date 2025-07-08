@@ -43,9 +43,10 @@ namespace FX5U_IOMonitor
             syncService.Start();
 
             // 啟動每日各項排程
+            Email.DailyTask.StartAllSchedulers();
             //Email.DailyTask.StartAlarmScheduler();
             //Email.DailyTask.StartElementScheduler();
-            Email.DailyTask.StartParam_historyTaskScheduler();
+            //Email.DailyTask.StartParam_historyTaskScheduler();
 
             try
             {

@@ -158,7 +158,7 @@ namespace FX5U_IOMonitor
                 ExecutionTime = TimeSpan.Zero,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(SendDailyAlarmSummaryEmailAsync)
+                    ["CustomAction"] = new Func<Task<TaskResult>>(DailyTaskExecutors.SendDailyAlarmSummaryEmailAsync)
                 }
             };
 
@@ -170,7 +170,7 @@ namespace FX5U_IOMonitor
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            await SendElementEmailAsync();
+            await DailyTaskExecutors.SendElementEmailAsync();
 
 
 
@@ -247,7 +247,7 @@ namespace FX5U_IOMonitor
                 List<string> allUser = email.GetUserEmails(users);
 
                 // 建立該使用者對應的彙總信件內容
-                var body = BuildEmailBody(group.ToList());
+                var body = DailyTaskExecutors.BuildEmailBody(group.ToList());
 
                 //選擇發送郵件的主旨格式
                 MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;
@@ -312,7 +312,7 @@ namespace FX5U_IOMonitor
                 ExecutionTime = TimeSpan.Zero,
                 Parameters = new Dictionary<string, object>
                 {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(() => RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
+                    ["CustomAction"] = new Func<Task<TaskResult>>(() => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
                 }
             };
 
