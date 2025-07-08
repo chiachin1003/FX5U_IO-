@@ -572,7 +572,6 @@ namespace FX5U_IOMonitor.Email
                 var previousTime = roundedTime - period;
                 var parameters = db.MachineParameters.ToList();
 
-
                 foreach (var param in parameters)
                 {
                     // 防止重複寫入

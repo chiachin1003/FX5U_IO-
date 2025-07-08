@@ -239,7 +239,7 @@
             lab_LineTooltip.AutoSize = true;
             lab_LineTooltip.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_LineTooltip.ForeColor = SystemColors.ControlDark;
-            lab_LineTooltip.Location = new Point(20, 162);
+            lab_LineTooltip.Location = new Point(20, 191);
             lab_LineTooltip.Name = "lab_LineTooltip";
             lab_LineTooltip.Size = new Size(137, 14);
             lab_LineTooltip.TabIndex = 41;
@@ -249,7 +249,7 @@
             // 
             btn_update_line.BackColor = SystemColors.ButtonHighlight;
             btn_update_line.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_update_line.Location = new Point(397, 237);
+            btn_update_line.Location = new Point(397, 242);
             btn_update_line.Name = "btn_update_line";
             btn_update_line.Size = new Size(82, 36);
             btn_update_line.TabIndex = 40;
@@ -279,7 +279,7 @@
             // 
             // pictureBox1
             // 
-            pictureBox1.Location = new Point(359, 27);
+            pictureBox1.Location = new Point(359, 60);
             pictureBox1.Name = "pictureBox1";
             pictureBox1.Size = new Size(120, 113);
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -288,7 +288,7 @@
             // 
             // txb_channelAccessToken
             // 
-            txb_channelAccessToken.Location = new Point(19, 179);
+            txb_channelAccessToken.Location = new Point(21, 210);
             txb_channelAccessToken.Name = "txb_channelAccessToken";
             txb_channelAccessToken.Size = new Size(460, 23);
             txb_channelAccessToken.TabIndex = 1;
@@ -297,7 +297,7 @@
             // 
             lab_Line.AutoSize = true;
             lab_Line.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            lab_Line.Location = new Point(18, 137);
+            lab_Line.Location = new Point(20, 166);
             lab_Line.Name = "lab_Line";
             lab_Line.Size = new Size(186, 19);
             lab_Line.TabIndex = 0;

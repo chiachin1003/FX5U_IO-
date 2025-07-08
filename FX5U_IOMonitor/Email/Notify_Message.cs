@@ -18,17 +18,24 @@ namespace FX5U_IOMonitor.Email
         }
         public static class MessageSubjectHelper
         {
-            public static readonly Dictionary<MessageSubjectType, string> SubjectMap = new()
-            {
-                { MessageSubjectType.DailyHealthStatus, LanguageManager.TranslateFormat("MessageSubjectType_DailyHealthStatus")},
-                { MessageSubjectType.UnresolvedWarnings, LanguageManager.TranslateFormat("MessageSubjectType_UnresolvedWarnings") },
-                { MessageSubjectType.TriggeredAlarm,  LanguageManager.TranslateFormat("MessageSubjectType_TriggeredAlarm")},
-                { MessageSubjectType.TriggeredLifeNotification, LanguageManager.TranslateFormat("MessageSubjectType_TriggeredLifeNotification") }
-            };
+            //public static readonly Dictionary<MessageSubjectType, string> SubjectMap = new()
+            //{
+            //    { MessageSubjectType.DailyHealthStatus, LanguageManager.TranslateFormat("MessageSubjectType_DailyHealthStatus")},
+            //    { MessageSubjectType.UnresolvedWarnings, LanguageManager.TranslateFormat("MessageSubjectType_UnresolvedWarnings") },
+            //    { MessageSubjectType.TriggeredAlarm,  LanguageManager.TranslateFormat("MessageSubjectType_TriggeredAlarm")},
+            //    { MessageSubjectType.TriggeredLifeNotification, LanguageManager.TranslateFormat("MessageSubjectType_TriggeredLifeNotification") }
+            //};
 
             public static string GetSubject(MessageSubjectType type)
             {
-                return SubjectMap.TryGetValue(type, out var subject) ? subject : LanguageManager.TranslateFormat("MessageSubjectType_System");
+                return type switch
+                {
+                    MessageSubjectType.DailyHealthStatus => LanguageManager.TranslateFormat("MessageSubjectType_DailyHealthStatus"),
+                    MessageSubjectType.UnresolvedWarnings => LanguageManager.TranslateFormat("MessageSubjectType_UnresolvedWarnings"),
+                    MessageSubjectType.TriggeredAlarm => LanguageManager.TranslateFormat("MessageSubjectType_TriggeredAlarm"),
+                    MessageSubjectType.TriggeredLifeNotification => LanguageManager.TranslateFormat("MessageSubjectType_TriggeredLifeNotification"),
+                    _ => LanguageManager.TranslateFormat("MessageSubjectType_System")
+                };
             }
 
         }

@@ -1637,6 +1637,14 @@ namespace FX5U_IOMonitor.Models
                 return machine?.now_TextValue ?? "";
             }
         }
+        public static DateTime Get_Machine_creatTime(string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+                return machine.CreatedAt;
+            }
+        }
         public static double Get_Unit_transfer(string name)
         {
 

@@ -39,7 +39,7 @@ namespace FX5U_IOMonitor.panel_control
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleLeft
             };
-            AutoFitLabelFont(lblTitle);
+            Text_design.FitFontToLabel(lblTitle);
 
             lblValue = new Label
             {
@@ -50,11 +50,20 @@ namespace FX5U_IOMonitor.panel_control
                 TextAlign = ContentAlignment.MiddleLeft,
                 Location = new Point(0, 30)            
             };
+            lblExtra = new Label
+            {
+                Font = new Font("微軟正黑體", 8),
+                ForeColor = Color.Gray,
+                Location = new Point(10, 70),
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
 
             lblPrevMonth = new Label
             {
                 Font = new Font("微軟正黑體", 8),
-                Location = new Point(10, 70),
+                Location = new Point(10, 110),
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft
 
@@ -63,21 +72,13 @@ namespace FX5U_IOMonitor.panel_control
             lblThisMonth = new Label
             {
                 Font = new Font("微軟正黑體", 8),
-                Location = new Point(10, 90),
+                Location = new Point(10, 130),
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft
 
             };
 
-            lblExtra = new Label
-            {
-                Font = new Font("微軟正黑體", 8),
-                ForeColor = Color.Gray,
-                Location = new Point(10, 110),
-                AutoSize = true,
-                TextAlign = ContentAlignment.MiddleLeft
-            };
-
+          
             this.Controls.Add(lblTitle);
             this.Controls.Add(lblValue);
             this.Controls.Add(lblPrevMonth);
@@ -108,7 +109,7 @@ namespace FX5U_IOMonitor.panel_control
             lblThisMonth.Text = $"本月累計 {MonitorFunction.ConvertSecondsToDHMS(Today)} {arrowThis}";
             lblThisMonth.ForeColor = Today > Yesterday ? Color.Red : (Today < Yesterday ? Color.Green : Color.Gray);
 
-            lblExtra.Text = $"紀錄時間： {recordtime}";
+            lblExtra.Text = $"紀錄時間： \n{recordtime}";
 
             //    string arrowPrev = Yesterday > 0 ? "↑" : (Yesterday < 0 ? "↓" : "→");
             //    lblPrevMonth.Text = $"上月累計 {Math.Abs(Yesterday)}% {arrowPrev}";
@@ -120,29 +121,6 @@ namespace FX5U_IOMonitor.panel_control
 
             //    lblExtra.Text = $"紀錄時間： {newUser}";
         }
-        private void AutoFitLabelFont(Label label)
-        {
-            if (label == null || string.IsNullOrEmpty(label.Text)) return;
-
-            float fontSize = label.Font.Size;
-            int maxWidth = label.Width;
-
-            using (Graphics g = label.CreateGraphics())
-            {
-                while (fontSize > 6f) // 最小字體限制
-                {
-                    Font testFont = new Font(label.Font.FontFamily, fontSize, label.Font.Style);
-                    Size textSize = TextRenderer.MeasureText(label.Text, testFont);
-
-                    if (textSize.Width <= maxWidth)
-                    {
-                        label.Font = testFont;
-                        break;
-                    }
-
-                    fontSize -= 0.5f;
-                }
-            }
-        }
+       
     }
 }

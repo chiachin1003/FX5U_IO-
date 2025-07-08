@@ -1,5 +1,6 @@
 ﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
+using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -118,8 +119,9 @@ namespace FX5U_IOMonitor.panel_control
                 var record_late = DBfunction.GetLatestHistoryRecordByName(paramName);
                 var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName);
                 var secondDelta = SecondLate != null ? SecondLate.Delta : record_late.Delta;
+                DateTime now = DateTime.UtcNow;
 
-                string re = record_late.StartTime.ToString("yyyy/MM/dd HH:mm") + "\n" + record_late.EndTime.ToString("yyyy/MM/dd HH:mm");
+                string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
                 cardMap[paramName].SetData(LanguageManager.Translate(langKey), time, secondDelta, record_late.Delta, re);
             }
 
@@ -130,7 +132,8 @@ namespace FX5U_IOMonitor.panel_control
                 int count = DBfunction.Get_Machine_History_NumericValue(paramName);
                 var record_late = DBfunction.GetLatestHistoryRecordByName(paramName);
                 var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName);
-                string re = record_late.StartTime.ToString("yyyy/MM/dd HH:mm") + "\n" + record_late.EndTime.ToString("yyyy/MM/dd HH:mm" );
+                DateTime now = DateTime.UtcNow;
+                string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
 
                 cardMap[paramName].SetData(LanguageManager.Translate(langKey), count.ToString(), SecondLate.Delta, record_late.Delta, re);
             }
@@ -180,7 +183,8 @@ namespace FX5U_IOMonitor.panel_control
 
                     var record_late = DBfunction.GetLatestHistoryRecordByName(paramName);
                     var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName);
-                    string re = record_late.StartTime.ToString("yyyy/MM/dd HH:mm") +"\n" + record_late.EndTime.ToString("yyyy/MM/dd HH:mm");
+                    DateTime now = DateTime.UtcNow;
+                    string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
 
                     card.DisplayMode = CardDisplayMode.Time;
                     card.SetData(LanguageManager.Translate(langKey), time, record_late.Delta, SecondLate.Delta, re);
@@ -195,7 +199,8 @@ namespace FX5U_IOMonitor.panel_control
                     int count = DBfunction.Get_Machine_History_NumericValue(paramName);
                     var record_late = DBfunction.GetLatestHistoryRecordByName(paramName);
                     var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName);
-                    string re = record_late.StartTime.ToString("yyyy/MM/dd HH:mm") + "\n" + record_late.EndTime.ToString("yyyy/MM/dd HH:mm");
+                    DateTime now = DateTime.UtcNow;
+                    string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
 
                     cardMap[paramName].SetData(LanguageManager.Translate(langKey), count.ToString(), SecondLate.Delta, record_late.Delta, re);
                 }
