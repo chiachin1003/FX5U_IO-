@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Mail;
 using FX5U_IOMonitor.Properties;
 using Newtonsoft.Json.Linq;
+using System.Windows.Forms;
 
 namespace FX5U_IOMonitor.Resources
 {
@@ -58,7 +59,9 @@ namespace FX5U_IOMonitor.Resources
             lab_Port.Text = LanguageManager.Translate("Email_SetForm_Port");
             btn_Update.Text = LanguageManager.Translate("Email_SetForm_Update");
             btn_update_line.Text = LanguageManager.Translate("Email_SetForm_Update");
-
+            lab_Line_title.Text = LanguageManager.Translate("Notification_Settings_Line_title");
+            lab_Line.Text = LanguageManager.Translate("Notification_Settings_Line_Notify");
+            lab_LineTooltip.Text = LanguageManager.Translate("Notification_Settings_Line_NotifyTooltip");
 
         }
         private void Email_Settings_Load(object sender, EventArgs e)
@@ -148,8 +151,9 @@ namespace FX5U_IOMonitor.Resources
                     // ✅ 若 PictureBox 已載入圖片，先釋放資源（否則會鎖定圖檔）
                     if (pictureBox1.Image != null)
                     {
-                        pictureBox1.Image.Dispose();
+                        var oldImage = pictureBox1.Image;
                         pictureBox1.Image = null;
+                        oldImage.Dispose();
                     }
 
                     // ✅ 若目標圖檔已存在，先刪除（安全做法）

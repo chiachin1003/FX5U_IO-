@@ -41,12 +41,13 @@
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             tabPage2 = new TabPage();
+            lab_LineTooltip = new Label();
             btn_update_line = new Button();
-            label5 = new Label();
+            lab_Line_title = new Label();
             btn_QRcode = new Button();
             pictureBox1 = new PictureBox();
             txb_channelAccessToken = new TextBox();
-            lab_line = new Label();
+            lab_Line = new Label();
             tabPage3 = new TabPage();
             tableLayoutPanel1.SuspendLayout();
             tabControl1.SuspendLayout();
@@ -218,12 +219,13 @@
             // 
             // tabPage2
             // 
+            tabPage2.Controls.Add(lab_LineTooltip);
             tabPage2.Controls.Add(btn_update_line);
-            tabPage2.Controls.Add(label5);
+            tabPage2.Controls.Add(lab_Line_title);
             tabPage2.Controls.Add(btn_QRcode);
             tabPage2.Controls.Add(pictureBox1);
             tabPage2.Controls.Add(txb_channelAccessToken);
-            tabPage2.Controls.Add(lab_line);
+            tabPage2.Controls.Add(lab_Line);
             tabPage2.Location = new Point(4, 4);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
@@ -231,6 +233,17 @@
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Line";
             tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // lab_LineTooltip
+            // 
+            lab_LineTooltip.AutoSize = true;
+            lab_LineTooltip.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_LineTooltip.ForeColor = SystemColors.ControlDark;
+            lab_LineTooltip.Location = new Point(20, 162);
+            lab_LineTooltip.Name = "lab_LineTooltip";
+            lab_LineTooltip.Size = new Size(137, 14);
+            lab_LineTooltip.TabIndex = 41;
+            lab_LineTooltip.Text = "請輸入 Line Notify 權杖：";
             // 
             // btn_update_line
             // 
@@ -244,15 +257,15 @@
             btn_update_line.UseVisualStyleBackColor = false;
             btn_update_line.Click += btn_update_line_Click;
             // 
-            // label5
+            // lab_Line_title
             // 
-            label5.AutoSize = true;
-            label5.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            label5.Location = new Point(22, 27);
-            label5.Name = "label5";
-            label5.Size = new Size(234, 19);
-            label5.TabIndex = 6;
-            label5.Text = "輸入欲發送通知的Line官方帳號：";
+            lab_Line_title.AutoSize = true;
+            lab_Line_title.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            lab_Line_title.Location = new Point(19, 29);
+            lab_Line_title.Name = "lab_Line_title";
+            lab_Line_title.Size = new Size(234, 19);
+            lab_Line_title.TabIndex = 6;
+            lab_Line_title.Text = "輸入欲發送通知的Line官方帳號：";
             // 
             // btn_QRcode
             // 
@@ -280,15 +293,15 @@
             txb_channelAccessToken.Size = new Size(460, 23);
             txb_channelAccessToken.TabIndex = 1;
             // 
-            // lab_line
+            // lab_Line
             // 
-            lab_line.AutoSize = true;
-            lab_line.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            lab_line.Location = new Point(21, 149);
-            lab_line.Name = "lab_line";
-            lab_line.Size = new Size(186, 19);
-            lab_line.TabIndex = 0;
-            lab_line.Text = "請輸入 Line Notify 權杖：";
+            lab_Line.AutoSize = true;
+            lab_Line.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
+            lab_Line.Location = new Point(18, 137);
+            lab_Line.Name = "lab_Line";
+            lab_Line.Size = new Size(186, 19);
+            lab_Line.TabIndex = 0;
+            lab_Line.Text = "請輸入 Line Notify 權杖：";
             // 
             // tabPage3
             // 
@@ -296,7 +309,6 @@
             tabPage3.Name = "tabPage3";
             tabPage3.Size = new Size(508, 290);
             tabPage3.TabIndex = 2;
-            tabPage3.Text = "Wechat";
             tabPage3.UseVisualStyleBackColor = true;
             // 
             // Notification_Settings
@@ -334,12 +346,13 @@
         private TabControl tabControl1;
         private TabPage tabPage1;
         private TabPage tabPage2;
-        private Label label5;
+        private Label lab_Line_title;
         private Button btn_QRcode;
         private PictureBox pictureBox1;
         private TextBox txb_channelAccessToken;
-        private Label lab_line;
+        private Label lab_Line;
         private TabPage tabPage3;
         private Button btn_update_line;
+        private Label lab_LineTooltip;
     }
 }
