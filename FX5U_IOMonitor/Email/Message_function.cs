@@ -16,7 +16,7 @@ using Microsoft.VisualBasic.ApplicationServices;
 
 namespace FX5U_IOMonitor.Email
 {
-    public class email
+    public class Message_function
     {
         /// <summary>
         /// 所有使用者信箱
@@ -28,7 +28,7 @@ namespace FX5U_IOMonitor.Email
             using var context = new ApplicationDB();
 
             return context.Users
-                .Where(u => !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail)
+                .Where(u => !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail == true)
                 .Select(u => u.Email!)
                 .Distinct()
                 .ToList();
@@ -38,7 +38,7 @@ namespace FX5U_IOMonitor.Email
         {
             using var context = new ApplicationDB();
             
-            // 只取 email 並建立清單
+            // 只取 Message_function 並建立清單
             var emails = context.Users
                 .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.Email) && u.NotifyByEmail==true)
                 .Select(u => u.Email!)

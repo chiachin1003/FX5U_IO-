@@ -524,7 +524,11 @@ namespace FX5U_IOMonitor.Models
 
                                             continue;
                                         }
-
+                                        if (isFirstCycle && type == 1)
+                                        {
+                                            lastStates[name] = newVal;
+                                            continue;
+                                        }
 
                                         if (type == 1)
                                         {

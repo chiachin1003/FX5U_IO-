@@ -1,7 +1,7 @@
 using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Models;
 using Microsoft.Extensions.Logging;
-using static FX5U_IOMonitor.Email.email;
+using static FX5U_IOMonitor.Email.Message_function;
 using FX5U_IOMonitor.Login;
 
 
@@ -44,6 +44,7 @@ namespace FX5U_IOMonitor
 
             // 啟動每日各項排程
             Email.DailyTask.StartAllSchedulers();
+           
             //Email.DailyTask.StartAlarmScheduler();
             //Email.DailyTask.StartElementScheduler();
             //Email.DailyTask.StartParam_historyTaskScheduler();

@@ -28,11 +28,12 @@ namespace FX5U_IOMonitor.Email
                     var form = Application.OpenForms[0];
                     form.Invoke(() =>
                     {
-                        MessageBox.Show("正在執行 SendElementEmailAsync() 任務", "排程提醒");
+                        Debug.WriteLine("開始執行元件壽命提示");
+                        //MessageBox.Show("正在執行 SendElementEmailAsync() 任務", "排程提醒");
                     });
                 }
-                List<string> allUser = email.GetAllUserEmails();
-                List<string> allUser_line = email.GetAllUserLineAsync();
+                List<string> allUser = Message_function.GetAllUserEmails();
+                List<string> allUser_line = Message_function.GetAllUserLineAsync();
 
                 MessageSubjectType selectedType = MessageSubjectType.DailyHealthStatus;
                 string subject = MessageSubjectHelper.GetSubject(selectedType);
@@ -128,12 +129,12 @@ namespace FX5U_IOMonitor.Email
 
             foreach (var group in groupedByUsers)
             {
-                // 取得收件者 email 清單（支援 , 或 ; 分隔）
+                // 取得收件者 Message_function 清單（支援 , 或 ; 分隔）
                 var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
                                      .Select(x => x.Trim())
                                      .ToList();
-                List<string> allUser = email.GetUserEmails(users);
-                List<string> User_line = email.GetUserEmails(users);
+                List<string> allUser = Message_function.GetUserEmails(users);
+                List<string> User_line = Message_function.GetUserLine(users);
 
                 // 建立該使用者對應的彙總信件內容
                 var body = BuildEmailBody(group.ToList());
@@ -227,29 +228,64 @@ namespace FX5U_IOMonitor.Email
                 switch (config)
                 {
                     case ScheduleFrequency.Minutely:
-                        roundedStartTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Utc);
+                        var lastMinute = now.AddMinutes(-1);
+                        roundedStartTime = new DateTime(lastMinute.Year, lastMinute.Month, lastMinute.Day, lastMinute.Hour, lastMinute.Minute, 0, DateTimeKind.Utc);
                         roundedEndTime = roundedStartTime.AddSeconds(59);
                         break;
                     case ScheduleFrequency.Hourly:
-                        roundedStartTime = new DateTime(now.Year, now.Month, now.Day, now.Hour, 0, 0, DateTimeKind.Utc);
+                        var lastHour = now.AddHours(-1);
+                        roundedStartTime = new DateTime(lastHour.Year, lastHour.Month, lastHour.Day, lastHour.Hour, 0, 0, DateTimeKind.Utc);
                         roundedEndTime = roundedStartTime.AddMinutes(59).AddSeconds(59);
                         break;
                     case ScheduleFrequency.Daily:
-                        roundedStartTime = now.Date;
-                        roundedEndTime = roundedStartTime.AddHours(23).AddMinutes(59).AddSeconds(59);
+                        var yesterday = now.Date.AddDays(-1);
+                        roundedStartTime = yesterday;
+                        roundedEndTime = yesterday.AddHours(23).AddMinutes(59).AddSeconds(59);
                         break;
                     case ScheduleFrequency.Weekly:
-                        int diff = (int)now.DayOfWeek; // Sunday = 0
-                        roundedStartTime = now.Date.AddDays(-diff);
+                        int daysToLastSunday = (int)now.DayOfWeek + 7;
+                        roundedStartTime = now.Date.AddDays(-daysToLastSunday);
                         roundedEndTime = roundedStartTime.AddDays(6).AddHours(23).AddMinutes(59).AddSeconds(59);
                         break;
                     case ScheduleFrequency.Monthly:
-                        roundedStartTime = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                        var lastDay = DateTime.DaysInMonth(now.Year, now.Month);
-                        roundedEndTime = new DateTime(now.Year, now.Month, lastDay, 23, 59, 59, DateTimeKind.Utc);
+                        var prevMonth = now.AddMonths(-1);
+                        roundedStartTime = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var lastDayPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+                        roundedEndTime = new DateTime(prevMonth.Year, prevMonth.Month, lastDayPrevMonth, 23, 59, 59, DateTimeKind.Utc);
                         break;
                     default:
                         throw new NotSupportedException($"不支援的排程頻率：{config}");
+                }
+
+                string currentPeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric";
+
+                // 查詢最近的相同頻率紀錄（只看 Metric 的）
+                var latestRecord = db.MachineParameterHistoryRecodes
+                                     .Where(r => r.PeriodTag == currentPeriodTag)
+                                     .OrderByDescending(r => r.StartTime)
+                                     .FirstOrDefault();
+
+                if (latestRecord != null)
+                {
+                    if (latestRecord.PeriodTag == currentPeriodTag)
+                    {
+                        return new TaskResult
+                        {
+                            Success = true,
+                            Message = $"⏳ 已存在相同週期快照（{currentPeriodTag}），無需重複紀錄。",
+                            ExecutionTime = DateTime.UtcNow
+                        };
+                    }
+                    else if (latestRecord.StartTime >= roundedStartTime && DateTime.UtcNow <= roundedEndTime)
+                    {
+                        return new TaskResult
+                        {
+                            Success = true,
+                            Message = $"✅ 最近快照（{latestRecord.PeriodTag}）仍在週期內，略過紀錄。",
+                            ExecutionTime = DateTime.UtcNow
+                        };
+                    }
+                    // 否則落後、超時 ➜ 繼續紀錄
                 }
 
                 var parameters = db.MachineParameters.ToList();
@@ -274,7 +310,7 @@ namespace FX5U_IOMonitor.Email
                         EndTime = roundedEndTime,
                         History_NumericValue = currentValue,
                         ResetBy = "SystemRecord_Metric",
-                        PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}"
+                        PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric"
                     });
 
                     // === 英制（若支援） ===

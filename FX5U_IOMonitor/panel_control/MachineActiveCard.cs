@@ -2,9 +2,12 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using static FX5U_IOMonitor.Email.DailyTask_config;
 
 namespace FX5U_IOMonitor.panel_control
 {
@@ -86,30 +89,64 @@ namespace FX5U_IOMonitor.panel_control
             this.Controls.Add(lblExtra);
         }
 
-        public void SetData(string Title, string value, int Yesterday, int Today, string recordtime)
+        public void SetData(string Title, string value, int Yesterday, int Today, string recordtime, ScheduleFrequency scheduleFrequency)
         {
             lblTitle.Text = Title;
+            string lblPrevMonthtitle = "";
+            string lblThisMonthtitle = "";
+
+         
             if (DisplayMode == CardDisplayMode.Time)
             {
                 lblValue.Text = value;
-                lblValue.Location = new Point(0, 30);     
+                lblValue.Location = new Point(0, 30);
+                if (scheduleFrequency == ScheduleFrequency.Weekly || scheduleFrequency == ScheduleFrequency.Minutely)
+                {
+                    lblPrevMonthtitle = LanguageManager.Translate("DrillInfo_LastWeek_TotalTime");
+                    lblThisMonthtitle = LanguageManager.Translate("DrillInfo_ThisWeek_TotalTime");
+                }
+                else if(scheduleFrequency == ScheduleFrequency.Monthly || scheduleFrequency == ScheduleFrequency.Daily)
+                {
+                    lblPrevMonthtitle = LanguageManager.Translate("DrillInfo_LastMonth_TotalTime");
+                    lblThisMonthtitle = LanguageManager.Translate("DrillInfo_ThisMonth_TotalTime");
+                }
+                lblPrevMonth.Text = lblPrevMonthtitle + $"{MonitorFunction.ConvertSecondsToDHMS(Yesterday)} ";
+                lblPrevMonth.ForeColor = Color.Black;
+
+                string arrowThis = Today > Yesterday ? "↑" : (Today < Yesterday ? "↓" : "—");
+                lblThisMonth.Text = lblThisMonthtitle + $"{MonitorFunction.ConvertSecondsToDHMS(Today)} {arrowThis}";
+                lblThisMonth.ForeColor = Today > Yesterday ? Color.Red : (Today < Yesterday ? Color.Green : Color.Gray);
+
+                lblExtra.Text = LanguageManager.Translate("DrillInfo_RecordTime") +$"\n{recordtime}";
+
 
             }
             else if (DisplayMode == CardDisplayMode.Count)
             {
+                if (scheduleFrequency == ScheduleFrequency.Weekly || scheduleFrequency == ScheduleFrequency.Minutely)
+                {
+                    lblPrevMonthtitle = LanguageManager.Translate("DrillInfo_LastWeek_TotalCount");
+                    lblThisMonthtitle = LanguageManager.Translate("DrillInfo_ThisWeek_TotalCount");
+                }
+                else if (scheduleFrequency == ScheduleFrequency.Monthly || scheduleFrequency == ScheduleFrequency.Daily)
+                {
+                    lblPrevMonthtitle = LanguageManager.Translate("DrillInfo_LastMonth_TotalCount");
+                    lblThisMonthtitle = LanguageManager.Translate("DrillInfo_ThisMonth_TotalCount");
+                }
                 lblValue.Text = value ;
-                lblValue.Location = new Point(8, 30); 
+                lblValue.Location = new Point(8, 30);
+                lblPrevMonth.Text = lblPrevMonthtitle + $"{Yesterday} ";
+                lblPrevMonth.ForeColor = Color.Black;
+
+                string arrowThis = Today > Yesterday ? "↑" : (Today < Yesterday ? "↓" : "—");
+                lblThisMonth.Text = lblThisMonthtitle + $"{Today} {arrowThis}";
+                lblThisMonth.ForeColor = Today > Yesterday ? Color.Red : (Today < Yesterday ? Color.Green : Color.Gray);
+
+                lblExtra.Text = LanguageManager.Translate("DrillInfo_RecordTime") + $"\n{recordtime}";
+
 
             }
 
-            lblPrevMonth.Text = $"上月累計 {MonitorFunction.ConvertSecondsToDHMS(Yesterday)} ";
-            lblPrevMonth.ForeColor =  Color.Black;
-
-            string arrowThis = Today > Yesterday ? "↑" : (Today < Yesterday ? "↓" : "—");
-            lblThisMonth.Text = $"本月累計 {MonitorFunction.ConvertSecondsToDHMS(Today)} {arrowThis}";
-            lblThisMonth.ForeColor = Today > Yesterday ? Color.Red : (Today < Yesterday ? Color.Green : Color.Gray);
-
-            lblExtra.Text = $"紀錄時間： \n{recordtime}";
 
             //    string arrowPrev = Yesterday > 0 ? "↑" : (Yesterday < 0 ? "↓" : "→");
             //    lblPrevMonth.Text = $"上月累計 {Math.Abs(Yesterday)}% {arrowPrev}";

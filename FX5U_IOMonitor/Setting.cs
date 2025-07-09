@@ -104,8 +104,8 @@ namespace FX5U_IOMonitor
         {
 
             //選擇郵件的接收者
-            List<string> allEmailUser = email.GetAllUserEmails();
-            List<string> allLineUser = email.GetAllUserLineAsync();
+            List<string> allEmailUser = Message_function.GetAllUserEmails();
+            List<string> allLineUser = Message_function.GetAllUserLineAsync();
 
             //選擇發送郵件的主旨格式
             MessageSubjectType selectedType = MessageSubjectType.DailyHealthStatus;
@@ -246,11 +246,11 @@ namespace FX5U_IOMonitor
 
             foreach (var group in groupedByUsers)
             {
-                // 取得收件者 email 清單（支援 , 或 ; 分隔）
+                // 取得收件者 Message_function 清單（支援 , 或 ; 分隔）
                 var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
                                      .Select(x => x.Trim())
                                      .ToList();
-                List<string> allUser = email.GetUserEmails(users);
+                List<string> allUser = Message_function.GetUserEmails(users);
 
                 // 建立該使用者對應的彙總信件內容
                 var body = DailyTaskExecutors.BuildEmailBody(group.ToList());

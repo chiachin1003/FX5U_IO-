@@ -4,6 +4,7 @@ using FX5U_IOMonitor.Login;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Utilities.Net;
 using System;
@@ -18,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Data.Recordmode;
+using static FX5U_IOMonitor.Email.DailyTask_config;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FX5U_IOMonitor.Models
@@ -89,14 +91,16 @@ namespace FX5U_IOMonitor.Models
                 return context.Machine_IO.Where(a => a.Machine_name == machineName).Count();
             }
         }
-        public static HistoryRecordDto? GetLatestHistoryRecordByName(string paramName)
+        public static HistoryRecordDto? GetLatestHistoryRecordByName(string paramName, ScheduleFrequency frequency)
         {
             using (var context = new ApplicationDB())
             {
+                // 將 enum 轉成字串，例如 "Monthly"
+                string freqTag = $"_{frequency}_";
                 // 最新歷史紀錄（上一筆）
                 var latestRecord = (from h in context.MachineParameterHistoryRecodes
                                     join p in context.MachineParameters on h.MachineParameterId equals p.Id
-                                    where p.Name == paramName
+                                    where p.Name == paramName && h.PeriodTag != null && h.PeriodTag.Contains(freqTag)
                                     orderby h.StartTime descending
                                     select new
                                     {
@@ -120,21 +124,23 @@ namespace FX5U_IOMonitor.Models
                 return new HistoryRecordDto
                 {
                     StartTime = latestRecord.StartTime,
-                    EndTime =DateTime.UtcNow,
+                    EndTime = latestRecord.EndTime,
                     Delta = delta
                 };
 
                
             }
         }
-        public static HistoryRecordDto? GetSecondLatestHistoryRecordByName(string paramName)
+        public static HistoryRecordDto? GetSecondLatestHistoryRecordByName(string paramName, ScheduleFrequency frequency)
         {
             using (var context = new ApplicationDB())
             {
+                string freqTag = $"_{frequency}_";
+
                 // 上一筆
                 var latestRecord = (from h in context.MachineParameterHistoryRecodes
                                     join p in context.MachineParameters on h.MachineParameterId equals p.Id
-                                    where p.Name == paramName
+                                    where p.Name == paramName && h.PeriodTag != null && h.PeriodTag.Contains(freqTag)
                                     orderby h.StartTime descending
                                     select new
                                     {
@@ -148,7 +154,7 @@ namespace FX5U_IOMonitor.Models
                 // 上上筆
                 var secdRecord = (from h in context.MachineParameterHistoryRecodes
                                   join p in context.MachineParameters on h.MachineParameterId equals p.Id
-                                  where p.Name == paramName
+                                  where p.Name == paramName && h.PeriodTag != null && h.PeriodTag.Contains(freqTag)
                                   orderby h.StartTime descending
                                   select new
                                   {
@@ -164,13 +170,14 @@ namespace FX5U_IOMonitor.Models
                 if (latestRecord == null || secdRecord == null)
                     return null;
 
+
                 int delta = latestRecord.HistoryValue - secdRecord.HistoryValue;
                 if (delta < 0) delta = 0; // 保護資料正確性
 
                 return new HistoryRecordDto
                 {
-                    StartTime = latestRecord.StartTime,
-                    EndTime = latestRecord.EndTime,
+                    StartTime = secdRecord.StartTime,
+                    EndTime = secdRecord.EndTime,
                     Delta = delta
                 };
 

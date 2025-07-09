@@ -540,7 +540,7 @@ namespace FX5U_IOMonitor
                 }
                 try
                 {
-                    await email.SendFailureAlarmMail(
+                    await Message_function.SendFailureAlarmMail(
                     receivers,
                     machineName,
                     partNumber,

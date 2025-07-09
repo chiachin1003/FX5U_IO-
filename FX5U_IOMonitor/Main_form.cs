@@ -11,6 +11,7 @@ using FX5U_IOMonitor.panel_control;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.ParameterHistoryManager;
 using FX5U_IOMonitor.Resources;
+using static FX5U_IOMonitor.Email.DailyTask_config;
 
 
 
@@ -259,11 +260,31 @@ namespace FX5U_IOMonitor
             //{
             //    addInfo_Form.BringToFront();  // 若已開啟，拉到最前面
             //}
-            using (var form = new Machine_monitoring_interface_card())
+            // 建立選單
+            var menu = new ContextMenuStrip();
+
+            // 加入「每週記錄」
+            menu.Items.Add(LanguageManager.Translate("DrillInfo_Week_Record"), null, (_, __) =>
             {
-                form.StartPosition = FormStartPosition.CenterParent;
-                var result = form.ShowDialog(this);
-            }
+                OpenMonitoringInterface(ScheduleFrequency.Minutely);
+            });
+
+            // 加入「每月記錄」
+            menu.Items.Add(LanguageManager.Translate("DrillInfo_Month_Record"), null, (_, __) =>
+            {
+                OpenMonitoringInterface(ScheduleFrequency.Daily);
+            });
+
+            // 顯示在滑鼠點擊處（或按鈕位置）
+            var btn = (Button)sender;
+            menu.Show(btn, new Point(0, btn.Height)); // 顯示在按鈕下方
+
+        }
+        private void OpenMonitoringInterface(ScheduleFrequency freq)
+        {
+            using var form = new Machine_monitoring_interface_card(freq);
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.ShowDialog(this);
         }
 
         private void lab_power_Click(object sender, EventArgs e)

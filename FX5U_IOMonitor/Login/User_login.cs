@@ -182,7 +182,7 @@ namespace FX5U_IOMonitor.Login
             var user = new ApplicationUser
             {
                 UserName = userName,
-                Email = email,        // ✅ 設定 email
+                Email = email,        // ✅ 設定 Message_function
                 EmailConfirmed = true,       // ✅ 若你不需要驗證流程，可以直接標記已驗證
                 LineNotifyToken = line,
                 NotifyByEmail = hasEmail,

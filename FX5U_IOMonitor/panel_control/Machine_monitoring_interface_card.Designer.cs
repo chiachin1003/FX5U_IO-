@@ -38,14 +38,14 @@
             flowLayoutPanel1.Dock = DockStyle.Fill;
             flowLayoutPanel1.Location = new Point(0, 0);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(800, 450);
+            flowLayoutPanel1.Size = new Size(800, 477);
             flowLayoutPanel1.TabIndex = 0;
             // 
             // Machine_monitoring_interface_card
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(800, 477);
             Controls.Add(flowLayoutPanel1);
             Name = "Machine_monitoring_interface_card";
             Text = "Form1";

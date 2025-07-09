@@ -40,7 +40,7 @@ namespace FX5U_IOMonitor.Resources
         private void btn_setting_Click(object sender, EventArgs e)
         {
 
-            // 設定寄件人 email 與密碼 (注意：若使用 Gmail，請確認帳戶已開啟「低安全性應用程式存取」或使用應用程式密碼)
+            // 設定寄件人 Message_function 與密碼 (注意：若使用 Gmail，請確認帳戶已開啟「低安全性應用程式存取」或使用應用程式密碼)
             Properties.Settings.Default.senderEmail = txb_senderEmail.Text;
             Properties.Settings.Default.senderPassword = txb_senderPassword.Text; // 建議使用應用程式專用密碼
 

@@ -20,14 +20,26 @@ namespace FX5U_IOMonitor.Email
         }
         public static void StartElementScheduler()
         {
-            AddTaskOnce("Email_Element_Task", ScheduleFrequency.Minutely, TimeSpan.Zero,
+            AddTaskOnce("Email_Element_Task", ScheduleFrequency.Daily, TimeSpan.Zero,
                 () => DailyTaskExecutors.SendElementEmailAsync());
         }
         public static void StartParam_historyTaskScheduler()
         {
-            AddTaskOnce("Param_historyTask", ScheduleFrequency.Minutely, TimeSpan.Zero,
-                () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely));
+
+            //AddTaskOnce("Param_historyMinute", ScheduleFrequency.Minutely, TimeSpan.Zero,
+            //    () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely));
+            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily);
+            AddTaskOnce("Param_historyTask", ScheduleFrequency.Daily, TimeSpan.Zero,
+                () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily));
+
+            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly);
+            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly);
+            AddTaskOnce("Param_week", ScheduleFrequency.Monthly, TimeSpan.Zero,
+               () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly));
+            AddTaskOnce("Param_Monthly", ScheduleFrequency.Monthly, TimeSpan.Zero,
+               () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly));
         }
+        
         private static void AddTaskOnce(string taskName, ScheduleFrequency freq, TimeSpan execTime, Func<Task<TaskResult>> action)
         {
             if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
