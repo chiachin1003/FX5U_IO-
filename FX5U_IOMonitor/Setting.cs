@@ -24,7 +24,13 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
+            SwitchLanguage();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
 
+            SwitchLanguage();
         }
 
         private void btn_file_download_Click(object sender, EventArgs e)
@@ -320,7 +326,16 @@ namespace FX5U_IOMonitor
 
         }
 
-
+        private void SwitchLanguage()
+        {
+            btn_Mail_Manager.Text = LanguageManager.Translate("Email_SetForm_Title");
+            btn_usersetting.Text = LanguageManager.Translate("UserManageForm_Title");
+            btn_checkpoint.Text = LanguageManager.Translate("Settingmanu_checkpoint");
+            btn_file_download.Text = LanguageManager.Translate("Settingmanu_filedownload");
+            btn_Alrm_Notify.Text = LanguageManager.Translate("Alarm_Notify_title");
+            btn_notify.Text = LanguageManager.Translate("Receive_Notification");
+            btn_history.Text = LanguageManager.Translate("Settingmanu_history");
+        }
     }
 
 

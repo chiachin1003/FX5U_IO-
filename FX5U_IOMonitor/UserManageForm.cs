@@ -34,6 +34,7 @@ namespace FX5U_IOMonitor
             _btnAdd.Text = LanguageManager.Translate("UserManageForm_Btn_Add");
             _btnDelete.Text = LanguageManager.Translate("UserManageForm_Btn_Delete");
             lab_emailsetting.Text = LanguageManager.Translate("UserManageForm_Lab_mail");
+            lab_hint.Text = LanguageManager.Translate("UserManageForm_lab_hint");
         }
 
         private async void UserManageForm_Shown(object? sender, EventArgs e)

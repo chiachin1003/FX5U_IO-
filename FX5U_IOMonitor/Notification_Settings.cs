@@ -169,6 +169,7 @@ namespace FX5U_IOMonitor.Resources
                             return;
                         }
                     }
+
                     File.Copy(selectedPath, savedImagePath, true);
 
                     using (FileStream fs = new FileStream(savedImagePath, FileMode.Open, FileAccess.Read))

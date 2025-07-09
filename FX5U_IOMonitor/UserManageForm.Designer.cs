@@ -45,7 +45,7 @@
             lab_line = new Label();
             _txt_Line = new TextBox();
             pictureBox_Official_Account = new PictureBox();
-            label1 = new Label();
+            lab_hint = new Label();
             ((System.ComponentModel.ISupportInitialize)_dgvUsers).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox_Official_Account).BeginInit();
             SuspendLayout();
@@ -151,7 +151,7 @@
             // 
             _btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnAdd.BackColor = SystemColors.ButtonHighlight;
-            _btnAdd.Location = new Point(514, 300);
+            _btnAdd.Location = new Point(305, 305);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(75, 33);
             _btnAdd.TabIndex = 9;
@@ -163,7 +163,7 @@
             // 
             _btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnDelete.BackColor = SystemColors.ButtonHighlight;
-            _btnDelete.Location = new Point(514, 354);
+            _btnDelete.Location = new Point(305, 357);
             _btnDelete.Name = "_btnDelete";
             _btnDelete.Size = new Size(75, 33);
             _btnDelete.TabIndex = 10;
@@ -235,21 +235,22 @@
             // 
             // pictureBox_Official_Account
             // 
-            pictureBox_Official_Account.Location = new Point(305, 288);
+            pictureBox_Official_Account.Location = new Point(457, 287);
             pictureBox_Official_Account.Name = "pictureBox_Official_Account";
-            pictureBox_Official_Account.Size = new Size(128, 119);
+            pictureBox_Official_Account.Size = new Size(132, 120);
             pictureBox_Official_Account.SizeMode = PictureBoxSizeMode.StretchImage;
             pictureBox_Official_Account.TabIndex = 17;
             pictureBox_Official_Account.TabStop = false;
             // 
-            // label1
+            // lab_hint
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(305, 240);
-            label1.Name = "label1";
-            label1.Size = new Size(294, 30);
-            label1.TabIndex = 0;
-            label1.Text = "ℹ️ 請掃描下方 QR Code 加入 Line Notify 官方帳號，\r\n加入後可取得您的發送權杖（Token）用於訊息通知。";
+            lab_hint.AutoSize = true;
+            lab_hint.Location = new Point(302, 238);
+            lab_hint.MaximumSize = new Size(294, 0);
+            lab_hint.Name = "lab_hint";
+            lab_hint.Size = new Size(294, 30);
+            lab_hint.TabIndex = 0;
+            lab_hint.Text = "ℹ️ 請掃描下方 QR Code 加入 Line Notify 官方帳號，\r\n加入後可取得您的發送權杖（Token）用於訊息通知。";
             // 
             // UserManageForm
             // 
@@ -257,8 +258,8 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(613, 419);
-            Controls.Add(label1);
             Controls.Add(pictureBox_Official_Account);
+            Controls.Add(lab_hint);
             Controls.Add(_txt_Line);
             Controls.Add(lab_line);
             Controls.Add(_txtEmail);
@@ -305,6 +306,6 @@
         private Label lab_line;
         private TextBox _txt_Line;
         private PictureBox pictureBox_Official_Account;
-        private Label label1;
+        private Label lab_hint;
     }
 }
