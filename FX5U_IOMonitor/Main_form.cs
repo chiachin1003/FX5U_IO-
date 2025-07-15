@@ -266,13 +266,13 @@ namespace FX5U_IOMonitor
             // 加入「每週記錄」
             menu.Items.Add(LanguageManager.Translate("DrillInfo_Week_Record"), null, (_, __) =>
             {
-                OpenMonitoringInterface(ScheduleFrequency.Minutely);
+                OpenMonitoringInterface(ScheduleFrequency.Weekly);
             });
 
             // 加入「每月記錄」
             menu.Items.Add(LanguageManager.Translate("DrillInfo_Month_Record"), null, (_, __) =>
             {
-                OpenMonitoringInterface(ScheduleFrequency.Daily);
+                OpenMonitoringInterface(ScheduleFrequency.Monthly);
             });
 
             // 顯示在滑鼠點擊處（或按鈕位置）

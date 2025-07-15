@@ -98,6 +98,8 @@ namespace FX5U_IOMonitor.panel_control
                 var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
                 DateTime now = DateTime.UtcNow;
                 string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
+                
+                
                 if (SecondLate == null)
                 {
                     record_late.Delta = seconds;
@@ -106,7 +108,7 @@ namespace FX5U_IOMonitor.panel_control
                 }
                 else
                 {
-                    var secondDelta = SecondLate.Delta ;
+                    var secondDelta = SecondLate.Delta;
                     card.SetData(title, time, secondDelta, record_late.Delta, re, history_Frequency);
                 }
 

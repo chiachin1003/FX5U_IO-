@@ -1981,13 +1981,14 @@ namespace FX5U_IOMonitor.Models
             {
                 var result = context.AlarmHistories
                    .Include(ah => ah.Alarm)
+                   .Include(a => a.Alarm.Translations)
                    .Where(ah => ah.EndTime >= startDate && ah.StartTime <= endDate)
                    .OrderByDescending(ah => ah.StartTime)
                    .AsEnumerable()
                    .Select(ah => new AlarmHistoryViewModel
                    {
                        IPC_table =ah.Alarm.IPC_table,
-                       Error = ah.Alarm.Error,
+                       Error = ah.Alarm.GetError(),
                        classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
@@ -1998,8 +1999,7 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
-
-      
+       
 
     
     }

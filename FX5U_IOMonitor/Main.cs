@@ -58,7 +58,7 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
-           
+
 
             try
             {
@@ -93,7 +93,7 @@ namespace FX5U_IOMonitor
 
             }
 
-          
+
 
             try
             {
@@ -345,7 +345,7 @@ namespace FX5U_IOMonitor
 
         }
 
-      
+
 
         private void InitLanguageComboBox()
         {
@@ -443,5 +443,6 @@ namespace FX5U_IOMonitor
             }
         }
 
+       
     }
 }

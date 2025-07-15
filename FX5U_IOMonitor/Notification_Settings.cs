@@ -199,10 +199,29 @@ namespace FX5U_IOMonitor.Resources
 
             if (File.Exists(path))
             {
-                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                try
                 {
-                    picBox.Image = Image.FromStream(fs);
+                    using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        fs.CopyTo(ms);
+                        ms.Position = 0;
+
+                        // 若已有圖片，先釋放再更新
+                        picBox.Image?.Dispose();
+                        picBox.Image = Image.FromStream(ms);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"載入圖片失敗：{ex.Message}");
+                }
+            }
+            else
+            {
+                // 若圖片不存在，可選擇清空或顯示預設圖
+                picBox.Image?.Dispose();
+                picBox.Image = null;
             }
         }
     }

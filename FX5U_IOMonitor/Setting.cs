@@ -83,7 +83,28 @@ namespace FX5U_IOMonitor
 
         private void Setting_Load(object sender, EventArgs e)
         {
+            if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
+            {
+                btn_file_download.Enabled = true;
+                btn_Alrm_Notify.Enabled = true;
+                btn_usersetting.Enabled = true;
+                btn_Mail_Manager.Enabled = true;
 
+            }
+            else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)
+            {
+                btn_file_download.Enabled = true;
+                btn_Alrm_Notify.Enabled = true;
+                btn_usersetting.Enabled = false;
+                btn_Mail_Manager.Enabled = false;
+            }
+            else if (UserService<ApplicationDB>.CurrentRole == SD.Role_User)
+            {
+                btn_file_download.Enabled = false;
+                btn_Alrm_Notify.Enabled = false;
+                btn_usersetting.Enabled = false;
+                btn_Mail_Manager.Enabled = false;
+            }
         }
 
         private void btn_update_Click(object sender, EventArgs e)
@@ -140,37 +161,35 @@ namespace FX5U_IOMonitor
 
 
         }
-        private FlexibleScheduler _scheduler;
+        //private FlexibleScheduler _scheduler;
 
 
         private void button1_Click(object sender, EventArgs e)
         {
-            _scheduler = new FlexibleScheduler();
+            //_scheduler = new FlexibleScheduler();
 
-            const string taskName = "alarmTask";
+            //const string taskName = "alarmTask";
 
-            // 若任務已存在就不重複加
-            if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
-            {
-                MessageBox.Show("任務已經存在，將不重複啟動。");
-                return;
-            }
+            //// 若任務已存在就不重複加
+            //if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
+            //{
+            //    MessageBox.Show("任務已經存在，將不重複啟動。");
+            //    return;
+            //}
 
-            var config1 = new TaskConfiguration
-            {
-                TaskName = taskName,
-                TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Minutely, // 或其他
-                ExecutionTime = TimeSpan.Zero,
-                Parameters = new Dictionary<string, object>
-                {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(DailyTaskExecutors.SendDailyAlarmSummaryEmailAsync)
-                }
-            };
+            //var config1 = new TaskConfiguration
+            //{
+            //    TaskName = taskName,
+            //    TaskType = ScheduleTaskType.CustomTask,
+            //    Frequency = ScheduleFrequency.Minutely, // 或其他
+            //    ExecutionTime = TimeSpan.Zero,
+            //    Parameters = new Dictionary<string, object>
+            //    {
+            //        ["CustomAction"] = new Func<Task<TaskResult>>(DailyTaskExecutors.SendDailyAlarmSummaryEmailAsync)
+            //    }
+            //};
 
-            _scheduler.AddTask(config1);
-            //_scheduler.StartTask(config1);
-
+            //_scheduler.AddTask(config1);
 
         }
 
@@ -300,29 +319,29 @@ namespace FX5U_IOMonitor
 
         private void button3_Click(object sender, EventArgs e)
         {
-            _scheduler = new FlexibleScheduler();
+            //_scheduler = new FlexibleScheduler();
 
-            const string taskName = "Param_historyTask";
+            //const string taskName = "Param_historyTask";
 
-            if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
-            {
-                MessageBox.Show("任務已經存在，將不重複啟動。");
-                return;
-            }
+            //if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
+            //{
+            //    MessageBox.Show("任務已經存在，將不重複啟動。");
+            //    return;
+            //}
 
-            var config1 = new TaskConfiguration
-            {
-                TaskName = taskName,
-                TaskType = ScheduleTaskType.CustomTask,
-                Frequency = ScheduleFrequency.Daily,
-                ExecutionTime = TimeSpan.Zero,
-                Parameters = new Dictionary<string, object>
-                {
-                    ["CustomAction"] = new Func<Task<TaskResult>>(() => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
-                }
-            };
+            //var config1 = new TaskConfiguration
+            //{
+            //    TaskName = taskName,
+            //    TaskType = ScheduleTaskType.CustomTask,
+            //    Frequency = ScheduleFrequency.Daily,
+            //    ExecutionTime = TimeSpan.Zero,
+            //    Parameters = new Dictionary<string, object>
+            //    {
+            //        ["CustomAction"] = new Func<Task<TaskResult>>(() => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
+            //    }
+            //};
 
-            _scheduler.AddTask(config1);
+            //_scheduler.AddTask(config1);
 
         }
 

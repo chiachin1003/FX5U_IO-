@@ -174,9 +174,13 @@ namespace FX5U_IOMonitor.Models
                                       address.StartsWith("L8") ? "Drill" :
                                       address.StartsWith("L9") ? "Sawing" : "Unknown";
 
+                    string? ipcTable = row.IPC_table;
+                    if (string.IsNullOrWhiteSpace(ipcTable))
+                        continue;
+
                     var alarm = context.alarm
                         .Include(a => a.Translations)
-                        .FirstOrDefault(a => a.address == address && a.SourceMachine == sourceDb);
+                        .FirstOrDefault(a => a.IPC_table == ipcTable && a.SourceMachine == sourceDb);
 
                     if (alarm != null)
                     {

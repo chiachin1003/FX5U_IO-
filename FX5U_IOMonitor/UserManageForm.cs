@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
-using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.Data;
+﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Resources;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.VisualBasic.ApplicationServices;
+using System.ComponentModel;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ListView;
 
 namespace FX5U_IOMonitor
 {
@@ -59,8 +60,12 @@ namespace FX5U_IOMonitor
 
             _dgvUsers.DataSource = filteredUserList.ToList();
             _dgvUsers.Columns["UserName"].HeaderText = LanguageManager.Translate("UserManageForm_Lbl_Name");
+            _dgvUsers.Columns["UserName"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             _dgvUsers.Columns["Email"].HeaderText = LanguageManager.Translate("UserManageForm_Lab_mail");
-            _dgvUsers.Columns["Token"].HeaderText = "Line Notify"; 
+            _dgvUsers.Columns["Email"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            _dgvUsers.Columns["Token"].HeaderText = "Line Notify";
+            _dgvUsers.Columns["Token"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            
 
             // _dgvUsers.DataSource = new BindingList<ApplicationUser>(userNameList);
         }
@@ -144,6 +149,25 @@ namespace FX5U_IOMonitor
             await UpdateDGV();
         }
 
-       
+        private async void _dgvUsers_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return; // 標題列無效
+            using var userService = new UserService<ApplicationDB>();
+
+            var selectedUser = _dgvUsers.Rows[e.RowIndex].DataBoundItem as UserDisplay;
+            var fullUser = await userService.UserManager.FindByNameAsync(selectedUser.UserName);
+            if (fullUser == null)
+            {
+                MessageBox.Show(LanguageManager.Translate("UserManageForm_Msg_DataNotFound"));
+                return;
+            }
+
+            using (var form = new Receive_Notification(userService.UserManager, fullUser))
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.ShowDialog(this);
+            }
+
+        }
     }
 }

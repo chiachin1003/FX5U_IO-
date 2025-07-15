@@ -123,7 +123,7 @@ namespace FX5U_IOMonitor.Models
     /// <summary>
     /// 雲端資料庫
     /// </summary>
-    public class CloudDbContext : IdentityDbContext<IdentityUser>
+    public class CloudDbContext : IdentityDbContext<ApplicationUser>
     {
         readonly string _dbFullName = "element";
         public DbSet<Machine_number> Machine { get; set; }
