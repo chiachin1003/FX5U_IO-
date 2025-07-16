@@ -62,10 +62,16 @@
     <Compile Update="History_record.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="panel_control\MachineInfoCard.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="Properties\Settings.Designer.cs">
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Saw_Info.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Update="Sawingband_Info.cs">
       <SubType>Form</SubType>

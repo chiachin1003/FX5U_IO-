@@ -43,14 +43,14 @@ namespace FX5U_IOMonitor.Models
         /// </summary>
         /// <param name="label"></param>
         /// <param name="text"></param>
-        public static void SafeAdjustFont(Label? label, string text)
+        public static void SafeAdjustFont(Label? label, string text, float fontSize = 20f)
         {
             try
             {
                 if (string.IsNullOrEmpty(text)) return;
 
                 Size proposedSize = label.ClientSize;
-                float fontSize = 20f; // 起始字體大小，可自訂
+                // 起始字體大小，可自訂
                 Font font;
 
                 using (Graphics g = label.CreateGraphics())

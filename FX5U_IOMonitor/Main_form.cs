@@ -205,7 +205,7 @@ namespace FX5U_IOMonitor
         {
             if (add_saw_Form == null || add_saw_Form.IsDisposed)
             {
-                add_saw_Form = new Sawingband_Info();
+                add_saw_Form = new Saw_Info();
                 add_saw_Form.Show();
             }
             else
@@ -213,13 +213,15 @@ namespace FX5U_IOMonitor
                 add_saw_Form.BringToFront();  // 若已開啟，拉到最前面
             }
 
+            
+
         }
 
         private Part_Search? part_Search = null;
         private Part_Search? part_Search_1 = null;
 
         private Drill_Info? addInfo_Form = null;
-        private Sawingband_Info? add_saw_Form = null;
+        private Saw_Info? add_saw_Form = null;
 
         private void btn_Drill_lifesetting_Click(object sender, EventArgs e)
         {

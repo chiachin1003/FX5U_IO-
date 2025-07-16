@@ -1,12 +1,4 @@
 ﻿using FX5U_IOMonitor.Models;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using static FX5U_IOMonitor.Email.DailyTask_config;
 
 namespace FX5U_IOMonitor.panel_control
