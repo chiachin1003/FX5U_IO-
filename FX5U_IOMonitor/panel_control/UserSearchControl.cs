@@ -224,7 +224,18 @@ namespace FX5U_IOMonitor.panel_control
                                 rulPercent: item.RUL.ToString("F2"),
                                 effect: item.GetComment(Properties.Settings.Default.LanguageSetting),
                                 address: item.address,
-                                state: item.current_single
+                                state: item.current_single,
+                                onDeleted: (deletedAddress) =>
+                                {
+                                    // 刪除後更新 panelMap 與畫面
+                                    if (panelMap.TryGetValue(deletedAddress, out var deletedPanel))
+                                    {
+                                        flowLayoutPanel2.Controls.Remove(deletedPanel);
+                                        deletedPanel.Dispose();
+                                        panelMap.Remove(deletedAddress);
+                                    }
+                                    Update_Flow(DataList);
+                                }
                             );
                             panel.Tag = item.address;
                             panelMap[item.address] = panel;

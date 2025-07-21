@@ -225,15 +225,17 @@ namespace FX5U_IOMonitor
 
         private void btn_Drill_lifesetting_Click(object sender, EventArgs e)
         {
-            if (part_Search == null || part_Search.IsDisposed)
-            {
-                part_Search = new Part_Search(ShowPage.Drill);
-                part_Search.Show();
-            }
-            else
-            {
-                part_Search.BringToFront();
-            }
+
+
+            //if (part_Search == null || part_Search.IsDisposed)
+            //{
+            //    part_Search = new Part_Search(ShowPage.Drill);
+            //    part_Search.Show();
+            //}
+            //else
+            //{
+            //    part_Search.BringToFront();
+            //}
 
         }
 

@@ -24,41 +24,15 @@ namespace FX5U_IOMonitor.Resources
             SetupCenteredComboBox(comb_io);
             SetupCenteredComboBox(comb_type);
 
+            UpdateConnectmachinComboBox();
             currentMode = mode;
             viewAddress = address;
             tableName = table;
-            // 設定 comb_machine 的 SelectedIndex
-            if (string.Equals(tableName, "Drill", StringComparison.OrdinalIgnoreCase))
-            {
-                comb_machine.SelectedIndex = 0;
-                comb_machine.Enabled = false;  // ✅ 鎖定不可選擇
-
-            }
-            else if (string.Equals(tableName, "Sawing", StringComparison.OrdinalIgnoreCase))
-            {
-                comb_machine.SelectedIndex = 1;
-                comb_machine.Enabled = false;
-            }
-
-            if (currentMode == ElementMode.ViewOnly && !string.IsNullOrEmpty(viewAddress) && !string.IsNullOrEmpty(tableName))
-            {
-                LoadDataFromDatabase(viewAddress, tableName);
-
-            }
-
+            
             if (currentMode == ElementMode.Add && !string.IsNullOrEmpty(tableName))
             {
-                if (string.Equals(tableName, "Drill", StringComparison.OrdinalIgnoreCase))
-                {
-                    comb_machine.SelectedIndex = 0;
-                    comb_machine.Enabled = false;  // ✅ 鎖定不可選擇
-
-                }
-                else if (string.Equals(tableName, "Sawing", StringComparison.OrdinalIgnoreCase))
-                {
-                    comb_machine.SelectedIndex = 1;
-                    comb_machine.Enabled = false;
-                }
+                comb_machine.Text = table;
+                comb_machine.Enabled = false;
 
             }
 
@@ -90,6 +64,7 @@ namespace FX5U_IOMonitor.Resources
                 }
                 var newDrillIO = new MachineIO
                 {
+                    Machine_name = comb_machine.Text,
                     ClassTag = comb_class.Text,
                     Comment = txb_comment.Text,
                     Description = txb_description.Text,
@@ -102,12 +77,24 @@ namespace FX5U_IOMonitor.Resources
                     UnmountTime = DateTime.UtcNow.AddDays(10),
                     address = fullAddress
                 };
-                context.Machine_IO.Add(newDrillIO);
-
-                context.SaveChanges();
-                MessageBox.Show("✅ 新增成功！");
-                OnDataUpdated?.Invoke(); // ✅ 呼叫刷新事件
-                this.Close();
+                var translations = new Dictionary<string, string>
+                {
+                    { LanguageManager.Currentlanguge, txb_comment.Text?.Trim() }
+                    
+                }.Where(t => !string.IsNullOrWhiteSpace(t.Value))
+                .ToDictionary(t => t.Key, t => t.Value);
+                try
+                {
+                    AddMachineElement(context, comb_machine.Text, newDrillIO, translations);
+                    context.SaveChanges();
+                    MessageBox.Show("✅ 新增成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    OnDataUpdated?.Invoke();
+                    this.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"❌ 新增失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -136,6 +123,7 @@ namespace FX5U_IOMonitor.Resources
 
         private void Update_combobox(string datatable)
         {
+
             var classTags = DBfunction.GetAllClassTags(datatable);
             comb_class.Items.Clear();
             comb_class.Items.AddRange(classTags.ToArray());
@@ -144,16 +132,17 @@ namespace FX5U_IOMonitor.Resources
 
         private void comb_machine_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comb_machine.SelectedIndex == 0)
+
+            Update_combobox(comb_machine.Text);
+            if (comb_machine.Text == "Drill")
             {
-                Update_combobox("Drill");
                 currentInputMode = AddressInputMode.Hexadecimal;
             }
-            else if (comb_machine.SelectedIndex == 1)
+            else 
             {
-                Update_combobox("Sawing");
                 currentInputMode = AddressInputMode.Octal;
             }
+           
         }
 
         private bool ValidateInputFields()
@@ -234,6 +223,7 @@ namespace FX5U_IOMonitor.Resources
 
         }
 
+       
         private void btn_update_Click(object sender, EventArgs e)
         {
             bool add_OK = ValidateInputFields();
@@ -350,8 +340,75 @@ namespace FX5U_IOMonitor.Resources
                 if (prevFont != null && prevFont != testFont) prevFont.Dispose();
             }
         }
-       
+        private void UpdateConnectmachinComboBox()
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machineNames = context.Machine
+                                   .Select(io => io.Name);
 
-        
+                comb_machine.Items.Clear();
+
+                foreach (var machine in machineNames)
+                {
+                    comb_machine.Items.Add(machine);
+                }
+                comb_machine.SelectedIndex = -1;
+            }
+
+
+        }
+        /// <summary>
+        /// 添加單個機台元件並支援多語系
+        /// </summary>
+        private static void AddMachineElement(ApplicationDB context, string targetMachine, MachineIO elementData, Dictionary<string, string> translations)
+        {
+            try
+            {
+                // 檢查機台是否存在
+                var machine = context.Machine.FirstOrDefault(m => m.Name == targetMachine);
+                if (machine == null)
+                {
+                    machine = new Machine_number { Name = targetMachine, IP_address = "", Port = 0 };
+                    context.Machine.Add(machine);
+                    context.SaveChanges();
+                }
+
+                // 統一地址型別
+                string unifiedBaseType = Csv2Db.DetectUnifiedAddressBase(new List<string> { elementData.address });
+
+                // 創建 MachineIO
+                var newIO = new MachineIO
+                {
+                    Machine_name = targetMachine,
+                    ClassTag = elementData.ClassTag?.Trim() ?? "未分類",
+                    Comment = translations.ContainsKey("zh-TW") ? translations["zh-TW"] : elementData.Comment?.Trim() ?? "",
+                    Description = elementData.Description?.Trim() ?? "未設定",
+                    IOType = elementData.IOType,
+                    RelayType = elementData.RelayType,
+                    MaxLife = elementData.MaxLife,
+                    MountTime = DateTime.UtcNow,
+                    UnmountTime = DateTime.UtcNow.AddDays(10),
+                    Setting_red = elementData.Setting_red,
+                    Setting_yellow = elementData.Setting_yellow,
+                    address = elementData.address?.Trim() ?? $"未知_{DateTime.Now.Ticks}",
+                    baseType = unifiedBaseType,
+                    Translations = translations
+                        .Where(t => !string.IsNullOrWhiteSpace(t.Value))
+                        .Select(t => new MachineIOTranslation
+                        {
+                            LanguageCode = t.Key,
+                            Comment = t.Value
+                        }).ToList()
+                };
+
+                context.Machine_IO.Add(newIO);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"元件添加失敗：{ex.Message}", ex);
+            }
+        }
+
     }
 }

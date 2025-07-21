@@ -107,11 +107,6 @@ namespace FX5U_IOMonitor
             }
         }
 
-        private void btn_update_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void btn_checkpoint_Click(object sender, EventArgs e)
         {
             using (var form = new Check_point())

@@ -72,7 +72,7 @@ namespace FX5U_IOMonitor.Data
         public DateTime MountTime { get; set; }
         public DateTime UnmountTime { get; set; }
 
-        public string GetComment(string languageCode = "TW")
+        public string GetComment(string languageCode = "US")
         {
             return Translations?.FirstOrDefault(t => t.LanguageCode == languageCode)?.Comment ?? "";
         }
@@ -90,7 +90,6 @@ namespace FX5U_IOMonitor.Data
                 {
                     LanguageCode = languageCode,
                     Comment = comment,
-                    MachineIOId = this.Id
                 });
             }
         }

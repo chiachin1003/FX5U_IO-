@@ -29,7 +29,10 @@ namespace FX5U_IOMonitor.Models
             /// <returns>返回生成的標準化 Panel</returns>
             /// 
             //需要壽命監控時的按鈕創造
-            public static Panel CreatePanel(Point location,string dbtable, bool Electronic, string equipmentName, string percent, string rulPercent, string effect, string address, bool? state)
+            public static Panel CreatePanel(Point location,string dbtable,
+                bool Electronic, string equipmentName, string percent,
+                string rulPercent, string effect, string address, bool? state,
+                Action<string>? onDeleted = null, bool showDeleteButton = true)
             {
                 machine_name = dbtable;
                 // 初始化 Panel
@@ -113,7 +116,47 @@ namespace FX5U_IOMonitor.Models
                     Text = $"{percent} %"
                 };
                 panel.Controls.Add(labelPercent);
+                if (showDeleteButton)
+                {
+                    Button btnDelete = new Button
+                    {
+                        Text = "❌",
+                        Font = new Font("微軟正黑體", 6F),
+                        Size = new Size(20, 20),
+                        Location = new Point(181, 0),
+                        BackColor = Color.LightCoral,
+                        ForeColor = Color.White
+                    };
+                    btnDelete.Click += (sender, e) =>
+                    {
+                        var confirm = MessageBox.Show(LanguageManager.TranslateFormat("Element_Panel_Infomation", address), LanguageManager.TranslateFormat("Element_Panel_Select_Delete"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (confirm != DialogResult.Yes) return;
 
+                        try
+                        {
+                            using (var context = new ApplicationDB())
+                            {
+                                var item = context.Machine_IO.FirstOrDefault(d => d.address == address && d.Machine_name == dbtable);
+                                if (item != null)
+                                {
+                                    context.Machine_IO.Remove(item);
+                                    context.SaveChanges();
+                                    MessageBox.Show(LanguageManager.TranslateFormat("Element_Panel_Delete_Seccess"), "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    onDeleted?.Invoke(address);
+                                }
+                                else
+                                {
+                                    MessageBox.Show(LanguageManager.TranslateFormat("Element_Panel_Delete_Fail"), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(LanguageManager.TranslateFormat("Element_Panel_Delete_Fail"), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+                    panel.Controls.Add(btnDelete);
+                }
 
                 // 設定 Panel 實際大小
                 panel.Size = new Size(228, 110);

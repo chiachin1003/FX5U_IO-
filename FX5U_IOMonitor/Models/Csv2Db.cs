@@ -669,7 +669,7 @@ namespace FX5U_IOMonitor.Models
         /// </summary>
         /// <param name="allAddresses"></param>
         /// <returns></returns>
-        private static string DetectUnifiedAddressBase(IEnumerable<string> allAddresses)
+        public static string DetectUnifiedAddressBase(IEnumerable<string> allAddresses)
         {
             bool hasHex = false;
             bool hasDec = false;

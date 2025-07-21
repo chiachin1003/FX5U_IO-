@@ -2,6 +2,7 @@
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
+using FX5U_IOMonitor.Resources;
 using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
@@ -9,6 +10,7 @@ using System.Windows.Forms;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
+using static FX5U_IOMonitor.Resources.Element_Settings;
 
 namespace FX5U_IOMonitor
 {
@@ -34,7 +36,7 @@ namespace FX5U_IOMonitor
 
         public Machine_main(string machineType)
         {
-           
+
             InitializeComponent();
             this.MachineType = machineType;
             tableLayoutPanel1.BorderStyle = BorderStyle.FixedSingle; // 單線框
@@ -53,7 +55,7 @@ namespace FX5U_IOMonitor
         {
             reset_labText();
             SwitchLanguage();
-            
+
         }
 
 
@@ -105,7 +107,7 @@ namespace FX5U_IOMonitor
                 List<string> drill_breakdowm_part = DBfunction.Get_breakdown_part(MachineType);
                 lab_partalarm.Text = DBfunction.Get_address_ByBreakdownParts(MachineType, drill_breakdowm_part).Count.ToString();
             }
-            
+
 
 
 
@@ -138,10 +140,7 @@ namespace FX5U_IOMonitor
                                 Debug.WriteLine($"更新 {matchedBtnTags[i]} => {string.Join(", ", classvalue[i])}");
                                 groupList[i].UpdateDisplay(classvalue[i]);
                             }
-                            //for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
-                            //{
-                            //    groupList[i].UpdateDisplay(classvalue[i]);
-                            //}
+                          
                         });
                     }
 
@@ -156,7 +155,7 @@ namespace FX5U_IOMonitor
                     Debug.WriteLine("背景更新錯誤：" + ex.Message);
                 }
             }
-            
+
 
 
         }
@@ -225,7 +224,7 @@ namespace FX5U_IOMonitor
 
 
             reset_labText();
-            
+
             List<string> classTags = DBfunction.GetMachineClassTags(MachineType); //確定當前分類 
 
             List<string> btnTags = DBfunction.GetClassTagLanguageKeys();  //確定語系資料
@@ -279,14 +278,14 @@ namespace FX5U_IOMonitor
 
             if (context != null && context.IsConnected)
             {
-                if (int.Parse(context.ConnectSummary.read_time)>70)
+                if (int.Parse(context.ConnectSummary.read_time) > 70)
                 {
                     MessageBox.Show("當前監控總數更新時間：70ms");
 
                 }
                 else
                 {
-                    MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time +"ms");
+                    MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time + "ms");
                 }
             }
             else
@@ -308,7 +307,7 @@ namespace FX5U_IOMonitor
             searchControl.LoadData(search_data, MachineType);          //  將資料傳入模組
             Main.Instance.UpdatePanel(searchControl); //  嵌入到主畫面
         }
-        
+
         private void lab_partalarm_Click(object sender, EventArgs e)
         {
 
@@ -332,7 +331,7 @@ namespace FX5U_IOMonitor
             {
                 MessageBox.Show("鑽床機尚未連線，請連線後再確認故障元件");
             }
-         
+
 
         }
         private void Monitor_alarm()
@@ -478,13 +477,13 @@ namespace FX5U_IOMonitor
         private void lab_sum_Click(object sender, EventArgs e)
         {
 
-           
-           
+
+
         }
 
         private void SwitchLanguage()
         {
-           
+
 
             label1.Text = LanguageManager.Translate("Mainform_RedLights");
             label2.Text = LanguageManager.Translate("Mainform_YellowLights");
@@ -499,6 +498,15 @@ namespace FX5U_IOMonitor
                 groupList[i].UpdateButtonLabel(LanguageManager.Translate(matchedBtnTags[i]));
             }
 
+        }
+
+        private void btn_addElement_Click(object sender, EventArgs e)
+        {
+            using (var form = new Element_Settings(ElementMode.Add, MachineType))
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.ShowDialog(this);
+            }
         }
     }
 }

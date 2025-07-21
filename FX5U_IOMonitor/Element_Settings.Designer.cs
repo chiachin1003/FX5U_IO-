@@ -96,6 +96,7 @@
             btn_update.TabIndex = 32;
             btn_update.Text = "更新";
             btn_update.UseVisualStyleBackColor = false;
+            btn_update.Visible = false;
             btn_update.Click += btn_update_Click;
             // 
             // lab_yellowText

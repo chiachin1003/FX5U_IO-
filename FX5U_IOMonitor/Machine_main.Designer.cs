@@ -52,6 +52,7 @@ namespace FX5U_IOMonitor
             label_txt = new Label();
             btn_search = new Button();
             txB_search = new TextBox();
+            btn_addElement = new Button();
             tableLayoutPanel6.SuspendLayout();
             tableLayoutPanel5.SuspendLayout();
             tableLayoutPanel4.SuspendLayout();
@@ -324,7 +325,7 @@ namespace FX5U_IOMonitor
             label_txt.AutoSize = true;
             label_txt.BackColor = SystemColors.ButtonHighlight;
             label_txt.Font = new Font("微軟正黑體", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            label_txt.Location = new Point(561, 17);
+            label_txt.Location = new Point(9, 20);
             label_txt.Margin = new Padding(4, 0, 4, 0);
             label_txt.Name = "label_txt";
             label_txt.Size = new Size(73, 17);
@@ -336,7 +337,7 @@ namespace FX5U_IOMonitor
             // 
             btn_search.BackColor = SystemColors.ButtonHighlight;
             btn_search.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_search.Location = new Point(864, 10);
+            btn_search.Location = new Point(312, 13);
             btn_search.Margin = new Padding(4);
             btn_search.Name = "btn_search";
             btn_search.Size = new Size(67, 28);
@@ -347,11 +348,24 @@ namespace FX5U_IOMonitor
             // 
             // txB_search
             // 
-            txB_search.Location = new Point(635, 13);
+            txB_search.Location = new Point(83, 16);
             txB_search.Margin = new Padding(4);
             txB_search.Name = "txB_search";
             txB_search.Size = new Size(221, 23);
             txB_search.TabIndex = 36;
+            // 
+            // btn_addElement
+            // 
+            btn_addElement.BackColor = SystemColors.ButtonHighlight;
+            btn_addElement.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            btn_addElement.Location = new Point(858, 13);
+            btn_addElement.Margin = new Padding(4);
+            btn_addElement.Name = "btn_addElement";
+            btn_addElement.Size = new Size(67, 28);
+            btn_addElement.TabIndex = 37;
+            btn_addElement.Text = "新增元件";
+            btn_addElement.UseVisualStyleBackColor = false;
+            btn_addElement.Click += btn_addElement_Click;
             // 
             // Machine_main
             // 
@@ -359,6 +373,7 @@ namespace FX5U_IOMonitor
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(btn_addElement);
             Controls.Add(label_txt);
             Controls.Add(btn_search);
             Controls.Add(txB_search);
@@ -414,5 +429,6 @@ namespace FX5U_IOMonitor
         private Label label_txt;
         private Button btn_search;
         private TextBox txB_search;
+        private Button btn_addElement;
     }
 }
