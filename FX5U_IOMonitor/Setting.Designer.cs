@@ -43,6 +43,9 @@ namespace FX5U_IOMonitor
             btn_notify = new Button();
             btn_alarm = new Button();
             button3 = new Button();
+            btn_unit = new Button();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // npgsqlCommandBuilder1
@@ -53,7 +56,7 @@ namespace FX5U_IOMonitor
             // btn_file_download
             // 
             btn_file_download.Enabled = false;
-            btn_file_download.Location = new Point(73, 140);
+            btn_file_download.Location = new Point(393, 3);
             btn_file_download.Name = "btn_file_download";
             btn_file_download.Size = new Size(124, 42);
             btn_file_download.TabIndex = 8;
@@ -64,29 +67,29 @@ namespace FX5U_IOMonitor
             // btn_Mail_Manager
             // 
             btn_Mail_Manager.Enabled = false;
-            btn_Mail_Manager.Location = new Point(73, 326);
+            btn_Mail_Manager.Location = new Point(263, 3);
             btn_Mail_Manager.Name = "btn_Mail_Manager";
             btn_Mail_Manager.Size = new Size(124, 42);
             btn_Mail_Manager.TabIndex = 8;
-            btn_Mail_Manager.Text = "寄件者設定檔案";
+            btn_Mail_Manager.Text = "寄件者設定";
             btn_Mail_Manager.UseVisualStyleBackColor = true;
             btn_Mail_Manager.Click += btn_Mail_Manager_Click;
             // 
             // btn_usersetting
             // 
             btn_usersetting.Enabled = false;
-            btn_usersetting.Location = new Point(73, 262);
+            btn_usersetting.Location = new Point(133, 3);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
-            btn_usersetting.Text = "權限管理";
+            btn_usersetting.Text = "使用者與權限管理";
             btn_usersetting.UseVisualStyleBackColor = true;
             btn_usersetting.Click += btn_usersetting_Click;
             // 
             // btn_Alrm_Notify
             // 
             btn_Alrm_Notify.Enabled = false;
-            btn_Alrm_Notify.Location = new Point(73, 199);
+            btn_Alrm_Notify.Location = new Point(3, 3);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -96,7 +99,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(73, 394);
+            btn_history.Location = new Point(133, 51);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -117,7 +120,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(73, 457);
+            btn_checkpoint.Location = new Point(263, 51);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -127,7 +130,7 @@ namespace FX5U_IOMonitor
             // 
             // button1
             // 
-            button1.Location = new Point(573, 473);
+            button1.Location = new Point(768, 394);
             button1.Name = "button1";
             button1.Size = new Size(124, 33);
             button1.TabIndex = 14;
@@ -149,17 +152,17 @@ namespace FX5U_IOMonitor
             // 
             // btn_notify
             // 
-            btn_notify.Location = new Point(73, 81);
+            btn_notify.Location = new Point(523, 3);
             btn_notify.Name = "btn_notify";
             btn_notify.Size = new Size(124, 39);
             btn_notify.TabIndex = 16;
-            btn_notify.Text = "通知訊息格式";
+            btn_notify.Text = "通知格式設定";
             btn_notify.UseVisualStyleBackColor = true;
             btn_notify.Click += btn_notify_Click;
             // 
             // btn_alarm
             // 
-            btn_alarm.Location = new Point(573, 512);
+            btn_alarm.Location = new Point(768, 355);
             btn_alarm.Name = "btn_alarm";
             btn_alarm.Size = new Size(124, 33);
             btn_alarm.TabIndex = 17;
@@ -170,7 +173,7 @@ namespace FX5U_IOMonitor
             // 
             // button3
             // 
-            button3.Location = new Point(407, 473);
+            button3.Location = new Point(815, 434);
             button3.Name = "button3";
             button3.Size = new Size(77, 33);
             button3.TabIndex = 19;
@@ -179,28 +182,48 @@ namespace FX5U_IOMonitor
             button3.Visible = false;
             button3.Click += button3_Click;
             // 
+            // btn_unit
+            // 
+            btn_unit.Location = new Point(3, 51);
+            btn_unit.Name = "btn_unit";
+            btn_unit.Size = new Size(124, 39);
+            btn_unit.TabIndex = 20;
+            btn_unit.Text = "單位顯示設定";
+            btn_unit.UseVisualStyleBackColor = true;
+            btn_unit.Click += btn_unit_Click;
+            // 
+            // flowLayoutPanel1
+            // 
+            flowLayoutPanel1.Controls.Add(btn_Alrm_Notify);
+            flowLayoutPanel1.Controls.Add(btn_usersetting);
+            flowLayoutPanel1.Controls.Add(btn_Mail_Manager);
+            flowLayoutPanel1.Controls.Add(btn_file_download);
+            flowLayoutPanel1.Controls.Add(btn_notify);
+            flowLayoutPanel1.Controls.Add(btn_unit);
+            flowLayoutPanel1.Controls.Add(btn_history);
+            flowLayoutPanel1.Controls.Add(btn_checkpoint);
+            flowLayoutPanel1.Location = new Point(47, 39);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(660, 111);
+            flowLayoutPanel1.TabIndex = 21;
+            // 
             // Setting
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(936, 664);
+            Controls.Add(flowLayoutPanel1);
             Controls.Add(button3);
             Controls.Add(btn_alarm);
-            Controls.Add(btn_notify);
             Controls.Add(button2);
             Controls.Add(button1);
-            Controls.Add(btn_checkpoint);
             Controls.Add(btn_emailtest);
-            Controls.Add(btn_history);
-            Controls.Add(btn_Alrm_Notify);
-            Controls.Add(btn_usersetting);
-            Controls.Add(btn_Mail_Manager);
-            Controls.Add(btn_file_download);
             FormBorderStyle = FormBorderStyle.None;
             Margin = new Padding(4);
             Name = "Setting";
             Load += Setting_Load;
+            flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -219,5 +242,7 @@ namespace FX5U_IOMonitor
         private Button btn_notify;
         private Button btn_alarm;
         private Button button3;
+        private Button btn_unit;
+        private FlowLayoutPanel flowLayoutPanel1;
     }
 }

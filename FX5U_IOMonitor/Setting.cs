@@ -354,6 +354,16 @@ namespace FX5U_IOMonitor
             btn_Alrm_Notify.Text = LanguageManager.Translate("Alarm_Notify_title");
             btn_notify.Text = LanguageManager.Translate("Receive_Notification");
             btn_history.Text = LanguageManager.Translate("Settingmanu_history");
+            btn_unit.Text = LanguageManager.Translate("Unit_Setting_Setting");
+        }
+
+        private void btn_unit_Click(object sender, EventArgs e)
+        {
+            using (var form = new Unit_Setting())
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
+            }
         }
     }
 

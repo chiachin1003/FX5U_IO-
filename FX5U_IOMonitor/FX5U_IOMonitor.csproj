@@ -99,6 +99,9 @@
     <Compile Update="Receive_Notification.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Unit_Setting.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

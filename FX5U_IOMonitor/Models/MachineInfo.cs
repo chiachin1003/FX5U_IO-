@@ -115,10 +115,10 @@ namespace FX5U_IOMonitor.Models
                 panel.Controls.Add(labelPercent);
 
 
-                // 設定 Panel 實際大小（你要的 232x115）
+                // 設定 Panel 實際大小
                 panel.Size = new Size(228, 110);
 
-                // 原始設計大小為 200x100
+                // 原始設計大小
                 float scaleX = panel.Width / 200f;
                 float scaleY = panel.Height / 100f;
 

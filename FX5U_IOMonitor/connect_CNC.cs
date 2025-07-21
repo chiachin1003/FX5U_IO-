@@ -298,8 +298,8 @@ namespace FX5U_IOMonitor
             btn_connect_ethernet.Text = LanguageManager.Translate("Connect_Connect");
             btn_disconnect_ethernet.Text = LanguageManager.Translate("Connect_Disconnect");
           
-            btn_disconnect_RS485.Text = LanguageManager.Translate("Connect_Disconnect");
-        
+            btn_disconnect_RS485.Text = LanguageManager.Translate("Connect_Filedelete");
+            button_FILE.Text = LanguageManager.Translate("Connect_Fileinput");
 
         }
         private void combobox_text_center()

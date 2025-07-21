@@ -68,10 +68,10 @@
             // lab_CurrentUser
             // 
             lab_CurrentUser.AutoSize = true;
-            lab_CurrentUser.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_CurrentUser.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_CurrentUser.Location = new Point(10, 11);
             lab_CurrentUser.Name = "lab_CurrentUser";
-            lab_CurrentUser.Size = new Size(0, 24);
+            lab_CurrentUser.Size = new Size(0, 19);
             lab_CurrentUser.TabIndex = 8;
             // 
             // Receive_Notification

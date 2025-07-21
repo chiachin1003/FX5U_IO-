@@ -157,7 +157,6 @@ namespace FX5U_IOMonitor
             }
 
             InitLanguageComboBox();
-            InitUnitComboBox();
 
 
             _instance = this;  // 確保單例指向目前的主視窗
@@ -214,7 +213,6 @@ namespace FX5U_IOMonitor
         private void DisplayLanguage()
         {
             panel_language.Visible = true;
-            panel_select.Controls.Add(panel_unit);
             panel_select.Controls.Add(panel_language);
             panel_select.Controls.Add(btn_log_out);
 
@@ -360,27 +358,7 @@ namespace FX5U_IOMonitor
 
 
         }
-        private void InitUnitComboBox()
-        {
-
-            var unitOptions = new List<KeyValuePair<string, string>>
-            {
-                new("Metric", LanguageManager.Translate("Mainform_Metric")),  // 公制
-                new("Imperial", LanguageManager.Translate("Mainform_Imperial"))  // 英制
-            };
-
-            comb_unit.DisplayMember = "Value"; // 顯示用
-            comb_unit.ValueMember = "Key";     // 儲存值用
-            comb_unit.DataSource = unitOptions;
-
-            // 顯示標題（如按鈕標籤）
-            btn_unit.Text = LanguageManager.Translate("Mainform_unit");
-
-            // 設定選取值（從設定檔）
-            string unit = Properties.Settings.Default.UnitSetting;
-            comb_unit.SelectedValue = unit;
-        }
-
+        
 
         private void SwitchLanguage()
         {
@@ -393,7 +371,6 @@ namespace FX5U_IOMonitor
             btn_language.Text = LanguageManager.Translate("Mainform_language");
             btn_setting.Text = LanguageManager.Translate("Mainform_Settings");
             this.Text = LanguageManager.Translate("Mainform_title");
-            InitUnitComboBox();
             for (int i = 0; i < machineButtons.Count && i < machineButtons.Count; i++)
             {
                 string displayName = LanguageManager.Translate(machineButtons[i].Name);
@@ -435,13 +412,7 @@ namespace FX5U_IOMonitor
             //DisplayLanguage();
         }
 
-        private void btn_unit_Click(object sender, EventArgs e)
-        {
-            if (comb_unit.SelectedValue is string unitValue)
-            {
-                UnitManager.SetUnit(unitValue); // ✅ 使用事件通知所有訂閱者
-            }
-        }
+      
 
        
     }
