@@ -345,9 +345,11 @@ namespace FX5U_IOMonitor
 
 
 
-        private void InitLanguageComboBox()
+        public void InitLanguageComboBox()
         {
-            comb_language.DataSource = new BindingSource(LanguageManager.LanguageMap, null);
+            LanguageManager.SyncAvailableLanguages(LanguageManager.Currentlanguge);
+
+            comb_language.DataSource = LanguageManager.LanguageMap.ToList();
             comb_language.DisplayMember = "Value"; // 顯示語言名稱
             comb_language.ValueMember = "Key";     // 實際語系代碼
             string lang = Properties.Settings.Default.LanguageSetting;
@@ -390,8 +392,9 @@ namespace FX5U_IOMonitor
                 //Properties.Settings.Default.Save(); // ✅ 寫入設定檔
 
                 LanguageManager.SetLanguage(selectedLang); // ✅ 自動載入 + 儲存 + 觸發事件
-
+                
                 SwitchLanguage();
+                InitLanguageComboBox();
             }
         }
 

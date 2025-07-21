@@ -169,7 +169,7 @@ namespace FX5U_IOMonitor.Models
 
             if (!exportColumns.TryGetValue(tableName, out var columns) || columns.Length == 0)
             {
-                MessageBox.Show($"❌ 未定義 {tableName} 的欄位匯出順序。", "匯出失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show($"❌ 未定義 {tableName} 的欄位匯出順序。", "匯出失敗", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -599,6 +599,8 @@ namespace FX5U_IOMonitor.Models
     public int InsertCount { get; set; }
     public int UpdateCount { get; set; }
     public int DeleteCount { get; set; }
+    public bool Skip { get; set; }
+    public string Message = "";
     }
       
-    }
+}

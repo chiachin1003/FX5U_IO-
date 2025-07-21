@@ -51,7 +51,7 @@ namespace FX5U_IOMonitor
 
             try
             {
-                LanguageImportHelper.ImportLanguage("language.csv");
+                var importResult = LanguageImportHelper.ImportLanguage("language.csv", true);
                 string lang = Properties.Settings.Default.LanguageSetting;
                 LanguageManager.LoadLanguageFromDatabase(lang);
             }

@@ -26,9 +26,8 @@ public class Language : SyncableEntity
     public string Key { get; set; }  // 介面名稱
     public string? TW { get; set; }
     public string? US { get; set; }
-    // 未來可以新增：public string? JP { get; set; }
-    // 未來可以新增：public string? KR { get; set; }
-    // 等等...
+    //public string? JP { get; set; }
+
 }
 
 // 動態 CSV 模型
@@ -91,8 +90,16 @@ public class LanguageImportService
     /// 匯入語系 CSV 檔案
     /// </summary>
     /// <returns>匯入結果</returns>
-    public ImportResult ImportLanguageCsv(string? filepath = null)
+    public ImportResult ImportLanguageCsv(string? filepath = null, bool isInit = false)
     {
+        if (isInit && _context.Language.Any())
+        {
+            return new ImportResult
+            {
+                Skip = true,
+                Message = "語系資料已存在，初始化跳過匯入。"
+            };
+        }
         if (string.IsNullOrWhiteSpace(filepath))
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
@@ -235,6 +242,27 @@ public class LanguageImportService
                 throw new OperationCanceledException("使用者取消新增語系欄位");
 
             AddLanguageColumnsToDatabase(newColumns);
+
+            // 提醒開發者同步修改 Language.cs 類別
+            var modelProperties = typeof(Language).GetProperties()
+                .Select(p => p.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var missingInModel = newColumns
+                .Where(col => !modelProperties.Contains(col))
+                .ToList();
+
+            if (missingInModel.Any())
+            {
+                MessageBox.Show(
+                    $"資料表欄位新增完成。\n\n" +
+                    $"🔧 請記得手動將以下屬性加入 Language.cs：\n\n" +
+                    string.Join(Environment.NewLine, missingInModel.Select(col => $"public string? {col} {{ get; set; }}")),
+                    "提醒：同步語系模型",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+            }
         }
     }
 
@@ -409,11 +437,11 @@ public static class LanguageImportHelper
     /// 匯入語系資料
     /// </summary>
     /// <returns>匯入結果</returns>
-    public static ImportResult ImportLanguage(string? filepath = null)
+    public static ImportResult ImportLanguage(string? filepath = null, bool isInit = false)
     {
         using var context = new ApplicationDB();
         var importService = new LanguageImportService(context);
-        return importService.ImportLanguageCsv(filepath);
+        return importService.ImportLanguageCsv(filepath, isInit);
     }
 
     /// <summary>

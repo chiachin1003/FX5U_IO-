@@ -18,13 +18,10 @@ namespace FX5U_IOMonitor.Models
         private static List<Dictionary<string, string>> _languageList = new List<Dictionary<string, string>>();
         private static List<string> _headers = new List<string>();
         public static event Action<string>? LanguageChanged;
-
-        public static Dictionary<string, string> LanguageMap = new Dictionary<string, string>
-        {
-            { "TW", "繁體中文" },
-            { "US", "English" }
-        };
-
+        public static Dictionary<string, string> LanguageMap { get; private set; }
+                = new Dictionary<string, string>(); 
+      
+      
         public static void SetLanguage(string cultureCode)
         {
             // 儲存到系統設定
@@ -126,33 +123,84 @@ namespace FX5U_IOMonitor.Models
                     .GetProperties()
                     .Select(p => p.Name)
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                if (!supportedColumns.Contains(cultureCode))
+                var langProp = typeof(Language).GetProperty(cultureCode);
+                if (langProp == null)
                 {
-                    MessageBox.Show($"❌ 不支援的語言代碼：{cultureCode}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"❌ 無法取得語系欄位屬性：{cultureCode}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+                if (!supportedColumns.Contains(cultureCode))
+                {
+                    return;
+                    MessageBox.Show($"❌ 不支援的語言代碼：{cultureCode}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                var rows = context.Language.AsNoTracking().ToList();
+                // 判斷是否有 Null 翻譯
+                var nullKeys = rows
+                    .Where(l => !string.IsNullOrWhiteSpace(l.Key))
+                    .Where(l => string.IsNullOrWhiteSpace(langProp.GetValue(l)?.ToString()))
+                    .Select(l => l.Key)
+                    .ToList();
 
-                // 從資料庫載入語言資料
-                var languageData = context.Language
-                    .AsNoTracking()
-                    .ToList()
-                    .Where(l => !string.IsNullOrWhiteSpace(l.Key)) // 避免空Key
+                if (nullKeys.Any())
+                {
+                    MessageBox.Show(
+                        $"⚠️ 發現 {nullKeys.Count} 筆語系資料（{cultureCode}）尚未翻譯。\n例如：{string.Join(", ", nullKeys.Take(5))}...",
+                        "語系資料不完整",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                    var result = LanguageImportHelper.ImportLanguage();
+                    if (result != null)
+                    {
+                        // 5. 顯示結果
+                        MessageBox.Show(
+                            $"語系資料匯入完成：\n" +
+                            $"新增 {result.InsertCount} 筆\n" +
+                            $"更新 {result.UpdateCount} 筆\n" +
+                            $"刪除 {result.DeleteCount} 筆 匯入成功");
+                        string lang = Properties.Settings.Default.LanguageSetting;
+                        LanguageManager.LoadLanguageFromDatabase(lang);
+                        LanguageManager.SetLanguage(lang); // ✅ 自動載入 + 儲存 + 觸發事件
+                        LanguageManager.SyncAvailableLanguages(LanguageManager.Currentlanguge);
+                    }
+
+                }
+
+                // 建立翻譯對應表
+                _currentLanguageMap = rows
+                    .Where(l => !string.IsNullOrWhiteSpace(l.Key))
                     .ToDictionary(
                         l => l.Key,
                         l =>
                         {
-                            var prop = typeof(Language).GetProperty(cultureCode);
-                            return prop?.GetValue(l)?.ToString() ?? l.Key;
+                            var val = langProp.GetValue(l)?.ToString();
+                            return !string.IsNullOrWhiteSpace(val) ? val : l.Key;
                         });
 
-                _currentLanguageMap = languageData;
-
                 LanguageChanged?.Invoke(cultureCode);
-             
+            
+                //// 從資料庫載入語言資料
+                //var languageData = context.Language
+                //    .AsNoTracking()
+                //    .ToList()
+                //    .Where(l => !string.IsNullOrWhiteSpace(l.Key)) // 避免空Key
+                //    .ToDictionary(
+                //        l => l.Key,
+                //        l =>
+                //        {
+                //            var prop = typeof(Language).GetProperty(cultureCode);
+                //            return prop?.GetValue(l)?.ToString() ?? l.Key;
+                //        });
+
+            //_currentLanguageMap = languageData;
+
+            //LanguageChanged?.Invoke(cultureCode);
+
             }
             catch (Exception ex)
             {
+                return;
                 MessageBox.Show($"❌ 載入語系失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -184,6 +232,54 @@ namespace FX5U_IOMonitor.Models
             }
 
             return langMap;
+        }
+        /// <summary>
+        /// 自動從資料庫載入支援的語系欄位與名稱，更新 LanguageMap
+        /// </summary>
+        public static void SyncAvailableLanguages(string displayCultureCode = "TW")
+        {
+            try
+            {
+                using var context = new ApplicationDB();
+
+                // 1️⃣ 取得語系資料表的所有語系欄位（排除 Id, Key）
+                var languageColumns = typeof(Language).GetProperties()
+                    .Where(p => p.Name != "Id" && p.Name != "Key" && p.PropertyType == typeof(string))
+                    .Select(p => p.Name)
+                    .ToList();
+
+                // 2️⃣ 查詢所有 LangName_ 開頭的 Key 作為顯示名稱參考
+                var langNameRows = context.Language
+                    .AsNoTracking()
+                    .Where(l => l.Key.StartsWith("LangName_"))
+                    .ToDictionary(l => l.Key, l => l);
+
+                var newMap = new Dictionary<string, string>();
+
+                foreach (var code in languageColumns)
+                {
+                    // e.g., "LangName_JP"
+                    var key = $"LangName_{code}";
+                    if (langNameRows.TryGetValue(key, out var row))
+                    {
+                        var prop = typeof(Language).GetProperty(displayCultureCode);
+                        string displayName = prop?.GetValue(row)?.ToString() ?? code;
+                        newMap[code] = displayName;
+                    }
+                    else
+                    {
+                        // fallback: 顯示語系代碼
+                        newMap[code] = code;
+                    }
+                }
+
+                LanguageMap = newMap;
+            }
+            catch (Exception ex)
+            {
+                return;
+                MessageBox.Show($"❌ 語系同步失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
