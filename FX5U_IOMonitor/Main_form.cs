@@ -27,10 +27,10 @@ namespace FX5U_IOMonitor
         public Main_form()
         {
             InitializeComponent();
-            btn_Drill_lifesetting.Enabled = true;
-            btn_Sawing_lifesetting.Enabled = true;
-            Main.Instance.LoginSucceeded += Main_LoginSucceeded;
-            Main.Instance.LogoutSucceeded += Main_LogoutSucceeded;
+            //btn_Drill_lifesetting.Enabled = true;
+            //btn_Sawing_lifesetting.Enabled = true;
+            //Main.Instance.LoginSucceeded += Main_LoginSucceeded;
+            //Main.Instance.LogoutSucceeded += Main_LogoutSucceeded;
             this.Load += Main_Load;
             this.FormClosing += Info_FormClosing;
             string lang = Properties.Settings.Default.LanguageSetting;
@@ -99,21 +99,23 @@ namespace FX5U_IOMonitor
         }
         private void Main_LoginSucceeded(object? sender, EventArgs e)
         {
-            if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
-            {
-                btn_Drill_lifesetting.Enabled = true;
-                btn_Sawing_lifesetting.Enabled = true;
-            }
-            else
-            {
-                btn_Drill_lifesetting.Enabled = false;
-                btn_Sawing_lifesetting.Enabled = false;
-            }
+
+
+            //if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
+            //{
+            //    btn_Drill_lifesetting.Enabled = true;
+            //    btn_Sawing_lifesetting.Enabled = true;
+            //}
+            //else
+            //{
+            //    btn_Drill_lifesetting.Enabled = false;
+            //    btn_Sawing_lifesetting.Enabled = false;
+            //}
         }
         private void Main_LogoutSucceeded(object? sender, EventArgs e)
         {
-            btn_Drill_lifesetting.Enabled = false;
-            btn_Sawing_lifesetting.Enabled = false;
+            //btn_Drill_lifesetting.Enabled = false;
+            //btn_Sawing_lifesetting.Enabled = false;
         }
 
 
@@ -128,9 +130,26 @@ namespace FX5U_IOMonitor
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();
             lab_yellow_swing.Text = DBfunction.Get_Yellow_number("Sawing").ToString();
             lab_green_swing.Text = DBfunction.Get_Green_number("Sawing").ToString();
+            var machineList = DBfunction.GetMachineIP("Drill");
+            if (machineList.IP_address == null || machineList.Port == null)
+            {
+                lab_IP_Port1.Text = LanguageManager.Translate("Mainform_IP_Port_none");
+            }
+            else 
+            {
+                lab_IP_Port1.Text = $"IP = {machineList.IP_address}；Port = {machineList.Port} ";
+            }
+            machineList = DBfunction.GetMachineIP("Sawing");
+            if (machineList.IP_address == null || machineList.Port == null)
+            {
+                lab_IP_Port2.Text = LanguageManager.Translate("Mainform_IP_Port_none");
+            }
+            else
+            {
+                lab_IP_Port2.Text = $"IP = {machineList.IP_address}；Port = {machineList.Port} ";
+            }
 
             var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
-
 
             if (existingContext != null && existingContext.IsConnected)
             {
@@ -141,27 +160,35 @@ namespace FX5U_IOMonitor
                 lab_disconnect.Text = DBfunction.Get_address_ByBreakdownParts(existingContext.MachineName, breakdowm_part).Count.ToString();
                 List<string> sawingbreakdowm_part = DBfunction.Get_breakdown_part("Sawing");
                 lab_disconnect_sawing.Text = DBfunction.Get_address_ByBreakdownParts("Sawing", sawingbreakdowm_part).Count.ToString();
+                lab_connect_1.Text = LanguageManager.Translate("Mainform_connect");
+                lab_connect_1.ForeColor = Color.Green;
             }
             else
             {
+                lab_connect_1.Text = LanguageManager.Translate("Mainform_disconnect");
+                lab_connect_1.ForeColor = Color.Red;
                 lab_connect.Text = "0";
                 lab_disconnect.Text = "0";
                 Drill_main_update();
 
             }
+
             existingContext = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
+                lab_connect_2.Text = LanguageManager.Translate("Mainform_connect");
+                lab_connect_2.ForeColor = Color.Green;
                 swing_main_update();
                 lab_connect_swing.Text = existingContext.ConnectSummary.connect.ToString();
 
             }
             else
             {
+                lab_connect_2.Text = LanguageManager.Translate("Mainform_disconnect");
+                lab_connect_2.ForeColor = Color.Red;
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
                 swing_main_update();
-
             }
 
 
@@ -380,10 +407,6 @@ namespace FX5U_IOMonitor
             lab_yS.Text = LanguageManager.Translate("Mainform_YellowLights");
             lab_gD.Text = LanguageManager.Translate("Mainform_GreenLights");
             lab_gS.Text = LanguageManager.Translate("Mainform_GreenLights");
-            btn_Drill_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
-            btn_Sawing_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
-            lab_Drill_lifesetting.Text = LanguageManager.Translate("Mainform_LifeSettings");
-            lab_Sawing_lifesetting.Text = LanguageManager.Translate("Mainform_LifeSettings");
             lab_reset.Text = LanguageManager.Translate("Mainform_PowerConsumption");
             lab_reset1.Text = LanguageManager.Translate("Mainform_PowerConsumption");
             lab_power.Text = LanguageManager.Translate("Mainform_Power");
@@ -402,7 +425,10 @@ namespace FX5U_IOMonitor
             lb_Drill_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
             btn_SawBand.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
             btn_Drill_Info.Text = LanguageManager.Translate("Mainform_MachineInfo");
-
+            //btn_Drill_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
+            //btn_Sawing_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
+            //lab_connect_2.Text = LanguageManager.Translate("Mainform_LifeSettings");
+            //lab_connect_1.Text = LanguageManager.Translate("Mainform_LifeSettings");
         }
 
         private void panel12_Paint(object sender, PaintEventArgs e)

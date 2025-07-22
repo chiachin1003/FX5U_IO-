@@ -76,8 +76,8 @@
         {
             panel12 = new Panel();
             panel3 = new Panel();
-            btn_Sawing_lifesetting = new Button();
-            lab_Drill_lifesetting = new Label();
+            lab_IP_Port2 = new Label();
+            lab_connect_2 = new Label();
             tbPanel_Swing_sum = new TableLayoutPanel();
             lab_sumS = new Label();
             lab_sum_swing = new Label();
@@ -118,8 +118,8 @@
             lab_yD = new Label();
             lab_yellow = new Label();
             panel1 = new Panel();
-            btn_Drill_lifesetting = new Button();
-            lab_Sawing_lifesetting = new Label();
+            lab_IP_Port1 = new Label();
+            lab_connect_1 = new Label();
             panel2 = new Panel();
             btn_Drill_Info = new Button();
             btn_machInfo = new Button();
@@ -236,38 +236,38 @@
             // 
             panel3.BackColor = SystemColors.ButtonHighlight;
             panel3.BorderStyle = BorderStyle.FixedSingle;
-            panel3.Controls.Add(btn_Sawing_lifesetting);
-            panel3.Controls.Add(lab_Drill_lifesetting);
+            panel3.Controls.Add(lab_IP_Port2);
+            panel3.Controls.Add(lab_connect_2);
             panel3.Location = new Point(21, 218);
             panel3.Name = "panel3";
             panel3.Size = new Size(220, 63);
             panel3.TabIndex = 57;
             // 
-            // btn_Sawing_lifesetting
+            // lab_IP_Port2
             // 
-            btn_Sawing_lifesetting.BackColor = SystemColors.ButtonHighlight;
-            btn_Sawing_lifesetting.FlatStyle = FlatStyle.Flat;
-            btn_Sawing_lifesetting.Location = new Point(119, 17);
-            btn_Sawing_lifesetting.Margin = new Padding(4);
-            btn_Sawing_lifesetting.Name = "btn_Sawing_lifesetting";
-            btn_Sawing_lifesetting.Size = new Size(91, 28);
-            btn_Sawing_lifesetting.TabIndex = 57;
-            btn_Sawing_lifesetting.Text = "設定";
-            btn_Sawing_lifesetting.UseVisualStyleBackColor = false;
-            btn_Sawing_lifesetting.Click += btn_Sawing_lifesetting_Click;
+            lab_IP_Port2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_IP_Port2.AutoSize = true;
+            lab_IP_Port2.BackColor = SystemColors.ButtonHighlight;
+            lab_IP_Port2.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_IP_Port2.Location = new Point(9, 12);
+            lab_IP_Port2.Name = "lab_IP_Port2";
+            lab_IP_Port2.Size = new Size(192, 14);
+            lab_IP_Port2.TabIndex = 44;
+            lab_IP_Port2.Text = "Auto connection is not configured.";
+            lab_IP_Port2.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // lab_Drill_lifesetting
+            // lab_connect_2
             // 
-            lab_Drill_lifesetting.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Drill_lifesetting.AutoSize = true;
-            lab_Drill_lifesetting.BackColor = SystemColors.ButtonHighlight;
-            lab_Drill_lifesetting.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Drill_lifesetting.Location = new Point(13, 21);
-            lab_Drill_lifesetting.Name = "lab_Drill_lifesetting";
-            lab_Drill_lifesetting.Size = new Size(99, 19);
-            lab_Drill_lifesetting.TabIndex = 43;
-            lab_Drill_lifesetting.Text = "元件壽命設定";
-            lab_Drill_lifesetting.TextAlign = ContentAlignment.MiddleCenter;
+            lab_connect_2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_connect_2.AutoSize = true;
+            lab_connect_2.BackColor = SystemColors.ButtonHighlight;
+            lab_connect_2.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connect_2.Location = new Point(7, 33);
+            lab_connect_2.Name = "lab_connect_2";
+            lab_connect_2.Size = new Size(144, 19);
+            lab_connect_2.TabIndex = 43;
+            lab_connect_2.Text = "是否連線的顯示設定";
+            lab_connect_2.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // tbPanel_Swing_sum
             // 
@@ -837,38 +837,38 @@
             // 
             panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.BorderStyle = BorderStyle.FixedSingle;
-            panel1.Controls.Add(btn_Drill_lifesetting);
-            panel1.Controls.Add(lab_Sawing_lifesetting);
+            panel1.Controls.Add(lab_IP_Port1);
+            panel1.Controls.Add(lab_connect_1);
             panel1.Location = new Point(17, 230);
             panel1.Name = "panel1";
             panel1.Size = new Size(220, 56);
             panel1.TabIndex = 41;
             // 
-            // btn_Drill_lifesetting
+            // lab_IP_Port1
             // 
-            btn_Drill_lifesetting.BackColor = SystemColors.ButtonHighlight;
-            btn_Drill_lifesetting.FlatStyle = FlatStyle.Flat;
-            btn_Drill_lifesetting.Location = new Point(119, 14);
-            btn_Drill_lifesetting.Margin = new Padding(4);
-            btn_Drill_lifesetting.Name = "btn_Drill_lifesetting";
-            btn_Drill_lifesetting.Size = new Size(95, 26);
-            btn_Drill_lifesetting.TabIndex = 54;
-            btn_Drill_lifesetting.Text = "設定";
-            btn_Drill_lifesetting.UseVisualStyleBackColor = false;
-            btn_Drill_lifesetting.Click += btn_Drill_lifesetting_Click;
+            lab_IP_Port1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_IP_Port1.AutoSize = true;
+            lab_IP_Port1.BackColor = SystemColors.ButtonHighlight;
+            lab_IP_Port1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_IP_Port1.Location = new Point(13, 9);
+            lab_IP_Port1.Name = "lab_IP_Port1";
+            lab_IP_Port1.Size = new Size(95, 14);
+            lab_IP_Port1.TabIndex = 45;
+            lab_IP_Port1.Text = "尚未設定自動連線";
+            lab_IP_Port1.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // lab_Sawing_lifesetting
+            // lab_connect_1
             // 
-            lab_Sawing_lifesetting.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Sawing_lifesetting.AutoSize = true;
-            lab_Sawing_lifesetting.BackColor = SystemColors.ButtonHighlight;
-            lab_Sawing_lifesetting.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_Sawing_lifesetting.Location = new Point(17, 18);
-            lab_Sawing_lifesetting.Name = "lab_Sawing_lifesetting";
-            lab_Sawing_lifesetting.Size = new Size(99, 19);
-            lab_Sawing_lifesetting.TabIndex = 43;
-            lab_Sawing_lifesetting.Text = "元件壽命設定";
-            lab_Sawing_lifesetting.TextAlign = ContentAlignment.MiddleCenter;
+            lab_connect_1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_connect_1.AutoSize = true;
+            lab_connect_1.BackColor = SystemColors.ButtonHighlight;
+            lab_connect_1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connect_1.Location = new Point(10, 28);
+            lab_connect_1.Name = "lab_connect_1";
+            lab_connect_1.Size = new Size(144, 19);
+            lab_connect_1.TabIndex = 43;
+            lab_connect_1.Text = "是否連線的顯示設定";
+            lab_connect_1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // panel2
             // 
@@ -1896,7 +1896,7 @@
         private Label lab_yD;
         private Label lab_yellow;
         private Panel panel1;
-        private Label lab_Sawing_lifesetting;
+        private Label lab_connect_1;
         private Panel panel2;
         private Button btn_machInfo;
         private Panel panel_SwingTime;
@@ -1918,7 +1918,6 @@
         private Label lab_power1;
         private TableLayoutPanel tbPanel_oilpressure;
         private Label lb_oilpressText;
-        private Button btn_Drill_lifesetting;
         private Label lb_swing_current;
         private Label lb_swing_Voltage;
         private Label lb_swingpower;
@@ -1950,12 +1949,13 @@
         private Label lb_electricity;
         private Label lb_swing_motor_current;
         private Panel panel3;
-        private Button btn_Sawing_lifesetting;
-        private Label lab_Drill_lifesetting;
+        private Label lab_connect_2;
         private TableLayoutPanel tbPanel_Swing_totaltime;
         private Label lb_totaltime;
         private Label lb_totaltimeText;
         private Label lb_remain_tools;
+        private Label lab_IP_Port2;
+        private Label lab_IP_Port1;
     }
 }
 
