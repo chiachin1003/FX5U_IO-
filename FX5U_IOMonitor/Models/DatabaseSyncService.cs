@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -100,7 +102,6 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-
         public async Task SyncDatabasesAsync()
         {
             try
@@ -109,35 +110,76 @@ namespace FX5U_IOMonitor.Models
 
                 using var localContext = new ApplicationDB();
                 using var cloudContext = new CloudDbContext();
-
                 var syncResult = new SyncResult();
 
-                // 同步各個資料表
-                await SafeSync(localContext, cloudContext, x => x.Machine_IO, x => x.Machine_IO, "Machine_IO", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.Machine, x => x.Machine, "Machine", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.Histories, x => x.Histories, "Histories", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.alarm, x => x.alarm, "alarm", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.Blade_brand, x => x.Blade_brand, "Blade_brand", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.Blade_brand_TPI, x => x.Blade_brand_TPI, "Blade_brand_TPI", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.MachineParameters, x => x.MachineParameters, "MachineParameters", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.MachineParameterHistoryRecodes, x => x.MachineParameterHistoryRecodes, "MachineParameterHistoryRecodes", syncResult);
-                await SafeSync(localContext, cloudContext, x => x.AlarmHistories, x => x.AlarmHistories, "AlarmHistories", syncResult);
+                var dbSetProperties = typeof(ApplicationDB)
+                    .GetProperties()
+                    .Where(p => p.PropertyType.IsGenericType &&
+                                p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+                    .ToList();
 
-                await SafeSync(localContext, cloudContext, x => x.Language, x => x.Language, "Language", syncResult);
-                //await SafeSync(localContext, cloudContext, x => x.MachineIOTranslations, x => x.MachineIOTranslations, "Translations", syncResult);
-                string message = $"同步完成 - {DateTime.UtcNow:HH:mm:ss} " +
-                    $"(新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";
+                foreach (var prop in dbSetProperties)
+                {
+                    var entityType = prop.PropertyType.GenericTypeArguments[0];
 
+                    // 只處理繼承 SyncableEntity 的表格
+                    if (!typeof(SyncableEntity).IsAssignableFrom(entityType))
+                        continue;
+
+                    string tableName = prop.Name;
+
+                    var safeSyncMethod = typeof(DatabaseSyncService)
+                        .GetMethod(nameof(SafeSync), BindingFlags.NonPublic | BindingFlags.Instance)
+                        ?.MakeGenericMethod(entityType);
+
+                    var localAccessorMethod = typeof(DatabaseSyncService)
+                        .GetMethod(nameof(BuildDbSetAccessor), BindingFlags.NonPublic | BindingFlags.Instance)
+                        ?.MakeGenericMethod(typeof(ApplicationDB), entityType);
+
+                    var cloudAccessorMethod = typeof(DatabaseSyncService)
+                        .GetMethod(nameof(BuildDbSetAccessor), BindingFlags.NonPublic | BindingFlags.Instance)
+                        ?.MakeGenericMethod(typeof(CloudDbContext), entityType);
+
+                    var localAccessor = localAccessorMethod?.Invoke(this, new object[] { prop });
+                    var cloudProp = typeof(CloudDbContext).GetProperty(tableName);
+                    if (cloudProp == null)
+                    {
+                        OnLogMessage($"⚠️ 雲端資料表 {tableName} 不存在於 CloudDbContext，略過");
+                        continue;
+                    }
+
+                    var cloudAccessor = cloudAccessorMethod?.Invoke(this, new object[] { cloudProp });
+
+                    await (Task)safeSyncMethod?.Invoke(this, new object[]
+                    {
+                localContext,
+                cloudContext,
+                localAccessor,
+                cloudAccessor,
+                tableName,
+                syncResult
+                    });
+                }
+
+                string message = $"✅ 同步完成 - {DateTime.UtcNow:HH:mm:ss} (新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";
                 OnLogMessage(message);
                 OnSyncStatusChanged(new SyncStatusEventArgs { IsRunning = true, Message = message, IsSyncing = false });
             }
             catch (Exception ex)
             {
-                OnLogMessage($"同步資料庫時發生錯誤: {ex.Message}");
+                OnLogMessage($"❌ 同步資料庫時發生錯誤: {ex.Message}");
                 throw;
             }
         }
-
+        private Func<TContext, DbSet<T>> BuildDbSetAccessor<TContext, T>(PropertyInfo prop)
+             where TContext : DbContext
+             where T : class
+        {
+            var param = Expression.Parameter(typeof(TContext), "ctx");
+            var body = Expression.Property(param, prop);
+            var lambda = Expression.Lambda<Func<TContext, DbSet<T>>>(body, param);
+            return lambda.Compile();
+        }
         private async Task SyncTable<T>(
             ApplicationDB localContext,
             CloudDbContext cloudContext,
@@ -465,8 +507,10 @@ namespace FX5U_IOMonitor.Models
                 {
                     cloudSet.AddRange(toAdd);
                     syncResult.Added += toAdd.Count;
-                }
+                    await cloudContext.SaveChangesAsync(); // 確保主鍵生成
 
+                }
+             
                 // 執行更新
                 foreach (var (local, cloud) in toUpdate)
                 {
@@ -596,12 +640,25 @@ namespace FX5U_IOMonitor.Models
         {
             SyncStatusChanged?.Invoke(this, e);
         }
+        private readonly string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sync_log.txt");
 
         protected virtual void OnLogMessage(string message)
         {
             LogMessage?.Invoke(this, message);
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(logFilePath))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
+                    File.AppendAllText(logFilePath, $"[{DateTime.Now:yyyy-MM-dd}] {message}{Environment.NewLine}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"⚠️ 寫入同步 log 檔案失敗：{ex.Message}");
+            }
         }
-
+      
         public void Dispose()
         {
             Stop();
@@ -624,31 +681,5 @@ namespace FX5U_IOMonitor.Models
         public int Deleted { get; set; } = 0;
     }
 
-    // 擴展方法，可手動執行特定模式的同步
-    public static class DatabaseSyncExtensions
-    {
-        public static async Task ForceCompleteSyncAsync(this DatabaseSyncService service)
-        {
-            var originalMode = service.CurrentSyncMode;
-            service.CurrentSyncMode = SyncMode.CompleteSync;
-            await service.SyncDatabasesAsync();
-            service.CurrentSyncMode = originalMode;
-        }
-
-        public static async Task ForceLocalToCloudSyncAsync(this DatabaseSyncService service)
-        {
-            var originalMode = service.CurrentSyncMode;
-            service.CurrentSyncMode = SyncMode.LocalToCloud;
-            await service.SyncDatabasesAsync();
-            service.CurrentSyncMode = originalMode;
-        }
-
-        public static async Task ForceBidirectionalSyncAsync(this DatabaseSyncService service)
-        {
-            var originalMode = service.CurrentSyncMode;
-            service.CurrentSyncMode = SyncMode.Bidirectional;
-            await service.SyncDatabasesAsync();
-            service.CurrentSyncMode = originalMode;
-        }
-    }
+  
 }

@@ -32,6 +32,7 @@
             _txtAccount = new TextBox();
             _txtPassword = new TextBox();
             _btnLogin = new Button();
+            button1 = new Button();
             SuspendLayout();
             // 
             // _lblAccount
@@ -84,12 +85,24 @@
             _btnLogin.UseVisualStyleBackColor = false;
             _btnLogin.Click += _btnLogin_Click;
             // 
+            // button1
+            // 
+            button1.BackColor = SystemColors.ButtonHighlight;
+            button1.Location = new Point(12, 91);
+            button1.Name = "button1";
+            button1.Size = new Size(75, 31);
+            button1.TabIndex = 5;
+            button1.Text = "測試";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
+            // 
             // UserLoginForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(254, 137);
+            Controls.Add(button1);
             Controls.Add(_btnLogin);
             Controls.Add(_txtPassword);
             Controls.Add(_txtAccount);
@@ -109,5 +122,6 @@
 		private TextBox _txtAccount;
 		private TextBox _txtPassword;
 		private Button _btnLogin;
-	}
+        private Button button1;
+    }
 }

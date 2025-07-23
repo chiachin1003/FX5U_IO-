@@ -14,7 +14,7 @@ namespace FX5U_IOMonitor.Data
         public int Id { get; set; }
         [ForeignKey("Alarm")]
         public int AlarmId { get; set; }  // ✅ int 型別外鍵，對應 Alarm.Id
-
+       
         public virtual Alarm Alarm { get; set; }
 
         public string LanguageCode { get; set; } // e.g. "zh-TW", "en-US"

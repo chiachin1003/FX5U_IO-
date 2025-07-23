@@ -134,9 +134,8 @@ namespace FX5U_IOMonitor
             button1.Name = "button1";
             button1.Size = new Size(124, 33);
             button1.TabIndex = 14;
-            button1.Text = "每分定期發送通知";
+            button1.Text = "雲端下載檔案";
             button1.UseVisualStyleBackColor = true;
-            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // button2
@@ -162,13 +161,12 @@ namespace FX5U_IOMonitor
             // 
             // btn_alarm
             // 
-            btn_alarm.Location = new Point(768, 355);
+            btn_alarm.Location = new Point(719, 355);
             btn_alarm.Name = "btn_alarm";
-            btn_alarm.Size = new Size(124, 33);
+            btn_alarm.Size = new Size(173, 33);
             btn_alarm.TabIndex = 17;
-            btn_alarm.Text = "警告發送測試鈕";
+            btn_alarm.Text = "地端資料同步雲端資料";
             btn_alarm.UseVisualStyleBackColor = true;
-            btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
             // button3

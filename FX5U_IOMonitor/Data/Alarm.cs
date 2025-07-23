@@ -75,6 +75,7 @@ namespace FX5U_IOMonitor.Data
         [Key]
         public int Id { get; set; }  // 主鍵建議使用 Id
         public int AlarmId { get; set; }             // 外鍵
+       
         public virtual Alarm Alarm { get; set; }     // 導覽屬性
         public DateTime StartTime { get; set; }    // 故障發生時間
         public DateTime? EndTime { get; set; }     // 故障排除時間
@@ -86,6 +87,7 @@ namespace FX5U_IOMonitor.Data
 
     public class AlarmHistoryViewModel
     {
+
         public string IPC_table { get; set; }
         public string Error { get; set; }
         public string classTag { get; set; }

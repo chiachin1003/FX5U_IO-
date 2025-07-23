@@ -1,16 +1,16 @@
-﻿using System.Data;
+﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Email;
+using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
-using static FX5U_IOMonitor.Email.Notify_Message;
-using FX5U_IOMonitor.Email;
-
-
-using static FX5U_IOMonitor.Email.Send_mode;
-using static FX5U_IOMonitor.Email.DailyTask_config;
-using FX5U_IOMonitor.Models;
-using Microsoft.EntityFrameworkCore;
-using FX5U_IOMonitor.Login;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Email.Notify_Message;
+using static FX5U_IOMonitor.Email.Send_mode;
+using static FX5U_IOMonitor.Models.Test_;
 
 
 
@@ -234,81 +234,82 @@ namespace FX5U_IOMonitor
 
         private async void btn_alarm_Click(object sender, EventArgs e)
         {
-            using var db = new ApplicationDB();
-            var now = DateTime.UtcNow;
+           
+            //using var db = new ApplicationDB();
+            //var now = DateTime.UtcNow;
 
-            // 查詢所有尚未排除的警告，且今天尚未發送提醒過
-            var histories = db.AlarmHistories
-                .Include(h => h.Alarm)  // 載入關聯 Alarm 資料
-                .ThenInclude(a => a.Translations) // ✅ 載入翻譯
-                .Where(h => h.EndTime == null)
-                .ToList();
+            //// 查詢所有尚未排除的警告，且今天尚未發送提醒過
+            //var histories = db.AlarmHistories
+            //    .Include(h => h.Alarm)  // 載入關聯 Alarm 資料
+            //    .ThenInclude(a => a.Translations) // ✅ 載入翻譯
+            //    .Where(h => h.EndTime == null)
+            //    .ToList();
 
-            // 如果沒有未排除的警告，不需要發送
-            if (!histories.Any())
-            {
-                return;
-            }
+            //// 如果沒有未排除的警告，不需要發送
+            //if (!histories.Any())
+            //{
+            //    return;
+            //}
 
-            // 根據每筆警告的 AlarmNotifyuser 欄位分組
-            var groupedByUsers = histories
-                .Where(h => !string.IsNullOrWhiteSpace(h.Alarm.AlarmNotifyuser))  // 排除未設定收件者
-                .GroupBy(h => h.Alarm.AlarmNotifyuser);                           // 以通知對象分組
+            //// 根據每筆警告的 AlarmNotifyuser 欄位分組
+            //var groupedByUsers = histories
+            //    .Where(h => !string.IsNullOrWhiteSpace(h.Alarm.AlarmNotifyuser))  // 排除未設定收件者
+            //    .GroupBy(h => h.Alarm.AlarmNotifyuser);                           // 以通知對象分組
 
-            bool emailSent = false;
+            //bool emailSent = false;
 
 
-            foreach (var group in groupedByUsers)
-            {
-                // 取得收件者 Message_function 清單（支援 , 或 ; 分隔）
-                var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
-                                     .Select(x => x.Trim())
-                                     .ToList();
-                List<string> allUser = Message_function.GetUserEmails(users);
+            //foreach (var group in groupedByUsers)
+            //{
+            //    // 取得收件者 Message_function 清單（支援 , 或 ; 分隔）
+            //    var users = group.Key.Split(',', ';', StringSplitOptions.RemoveEmptyEntries)
+            //                         .Select(x => x.Trim())
+            //                         .ToList();
+            //    List<string> allUser = Message_function.GetUserEmails(users);
 
-                // 建立該使用者對應的彙總信件內容
-                var body = DailyTaskExecutors.BuildEmailBody(group.ToList());
+            //    // 建立該使用者對應的彙總信件內容
+            //    var body = DailyTaskExecutors.BuildEmailBody(group.ToList());
 
-                //選擇發送郵件的主旨格式
-                MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;
-                string subject = MessageSubjectHelper.GetSubject(selectedType);
+            //    //選擇發送郵件的主旨格式
+            //    MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;
+            //    string subject = MessageSubjectHelper.GetSubject(selectedType);
 
-                // 統整要送出的收件人跟資訊
-                var mailInfo = new MessageInfo
-                {
-                    Receivers = allUser,
-                    Subject = subject,
-                    Body = body
-                };
-                try
-                {
-                    int port = Properties.Settings.Default.TLS_port;
-                    await (port switch
-                    {
-                        587 => SendViaSmtp587Async(mailInfo),
-                        465 => SendViaSmtp465Async(mailInfo),
-                        _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
-                    });
+            //    // 統整要送出的收件人跟資訊
+            //    var mailInfo = new MessageInfo
+            //    {
+            //        Receivers = allUser,
+            //        Subject = subject,
+            //        Body = body
+            //    };
+            //    try
+            //    {
+            //        int port = Properties.Settings.Default.TLS_port;
+            //        await (port switch
+            //        {
+            //            587 => SendViaSmtp587Async(mailInfo),
+            //            465 => SendViaSmtp465Async(mailInfo),
+            //            _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
+            //        });
 
-                    // 更新每筆紀錄的發送時間與次數
-                    foreach (var h in group)
-                    {
-                        h.RecordTime = DateTime.UtcNow;
-                        h.Records += 1;
-                    }
-                    emailSent = true;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"❌ 寄送失敗 - 收件人：{group.Key}，錯誤：{ex.Message}");
-                }
-            }
+            //        // 更新每筆紀錄的發送時間與次數
+            //        foreach (var h in group)
+            //        {
+            //            h.RecordTime = DateTime.UtcNow;
+            //            h.Records += 1;
+            //        }
+            //        emailSent = true;
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show($"❌ 寄送失敗 - 收件人：{group.Key}，錯誤：{ex.Message}");
+            //    }
+            //}
 
-            // 寫回資料庫
-            if (emailSent)
-            {
-                db.SaveChanges();
-            }
+            //// 寫回資料庫
+            //if (emailSent)
+            //{
+            //    db.SaveChanges();
+            //}
 
         }
 

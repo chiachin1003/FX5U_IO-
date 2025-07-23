@@ -38,9 +38,9 @@ namespace FX5U_IOMonitor
             }
 
             ///雲端資料庫更新
-            var syncService = new DatabaseSyncService();
-            syncService.CurrentSyncMode = SyncMode.CompleteSync;
-            syncService.Start();
+            //var syncService = new DatabaseSyncService();
+            //syncService.CurrentSyncMode = SyncMode.CompleteSync;
+            //syncService.Start();
 
             // 啟動每日各項排程
             Email.DailyTask.StartAllSchedulers();
