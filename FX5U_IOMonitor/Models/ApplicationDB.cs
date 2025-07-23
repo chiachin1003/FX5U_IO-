@@ -126,6 +126,8 @@ namespace FX5U_IOMonitor.Models
     public class CloudDbContext : IdentityDbContext<ApplicationUser>
     {
         readonly string _dbFullName = "element";
+        public CloudDbContext(DbContextOptions<CloudDbContext> options) : base(options) { }
+
         public DbSet<Machine_number> Machine { get; set; }
 
         public DbSet<MachineIO> Machine_IO { get; set; }
@@ -141,14 +143,19 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
         public DbSet<Language> Language { get; set; }
 
-        string Cloud_IpAddress = DbConfig.Cloud.IpAddress;
-        string Cloud_Port = DbConfig.Cloud.Port;
-        string Cloud_UserName = DbConfig.Cloud.UserName;
-        string Cloud_Password = DbConfig.Cloud.Password;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql($"Host={Cloud_IpAddress};Port={Cloud_Port};Database={_dbFullName};Username={Cloud_UserName};Password={Cloud_Password}");
+           
+            if (!optionsBuilder.IsConfigured)
+            {
+                string Cloud_IpAddress = DbConfig.Cloud.IpAddress;
+                string Cloud_Port = DbConfig.Cloud.Port;
+                string Cloud_UserName = DbConfig.Cloud.UserName;
+                string Cloud_Password = DbConfig.Cloud.Password;
+
+                optionsBuilder.UseNpgsql($"Host={Cloud_IpAddress};Port={Cloud_Port};Database={_dbFullName};Username={Cloud_UserName};Password={Cloud_Password}");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

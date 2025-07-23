@@ -86,7 +86,7 @@ namespace FX5U_IOMonitor.Models
 
             try
             {
-                await SyncDatabasesAsync();
+                //await SyncDatabasesAsync();
             }
             catch (Exception ex)
             {
@@ -102,75 +102,75 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-        public async Task SyncDatabasesAsync()
-        {
-            try
-            {
-                OnSyncStatusChanged(new SyncStatusEventArgs { IsRunning = true, Message = "開始同步...", IsSyncing = true });
+        //public async Task SyncDatabasesAsync()
+        //{
+        //    try
+        //    {
+        //        OnSyncStatusChanged(new SyncStatusEventArgs { IsRunning = true, Message = "開始同步...", IsSyncing = true });
 
-                using var localContext = new ApplicationDB();
-                using var cloudContext = new CloudDbContext();
-                var syncResult = new SyncResult();
+        //        using var localContext = new ApplicationDB();
+        //        using var cloudContext = new CloudDbContext();
+        //        var syncResult = new SyncResult();
 
-                var dbSetProperties = typeof(ApplicationDB)
-                    .GetProperties()
-                    .Where(p => p.PropertyType.IsGenericType &&
-                                p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
-                    .ToList();
+        //        var dbSetProperties = typeof(ApplicationDB)
+        //            .GetProperties()
+        //            .Where(p => p.PropertyType.IsGenericType &&
+        //                        p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+        //            .ToList();
 
-                foreach (var prop in dbSetProperties)
-                {
-                    var entityType = prop.PropertyType.GenericTypeArguments[0];
+        //        foreach (var prop in dbSetProperties)
+        //        {
+        //            var entityType = prop.PropertyType.GenericTypeArguments[0];
 
-                    // 只處理繼承 SyncableEntity 的表格
-                    if (!typeof(SyncableEntity).IsAssignableFrom(entityType))
-                        continue;
+        //            // 只處理繼承 SyncableEntity 的表格
+        //            if (!typeof(SyncableEntity).IsAssignableFrom(entityType))
+        //                continue;
 
-                    string tableName = prop.Name;
+        //            string tableName = prop.Name;
 
-                    var safeSyncMethod = typeof(DatabaseSyncService)
-                        .GetMethod(nameof(SafeSync), BindingFlags.NonPublic | BindingFlags.Instance)
-                        ?.MakeGenericMethod(entityType);
+        //            var safeSyncMethod = typeof(DatabaseSyncService)
+        //                .GetMethod(nameof(SafeSync), BindingFlags.NonPublic | BindingFlags.Instance)
+        //                ?.MakeGenericMethod(entityType);
 
-                    var localAccessorMethod = typeof(DatabaseSyncService)
-                        .GetMethod(nameof(BuildDbSetAccessor), BindingFlags.NonPublic | BindingFlags.Instance)
-                        ?.MakeGenericMethod(typeof(ApplicationDB), entityType);
+        //            var localAccessorMethod = typeof(DatabaseSyncService)
+        //                .GetMethod(nameof(BuildDbSetAccessor), BindingFlags.NonPublic | BindingFlags.Instance)
+        //                ?.MakeGenericMethod(typeof(ApplicationDB), entityType);
 
-                    var cloudAccessorMethod = typeof(DatabaseSyncService)
-                        .GetMethod(nameof(BuildDbSetAccessor), BindingFlags.NonPublic | BindingFlags.Instance)
-                        ?.MakeGenericMethod(typeof(CloudDbContext), entityType);
+        //            var cloudAccessorMethod = typeof(DatabaseSyncService)
+        //                .GetMethod(nameof(BuildDbSetAccessor), BindingFlags.NonPublic | BindingFlags.Instance)
+        //                ?.MakeGenericMethod(typeof(CloudDbContext), entityType);
 
-                    var localAccessor = localAccessorMethod?.Invoke(this, new object[] { prop });
-                    var cloudProp = typeof(CloudDbContext).GetProperty(tableName);
-                    if (cloudProp == null)
-                    {
-                        OnLogMessage($"⚠️ 雲端資料表 {tableName} 不存在於 CloudDbContext，略過");
-                        continue;
-                    }
+        //            var localAccessor = localAccessorMethod?.Invoke(this, new object[] { prop });
+        //            var cloudProp = typeof(CloudDbContext).GetProperty(tableName);
+        //            if (cloudProp == null)
+        //            {
+        //                OnLogMessage($"⚠️ 雲端資料表 {tableName} 不存在於 CloudDbContext，略過");
+        //                continue;
+        //            }
 
-                    var cloudAccessor = cloudAccessorMethod?.Invoke(this, new object[] { cloudProp });
+        //            var cloudAccessor = cloudAccessorMethod?.Invoke(this, new object[] { cloudProp });
 
-                    await (Task)safeSyncMethod?.Invoke(this, new object[]
-                    {
-                localContext,
-                cloudContext,
-                localAccessor,
-                cloudAccessor,
-                tableName,
-                syncResult
-                    });
-                }
+        //            await (Task)safeSyncMethod?.Invoke(this, new object[]
+        //            {
+        //        localContext,
+        //        cloudContext,
+        //        localAccessor,
+        //        cloudAccessor,
+        //        tableName,
+        //        syncResult
+        //            });
+        //        }
 
-                string message = $"✅ 同步完成 - {DateTime.UtcNow:HH:mm:ss} (新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";
-                OnLogMessage(message);
-                OnSyncStatusChanged(new SyncStatusEventArgs { IsRunning = true, Message = message, IsSyncing = false });
-            }
-            catch (Exception ex)
-            {
-                OnLogMessage($"❌ 同步資料庫時發生錯誤: {ex.Message}");
-                throw;
-            }
-        }
+        //        string message = $"✅ 同步完成 - {DateTime.UtcNow:HH:mm:ss} (新增: {syncResult.Added}, 更新: {syncResult.Updated}, 刪除: {syncResult.Deleted})";
+        //        OnLogMessage(message);
+        //        OnSyncStatusChanged(new SyncStatusEventArgs { IsRunning = true, Message = message, IsSyncing = false });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        OnLogMessage($"❌ 同步資料庫時發生錯誤: {ex.Message}");
+        //        throw;
+        //    }
+        //}
         private Func<TContext, DbSet<T>> BuildDbSetAccessor<TContext, T>(PropertyInfo prop)
              where TContext : DbContext
              where T : class

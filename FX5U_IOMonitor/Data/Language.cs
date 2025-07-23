@@ -1,21 +1,23 @@
-﻿using System;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using FX5U_IOMonitor.DatabaseProvider;
+using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using System.Globalization;
-using CsvHelper;
-using CsvHelper.Configuration;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.Dynamic;
-using Newtonsoft.Json;
-using FX5U_IOMonitor.Models;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using FX5U_IOMonitor.Login;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Windows.Forms;
 
 // 語系實體類別
 public class Language : SyncableEntity
@@ -79,9 +81,9 @@ public class LanguageCsvRecord : DynamicObject
 // 語系匯入服務
 public class LanguageImportService
 {
-    private readonly ApplicationDB _context;
+    private readonly CloudDbContext _context;
 
-    public LanguageImportService(ApplicationDB context)
+    public LanguageImportService(CloudDbContext context)
     {
         _context = context;
     }
@@ -439,7 +441,9 @@ public static class LanguageImportHelper
     /// <returns>匯入結果</returns>
     public static ImportResult ImportLanguage(string? filepath = null, bool isInit = false)
     {
-        using var context = new ApplicationDB();
+
+        var context = CloudDbProvider.GetContext();
+
         var importService = new LanguageImportService(context);
         return importService.ImportLanguageCsv(filepath, isInit);
     }

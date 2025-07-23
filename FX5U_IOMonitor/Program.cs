@@ -1,8 +1,12 @@
 using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
+using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using static FX5U_IOMonitor.Email.Message_function;
-using FX5U_IOMonitor.Login;
+using static FX5U_IOMonitor.Models.Test_;
 
 
 namespace FX5U_IOMonitor
@@ -15,7 +19,7 @@ namespace FX5U_IOMonitor
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-		static void Main()
+		static async Task Main()
 		{
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
@@ -24,6 +28,7 @@ namespace FX5U_IOMonitor
             Application.SetCompatibleTextRenderingDefault(false);
 
             DbConfig.LoadFromJson("DbConfig.json");
+            CloudDbProvider.Init(); //雲端資料庫依賴注入
             try
             {
                 DBfunction.InitMachineInfoDatabase();
@@ -45,13 +50,14 @@ namespace FX5U_IOMonitor
             // 啟動每日各項排程
             Email.DailyTask.StartAllSchedulers();
            
-            //Email.DailyTask.StartAlarmScheduler();
-            //Email.DailyTask.StartElementScheduler();
-            //Email.DailyTask.StartParam_historyTaskScheduler();
 
             try
             {
-                var importResult = LanguageImportHelper.ImportLanguage("language.csv");
+                using var local = new ApplicationDB();
+                var cloud = CloudDbProvider.GetContext();
+                var Language = await TableSyncHelper.SyncFromCloudToLocal<Language>(local, cloud, "Language");
+
+                //var importResult = LanguageImportHelper.ImportLanguage("language.csv");
                 string lang = Properties.Settings.Default.LanguageSetting;
                 LanguageManager.LoadLanguageFromDatabase(lang);
             }

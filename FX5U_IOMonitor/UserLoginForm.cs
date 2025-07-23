@@ -1,8 +1,10 @@
 ﻿
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using static FX5U_IOMonitor.Models.Test_;
 
 
@@ -72,59 +74,61 @@ namespace FX5U_IOMonitor
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            //var localData = await local.Set<Alarm>().AsNoTracking().ToListAsync();同步資料對其
+
+            //foreach (var item in localData)
+            //{
+            //    var prop = item.GetType().GetProperty("IsSynced");
+            //    if (prop != null)
+            //    {
+            //        prop.SetValue(item, false); //預設為 false
+            //    }
+            //}
             try
             {
                 using var local = new ApplicationDB();
-                using var cloud = new CloudDbContext();
+
+                var cloud = CloudDbProvider.GetContext();
+
                 //1.Machine_number
-                //var Machine = await TableSyncHelper.SyncTableAsync<Machine_number>(local, cloud, "Machine");
-                //MessageBox.Show(Machine.ToString(), "✅ 同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var Machine = await TableSyncHelper.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
+                MessageBox.Show(Machine.ToString(), "✅ 同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ////2.History
-                //var Histories = await TableSyncHelper.SyncTableAsync<History>(local, cloud, "Histories");
+                //var Histories = await TableSyncHelper.SyncFromLocalToCloud<History>(local, cloud, "Histories");
                 //MessageBox.Show(Histories.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //////3.MachineParameter
-                //var MachineParameters = await TableSyncHelper.SyncTableAsync<MachineParameter>(local, cloud, "MachineParameters");
+                //var MachineParameters = await TableSyncHelper.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
                 //MessageBox.Show(MachineParameters.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 //////4.
-                //var Blade_brand = await TableSyncHelper.SyncTableAsync<Blade_brand>(local, cloud, "Blade_brand");
+                //var Blade_brand = await TableSyncHelper.SyncFromLocalToCloud<Blade_brand>(local, cloud, "Blade_brand");
                 //MessageBox.Show(Blade_brand.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //////5.
-                //var Blade_brand_TPI = await TableSyncHelper.SyncTableAsync<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
+                //var Blade_brand_TPI = await TableSyncHelper.SyncFromLocalToCloud<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
                 //MessageBox.Show(Blade_brand_TPI.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //////6.
-                //var Language = await TableSyncHelper.SyncTableAsync<Language>(local, cloud, "Language");
+                //var Language = await TableSyncHelper.SyncFromLocalToCloud<Language>(local, cloud, "Language");
                 //MessageBox.Show(Language.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //7.
-                var localData = await local.Set<Alarm>().AsNoTracking().ToListAsync();
-
-                foreach (var item in localData)
-                {
-                    var prop = item.GetType().GetProperty("IsSynced");
-                    if (prop != null)
-                    {
-                        prop.SetValue(item, false); //預設為 false
-                    }
-                }
-                var alarm = await TableSyncHelper.SyncTableAsync<Alarm>(local, cloud, "alarm");
-                MessageBox.Show(alarm.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //var alarm = await TableSyncHelper.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm");
+                //MessageBox.Show(alarm.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 //8.
-                //var AlarmHistories = await TableSyncHelper.SyncTableAsync<AlarmHistory>(local, cloud, "AlarmHistories");
+                //var AlarmHistories = await TableSyncHelper.SyncFromLocalToCloud<AlarmHistory>(local, cloud, "AlarmHistories");
                 //MessageBox.Show(AlarmHistories.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ////9.
-                //var Machine_IO = await TableSyncHelper.SyncTableAsync<MachineIO>(local, cloud, "Machine_IO");
+                //var Machine_IO = await TableSyncHelper.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
                 //MessageBox.Show(Machine_IO.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 ////10.
-                //var MachineParameterHistoryRecode = await TableSyncHelper.SyncTableAsync<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
+                //var MachineParameterHistoryRecode = await TableSyncHelper.SyncFromLocalToCloud<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
                 //MessageBox.Show(MachineParameterHistoryRecode.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 ////11.
-                //var MachineIOTranslations = await TableSyncHelper.SyncTableAsync<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
+                //var MachineIOTranslations = await TableSyncHelper.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
                 //MessageBox.Show(MachineIOTranslations.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 ////12.
-                //var AlarmTranslation = await TableSyncHelper.SyncTableAsync<AlarmTranslation>(local, cloud, "AlarmTranslation");
+                //var AlarmTranslation = await TableSyncHelper.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation");
                 //MessageBox.Show(AlarmTranslation.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
 

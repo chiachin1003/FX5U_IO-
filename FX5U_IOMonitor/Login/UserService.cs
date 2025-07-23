@@ -1,16 +1,19 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
+﻿using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.VisualBasic.ApplicationServices;
-using System.Diagnostics;
-
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace FX5U_IOMonitor.Login
 {
-   
+
     public class ScheduleTag
     {
         [Key]
@@ -33,10 +36,10 @@ namespace FX5U_IOMonitor.Login
         public const string Default_Schedule_Tag = "None";
 
         public const string Default_Email = "jenny963200@hotmail.com";
-        public const string Default_Line ="U9941555f9b9a028b5e89b587ef8877cf";
+        public const string Default_Line = "U9941555f9b9a028b5e89b587ef8877cf";
 
     }
-     
+
     public enum UserErrorCode
     {
         None,
@@ -44,16 +47,20 @@ namespace FX5U_IOMonitor.Login
         PasswordError,
     }
 
-    public class ApplicationUser: IdentityUser
+    public class ApplicationUser : IdentityUser
     {
         public string? LineNotifyToken { get; set; }
-        public bool NotifyByEmail { get; set; } 
-        public bool NotifyByLine { get; set; } 
+        public bool NotifyByEmail { get; set; }
+        public bool NotifyByLine { get; set; }
     }
-    
+
     public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<ApplicationUser>
     {
-       
+        public static ApplicationUser CurrentUser => _curUser;
+        public static string CurrentRole => _curRole;
+        public UserManager<ApplicationUser> UserManager => _userManager;
+
+
         public UserService()
         {
             // 建立 DI 容器
@@ -68,18 +75,17 @@ namespace FX5U_IOMonitor.Login
             _context = serviceProvider.GetRequiredService<TContext>();
             _userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             _roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
         }
 
-        public static ApplicationUser CurrentUser => _curUser;
-        public static string CurrentRole => _curRole;
-        public UserManager<ApplicationUser> UserManager => _userManager;
+
 
         public async Task CreateDefaultUserAsync()
         {
             // Check if the admin user already exists
             var adminUser = await _userManager.FindByNameAsync(SD.Admin_Account);
-                  
-            
+
+
             if (adminUser is not null)
             {
                 return;
@@ -94,7 +100,7 @@ namespace FX5U_IOMonitor.Login
                 await _roleManager.CreateAsync(new IdentityRole(SD.Role_User));
             }
 
-            await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin ,SD.Default_Email ,SD.Default_Line);
+            await CreateUserAsync(SD.Admin_Account, SD.Admin_Password, SD.Role_Admin, SD.Default_Email, SD.Default_Line);
         }
         public async Task<ApplicationUser?> GetUserByNameAsync(string userName)
         {
@@ -147,19 +153,25 @@ namespace FX5U_IOMonitor.Login
             return result;
         }
 
-       
+
         public List<ApplicationUser> GetAllUser()
         {
             var users = _userManager.Users.ToList(); // Fetch users from the database
             var result = new List<ApplicationUser>();
             foreach (var user in users)
             {
-                result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken,
-                    NotifyByEmail = user.NotifyByEmail, NotifyByLine = user.NotifyByLine });
+                result.Add(new ApplicationUser
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    LineNotifyToken = user.LineNotifyToken,
+                    NotifyByEmail = user.NotifyByEmail,
+                    NotifyByLine = user.NotifyByLine
+                });
             }
             return result;
         }
-       
+
         public bool CheckUserExist(string userName)
         {
             var user = _userManager.Users
@@ -174,7 +186,7 @@ namespace FX5U_IOMonitor.Login
         /// <param name="role"></param>
         /// <param name="email"></param>
         /// <returns></returns>
-        public async Task CreateUserAsync(string userName, string password, string role ,string email, string line)
+        public async Task CreateUserAsync(string userName, string password, string role, string email, string line)
         {
             bool hasEmail = !string.IsNullOrWhiteSpace(email);
             bool hasLine = !string.IsNullOrWhiteSpace(line);
@@ -215,7 +227,7 @@ namespace FX5U_IOMonitor.Login
                 await _userManager.DeleteAsync(user);
             }
         }
-       
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -260,7 +272,7 @@ namespace FX5U_IOMonitor.Login
 
         bool disposedValue;
 
-        private static void ConfigureServices(ServiceCollection services)
+        public static void ConfigureServices(ServiceCollection services)
         {
             // 註冊 DbContext
             services.AddDbContext<TContext>();
@@ -276,6 +288,9 @@ namespace FX5U_IOMonitor.Login
             })
             .AddRoles<IdentityRole>() // 註冊角色管理
             .AddEntityFrameworkStores<TContext>(); // 使用 Entity Framework 儲存使用者和角色
+
+
+
         }
 
     }
