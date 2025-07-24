@@ -1,11 +1,6 @@
-﻿using FX5U_IOMonitor.Login;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FX5U_IOMonitor.DatabaseProvider;
 using static FX5U_IOMonitor.Models.MonitoringService;
+
 
 namespace FX5U_IOMonitor.Models
 {
@@ -28,7 +23,7 @@ namespace FX5U_IOMonitor.Models
                                                 .ToList();
 
             // 2. 查詢對應的 Message_function
-            using var userService = new UserService<ApplicationDB>();
+            using var userService = LocalDbProvider.GetUserService();
             var allUsers = userService.GetAllUser();
 
             var emails = allUsers

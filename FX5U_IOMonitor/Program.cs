@@ -28,11 +28,13 @@ namespace FX5U_IOMonitor
             Application.SetCompatibleTextRenderingDefault(false);
 
             DbConfig.LoadFromJson("DbConfig.json");
-            CloudDbProvider.Init(); //¶³ºÝ¸ê®Æ®w¨Ì¿àª`¤J
             try
             {
                 DBfunction.InitMachineInfoDatabase();
-                using var userService = new UserService<ApplicationDB>();
+                CloudDbProvider.Init(); //¶³ºÝ¸ê®Æ®w¨Ì¿àª`¤J
+                LocalDbProvider.Init(); //¶³ºÝ¸ê®Æ®w¨Ì¿àª`¤J
+                using var userService = LocalDbProvider.GetUserService();
+
                 userService.CreateDefaultUserAsync().Wait();
                
             }

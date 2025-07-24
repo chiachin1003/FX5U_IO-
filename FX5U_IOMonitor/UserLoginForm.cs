@@ -44,7 +44,7 @@ namespace FX5U_IOMonitor
             }
 
             UserErrorCode errorCode;
-            using (var userService = new UserService<ApplicationDB>())
+            using (var userService = LocalDbProvider.GetUserService())
             {
                 errorCode = await userService.LoginAsync(_txtAccount.Text, _txtPassword.Text);
             }
@@ -52,7 +52,7 @@ namespace FX5U_IOMonitor
             switch (errorCode)
             {
                 case UserErrorCode.None:
-                    using (var userService = new UserService<ApplicationDB>())
+                    using (var userService = LocalDbProvider.GetUserService())
                     {
                         CurrentUser = await userService.GetUserByNameAsync(_txtAccount.Text);
                     }

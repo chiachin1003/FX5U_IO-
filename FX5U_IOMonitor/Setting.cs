@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Email;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
@@ -221,7 +222,7 @@ namespace FX5U_IOMonitor
 
         private void btn_notify_Click(object sender, EventArgs e)
         {
-            using var userService = new UserService<ApplicationDB>();
+            using var userService = LocalDbProvider.GetUserService();
             var user = UserService<ApplicationDB>.CurrentUser;
 
 

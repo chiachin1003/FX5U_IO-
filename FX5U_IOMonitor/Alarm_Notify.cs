@@ -1,28 +1,29 @@
-﻿using System;
-using System.Windows.Forms;
-using System.ComponentModel;
-using System.Collections.Generic;
+﻿using CheckedComboBoxDemo;
 using CsvHelper;
+using FX5U_IOMonitor;
+using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
+using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.Resources;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor;
-using System.Text;
-using System.Data;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using FX5U_IOMonitor.Resources;
-using static FX5U_IOMonitor.Resources.Element_Settings;
 using System.Net;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
-using CheckedComboBoxDemo;
-using FX5U_IOMonitor.Login;
-using Microsoft.AspNetCore.Identity;
-using System.Diagnostics;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Claims;
+using System.Text;
+using System.Windows.Forms;
+using static FX5U_IOMonitor.Resources.Element_Settings;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
 
 
 namespace FX5U_IO元件監控
@@ -229,7 +230,9 @@ namespace FX5U_IO元件監控
 
             if (radioButton_alluser.Checked)
             {
-                using var userService = new UserService<ApplicationDB>();
+                //using var userService = new UserService<ApplicationDB>();
+                using var userService = LocalDbProvider.GetUserService(); 
+
                 var userNameList = userService.GetAllUser();
                 _ = All_NotifyUser(userNameList, datatable);
                 MessageBox.Show("更新成功！");
@@ -288,7 +291,7 @@ namespace FX5U_IO元件監控
 
         private async Task Add_NotifyUser(checkcombobox combo, NotifyUserMode mode = NotifyUserMode.All)
         {
-            using var userService = new UserService<ApplicationDB>();
+            using var userService = LocalDbProvider.GetUserService();
             var allUsers = userService.GetAllUser();
 
             List<string> filterUserNames;
@@ -548,7 +551,7 @@ namespace FX5U_IO元件監控
 
             if (hit.Location != TreeViewHitTestLocations.Label)
                 return; // 不處理勾勾或空白
-            using var userService = new UserService<ApplicationDB>();
+            using var userService = LocalDbProvider.GetUserService();
             var allUsers = userService.GetAllUser();
             var db = new ApplicationDB();
 

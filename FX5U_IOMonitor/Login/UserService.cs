@@ -54,28 +54,31 @@ namespace FX5U_IOMonitor.Login
         public bool NotifyByLine { get; set; }
     }
 
+
+   
+
     public partial class UserService<TContext> : IDisposable where TContext : IdentityDbContext<ApplicationUser>
     {
+        private readonly IServiceScope _scope;
+        private readonly TContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private static ApplicationUser _curUser;
+        private static string _curRole;
+
         public static ApplicationUser CurrentUser => _curUser;
         public static string CurrentRole => _curRole;
         public UserManager<ApplicationUser> UserManager => _userManager;
 
-
-        public UserService()
+        public UserService(IServiceProvider rootProvider)
         {
-            // 建立 DI 容器
-            var services = new ServiceCollection();
+            // ✅ 建立 Scope 保留整個生命週期
+            _scope = rootProvider.CreateScope();
+            var provider = _scope.ServiceProvider;
 
-            // 註冊服務
-            ConfigureServices(services);
-
-            // 建立服務提供者
-            var serviceProvider = services.BuildServiceProvider();
-
-            _context = serviceProvider.GetRequiredService<TContext>();
-            _userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            _roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
+            _context = provider.GetRequiredService<TContext>();
+            _userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
+            _roleManager = provider.GetRequiredService<RoleManager<IdentityRole>>();
         }
 
 
@@ -228,71 +231,13 @@ namespace FX5U_IOMonitor.Login
             }
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects)
-                    _context.Dispose();
-                    _userManager.Dispose();
-                    _roleManager.Dispose();
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
-            }
-        }
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        ~UserService()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: false);
-        }
-
+       
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            _scope?.Dispose(); // 一併釋放
+
         }
     }
 
-    public partial class UserService<TContext>
-    {
-        readonly TContext _context;
-        readonly UserManager<ApplicationUser> _userManager;
-        readonly RoleManager<IdentityRole> _roleManager;
-
-        static ApplicationUser _curUser = null;
-        static string _curRole = null;
-
-        bool disposedValue;
-
-        public static void ConfigureServices(ServiceCollection services)
-        {
-            // 註冊 DbContext
-            services.AddDbContext<TContext>();
-
-            // 註冊 UserManager 和 RoleManager
-            services.AddIdentityCore<ApplicationUser>(options =>
-            {
-                //options.Password.RequireDigit = true;
-                //options.Password.RequiredLength = 6;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                //options.Password.RequireLowercase = true;
-            })
-            .AddRoles<IdentityRole>() // 註冊角色管理
-            .AddEntityFrameworkStores<TContext>(); // 使用 Entity Framework 儲存使用者和角色
-
-
-
-        }
-
-    }
 
 }

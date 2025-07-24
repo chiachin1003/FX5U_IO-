@@ -1,5 +1,6 @@
 ﻿using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Email;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
@@ -246,7 +247,7 @@ namespace FX5U_IOMonitor
 
         async void MainForm_Shown(object? sender, EventArgs e) //初始化預設使用者
         {
-            using (var userService = new UserService<ApplicationDB>())
+            using (var userService = LocalDbProvider.GetUserService())
             {
                 await userService.CreateDefaultUserAsync();
             }
@@ -291,7 +292,7 @@ namespace FX5U_IOMonitor
 
         private void btn_log_out_Click(object sender, EventArgs e)
         {
-            using (var userService = new UserService<ApplicationDB>())
+            using (var userService = LocalDbProvider.GetUserService())
             {
                 userService.Logout();
             }

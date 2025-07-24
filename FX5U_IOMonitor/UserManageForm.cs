@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Resources;
@@ -47,7 +48,7 @@ namespace FX5U_IOMonitor
         private async Task UpdateDGV()
         {
             string curSelectedRole = _cbSelectedRole.Text;
-            using var userService = new UserService<ApplicationDB>();
+            using var userService = LocalDbProvider.GetUserService();
             var userNameList = await userService.GetAllAsync(curSelectedRole);
 
             var filteredUserList = userNameList.Select(u => new UserDisplay
@@ -94,7 +95,7 @@ namespace FX5U_IOMonitor
             }
 
             // Check if the user already exists
-            using (var userService = new UserService<ApplicationDB>())
+            using (var userService = LocalDbProvider.GetUserService())
             {
                 if (userService.CheckUserExist(_txtAccount.Text))
                 {
@@ -141,7 +142,7 @@ namespace FX5U_IOMonitor
             }
 
             // Delete user from database
-            using (var userService = new UserService<ApplicationDB>())
+            using (var userService = LocalDbProvider.GetUserService())
             {
                 await userService.DeleteUserAsync(selectedUser.UserName);
             }
@@ -152,7 +153,7 @@ namespace FX5U_IOMonitor
         private async void _dgvUsers_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return; // 標題列無效
-            using var userService = new UserService<ApplicationDB>();
+            using var userService = LocalDbProvider.GetUserService();
 
             var selectedUser = _dgvUsers.Rows[e.RowIndex].DataBoundItem as UserDisplay;
             var fullUser = await userService.UserManager.FindByNameAsync(selectedUser.UserName);

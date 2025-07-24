@@ -28,7 +28,7 @@ namespace FX5U_IOMonitor.Models
     public class ApplicationDB : IdentityDbContext<ApplicationUser>  
     {
         readonly string _dbFullName;
-
+        public ApplicationDB(DbContextOptions<ApplicationDB> options) : base(options){}
         public ApplicationDB() : base()
         {
             _dbFullName = "element";
@@ -42,8 +42,6 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<AlarmHistory> AlarmHistories { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-
 
         public DbSet<MachineParameterHistoryRecode> MachineParameterHistoryRecodes { get; set; }
         public DbSet<Blade_brand> Blade_brand { get; set; }
@@ -79,16 +77,15 @@ namespace FX5U_IOMonitor.Models
             }
 
         }
-        string Local_IpAddress = DbConfig.Local.IpAddress;
-        string Local_Port = DbConfig.Local.Port;
-        string Local_UserName = DbConfig.Local.UserName;
-        string Local_Password = DbConfig.Local.Password;
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
-            optionsBuilder.UseNpgsql($"Host={Local_IpAddress};Port={Local_Port};Database={_dbFullName};Username={Local_UserName};Password={Local_Password}");
-
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql($"Host={DbConfig.Local.IpAddress};Port={DbConfig.Local.Port};" +
+                    $"Database={_dbFullName};Username={DbConfig.Local.UserName};Password={DbConfig.Local.Password}");
+            }
         }
         public override int SaveChanges()
         {
