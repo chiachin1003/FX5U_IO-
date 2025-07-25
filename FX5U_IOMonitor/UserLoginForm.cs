@@ -1,10 +1,13 @@
 ﻿
+using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.Reflection.PortableExecutable;
 using static FX5U_IOMonitor.Models.Test_;
 
 
@@ -20,6 +23,9 @@ namespace FX5U_IOMonitor
         {
             InitializeComponent();
             UpdateLanguage();
+            
+            this.Load += UserLoginForm_Load;
+
         }
 
         private void UpdateLanguage()
@@ -74,70 +80,168 @@ namespace FX5U_IOMonitor
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            //var localData = await local.Set<Alarm>().AsNoTracking().ToListAsync();同步資料對其
+            Main_form_test add_saw_Form = new Main_form_test();
+            add_saw_Form.Show();
+        }
+        private static System.Timers.Timer? _syncTimer;
+        private static readonly SemaphoreSlim _syncLock = new(1, 1);
+        private static ApplicationDB? _SysLocal;
+        private static CloudDbContext? _SysCloud;
+        private bool _isSwitching = false;
 
-            //foreach (var item in localData)
-            //{
-            //    var prop = item.GetType().GetProperty("IsSynced");
-            //    if (prop != null)
-            //    {
-            //        prop.SetValue(item, false); //預設為 false
-            //    }
-            //}
+
+        private async void chk_toggle_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_isSwitching)
+            {
+                chk_toggle.CheckedChanged -= chk_toggle_CheckedChanged;
+                chk_toggle.Checked = !chk_toggle.Checked; // 反轉回來
+                chk_toggle.CheckedChanged += chk_toggle_CheckedChanged;
+                chk_toggle.Text = "Switch...";
+
+                return;
+            }
+            _isSwitching = true;
+            bool connected = false;
+            chk_toggle.CheckedChanged -= chk_toggle_CheckedChanged;
+
             try
             {
-                using var local = new ApplicationDB();
+                SetToggleState(connected: chk_toggle.Checked, enabled: false); 
 
-                var cloud = CloudDbProvider.GetContext();
+                if (chk_toggle.Checked) // 開啟同步
+                {
+                    if (_SysCloud == null)
+                    {
+                        DbConfig.LoadFromJson("DbConfig.json");
+                        CloudDbProvider.Init();
+                        _SysCloud = CloudDbProvider.GetContext();
+                    }
 
-                //1.Machine_number
-                var Machine = await TableSyncHelper.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
-                MessageBox.Show(Machine.ToString(), "✅ 同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                ////2.History
-                //var Histories = await TableSyncHelper.SyncFromLocalToCloud<History>(local, cloud, "Histories");
-                //MessageBox.Show(Histories.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //////3.MachineParameter
-                //var MachineParameters = await TableSyncHelper.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
-                //MessageBox.Show(MachineParameters.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (_SysCloud != null)
+                    {
 
-                //////4.
-                //var Blade_brand = await TableSyncHelper.SyncFromLocalToCloud<Blade_brand>(local, cloud, "Blade_brand");
-                //MessageBox.Show(Blade_brand.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //////5.
-                //var Blade_brand_TPI = await TableSyncHelper.SyncFromLocalToCloud<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
-                //MessageBox.Show(Blade_brand_TPI.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //////6.
-                //var Language = await TableSyncHelper.SyncFromLocalToCloud<Language>(local, cloud, "Language");
-                //MessageBox.Show(Language.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //7.
-                //var alarm = await TableSyncHelper.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm");
-                //MessageBox.Show(alarm.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                //8.
-                //var AlarmHistories = await TableSyncHelper.SyncFromLocalToCloud<AlarmHistory>(local, cloud, "AlarmHistories");
-                //MessageBox.Show(AlarmHistories.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                ////9.
-                //var Machine_IO = await TableSyncHelper.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
-                //MessageBox.Show(Machine_IO.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await StopAutoSyncAsync();
+                        await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                        await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                        connected = true;
 
-                ////10.
-                //var MachineParameterHistoryRecode = await TableSyncHelper.SyncFromLocalToCloud<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
-                //MessageBox.Show(MachineParameterHistoryRecode.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        StartAutoSync(); 
+                    }
+                    else
+                    {
+                        MessageBox.Show("❌ 無法建立與雲端的連線！");
+                        connected = false;
+                        return;
+                    }
 
-                ////11.
-                //var MachineIOTranslations = await TableSyncHelper.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
-                //MessageBox.Show(MachineIOTranslations.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else // 關閉同步
+                {
+                    await StopAutoSyncAsync();
+                    if (_SysCloud != null)
+                    {
+                        await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                        SetToggleState(connected: false, enabled: false);
 
-                ////12.
-                //var AlarmTranslation = await TableSyncHelper.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation");
-                //MessageBox.Show(AlarmTranslation.ToString(), "同步結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-
-
+                    }
+                    connected = false;
+                }
             }
-            catch (Exception ex)
+            finally
             {
-                MessageBox.Show($"❌ 同步失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                chk_toggle.CheckedChanged += chk_toggle_CheckedChanged;
+                SetToggleState(connected, enabled: true);
+                _isSwitching = false;
+
             }
+
+        }
+
+
+
+        private static void StartAutoSync()
+        {
+            if (_SysLocal == null || _SysCloud == null)
+                return;
+
+            _syncTimer = new System.Timers.Timer(30_000); // 30秒
+            _syncTimer.Elapsed += async (s, e) =>
+            {
+                _syncTimer.Enabled = false; // 避免重複註冊
+                await _syncLock.WaitAsync(); // 等待排程同步鎖
+
+                try
+                {
+                    await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"❌ 同步時發生錯誤：{ex.Message}");
+                }
+                finally
+                {
+                    _syncLock.Release(); 
+                    _syncTimer.Enabled = true;
+                }
+            };
+            _syncTimer.AutoReset = true;
+            _syncTimer.Enabled = true;
+        }
+        private static async Task StopAutoSyncAsync()
+        {
+            if (_syncTimer != null)
+            {
+                _syncTimer.Stop();
+                _syncTimer.Dispose();
+                _syncTimer = null;
+
+                // 等待目前同步完成（若還在同步中）
+                await _syncLock.WaitAsync();
+              
+                _syncLock.Release();
+
+            }
+        }
+        private async void UserLoginForm_Load(object sender, EventArgs e)
+        {
+            _SysCloud = CloudDbProvider.GetContext();
+            _SysLocal = new ApplicationDB();
+            if (_SysCloud == null)
+            {
+                SetToggleState(false, enabled: true);
+            }
+            else
+            {
+                SetToggleState(connected: true, enabled: false);
+                await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                SetToggleState(connected: true, enabled: true);
+
+                StartAutoSync();
+
+
+            }
+
+
+        }
+        
+        private void SetToggleState(bool connected, bool enabled)
+        {
+            if (connected)
+            {
+                chk_toggle.Text = "Connect";
+                chk_toggle.BackColor = Color.DodgerBlue;
+                chk_toggle.ForeColor = Color.White;
+            }
+            else
+            {
+                chk_toggle.Text = "DisConnect";
+                chk_toggle.BackColor = Color.LightBlue; // 淺藍：未連線
+                chk_toggle.ForeColor = Color.Black;
+            }
+
+            chk_toggle.Enabled = enabled;
         }
     }
 }

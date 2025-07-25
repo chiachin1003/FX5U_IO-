@@ -569,6 +569,7 @@ namespace FX5U_IOMonitor.Models
         public static void Initialization_MachineElementFromCSV(string targetMachine, string filePath)
         {
             DataTable excelData = LoadCsv(filePath);
+            var errorBuilder = new System.Text.StringBuilder();
 
             using (var context = new ApplicationDB())
             {
@@ -655,10 +656,14 @@ namespace FX5U_IOMonitor.Models
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"❌ 第 {rowIndex} 行資料處理錯誤：{ex.Message}");
+                        errorBuilder.AppendLine($"❌ 第 {rowIndex} 行資料處理錯誤：{ex.Message}");
                     }
                 }
-
+                // 最後一次性顯示錯誤訊息
+                if (errorBuilder.Length > 0)
+                {
+                    MessageBox.Show(errorBuilder.ToString(), "資料匯入錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 context.SaveChanges();
                 Console.WriteLine("✅ 資料已成功匯入資料庫。");
             }

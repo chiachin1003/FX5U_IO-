@@ -33,6 +33,7 @@
             _txtPassword = new TextBox();
             _btnLogin = new Button();
             button1 = new Button();
+            chk_toggle = new CheckBox();
             SuspendLayout();
             // 
             // _lblAccount
@@ -90,11 +91,24 @@
             button1.BackColor = SystemColors.ButtonHighlight;
             button1.Location = new Point(12, 91);
             button1.Name = "button1";
-            button1.Size = new Size(75, 31);
+            button1.Size = new Size(37, 31);
             button1.TabIndex = 5;
-            button1.Text = "測試";
+            button1.Text = "1";
             button1.UseVisualStyleBackColor = false;
             button1.Click += button1_Click;
+            // 
+            // chk_toggle
+            // 
+            chk_toggle.Appearance = Appearance.Button;
+            chk_toggle.FlatStyle = FlatStyle.Flat;
+            chk_toggle.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            chk_toggle.Location = new Point(55, 92);
+            chk_toggle.Name = "chk_toggle";
+            chk_toggle.Size = new Size(80, 30);
+            chk_toggle.TabIndex = 54;
+            chk_toggle.TextAlign = ContentAlignment.MiddleCenter;
+            chk_toggle.UseVisualStyleBackColor = true;
+            chk_toggle.CheckedChanged += chk_toggle_CheckedChanged;
             // 
             // UserLoginForm
             // 
@@ -102,6 +116,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(254, 137);
+            Controls.Add(chk_toggle);
             Controls.Add(button1);
             Controls.Add(_btnLogin);
             Controls.Add(_txtPassword);
@@ -123,5 +138,6 @@
 		private TextBox _txtPassword;
 		private Button _btnLogin;
         private Button button1;
+        private CheckBox chk_toggle;
     }
 }

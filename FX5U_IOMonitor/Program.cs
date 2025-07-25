@@ -19,7 +19,7 @@ namespace FX5U_IOMonitor
         ///  The main entry point for the application.
         /// </summary>
         [STAThread]
-		static async Task Main()
+		static void Main()
 		{
 			// To customize application configuration such as set high DPI settings or default font,
 			// see https://aka.ms/applicationconfiguration.
@@ -31,8 +31,8 @@ namespace FX5U_IOMonitor
             try
             {
                 DBfunction.InitMachineInfoDatabase();
-                CloudDbProvider.Init(); //雲端資料庫依賴注入
-                LocalDbProvider.Init(); //雲端資料庫依賴注入
+                CloudDbProvider.Init();
+                LocalDbProvider.Init(); 
                 using var userService = LocalDbProvider.GetUserService();
 
                 userService.CreateDefaultUserAsync().Wait();
@@ -52,13 +52,9 @@ namespace FX5U_IOMonitor
             // 啟動每日各項排程
             Email.DailyTask.StartAllSchedulers();
            
-
             try
             {
-                using var local = new ApplicationDB();
-                var cloud = CloudDbProvider.GetContext();
-                var Language = await TableSyncHelper.SyncFromCloudToLocal<Language>(local, cloud, "Language");
-
+             
                 //var importResult = LanguageImportHelper.ImportLanguage("language.csv");
                 string lang = Properties.Settings.Default.LanguageSetting;
                 LanguageManager.LoadLanguageFromDatabase(lang);

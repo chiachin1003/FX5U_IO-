@@ -81,9 +81,9 @@ public class LanguageCsvRecord : DynamicObject
 // 語系匯入服務
 public class LanguageImportService
 {
-    private readonly CloudDbContext _context;
+    private readonly DbContext _context;
 
-    public LanguageImportService(CloudDbContext context)
+    public LanguageImportService(DbContext context)
     {
         _context = context;
     }
@@ -94,7 +94,7 @@ public class LanguageImportService
     /// <returns>匯入結果</returns>
     public ImportResult ImportLanguageCsv(string? filepath = null, bool isInit = false)
     {
-        if (isInit && _context.Language.Any())
+        if (isInit && _context.Set<Language>().Any())
         {
             return new ImportResult
             {
@@ -305,7 +305,7 @@ public class LanguageImportService
     private List<LanguageCsvRecord> ProcessLanguageIds(List<LanguageCsvRecord> records)
     {
         // 取得資料庫最大 ID
-        int maxDbId = _context.Language.Any() ? _context.Language.Max(l => l.Id) : 0;
+        int maxDbId = _context.Set<Language>().Any() ? _context.Set<Language>().Max(l => l.Id) : 0;
         int nextId = maxDbId + 1;
 
         // 檢查並補齊 ID
@@ -334,7 +334,7 @@ public class LanguageImportService
     {
         var result = new ImportResult();
 
-        var existingData = _context.Language.ToDictionary(l => l.Key);
+        var existingData = _context.Set<Language>().ToDictionary(l => l.Key);
 
         foreach (var record in records)
         {
@@ -349,7 +349,7 @@ public class LanguageImportService
             else
             {
                 var newEntity = CreateLanguageEntity(record, languageColumns);
-                _context.Language.Add(newEntity);
+                _context.Set<Language>().Add(newEntity);
                 result.InsertCount++;
             }
         }
@@ -362,7 +362,7 @@ public class LanguageImportService
 
             if (toDelete.Any())
             {
-                _context.Language.RemoveRange(toDelete);
+                _context.Set<Language>().RemoveRange(toDelete);
                 result.DeleteCount = toDelete.Count;
             }
         }
@@ -443,8 +443,19 @@ public static class LanguageImportHelper
     {
 
         var context = CloudDbProvider.GetContext();
+        LanguageImportService importService;
+        if (context!=null)
+        {
+            importService = new LanguageImportService(context);
+        }
+        else
+        {
+            using var Localcontext = new ApplicationDB();
 
-        var importService = new LanguageImportService(context);
+            importService = new LanguageImportService(Localcontext);
+
+        }
+
         return importService.ImportLanguageCsv(filepath, isInit);
     }
 

@@ -180,28 +180,11 @@ namespace FX5U_IOMonitor.Models
 
                 LanguageChanged?.Invoke(cultureCode);
             
-                //// 從資料庫載入語言資料
-                //var languageData = context.Language
-                //    .AsNoTracking()
-                //    .ToList()
-                //    .Where(l => !string.IsNullOrWhiteSpace(l.Key)) // 避免空Key
-                //    .ToDictionary(
-                //        l => l.Key,
-                //        l =>
-                //        {
-                //            var prop = typeof(Language).GetProperty(cultureCode);
-                //            return prop?.GetValue(l)?.ToString() ?? l.Key;
-                //        });
-
-            //_currentLanguageMap = languageData;
-
-            //LanguageChanged?.Invoke(cultureCode);
-
             }
             catch (Exception ex)
             {
-                return;
                 MessageBox.Show($"❌ 載入語系失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
         }
 

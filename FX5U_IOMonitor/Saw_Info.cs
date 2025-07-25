@@ -53,7 +53,6 @@ namespace FX5U_IOMonitor
             ("Sawband_area", "SawingInfo_SawbandareaText")
         };
 
-        /* ---------- 2.  建構子 ---------- */
         public Saw_Info()
         {
             InitializeComponent();
@@ -66,7 +65,7 @@ namespace FX5U_IOMonitor
             LanguageManager.LanguageChanged += _ => SwitchLanguage();
         }
 
-        /* ---------- 3. 表單載入 ---------- */
+        /* ---------- 表單載入 ---------- */
         private void Saw_Info_Load(object? sender, EventArgs e)
         {
             InitInfoCards();
@@ -190,7 +189,7 @@ namespace FX5U_IOMonitor
             card.SetData(LanguageManager.Translate(langKey), totalCount.ToString(),
                          prevVal, thisVal, range, history_Frequency);
         }
-        /* ---------- 4. 背景更新 ---------- */
+        /* ---------- 背景更新 ---------- */
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -213,7 +212,7 @@ namespace FX5U_IOMonitor
             }
         }
 
-        /* ---------- 5. 語系切換 ---------- */
+        /* ---------- 語系切換 ---------- */
         private void SwitchLanguage()
         {
             this.Text = LanguageManager.Translate("SawingInfo_FormText");

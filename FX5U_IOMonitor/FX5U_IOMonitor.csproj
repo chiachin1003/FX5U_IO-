@@ -62,6 +62,9 @@
     <Compile Update="History_record.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Main_form_test.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="panel_control\MachineInfoCard.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -71,12 +74,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Update="Saw_Info.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Sawingband_Info.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Drill_Info.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Notification_Settings.cs">

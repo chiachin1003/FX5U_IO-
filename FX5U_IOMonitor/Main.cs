@@ -180,6 +180,8 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
 
+           
+           
 
         }
 

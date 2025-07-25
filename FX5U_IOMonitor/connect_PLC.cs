@@ -431,7 +431,7 @@ namespace FX5U_IOMonitor
             {
                 return;
             }
-
+           
             Csv2Db.Initialization_MachineElementFromCSV(txb_machine.Text, openFileDialog.FileName);
             DBfunction.AddMachineKeyIfNotExist($"Mainform_{txb_machine.Text}", txb_machine.Text);
             MachineButton.UpdateMachineButtons(main_control.panel_choose, main_control.btn_Main, main_control.panel_main);

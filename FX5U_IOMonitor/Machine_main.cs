@@ -135,7 +135,9 @@ namespace FX5U_IOMonitor
 
                         this.BeginInvoke(() =>
                         {
-                            for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
+                            int minCount = Math.Min(groupList.Count, Math.Min(matchedBtnTags.Count, classvalue.Count));
+
+                            for (int i = 0; i < minCount; i++)
                             {
                                 Debug.WriteLine($"更新 {matchedBtnTags[i]} => {string.Join(", ", classvalue[i])}");
                                 groupList[i].UpdateDisplay(classvalue[i]);

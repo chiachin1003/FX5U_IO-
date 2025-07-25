@@ -1,4 +1,5 @@
-﻿using FX5U_IOMonitor.Models;
+﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System;
@@ -21,8 +22,11 @@ namespace FX5U_IOMonitor.DatabaseProvider
         /// <param name="cloud"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public static async Task<SyncResult> SyncFromLocalToCloud<T>(ApplicationDB local, CloudDbContext cloud, string tableName) where T : class
+        public static async Task<SyncResult> SyncFromLocalToCloud<T>
+        (ApplicationDB local, CloudDbContext cloud, string tableName,  params string[] ignoreProperties) where T : class
         {
+           
+
             var result = new SyncResult { TableName = tableName };
 
             // 取得本地與雲端資料
@@ -49,7 +53,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 if (cloudDict.TryGetValue(key, out var cloudValue))
                 {
                     // 判斷是否真的有差異（可自訂比對邏輯）
-                    if (!AreEntitiesEqual(localValue, cloudValue))
+                    if (!AreEntitiesEqual(localValue, cloudValue, ignoreProperties))
                     {
                         var prop = localValue.GetType().GetProperty("IsSynced");
                         if (prop != null)
@@ -70,6 +74,11 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
             try
             {
+                // 清除已追蹤的實體
+                foreach (var entry in cloud.ChangeTracker.Entries().ToList())
+                {
+                    entry.State = EntityState.Detached;
+                }
                 // 統一更新與新增
                 cloudSet.UpdateRange(toUpdate);
                 cloudSet.AddRange(toAdd);
@@ -87,6 +96,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
             return result;
 
         }
+        
         /// <summary>
         /// 雲端更新地端
         /// </summary>
@@ -95,7 +105,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
         /// <param name="cloud"></param>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        public static async Task<SyncResult> SyncFromCloudToLocal<T>(ApplicationDB local, CloudDbContext cloud, string tableName) where T : class
+        public static async Task<SyncResult> SyncFromCloudToLocal<T>(ApplicationDB local, CloudDbContext cloud, string tableName, params string[] ignoreProperties) where T : class
         {
             var result = new SyncResult { TableName = tableName };
 
@@ -117,7 +127,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
                 if (localDict.TryGetValue(key, out var localValue))
                 {
-                    if (!AreEntitiesEqual(cloudValue, localValue))
+                    if (!AreEntitiesEqual(cloudValue, localValue, ignoreProperties))
                     {
                         NormalizeDateTimeProperties(cloudValue);
 
@@ -144,11 +154,9 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
             try
             {
-                OnLogMessage("開始儲存");
                 localSet.UpdateRange(toUpdate);
                 localSet.AddRange(toAdd);
                 await local.SaveChangesAsync();
-                OnLogMessage("儲存完成");
             }
             catch (DbUpdateException ex)
             {
@@ -190,12 +198,12 @@ namespace FX5U_IOMonitor.DatabaseProvider
         private static bool AreEntitiesEqual<T>(T a, T b, params string[] ignoreProperties)
         {
             var ignoreSet = new HashSet<string>(ignoreProperties ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase)
-                {
-                    "Id"
-                };
+            {
+                "Id", "IsSynced", "UpdatedAt", "CreatedAt"
+            };
+
             var props = typeof(T).GetProperties()
-                        .Where(p =>
-                            !ignoreSet.Contains(p.Name) &&
+                .Where(p => !ignoreSet.Contains(p.Name) &&
                             !Attribute.IsDefined(p, typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute)));
 
             foreach (var prop in props)
@@ -206,9 +214,30 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 if (aValue == null && bValue == null)
                     continue;
 
-                if (aValue == null || bValue == null || !aValue.Equals(bValue))
+                if (aValue == null || bValue == null)
                     return false;
+
+                if (aValue is DateTime aTime && bValue is DateTime bTime)
+                {
+                    if (aTime.ToString("yyyy-MM-dd HH:mm:ss") != bTime.ToString("yyyy-MM-dd HH:mm:ss"))
+                        return false;
+                }
+                else if (aValue is string aStr && bValue is string bStr)
+                {
+                    if (!string.Equals(aStr?.Trim(), bStr?.Trim(), StringComparison.Ordinal))
+                        return false;
+                }
+                else if (aValue is double aDouble && bValue is double bDouble)
+                {
+                    if (Math.Abs(aDouble - bDouble) > 0.0001)
+                        return false;
+                }
+                else if (!aValue.Equals(bValue))
+                {
+                    return false;
+                }
             }
+
             return true;
         }
         /// <summary>
@@ -333,7 +362,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 if (!string.IsNullOrWhiteSpace(logFilePath))
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(logFilePath)!);
-                    File.AppendAllText(logFilePath, $"[{DateTime.Now:yyyy-MM-dd}] {message}{Environment.NewLine}");
+                    File.AppendAllText(logFilePath, $"[{DateTime.Now:yyyy-MM-dd-HH-mm-ss}] {message}{Environment.NewLine}");
                 }
             }
             catch (Exception ex)
@@ -341,7 +370,114 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 Debug.WriteLine($"⚠️ 寫入同步 log 檔案失敗：{ex.Message}");
             }
         }
+        public static void LogSyncResult(SyncResult? result = null, int direction =0)
+        {
+            string message;
+
+            if (direction == 0)
+            {
+                message = $"地端資料上傳至雲端資料庫表格 [{result.TableName}] 完成：新增 {result.Added} 筆，更新 {result.Updated} 筆，共 {result.Total} 筆";
+            }
+            else if (direction == 1)
+            {
+                message = $"雲端資料庫已同步至地端資料庫表格 [{result.TableName}] 完成：新增 {result.Added} 筆，更新 {result.Updated} 筆，共 {result.Total} 筆";
+            }
+            else if (direction == 2)
+            {
+                message = $"地端資料表上傳雲端失敗請檢查原因";
+            }
+            else
+            {
+                message = $"雲端資料表同步地端失敗請檢查原因";
+            }
+            OnLogMessage(message);
+        }
+        /// <summary>
+        /// 地端同步所有資料表到雲端資料庫
+        /// </summary>
+        /// <param name="local"></param>
+        /// <param name="cloud"></param>
+        /// <returns></returns>
+        public static async Task SyncLocalToCloudAllTables(ApplicationDB local, CloudDbContext cloud)
+        {
+            try
+            {
+
+                if (cloud == null)
+                {
+                    TableSyncHelper.LogSyncResult(direction: 2);
+                    return;
+                }
+
+                // 執行同步
+                var Machine = await TableSyncHelper.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
+                var Histories = await TableSyncHelper.SyncFromLocalToCloud<History>(local, cloud, "Histories");
+                var MachineParameters = await TableSyncHelper.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
+                var Blade_brand = await TableSyncHelper.SyncFromLocalToCloud<Blade_brand>(local, cloud, "Blade_brand");
+                var Blade_brand_TPI = await TableSyncHelper.SyncFromLocalToCloud<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
+                var Language = await TableSyncHelper.SyncFromLocalToCloud<Language>(local, cloud, "Language");
+                var alarm = await TableSyncHelper.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
+                var AlarmHistories = await TableSyncHelper.SyncFromLocalToCloud<AlarmHistory>(local, cloud, "AlarmHistories");
+                var Machine_IO = await TableSyncHelper.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
+                var MachineParameterHistoryRecode = await TableSyncHelper.SyncFromLocalToCloud<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
+                var MachineIOTranslations = await TableSyncHelper.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
+                var AlarmTranslation = await TableSyncHelper.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation");
+
+                // 記錄 log
+                TableSyncHelper.LogSyncResult(Machine);
+                TableSyncHelper.LogSyncResult(Histories);
+                TableSyncHelper.LogSyncResult(MachineParameters);
+                TableSyncHelper.LogSyncResult(Blade_brand);
+                TableSyncHelper.LogSyncResult(Blade_brand_TPI);
+                TableSyncHelper.LogSyncResult(Language);
+                TableSyncHelper.LogSyncResult(alarm);
+                TableSyncHelper.LogSyncResult(AlarmHistories);
+                TableSyncHelper.LogSyncResult(Machine_IO);
+                TableSyncHelper.LogSyncResult(MachineParameterHistoryRecode);
+                TableSyncHelper.LogSyncResult(MachineIOTranslations);
+                TableSyncHelper.LogSyncResult(AlarmTranslation);
+            }
+            catch (Exception ex)
+            {
+                TableSyncHelper.LogSyncResult(direction: 2);
+            }
+        }
+
+
+
+        /// <summary>
+        /// 雲端同步所有資料表到地端資料庫
+        /// </summary>
+        /// <returns></returns>
+        public static async Task SyncCloudToLocalAllTables(ApplicationDB local, CloudDbContext cloud)
+        {
+
+            if (cloud == null)
+            {
+                TableSyncHelper.LogSyncResult(direction: 3);
+                return;
+            }
+            try
+            {
+                var Blade_brand = await TableSyncHelper.SyncFromCloudToLocal<Blade_brand>(local, cloud, "Blade_brand");
+                var Blade_brand_TPI = await TableSyncHelper.SyncFromCloudToLocal<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
+                var Language = await TableSyncHelper.SyncFromCloudToLocal<Language>(local, cloud, "Language");
+                var MachineIOTranslations = await TableSyncHelper.SyncFromCloudToLocal<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
+                var AlarmTranslation = await TableSyncHelper.SyncFromCloudToLocal<AlarmTranslation>(local, cloud, "AlarmTranslation");
+
+                TableSyncHelper.LogSyncResult(Blade_brand, 1);
+                TableSyncHelper.LogSyncResult(Blade_brand_TPI, 1);
+                TableSyncHelper.LogSyncResult(Language, 1);
+                TableSyncHelper.LogSyncResult(MachineIOTranslations, 1);
+                TableSyncHelper.LogSyncResult(AlarmTranslation, 1);
+            }
+            catch (Exception)
+            {
+                TableSyncHelper.LogSyncResult(direction: 3); // 失敗 log
+            }
+        }
     }
+
     public class SyncResult
     {
         public string TableName { get; set; } = "";
@@ -353,5 +489,9 @@ namespace FX5U_IOMonitor.DatabaseProvider
         {
             return $"表格 [{TableName}] 同步完成：新增 {Added} 筆，更新 {Updated} 筆，總計 {Total} 筆";
         }
+        
+
     }
+
+    
 }

@@ -17,14 +17,14 @@ using static FX5U_IOMonitor.Email.DailyTask_config;
 
 namespace FX5U_IOMonitor
 {
-    public partial class Main_form : Form
+    public partial class Main_form_test : Form
     {
 
 
         private CancellationTokenSource? _cts;
 
 
-        public Main_form()
+        public Main_form_test()
         {
             InitializeComponent();
             //btn_Drill_lifesetting.Enabled = true;
@@ -201,27 +201,27 @@ namespace FX5U_IOMonitor
         private void swing_main_update()
         {
 
-            lb_swing_current.Text = DBfunction.Get_Machine_now_string("motor_current") + "(A)";
-            lb_sawing_cutingspeed.Text = DBfunction.Get_Machine_now_string("Sawing", "cuttingspeed") + Text_design.ConvertUnitLabel("(mm/min)");
-            lb_swing_Voltage.Text = DBfunction.Get_Machine_now_string("Sawing", "voltage") + "(V)";
-            lb_swing_motor_current.Text = DBfunction.Get_Machine_now_string("Sawing", "current") + "(A)";
-            lb_oilpress.Text = DBfunction.Get_Machine_now_string("Sawing", "oil_pressure");
+            //lb_swing_current.Text = DBfunction.Get_Machine_now_string("motor_current") + "(A)";
+            //lb_sawing_cutingspeed.Text = DBfunction.Get_Machine_now_string("Sawing", "cuttingspeed") + Text_design.ConvertUnitLabel("(mm/min)");
+            //lb_swing_Voltage.Text = DBfunction.Get_Machine_now_string("Sawing", "voltage") + "(V)";
+            //lb_swing_motor_current.Text = DBfunction.Get_Machine_now_string("Sawing", "current") + "(A)";
+            //lb_oilpress.Text = DBfunction.Get_Machine_now_string("Sawing", "oil_pressure");
 
-            lb_swingpower.Text = DBfunction.Get_Machine_now_string("Sawing", "Sawing_power") + "(kWh)";
-            lb_electricity.Text = DBfunction.Get_Machine_now_string("Sawing", "electricity") + "(kWh)";
-            lb_totaltime.Text = DBfunction.Get_Machine_now_string("Sawing", "total_time");
-            lb_countdown_time.Text = DBfunction.Get_Machine_now_string("Sawing", "countdown_time");
-            lb_remain_tools.Text = DBfunction.Get_Machine_now_string("Sawing", "remain_tools");
+            //lb_swingpower.Text = DBfunction.Get_Machine_now_string("Sawing", "Sawing_power") + "(kWh)";
+            //lb_electricity.Text = DBfunction.Get_Machine_now_string("Sawing", "electricity") + "(kWh)";
+            //lb_totaltime.Text = DBfunction.Get_Machine_now_string("Sawing", "total_time");
+            //lb_countdown_time.Text = DBfunction.Get_Machine_now_string("Sawing", "countdown_time");
+            //lb_remain_tools.Text = DBfunction.Get_Machine_now_string("Sawing", "remain_tools");
 
         }
         private void Drill_main_update()
         {
-            lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
-            lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
-            lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(V)";
-            lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(A) ";
-            lb_drillpower.Text = DBfunction.Get_Machine_now_string("Drill", "power") + "\n(kW) ";
-            lb_drill_du.Text = DBfunction.Get_Machine_now_string("Drill", "electricity") + "\n(kWh)";
+            //lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
+            //lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
+            //lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(V)";
+            //lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(A) ";
+            //lb_drillpower.Text = DBfunction.Get_Machine_now_string("Drill", "power") + "\n(kW) ";
+            //lb_drill_du.Text = DBfunction.Get_Machine_now_string("Drill", "electricity") + "\n(kWh)";
 
         }
 
@@ -409,23 +409,23 @@ namespace FX5U_IOMonitor
             lab_yS.Text = LanguageManager.Translate("Mainform_YellowLights");
             lab_gD.Text = LanguageManager.Translate("Mainform_GreenLights");
             lab_gS.Text = LanguageManager.Translate("Mainform_GreenLights");
-            lab_reset.Text = LanguageManager.Translate("Mainform_PowerConsumption");
-            lab_reset1.Text = LanguageManager.Translate("Mainform_PowerConsumption");
-            lab_power.Text = LanguageManager.Translate("Mainform_Power");
-            lab_power1.Text = LanguageManager.Translate("Mainform_Power");
-            label_Ammeter.Text = LanguageManager.Translate("Mainform_Current");
-            label_Ammeter1.Text = LanguageManager.Translate("Mainform_Current");
-            lb_Voltage.Text = LanguageManager.Translate("Mainform_Voltage");
-            lb_Voltage1.Text = LanguageManager.Translate("Mainform_Voltage");
-            lb_countdown_timeText.Text = LanguageManager.Translate("Mainform_SawingCountdownTimer");
-            lb_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
-            lb_remain_toolsText.Text = LanguageManager.Translate("Mainform_RemainingTools");
-            lb_oilpressText.Text = LanguageManager.Translate("Mainform_HydraulicTensionStatus");
-            lb_sawing_cutingspeedText.Text = LanguageManager.Translate("Mainform_CuttingSpeed");
-            lb_swing_motor_currentText.Text = LanguageManager.Translate("Mainform_MotorCurrent");
-            lb_cutingtimeText.Text = LanguageManager.Translate("Mainform_ProcessingTime");
-            lb_Drill_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
-            btn_SawBand.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
+            //lab_reset.Text = LanguageManager.Translate("Mainform_PowerConsumption");
+            //lab_reset1.Text = LanguageManager.Translate("Mainform_PowerConsumption");
+            //lab_power.Text = LanguageManager.Translate("Mainform_Power");
+            //lab_power1.Text = LanguageManager.Translate("Mainform_Power");
+            //label_Ammeter.Text = LanguageManager.Translate("Mainform_Current");
+            //label_Ammeter1.Text = LanguageManager.Translate("Mainform_Current");
+            //lb_Voltage.Text = LanguageManager.Translate("Mainform_Voltage");
+            //lb_Voltage1.Text = LanguageManager.Translate("Mainform_Voltage");
+            //lb_countdown_timeText.Text = LanguageManager.Translate("Mainform_SawingCountdownTimer");
+            //lb_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
+            //lb_remain_toolsText.Text = LanguageManager.Translate("Mainform_RemainingTools");
+            //lb_oilpressText.Text = LanguageManager.Translate("Mainform_HydraulicTensionStatus");
+            //lb_sawing_cutingspeedText.Text = LanguageManager.Translate("Mainform_CuttingSpeed");
+            //lb_swing_motor_currentText.Text = LanguageManager.Translate("Mainform_MotorCurrent");
+            //lb_cutingtimeText.Text = LanguageManager.Translate("Mainform_ProcessingTime");
+            //lb_Drill_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
+            btn_.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
             btn_Drill_Info.Text = LanguageManager.Translate("Mainform_MachineInfo");
             //btn_Drill_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
             //btn_Sawing_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
