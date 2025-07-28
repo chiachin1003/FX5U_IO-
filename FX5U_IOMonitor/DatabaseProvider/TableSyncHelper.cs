@@ -463,7 +463,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 var Blade_brand_TPI = await TableSyncHelper.SyncFromCloudToLocal<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
                 var Language = await TableSyncHelper.SyncFromCloudToLocal<Language>(local, cloud, "Language");
                 var MachineIOTranslations = await TableSyncHelper.SyncFromCloudToLocal<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
-                var AlarmTranslation = await TableSyncHelper.SyncFromCloudToLocal<AlarmTranslation>(local, cloud, "AlarmTranslation");
+                var AlarmTranslation = await TableSyncHelper.SyncFromCloudToLocal<AlarmTranslation>(local, cloud, "AlarmTranslation", "AlarmId");
 
                 TableSyncHelper.LogSyncResult(Blade_brand, 1);
                 TableSyncHelper.LogSyncResult(Blade_brand_TPI, 1);

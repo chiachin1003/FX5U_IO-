@@ -370,7 +370,7 @@ namespace FX5U_IOMonitor.Models
 
                 int insertCount = 0, updateCount = 0, deleteCount = 0;
 
-                // 1. 建立 CSV 中出現的主鍵集合
+                //  建立 CSV 中出現的主鍵集合
                 var csvKeys = new HashSet<object>(records.Select(recordKeySelector));
 
                 foreach (var record in records)
@@ -382,12 +382,12 @@ namespace FX5U_IOMonitor.Models
 
                     if (existingEntity != null)
                     {
-                        _context.Entry(existingEntity).CurrentValues.SetValues(entity); // 使用 context 不是 dbSetQuery
+                        _context.Entry(existingEntity).CurrentValues.SetValues(entity);
                         updateCount++;
                     }
                     else
                     {
-                        _context.Set<TEntity>().Add(entity); // 改用 context 新增
+                        _context.Set<TEntity>().Add(entity);
                         insertCount++;
                     }
                 }
@@ -532,7 +532,8 @@ namespace FX5U_IOMonitor.Models
 
             // --------------------------
             // 直接刪除既有翻譯
-            alarm.Translations.Clear();
+            //alarm.Translations.Clear();
+            var existingTranslations = alarm.Translations.ToDictionary(t => t.LanguageCode);
 
             var langDict = new Dictionary<string, (string error, string possible, string steps)>();
 
@@ -579,13 +580,23 @@ namespace FX5U_IOMonitor.Models
                     !string.IsNullOrWhiteSpace(possible) ||
                     !string.IsNullOrWhiteSpace(steps))
                 {
-                    alarm.Translations.Add(new AlarmTranslation
+                    if (existingTranslations.TryGetValue(lang, out var translation))
                     {
-                        LanguageCode = lang,
-                        Error = error,
-                        Possible = possible,
-                        Repair_steps = steps
-                    });
+                        // ✅ 已存在 → 更新內容（保留原 ID）
+                        translation.Error = error;
+                        translation.Possible = possible;
+                        translation.Repair_steps = steps;
+                    }
+                    else
+                    {
+                        alarm.Translations.Add(new AlarmTranslation
+                        {
+                            LanguageCode = lang,
+                            Error = error,
+                            Possible = possible,
+                            Repair_steps = steps
+                        });
+                    }
                 }
             }
 

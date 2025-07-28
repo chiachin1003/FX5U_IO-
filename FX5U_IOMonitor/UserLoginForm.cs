@@ -4,6 +4,7 @@ using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
@@ -80,7 +81,9 @@ namespace FX5U_IOMonitor
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            Main_form_test add_saw_Form = new Main_form_test();
+            //Main_form_test add_saw_Form = new Main_form_test();
+            File_Settings add_saw_Form = new File_Settings();
+
             add_saw_Form.Show();
         }
         private static System.Timers.Timer? _syncTimer;
@@ -207,25 +210,27 @@ namespace FX5U_IOMonitor
         {
             _SysCloud = CloudDbProvider.GetContext();
             _SysLocal = new ApplicationDB();
-            if (_SysCloud == null)
-            {
-                SetToggleState(false, enabled: true);
-            }
-            else
-            {
-                SetToggleState(connected: true, enabled: false);
-                await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
-                await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
-                SetToggleState(connected: true, enabled: true);
+            //if (_SysCloud == null)
+            //{
+            //    SetToggleState(false, enabled: true);
+            //}
+            //else
+            //{
+            //    SetToggleState(connected: true, enabled: false);
+            //    await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+            //    await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+            //    SetToggleState(connected: true, enabled: true);
 
-                StartAutoSync();
-
-
-            }
+            //    StartAutoSync();
 
 
+            //}
+
+
+
+            
         }
-        
+
         private void SetToggleState(bool connected, bool enabled)
         {
             if (connected)
