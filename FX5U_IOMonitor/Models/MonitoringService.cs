@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Message;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -47,6 +48,13 @@ namespace FX5U_IOMonitor.Models
             public event EventHandler<IOUpdateEventArgs> IOUpdated; //實體元件事件(X輸入及Y輸出)
             public event EventHandler<IOUpdateEventArgs> alarm_event; //警告事件事件
             public event EventHandler<IOUpdateEventArgs> machine_event;
+            public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed;
+
+            private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
+            private Dictionary<string, RULThresholdInfo> _rulCache = new();
+            private DateTime _lastRULCacheTime = DateTime.MinValue;
+            private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
+
             public string MachineName { get; }
 
             public event EventHandler<MachineParameterChangedEventArgs>? MachineParameterChanged;
@@ -105,7 +113,12 @@ namespace FX5U_IOMonitor.Models
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 lock (externalLock ?? new object())
                 {
-
+                    //if ((DateTime.Now - _lastRULCacheTime) > _cacheDuration || _rulCache.Count == 0)
+                    //{
+                    //    _rulCache = RULNotifier.GetRULMapByMachine(machinname);
+                    //    _lastRULCacheTime = DateTime.Now;
+                    //}
+                    _rulCache = RULNotifier.GetRULMapByMachine(machinname);
                     foreach (var prefix in sectionGroups.Keys)
                     {
                         var blocks = sectionGroups[prefix];
@@ -120,16 +133,27 @@ namespace FX5U_IOMonitor.Models
                                 if (isFirstRead)
                                 {
                                     int updated = Calculate.UpdateIOCurrentSingleToDB(result, machinname);
+                                    // 初始化 Message 狀態快取
+                                    foreach (var now in result)
+                                    {
+                                        if (_rulCache.TryGetValue(now.address, out var info))
+                                        {
+                                            string initialState = GetRULState(info); 
+                                            _lastRULState[now.address] = initialState;
+                                        }
+                                    }
                                     var context = MachineHub.Get(machinname);
                                     if (context != null)
                                     {
                                      
                                         context.ConnectSummary.connect += updated;
                                     }
+
                                 }
                                 else
                                 {
-                                    UpdateIODataBaseFromNowSingle(result, old_single);
+                                    //UpdateIODataBaseFromNowSingle(result, old_single);
+                                    UpdateIODataBaseFromNowSingle(result, old_single, _rulCache);
                                 }
 
 
@@ -161,7 +185,7 @@ namespace FX5U_IOMonitor.Models
             /// </summary>
             /// <param name="nowList"></param>
             /// <param name="oldList"></param>
-            private void UpdateIODataBaseFromNowSingle(List<now_single> nowList, List<now_single> oldList)
+            private void UpdateIODataBaseFromNowSingle(List<now_single> nowList, List<now_single> oldList, Dictionary<string, RULThresholdInfo> rulMap)
             {
 
                 if (nowList == null || nowList.Count == 0 || oldList == null || oldList.Count == 0)
@@ -172,10 +196,10 @@ namespace FX5U_IOMonitor.Models
                 int updatedCount = 0;
                 foreach (var now in nowList)
                 {
-                    var ioMatch = oldList.FirstOrDefault(io =>  io.address == now.address );
+                    var ioMatch = oldList.FirstOrDefault(io => io.address == now.address);
                     if (ioMatch != null)
                     {
-
+                        //比對當前信號值
                         if (ioMatch.current_single is bool oldVal)
                         {
                             bool newVal = now.current_single;
@@ -191,15 +215,48 @@ namespace FX5U_IOMonitor.Models
                                     OldValue = oldVal,
                                     NewValue = newVal
                                 });
-                   
+
                             }
                         }
+                        // 檢查 Message 狀態是否發生變化
+                        if (rulMap.TryGetValue(ioMatch.address, out var info))
+                        {
+                            string currentRULState = GetRULState(info); // green / yellow / red
+                            string key = ioMatch.address;
+
+
+                            // 只有在狀態變化時，才更新並觸發通知
+                            if (_lastRULState[ioMatch.address] != currentRULState)
+                            {
+                                _lastRULState[key] = currentRULState; // 更新快取狀態
+
+                                // 僅當新的狀態是 yellow / red 時才發送通知
+                                if (currentRULState == "yellow" || currentRULState == "red")
+                                {
+                                    RULThresholdCrossed?.Invoke(this, new RULThresholdCrossedEventArgs
+                                    {
+                                        Address = ioMatch.address,
+                                        Machine = MachineName,
+                                        RUL = info.RUL,
+                                        State = currentRULState
+                                    });
+                                }
+                            }
+
+
+                        }
+
                     }
 
                 }
-
             }
-
+            private string GetRULState(RULThresholdInfo info)
+            {
+                if (info.SetY < 0 || info.SetR < 0) return "unknown";
+                if (info.RUL <= info.SetR) return "red";
+                if (info.RUL <= info.SetY) return "yellow";
+                return "green";
+            }
 
 
             /// <summary>

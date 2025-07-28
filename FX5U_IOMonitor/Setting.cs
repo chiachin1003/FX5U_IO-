@@ -1,6 +1,6 @@
 ﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
-using FX5U_IOMonitor.Email;
+using FX5U_IOMonitor.Scheduling;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Resources;
@@ -8,10 +8,11 @@ using FX5U_IO元件監控;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using static FX5U_IOMonitor.Email.DailyTask_config;
-using static FX5U_IOMonitor.Email.Notify_Message;
-using static FX5U_IOMonitor.Email.Send_mode;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static FX5U_IOMonitor.Message.Notify_Message;
+using static FX5U_IOMonitor.Message.Send_mode;
 using static FX5U_IOMonitor.Models.Test_;
+using FX5U_IOMonitor.Message;
 
 
 
@@ -269,7 +270,7 @@ namespace FX5U_IOMonitor
             //    List<string> allUser = Message_function.GetUserEmails(users);
 
             //    // 建立該使用者對應的彙總信件內容
-            //    var body = DailyTaskExecutors.BuildEmailBody(group.ToList());
+            //    var body = DailyTaskExecutors.BuildDateAlarmBody(group.ToList());
 
             //    //選擇發送郵件的主旨格式
             //    MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;

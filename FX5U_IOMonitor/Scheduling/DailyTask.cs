@@ -1,6 +1,6 @@
-﻿using static FX5U_IOMonitor.Email.DailyTask_config;
+﻿using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 
-namespace FX5U_IOMonitor.Email
+namespace FX5U_IOMonitor.Scheduling
 {
     internal static class DailyTask
     {
@@ -28,13 +28,13 @@ namespace FX5U_IOMonitor.Email
 
             //AddTaskOnce("Param_historyMinute", ScheduleFrequency.Minutely, TimeSpan.Zero,
             //    () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely));
-            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily);
+            //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily);
+           
+            //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly);
+            //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly);
             AddTaskOnce("Param_historyTask", ScheduleFrequency.Daily, TimeSpan.Zero,
-                () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily));
-
-            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly);
-            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly);
-            AddTaskOnce("Param_week", ScheduleFrequency.Monthly, TimeSpan.Zero,
+               () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily));
+            AddTaskOnce("Param_week", ScheduleFrequency.Weekly, TimeSpan.Zero,
                () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly));
             AddTaskOnce("Param_Monthly", ScheduleFrequency.Monthly, TimeSpan.Zero,
                () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly));

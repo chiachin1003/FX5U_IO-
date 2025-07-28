@@ -1,5 +1,5 @@
 ﻿using FX5U_IOMonitor.Models;
-using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 
 namespace FX5U_IOMonitor.panel_control
 {

@@ -11,7 +11,7 @@ using FX5U_IOMonitor.panel_control;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.ParameterHistoryManager;
 using FX5U_IOMonitor.Resources;
-using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 
 
 

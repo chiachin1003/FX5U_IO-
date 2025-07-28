@@ -7,7 +7,7 @@ using LineNotification.NotificationManagerModule;
 using LineNotificationModule;
 
 
-namespace FX5U_IOMonitor.Email
+namespace FX5U_IOMonitor.Message
 {
     public class Send_mode
     {

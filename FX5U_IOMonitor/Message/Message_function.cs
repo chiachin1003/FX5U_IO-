@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 using FX5U_IOMonitor.Login;
 using Microsoft.AspNetCore.Identity;
 using FX5U_IOMonitor.Models;
-using static FX5U_IOMonitor.Email.Notify_Message;
-using static FX5U_IOMonitor.Email.Send_mode;
+using static FX5U_IOMonitor.Message.Notify_Message;
+using static FX5U_IOMonitor.Message.Send_mode;
 using Microsoft.VisualBasic.ApplicationServices;
 
-namespace FX5U_IOMonitor.Email
+namespace FX5U_IOMonitor.Message
 {
     public class Message_function
     {

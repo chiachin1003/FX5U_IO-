@@ -22,24 +22,6 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
             string connStr = $"Host={DbConfig.Local.IpAddress};Port={DbConfig.Local.Port};Database=element;Username={DbConfig.Local.UserName};Password={DbConfig.Local.Password}";
 
-            //services.AddDbContext< ApplicationDB>(options =>
-            //    options.UseNpgsql(connStr),
-            //    ServiceLifetime.Singleton);
-
-          
-            //// 註冊 UserManager 和 RoleManager
-            //services.AddIdentityCore<ApplicationUser>(options =>
-            //{
-            //    //options.Password.RequireDigit = true;
-            //    //options.Password.RequiredLength = 6;
-            //    options.Password.RequireNonAlphanumeric = false;
-            //    options.Password.RequireUppercase = false;
-            //    //options.Password.RequireLowercase = true;
-            //})
-            //.AddRoles<IdentityRole>() // 註冊角色管理
-            //.AddEntityFrameworkStores<ApplicationDB>(); // 使用 Entity Framework 儲存使用者和角色
-
-            // 註冊 DbContext 與 Identity
             services.AddDbContext<ApplicationDB>(options => options.UseNpgsql(connStr));
 
             services.AddIdentityCore<ApplicationUser>(options =>

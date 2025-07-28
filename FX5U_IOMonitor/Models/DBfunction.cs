@@ -19,7 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Data.Recordmode;
-using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FX5U_IOMonitor.Models
@@ -358,33 +358,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
         //------尋找綠燈數量--------------
-        public static int Get_Yellow_number()
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO
-                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow)
-                        .Count();
-            }
-        }
-        public static int Get_Yellow_element()
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO
-                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow)
-                        .Count();
-            }
-        }
-        public static int Get_Red_number()
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO
-                        .Where(io => io.RUL <= io.Setting_red)
-                        .Count();
-            }
-        }
+      
         public static int Get_Yellow_number(string tableName)
         {
             using (var context = new ApplicationDB())
@@ -457,25 +431,7 @@ namespace FX5U_IOMonitor.Models
                 return value;
             }
         }
-        public static void Set_RUL_ByAddress(string tableName, string address, double number)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.Machine_IO
-                   .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
-                if (machine != null)
-                {
-                    machine.RUL = number;
-                    context.SaveChanges();
-                    Console.WriteLine($"已將 {address} 的說明欄位更新為：{number}");
-                }
-                else
-                {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");
-                }
-            }
-        }
-
+       
         //----------獲取使用者設定綠燈---------
         public static int Get_SetG_ByAddress(string tableName, string address)
         {
@@ -1921,53 +1877,117 @@ namespace FX5U_IOMonitor.Models
 
 
         //參數歸零歷史紀錄搜尋
-        public static List<object> Get_Searchparam_HistoryRecords(DateTime startDateLocal, DateTime endDateLocal)
+        public static List<object> Get_Searchparam_HistoryRecords(DateTime startDateLocal, DateTime endDateLocal, ScheduleFrequency? frequency)
         {
             DateTime startDate = startDateLocal.ToUniversalTime();
             DateTime endDate = endDateLocal.ToUniversalTime();
-
-            using (var context = new ApplicationDB())
+            var context = new ApplicationDB();
+            string Periotag = "";
+            
+            if (frequency == null)
             {
                 var result = context.MachineParameterHistoryRecodes
-                    .Include(mh => mh.MachineParameter)
-                    .Where(mh => mh.EndTime >= startDate && mh.StartTime <= endDate)
-                    .OrderByDescending(mh => mh.StartTime)
-                    .AsEnumerable() // 切換為本機端計算
-                    .Select(mh => 
-                    {
-                        string record = "";
-                        if (mh.MachineParameter.Read_type == "bit")
-                        {
-                            if (mh.MachineParameter.Calculate_type == 1)
-                            {
-                                record = mh.History_NumericValue.GetValueOrDefault().ToString();
-                            }
-                            else 
-                            {
-                                record = MonitorFunction.ConvertSecondsToDHMS(mh.History_NumericValue.GetValueOrDefault());
-                            }
-                        }
+               .Include(mh => mh.MachineParameter)
+               .Where(mh => mh.EndTime >= startDate && mh.StartTime <= endDate)
+               .OrderByDescending(mh => mh.StartTime)
+               .AsEnumerable() // 切換為本機端計算
+               .Select(mh =>
+               {
+                   string record = "";
+                   if (mh.MachineParameter.Read_type == "bit")
+                   {
+                       if (mh.MachineParameter.Calculate_type == 1)
+                       {
+                           record = mh.History_NumericValue.GetValueOrDefault().ToString();
+                       }
+                       else
+                       {
+                           record = MonitorFunction.ConvertSecondsToDHMS(mh.History_NumericValue.GetValueOrDefault());
+                       }
+                   }
 
-                        if (mh.MachineParameter.Read_type == "None")
-                        {
-                            record = (mh.History_NumericValue.GetValueOrDefault() * 0.01).ToString();
-                        }
-                        if (mh.MachineParameter.Read_type == "word")
-                        {
-                            record = mh.MachineParameter.now_TextValue;
-                        }
-                        return new
-                        {
-                            mh.MachineParameter.Machine_Name,
-                            Name = mh.MachineParameter.Name,
-                            StartTime = mh.StartTime.ToLocalTime(),
-                            EndTime = mh.EndTime.ToLocalTime(),
-                            record = record
-                        };
-                     })
-                    .ToList<object>(); // 用 object 型別做匿名類型回傳
+                   if (mh.MachineParameter.Read_type == "None")
+                   {
+                       record = (mh.History_NumericValue.GetValueOrDefault() * 0.01).ToString();
+                   }
+                   if (mh.MachineParameter.Read_type == "word")
+                   {
+                       record = mh.MachineParameter.now_TextValue;
+                   }
+                   return new
+                   {
+                       mh.MachineParameter.Machine_Name,
+                       Name = mh.MachineParameter.Name,
+                       StartTime = mh.StartTime.ToLocalTime(),
+                       EndTime = mh.EndTime.ToLocalTime(),
+                       PeriodTag = mh.PeriodTag,
+                       ResetBy = mh.ResetBy,
+                       record = record
+                   };
+               })
+               .ToList<object>(); // 用 object 型別做匿名類型回傳
 
                 return result;
+
+            }
+            else 
+            {
+                if (frequency == ScheduleFrequency.Weekly)
+                {
+                    Periotag = "Weekly";
+                }
+                else if(frequency == ScheduleFrequency.Daily)
+                {
+                    Periotag = "Daily";
+                }
+                else if (frequency == ScheduleFrequency.Monthly)
+                {
+                    Periotag = "Monthly";
+                }
+                var result = context.MachineParameterHistoryRecodes
+                .Include(mh => mh.MachineParameter)
+                .Where(mh => mh.EndTime >= startDate && mh.StartTime <= endDate)
+                .Where(mh => mh.PeriodTag.Contains(Periotag))
+                .OrderByDescending(mh => mh.StartTime)
+                .AsEnumerable() // 切換為本機端計算
+                .Select(mh =>
+                {
+                    string record = "";
+                    if (mh.MachineParameter.Read_type == "bit")
+                    {
+                        if (mh.MachineParameter.Calculate_type == 1)
+                        {
+                            record = mh.History_NumericValue.GetValueOrDefault().ToString();
+                        }
+                        else
+                        {
+                            record = MonitorFunction.ConvertSecondsToDHMS(mh.History_NumericValue.GetValueOrDefault());
+                        }
+                    }
+
+                    if (mh.MachineParameter.Read_type == "None")
+                    {
+                        record = (mh.History_NumericValue.GetValueOrDefault() * 0.01).ToString();
+                    }
+                    if (mh.MachineParameter.Read_type == "word")
+                    {
+                        record = mh.MachineParameter.now_TextValue;
+                    }
+                    return new
+                    {
+                        mh.MachineParameter.Machine_Name,
+                        Name = mh.MachineParameter.Name,
+                        StartTime = mh.StartTime.ToLocalTime(),
+                        EndTime = mh.EndTime.ToLocalTime(),
+                        PeriodTag = mh.PeriodTag,
+                        ResetBy = mh.ResetBy,
+                        record = record
+                    };
+                })
+                .ToList<object>(); // 用 object 型別做匿名類型回傳
+
+                return result;
+
             }
         }
 
@@ -1992,7 +2012,6 @@ namespace FX5U_IOMonitor.Models
                        classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
-
                        Duration = ah.Duration
                    }).ToList();
 

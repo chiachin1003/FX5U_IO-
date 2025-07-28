@@ -5,7 +5,7 @@ using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using static FX5U_IOMonitor.Email.Message_function;
+using static FX5U_IOMonitor.Message.Message_function;
 using static FX5U_IOMonitor.Models.Test_;
 
 
@@ -50,7 +50,7 @@ namespace FX5U_IOMonitor
             //syncService.Start();
 
             // 啟動每日各項排程
-            Email.DailyTask.StartAllSchedulers();
+            Scheduling.DailyTask.StartAllSchedulers();
            
             try
             {

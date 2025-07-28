@@ -1,21 +1,22 @@
-﻿using System;
-using System.Windows.Forms;
-using System.ComponentModel;
+﻿using CsvHelper;
+using FX5U_IOMonitor;
+using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.Resources;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
-using CsvHelper;
+using System.ComponentModel;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor;
 using System.Text;
-using System.Data;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using FX5U_IOMonitor.Resources;
+using System.Windows.Forms;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static FX5U_IOMonitor.Resources.Element_Settings;
-using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace FX5U_IO元件監控
@@ -23,7 +24,7 @@ namespace FX5U_IO元件監控
 
     public partial class History_record : Form
     {
-        private string datatable = "";
+        ScheduleFrequency? frequency;
         public History_record()
         {
 
@@ -34,24 +35,42 @@ namespace FX5U_IO元件監控
 
         private void btn_add_element_Click(object sender, EventArgs e)
         {
-            dataGridView1.ClearSelection();   // ✅ 清除舊選擇（避免看起來沒變）
+            dataGridView1.ClearSelection();
+            dataGridView1.DataSource = null;
 
             DateTime startDate = dateTime_start.Value.Date.ToUniversalTime();
             DateTime endDate = dateTime_end.Value.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
 
-            if (choose_event.SelectedIndex ==0)
+            if (choose_event.SelectedIndex == 0)
             {
-                
+
                 var result = DBfunction.Get_Searchalarm_Records(startDate, endDate);
                 dataGridView1.DataSource = result;
 
             }
-            else 
+            else
             {
-                var result = DBfunction.Get_Searchparam_HistoryRecords(startDate, endDate);
+                if (combo_metricType.SelectedIndex == 0)
+                {
+                    frequency = ScheduleFrequency.Weekly;
+                }
+                else if(combo_metricType.SelectedIndex == 1)
+                {
+                    frequency = ScheduleFrequency.Monthly;
+                }
+                else 
+                {
+                    frequency = null;
+                }
+                var result = DBfunction.Get_Searchparam_HistoryRecords(startDate, endDate, frequency);
                 dataGridView1.DataSource = result;
 
             }
+            foreach (DataGridViewColumn col in dataGridView1.Columns)
+            {
+                col.SortMode = DataGridViewColumnSortMode.Automatic;
+            }
+            dataGridView1.AutoResizeColumns(); // 自動調整欄寬（可選）
 
 
         }
@@ -76,7 +95,76 @@ namespace FX5U_IO元件監控
             e.Graphics.DrawString(rowIdx, this.Font, SystemBrushes.ControlText, headerBounds, centerFormat);
         }
 
-    
+        private void btn_exportCsv_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.Rows.Count == 0)
+            {
+                MessageBox.Show("沒有資料可以匯出！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                sfd.Filter = "CSV 檔 (*.csv)|*.csv";
+                sfd.FileName = "匯出資料.csv";
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        ExportDataGridViewToCsv(dataGridView1, sfd.FileName);
+                        MessageBox.Show("✅ 匯出成功！", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("匯出失敗：" + ex.Message, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void ExportDataGridViewToCsv(DataGridView dgv, string filePath)
+        {
+            var sb = new StringBuilder();
+
+            // 標題列
+            var headers = dgv.Columns.Cast<DataGridViewColumn>();
+            sb.AppendLine(string.Join(",", headers.Select(c => "\"" + c.HeaderText + "\"")));
+
+            // 每一列資料
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                if (!row.IsNewRow)
+                {
+                    var cells = row.Cells.Cast<DataGridViewCell>();
+                    sb.AppendLine(string.Join(",", cells.Select(c => "\"" + c.Value?.ToString()?.Replace("\"", "\"\"") + "\"")));
+                }
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        private void choose_event_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (choose_event.SelectedIndex == 0)
+            {
+                lab_metricType.Visible = false;
+                combo_metricType.Visible = false;
+            }
+            else
+            {
+                lab_metricType.Visible = true;
+                combo_metricType.Visible = true;
+                combo_metricType.SelectedIndex = 0;
+            }
+        }
+
+        private void History_record_Load(object sender, EventArgs e)
+        {
+            choose_event.SelectedIndex = 0;
+            lab_metricType.Visible = false;
+            combo_metricType.Visible = false;
+        }
     }
 }
 

@@ -33,6 +33,9 @@ namespace FX5U_IO元件監控
             label1 = new Label();
             label2 = new Label();
             panel1 = new Panel();
+            lab_metricType = new Label();
+            combo_metricType = new ComboBox();
+            btn_exportCsv = new Button();
             label3 = new Label();
             choose_event = new ComboBox();
             dateTime_end = new DateTimePicker();
@@ -67,6 +70,9 @@ namespace FX5U_IO元件監控
             // 
             // panel1
             // 
+            panel1.Controls.Add(lab_metricType);
+            panel1.Controls.Add(combo_metricType);
+            panel1.Controls.Add(btn_exportCsv);
             panel1.Controls.Add(label3);
             panel1.Controls.Add(choose_event);
             panel1.Controls.Add(dateTime_end);
@@ -74,11 +80,46 @@ namespace FX5U_IO元件監控
             panel1.Controls.Add(dateTime_start);
             panel1.Controls.Add(label1);
             panel1.Controls.Add(label2);
+            panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Margin = new Padding(4);
             panel1.Name = "panel1";
-            panel1.Size = new Size(816, 126);
+            panel1.Size = new Size(817, 126);
             panel1.TabIndex = 7;
+            // 
+            // lab_metricType
+            // 
+            lab_metricType.AutoSize = true;
+            lab_metricType.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
+            lab_metricType.Location = new Point(370, 21);
+            lab_metricType.Margin = new Padding(4, 0, 4, 0);
+            lab_metricType.Name = "lab_metricType";
+            lab_metricType.Size = new Size(99, 17);
+            lab_metricType.TabIndex = 21;
+            lab_metricType.Text = "選擇記錄間隔：";
+            // 
+            // combo_metricType
+            // 
+            combo_metricType.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            combo_metricType.BackColor = SystemColors.ButtonHighlight;
+            combo_metricType.DropDownStyle = ComboBoxStyle.DropDownList;
+            combo_metricType.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
+            combo_metricType.FormattingEnabled = true;
+            combo_metricType.Items.AddRange(new object[] { "每周", "每月" });
+            combo_metricType.Location = new Point(536, 18);
+            combo_metricType.Name = "combo_metricType";
+            combo_metricType.Size = new Size(172, 25);
+            combo_metricType.TabIndex = 20;
+            // 
+            // btn_exportCsv
+            // 
+            btn_exportCsv.Location = new Point(370, 86);
+            btn_exportCsv.Name = "btn_exportCsv";
+            btn_exportCsv.Size = new Size(58, 23);
+            btn_exportCsv.TabIndex = 19;
+            btn_exportCsv.Text = "匯出";
+            btn_exportCsv.UseVisualStyleBackColor = true;
+            btn_exportCsv.Click += btn_exportCsv_Click;
             // 
             // label3
             // 
@@ -98,11 +139,12 @@ namespace FX5U_IO元件監控
             choose_event.DropDownStyle = ComboBoxStyle.DropDownList;
             choose_event.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
             choose_event.FormattingEnabled = true;
-            choose_event.Items.AddRange(new object[] { "警告事件", "監控參數歸零事件" });
+            choose_event.Items.AddRange(new object[] { "警告事件", "監控參數" });
             choose_event.Location = new Point(179, 17);
             choose_event.Name = "choose_event";
-            choose_event.Size = new Size(171, 25);
+            choose_event.Size = new Size(172, 25);
             choose_event.TabIndex = 17;
+            choose_event.SelectedIndexChanged += choose_event_SelectedIndexChanged;
             // 
             // dateTime_end
             // 
@@ -113,7 +155,7 @@ namespace FX5U_IO元件監控
             // 
             // btn_search
             // 
-            btn_search.Location = new Point(372, 85);
+            btn_search.Location = new Point(370, 57);
             btn_search.Name = "btn_search";
             btn_search.Size = new Size(58, 23);
             btn_search.TabIndex = 7;
@@ -131,11 +173,12 @@ namespace FX5U_IO元件監控
             // dataGridView1
             // 
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(0, 130);
+            dataGridView1.Dock = DockStyle.Fill;
+            dataGridView1.Location = new Point(0, 126);
             dataGridView1.Margin = new Padding(4);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowTemplate.Height = 24;
-            dataGridView1.Size = new Size(816, 491);
+            dataGridView1.Size = new Size(817, 499);
             dataGridView1.TabIndex = 8;
             dataGridView1.RowPostPaint += dataGridView1_RowPostPaint;
             // 
@@ -153,6 +196,7 @@ namespace FX5U_IO元件監控
             Name = "History_record";
             StartPosition = FormStartPosition.CenterParent;
             Text = "歷史紀錄查詢";
+            Load += History_record_Load;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
@@ -169,5 +213,8 @@ namespace FX5U_IO元件監控
         private DateTimePicker dateTime_start;
         private Label label3;
         private ComboBox choose_event;
+        private Button btn_exportCsv;
+        private Label lab_metricType;
+        private ComboBox combo_metricType;
     }
 }

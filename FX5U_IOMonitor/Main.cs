@@ -1,7 +1,6 @@
 ﻿using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
-using FX5U_IOMonitor.Email;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
@@ -12,7 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Data.Recordmode;
-using static FX5U_IOMonitor.Email.Notify_Message;
+using static FX5U_IOMonitor.Message.Notify_Message;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static FX5U_IOMonitor.Models.UI_Display;

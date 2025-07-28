@@ -1,5 +1,5 @@
 ﻿using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor.Email;
+using FX5U_IOMonitor.Scheduling;
 using FX5U_IOMonitor.Models;
 using Org.BouncyCastle.Asn1;
 using System;
@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
-using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 
 namespace FX5U_IOMonitor.panel_control
 {

@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
-using static FX5U_IOMonitor.Email.DailyTask_config;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 

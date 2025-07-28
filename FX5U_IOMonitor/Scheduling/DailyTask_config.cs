@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static FX5U_IOMonitor.Email.Notify_Message;
-using static FX5U_IOMonitor.Email.Send_mode;
+using static FX5U_IOMonitor.Message.Notify_Message;
+using static FX5U_IOMonitor.Message.Send_mode;
 using System.Diagnostics;
 
 
-namespace FX5U_IOMonitor.Email
+namespace FX5U_IOMonitor.Scheduling
 {
 
     public class DailyTask_config
@@ -73,8 +73,15 @@ namespace FX5U_IOMonitor.Email
                 var period = GetPeriod(config.Frequency);
                 var timer = new System.Threading.Timer(async _ =>
                 {
-                    config.LastExecutionTime = DateTime.UtcNow;  // 更新執行時間
-                    await ExecuteTaskAsync(config);
+                    try
+                    {
+                        config.LastExecutionTime = DateTime.UtcNow;
+                        await ExecuteTaskAsync(config);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"⛔ 任務 {config.TaskName} Timer 執行時失敗：{ex.Message}");
+                    }
                 }, null, delay, period);
 
                 _timers[config.TaskName] = timer;
@@ -145,8 +152,8 @@ namespace FX5U_IOMonitor.Email
                     // ⏳ 在執行任務前補齊歷史紀錄
                     if (config.Parameters.TryGetValue("AutoFillHistory", out var fill) && fill is bool doFill && doFill)
                     {
-                        //var fillResult = await RecordAllMissingParameterSnapshotsAsync(config.Frequency);
-                        //Debug.WriteLine($"補齊歷史資料結果：{fillResult.Message}");
+                        var fillResult = await RecordAllMissingParameterSnapshotsAsync(config.Frequency);
+                        Debug.WriteLine($"補齊歷史資料結果：{fillResult.Message}");
                     }
 
                     if (!_taskExecutors.TryGetValue(config.TaskType, out var executor))
@@ -171,7 +178,7 @@ namespace FX5U_IOMonitor.Email
                     return result;
                 }
            
-        }
+            }
 
         private async Task<TaskResult> ExecuteCustomTaskAsync(TaskConfiguration config)
             {
@@ -184,36 +191,44 @@ namespace FX5U_IOMonitor.Email
         ///// <summary>
         ///// 自動補齊所有缺漏的排程週期紀錄
         ///// </summary>
-        //public static async Task<TaskResult> RecordAllMissingParameterSnapshotsAsync(ScheduleFrequency frequency)
-        //{
-        //    using var db = new ApplicationDB();
+        public static async Task<TaskResult> RecordAllMissingParameterSnapshotsAsync(ScheduleFrequency frequency)
+        {
+            using var db = new ApplicationDB();
 
-        //    var lastTime = db.MachineParameterHistoryRecodes
-        //        .Where(r => r.PeriodTag.EndsWith("_Metric") && r.PeriodTag.Contains(frequency.ToString()))
-        //        .Max(r => (DateTime?)r.StartTime);
+            var lastTime = db.MachineParameterHistoryRecodes
+                .Where(r => r.PeriodTag.EndsWith("_Metric") && r.PeriodTag.Contains(frequency.ToString()))
+                .Max(r => (DateTime?)r.StartTime);
 
-        //    DateTime startCursor = lastTime.HasValue
-        //        ? GetNextPeriodStartAfter(lastTime.Value, frequency)
-        //        : GetPeriodStart(DateTime.UtcNow, frequency);
+            DateTime startCursor = lastTime.HasValue
+                ? GetNextPeriodStartAfter(lastTime.Value, frequency)
+                : GetPeriodStart(DateTime.UtcNow, frequency);
 
-        //    DateTime now = DateTime.UtcNow;
-        //    int count = 0;
+            DateTime now = DateTime.UtcNow;
+            int count = 0;
 
-        //    while (startCursor < now)
-        //    {
-        //        DateTime end = GetPeriodEnd(startCursor, frequency);
-        //        await RecordCurrentParameterSnapshotInternalAsync(startCursor, end, frequency);
-        //        startCursor = GetNextPeriodStartAfter(startCursor, frequency);
-        //        count++;
-        //    }
+            while (startCursor < now)
+            {
+                DateTime end = GetPeriodEnd(startCursor, frequency);
+                try
+                {
+                    await RecordCurrentParameterSnapshotInternalAsync(startCursor, end, frequency);
+                    count++;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ 補紀錄失敗：{startCursor:yyyy-MM-dd HH:mm} ~ {end:HH:mm}，錯誤：{ex.Message}");
+                }
+                startCursor = GetNextPeriodStartAfter(startCursor, frequency);
+                count++;
+            }
 
-        //    return new TaskResult
-        //    {
-        //        Success = true,
-        //        Message = $"成功補齊 {count} 筆 {frequency} 快照",
-        //        ExecutionTime = DateTime.UtcNow
-        //    };
-        //}
+            return new TaskResult
+            {
+                Success = true,
+                Message = $"成功補齊 {count} 筆 {frequency} 快照",
+                ExecutionTime = DateTime.UtcNow
+            };
+        }
 
         private static DateTime GetPeriodStart(DateTime time, ScheduleFrequency freq) => freq switch
         {
@@ -294,6 +309,8 @@ namespace FX5U_IOMonitor.Email
 
             await db.SaveChangesAsync();
         }
+    
+    
     }
     
 }

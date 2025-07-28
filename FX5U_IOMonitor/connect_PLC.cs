@@ -1,15 +1,17 @@
 ﻿
+using FX5U_IOMonitor.Scheduling;
 using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.Email;
-using SLMP;
-using System.IO.Ports;
-using Modbus.Device; // 來自 NModbus4
-using static FX5U_IOMonitor.Models.MonitoringService;
-using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
-using System.Windows.Forms;
+using FX5U_IOMonitor.Message;
+using Modbus.Device; // 來自 NModbus4
+using SLMP;
 using System.Diagnostics;
+using System.IO.Ports;
+using System.Windows.Forms;
+using static FX5U_IOMonitor.Message.Send_mode;
+using static FX5U_IOMonitor.Models.ModbusMonitorService;
+using static FX5U_IOMonitor.Models.MonitoringService;
 
 
 
@@ -105,7 +107,11 @@ namespace FX5U_IOMonitor
 
                 contextItem.Monitor.SetExternalLock(contextItem.LockObject);
                 _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
-
+                var notifier = new RULNotifier();
+                contextItem.Monitor.RULThresholdCrossed += (s, e) =>
+                {
+                    notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
+                };
                 if (contextItem.IsMaster)
                 {
                     DBfunction.Fix_UnclosedAlarms_ByCurrentState();
@@ -228,10 +234,16 @@ namespace FX5U_IOMonitor
                 MessageBox.Show($"註冊後讀取 {connect_machine} 資訊失敗");
                 return;
             }
-
+            
+            
             // 告知 Monitor 要使用對應 Lock
             context.Monitor.SetExternalLock(context.LockObject);
-
+            //添加元件壽命即時通知功能
+            var notifier = new RULNotifier();
+            context.Monitor.RULThresholdCrossed += (s, e) =>
+            {
+                notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
+            };
             // 啟動監控任務
             _ = Task.Run(() => context.Monitor.MonitoringLoop(context.TokenSource.Token, context.MachineName));
 
@@ -526,28 +538,54 @@ namespace FX5U_IOMonitor
                 string notifyUsers = DBfunction.Get_AlarmNotifyuser_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
                 var alarm = new Alarm_config();
                 List<string> receivers = await alarm.GetAlarmNotifyEmails(notifyUsers);
+                List<string> lineReceivers = Message_function.GetUserLine(notifyUsers.Split(',', ';').ToList());
+
                 string machineName = DBfunction.Get_Machine_ByAddress(e.Address); // 例如從 DB 查出 user1,user2
                 string partNumber = DBfunction.Get_Description_ByAddress(e.Address);
-                string addressList = e.Address;
                 string faultLocation = DBfunction.Get_Error_ByAddress(e.Address);
                 string possibleReasons = DBfunction.Get_Possible_ByAddress(e.Address);
-                string suggestions = DBfunction.Get_Repair_steps_ByAddress(e.Address);
+                string steps = DBfunction.Get_Repair_steps_ByAddress(e.Address);
 
                 if (receivers == null || receivers.Count == 0)
                 {
                     Console.WriteLine($"⚠️ 無收件者，警報 {e.Address} 未發送。");
                     return;
                 }
+                var (subject, body) = DailyTaskExecutors.BuildSingleAlarmMessage(
+                                      machineName,
+                                      partNumber,
+                                      new List<string> { e.Address },
+                                      faultLocation,
+                                      new List<string> { possibleReasons },
+                                      new List<string> { steps });
+                
+                // 建立 mail 與 line 資訊
+                var mailInfo = new MessageInfo
+                {
+                    Receivers = receivers,
+                    Subject = subject,
+                    Body = body
+                };
+
+                var lineInfo = new MessageInfo
+                {
+                    Receivers = lineReceivers,
+                    Subject = subject,
+                    Body = body
+                };
                 try
                 {
-                    await Message_function.SendFailureAlarmMail(
-                    receivers,
-                    machineName,
-                    partNumber,
-                    addressList: new List<string> { e.Address },
-                    faultLocation,
-                    possibleReasons: new List<string> { possibleReasons },
-                    suggestions: new List<string> { suggestions });
+                   
+                    int port = Properties.Settings.Default.TLS_port;
+
+                    await (port switch
+                    {
+                        587 => SendViaSmtp587Async(mailInfo),
+                        465 => SendViaSmtp465Async(mailInfo),
+                        _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
+                    });
+
+                    await SendLineNotificationAsync(lineInfo);
                 }
                 catch (Exception ex)
                 {

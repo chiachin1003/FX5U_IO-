@@ -1,5 +1,6 @@
 ﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.Message;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,11 +8,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static FX5U_IOMonitor.Email.DailyTask_config;
-using static FX5U_IOMonitor.Email.Notify_Message;
-using static FX5U_IOMonitor.Email.Send_mode;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static FX5U_IOMonitor.Message.Notify_Message;
+using static FX5U_IOMonitor.Message.Send_mode;
 
-namespace FX5U_IOMonitor.Email
+namespace FX5U_IOMonitor.Scheduling
 {
     internal class DailyTaskExecutors
     {
@@ -137,7 +138,7 @@ namespace FX5U_IOMonitor.Email
                 List<string> User_line = Message_function.GetUserLine(users);
 
                 // 建立該使用者對應的彙總信件內容
-                var body = BuildEmailBody(group.ToList());
+                var body = BuildDateAlarmBody(group.ToList());
 
                 //選擇發送郵件的主旨格式
                 MessageSubjectType selectedType = MessageSubjectType.UnresolvedWarnings;
@@ -192,7 +193,7 @@ namespace FX5U_IOMonitor.Email
         /// </summary>
         /// <param name="alarms"></param>
         /// <returns></returns>
-        public static string BuildEmailBody(List<AlarmHistory> alarms)
+        public static string BuildDateAlarmBody(List<AlarmHistory> alarms)
         {
             var sb = new StringBuilder();
             sb.AppendLine("📌 以下為尚未排除的警告摘要：\n");
@@ -249,7 +250,12 @@ namespace FX5U_IOMonitor.Email
                         break;
                     case ScheduleFrequency.Monthly:
                         var prevMonth = now.AddMonths(-1);
-                        roundedStartTime = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var monthStart = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
+                        // 🔧 修正：起始時間不得早於最早的參數建立時間
+                        DateTime earliestParamTime = db.MachineParameters.Min(p => p.CreatedAt).ToUniversalTime();
+                        roundedStartTime = monthStart < earliestParamTime ? earliestParamTime : monthStart;
+
                         var lastDayPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
                         roundedEndTime = new DateTime(prevMonth.Year, prevMonth.Month, lastDayPrevMonth, 23, 59, 59, DateTimeKind.Utc);
                         break;
@@ -354,6 +360,46 @@ namespace FX5U_IOMonitor.Email
                     ExecutionTime = DateTime.UtcNow
                 };
             }
+        }
+
+
+        public static (string Subject, string Body) BuildSingleAlarmMessage(
+            string machineName,
+            string partNumber,
+            List<string> addressList,
+            string faultLocation,
+            List<string> possibleReasons,
+            List<string> suggestions)
+        {
+            var subject = MessageSubjectHelper.GetSubject(MessageSubjectType.TriggeredAlarm);
+
+            string reasonText = possibleReasons != null && possibleReasons.Count > 0
+                ? string.Join(Environment.NewLine, possibleReasons.Select(r => "- " + r))
+                : "- （尚未提供）";
+
+            string suggestionText = suggestions != null && suggestions.Count > 0
+                ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
+                : "（尚未提供建議）";
+
+            string body = $@"
+                            📣 發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
+                            設備名稱：{machineName}
+                            更換料號名稱：{partNumber}
+                            元件儲存器位置：{string.Join("、", addressList)}
+                            故障信息為：{faultLocation}
+
+                            系統判定此元件處於「故障狀態」。
+
+                            可能故障原因：
+                            {reasonText}
+
+                            建議處理方式：
+                            {suggestionText}
+
+                            （自動通報信息）
+                            ";
+
+            return (subject, body);
         }
     }
 }

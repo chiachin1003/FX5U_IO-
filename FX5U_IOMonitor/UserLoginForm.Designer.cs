@@ -108,6 +108,7 @@
             chk_toggle.TabIndex = 54;
             chk_toggle.TextAlign = ContentAlignment.MiddleCenter;
             chk_toggle.UseVisualStyleBackColor = true;
+            chk_toggle.Visible = false;
             chk_toggle.CheckedChanged += chk_toggle_CheckedChanged;
             // 
             // UserLoginForm

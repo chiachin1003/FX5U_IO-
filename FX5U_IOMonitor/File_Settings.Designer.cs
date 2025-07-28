@@ -49,7 +49,7 @@
             // btn_download
             // 
             btn_download.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_download.Location = new Point(257, 104);
+            btn_download.Location = new Point(22, 107);
             btn_download.Name = "btn_download";
             btn_download.Size = new Size(86, 36);
             btn_download.TabIndex = 39;
@@ -71,7 +71,7 @@
             // btn_update
             // 
             btn_update.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_update.Location = new Point(349, 104);
+            btn_update.Location = new Point(114, 107);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(82, 36);
             btn_update.TabIndex = 42;
