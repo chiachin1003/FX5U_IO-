@@ -210,25 +210,25 @@ namespace FX5U_IOMonitor
         {
             _SysCloud = CloudDbProvider.GetContext();
             _SysLocal = new ApplicationDB();
-            //if (_SysCloud == null)
-            //{
-            //    SetToggleState(false, enabled: true);
-            //}
-            //else
-            //{
-            //    SetToggleState(connected: true, enabled: false);
-            //    await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
-            //    await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
-            //    SetToggleState(connected: true, enabled: true);
+            if (_SysCloud == null)
+            {
+                SetToggleState(false, enabled: true);
+            }
+            else
+            {
+                SetToggleState(connected: true, enabled: false);
+                await TableSyncHelper.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                await TableSyncHelper.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                SetToggleState(connected: true, enabled: true);
 
-            //    StartAutoSync();
-
-
-            //}
+                StartAutoSync();
 
 
+            }
 
-            
+
+
+
         }
 
         private void SetToggleState(bool connected, bool enabled)

@@ -90,7 +90,7 @@ namespace FX5U_IOMonitor
             panel_Ethernet.Controls.Add(txb_IP);
             panel_Ethernet.Controls.Add(lab_Enthernetport);
             panel_Ethernet.Controls.Add(label_IP);
-            panel_Ethernet.Location = new Point(723, 264);
+            panel_Ethernet.Location = new Point(56, 211);
             panel_Ethernet.Name = "panel_Ethernet";
             panel_Ethernet.Size = new Size(580, 363);
             panel_Ethernet.TabIndex = 16;

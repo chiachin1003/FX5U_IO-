@@ -358,33 +358,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
         //------尋找綠燈數量--------------
-        public static int Get_Yellow_number()
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO
-                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow)
-                        .Count();
-            }
-        }
-        public static int Get_Yellow_element()
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO
-                        .Where(io => io.RUL > io.Setting_red && io.RUL <= io.Setting_yellow)
-                        .Count();
-            }
-        }
-        public static int Get_Red_number()
-        {
-            using (var context = new ApplicationDB())
-            {
-                return context.Machine_IO
-                        .Where(io => io.RUL <= io.Setting_red)
-                        .Count();
-            }
-        }
+      
         public static int Get_Yellow_number(string tableName)
         {
             using (var context = new ApplicationDB())
@@ -457,25 +431,7 @@ namespace FX5U_IOMonitor.Models
                 return value;
             }
         }
-        public static void Set_RUL_ByAddress(string tableName, string address, double number)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.Machine_IO
-                   .FirstOrDefault(m => m.Machine_name == tableName && m.address == address);
-                if (machine != null)
-                {
-                    machine.RUL = number;
-                    context.SaveChanges();
-                    Console.WriteLine($"已將 {address} 的說明欄位更新為：{number}");
-                }
-                else
-                {
-                    Console.WriteLine($"找不到 address 為 {address} 的元件");
-                }
-            }
-        }
-
+       
         //----------獲取使用者設定綠燈---------
         public static int Get_SetG_ByAddress(string tableName, string address)
         {

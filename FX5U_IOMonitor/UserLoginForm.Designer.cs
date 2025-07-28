@@ -95,6 +95,7 @@
             button1.TabIndex = 5;
             button1.Text = "1";
             button1.UseVisualStyleBackColor = false;
+            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // chk_toggle
@@ -108,6 +109,7 @@
             chk_toggle.TabIndex = 54;
             chk_toggle.TextAlign = ContentAlignment.MiddleCenter;
             chk_toggle.UseVisualStyleBackColor = true;
+            chk_toggle.Visible = false;
             chk_toggle.CheckedChanged += chk_toggle_CheckedChanged;
             // 
             // UserLoginForm

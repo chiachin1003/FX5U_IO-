@@ -421,7 +421,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 var Machine_IO = await TableSyncHelper.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
                 var MachineParameterHistoryRecode = await TableSyncHelper.SyncFromLocalToCloud<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
                 var MachineIOTranslations = await TableSyncHelper.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
-                var AlarmTranslation = await TableSyncHelper.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation");
+                var AlarmTranslation = await TableSyncHelper.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation","AlarmId","Id");
 
                 // 記錄 log
                 TableSyncHelper.LogSyncResult(Machine);

@@ -392,7 +392,7 @@ namespace FX5U_IOMonitor.Models
                     }
                 }
 
-                // 2. 比對資料庫中但 CSV 中缺少的項目 → 執行刪除
+                //  比對資料庫中但 CSV 中缺少的項目 → 執行刪除
                 var toDelete = dbEntities
                     .Where(e => !csvKeys.Contains(entityKeySelector(e)))
                     .ToList();
@@ -582,7 +582,7 @@ namespace FX5U_IOMonitor.Models
                 {
                     if (existingTranslations.TryGetValue(lang, out var translation))
                     {
-                        // ✅ 已存在 → 更新內容（保留原 ID）
+                        // 已存在 → 更新內容（保留原 ID）
                         translation.Error = error;
                         translation.Possible = possible;
                         translation.Repair_steps = steps;

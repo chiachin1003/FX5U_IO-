@@ -1,15 +1,16 @@
 ﻿
-using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.Email;
-using SLMP;
-using System.IO.Ports;
-using Modbus.Device; // 來自 NModbus4
-using static FX5U_IOMonitor.Models.MonitoringService;
-using static FX5U_IOMonitor.Models.ModbusMonitorService;
+using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
-using System.Windows.Forms;
+using FX5U_IOMonitor.RUL;
+using Modbus.Device; // 來自 NModbus4
+using SLMP;
 using System.Diagnostics;
+using System.IO.Ports;
+using System.Windows.Forms;
+using static FX5U_IOMonitor.Models.ModbusMonitorService;
+using static FX5U_IOMonitor.Models.MonitoringService;
 
 
 
@@ -105,7 +106,11 @@ namespace FX5U_IOMonitor
 
                 contextItem.Monitor.SetExternalLock(contextItem.LockObject);
                 _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
-
+                var notifier = new RULNotifier();
+                contextItem.Monitor.RULThresholdCrossed += (s, e) =>
+                {
+                    notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
+                };
                 if (contextItem.IsMaster)
                 {
                     DBfunction.Fix_UnclosedAlarms_ByCurrentState();
@@ -228,10 +233,16 @@ namespace FX5U_IOMonitor
                 MessageBox.Show($"註冊後讀取 {connect_machine} 資訊失敗");
                 return;
             }
-
+            
+            
             // 告知 Monitor 要使用對應 Lock
             context.Monitor.SetExternalLock(context.LockObject);
-
+            //添加元件壽命即時通知功能
+            var notifier = new RULNotifier();
+            context.Monitor.RULThresholdCrossed += (s, e) =>
+            {
+                notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
+            };
             // 啟動監控任務
             _ = Task.Run(() => context.Monitor.MonitoringLoop(context.TokenSource.Token, context.MachineName));
 
