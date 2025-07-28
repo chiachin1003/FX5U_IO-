@@ -532,7 +532,7 @@ namespace FX5U_IOMonitor.Models
 
             // --------------------------
             // 直接刪除既有翻譯
-            alarm.Translations.Clear();
+            //alarm.Translations.Clear();
 
             var langDict = new Dictionary<string, (string error, string possible, string steps)>();
 
