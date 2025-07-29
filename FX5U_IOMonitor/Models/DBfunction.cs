@@ -1,5 +1,6 @@
 ﻿using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -1876,14 +1877,13 @@ namespace FX5U_IOMonitor.Models
 
 
 
-        //參數歸零歷史紀錄搜尋
-        public static List<object> Get_Searchparam_HistoryRecords(DateTime startDateLocal, DateTime endDateLocal, ScheduleFrequency? frequency)
+        //參數歷史紀錄搜尋
+        public static List<object> Get_Searchparam_HistoryRecords(DateTime startDateLocal, DateTime endDateLocal, string? frequency)
         {
             DateTime startDate = startDateLocal.ToUniversalTime();
             DateTime endDate = endDateLocal.ToUniversalTime();
             var context = new ApplicationDB();
-            string Periotag = "";
-            
+
             if (frequency == null)
             {
                 var result = context.MachineParameterHistoryRecodes
@@ -1930,24 +1930,13 @@ namespace FX5U_IOMonitor.Models
                 return result;
 
             }
-            else 
+            else
             {
-                if (frequency == ScheduleFrequency.Weekly)
-                {
-                    Periotag = "Weekly";
-                }
-                else if(frequency == ScheduleFrequency.Daily)
-                {
-                    Periotag = "Daily";
-                }
-                else if (frequency == ScheduleFrequency.Monthly)
-                {
-                    Periotag = "Monthly";
-                }
+               
                 var result = context.MachineParameterHistoryRecodes
                 .Include(mh => mh.MachineParameter)
                 .Where(mh => mh.EndTime >= startDate && mh.StartTime <= endDate)
-                .Where(mh => mh.PeriodTag.Contains(Periotag))
+                .Where(mh => mh.PeriodTag.Contains(frequency))
                 .OrderByDescending(mh => mh.StartTime)
                 .AsEnumerable() // 切換為本機端計算
                 .Select(mh =>
@@ -1990,7 +1979,78 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
+        //public static List<object> Get_Searchparam_HistoryRecords(
+        //DateTime startDateLocal,
+        //DateTime endDateLocal,
+        //string frequency,
+        //string? resetBy,
+        //int? parameterId)
+        //{
+        //    DateTime startDate = startDateLocal.ToUniversalTime();
+        //    DateTime endDate = endDateLocal.ToUniversalTime();
 
+        //    using var context = new ApplicationDB(); // ✅ 建議用 using 釋放資源
+
+        //    var query = context.MachineParameterHistoryRecodes
+        //        .Include(mh => mh.MachineParameter)
+        //        .Where(mh => mh.EndTime >= startDate && mh.StartTime <= endDate);
+
+        //    if (frequency != null)
+        //        query = query.Where(mh => mh.PeriodTag.Contains(frequency)); // 假設 tag 中有 frequency 名稱
+
+        //    if (!string.IsNullOrEmpty(resetBy))
+        //        query = query.Where(mh => mh.ResetBy == resetBy);
+
+        //    if (parameterId != null)
+        //        query = query.Where(mh => mh.MachineParameterId == parameterId.Value);
+
+        //    var rawList = query.Select(mh => new
+        //    {
+        //        mh.MachineParameter.Machine_Name,
+        //        mh.MachineParameter.Name,
+        //        mh.MachineParameter.Read_type,
+        //        mh.MachineParameter.Calculate_type,
+        //        mh.MachineParameter.now_TextValue,
+        //        mh.StartTime,
+        //        mh.EndTime,
+        //        mh.PeriodTag,
+        //        mh.ResetBy,
+        //        mh.History_NumericValue
+        //    }).OrderByDescending(mh => mh.StartTime)
+        //      .ToList();
+
+        //    var result = rawList.Select(mh =>
+        //    {
+        //        string record = "";
+
+        //        if (mh.Read_type == "bit")
+        //        {
+        //            record = (mh.Calculate_type == 1)
+        //                ? mh.History_NumericValue.GetValueOrDefault().ToString()
+        //                : MonitorFunction.ConvertSecondsToDHMS(mh.History_NumericValue.GetValueOrDefault());
+        //        }
+        //        else if (mh.Read_type == "None")
+        //        {
+        //            record = (mh.History_NumericValue.GetValueOrDefault() * 0.01).ToString();
+        //        }
+        //        else if (mh.Read_type == "word")
+        //        {
+        //            record = mh.now_TextValue;
+        //        }
+
+        //        return new
+        //        {
+        //            mh.Machine_Name,
+        //            Name = mh.Name,
+        //            StartTime = mh.StartTime.ToLocalTime(),
+        //            EndTime = mh.EndTime.ToLocalTime(),
+        //            mh.PeriodTag,
+        //            mh.ResetBy,
+        //            record
+        //        };
+        //    }).ToList<object>();
+        //    return result;
+        //}
         //警告歷史紀錄搜尋
         public static List<AlarmHistoryViewModel> Get_Searchalarm_Records(DateTime startDateLocal, DateTime endDateLocal)
         {

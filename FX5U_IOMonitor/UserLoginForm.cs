@@ -209,23 +209,23 @@ namespace FX5U_IOMonitor
         }
         private async void UserLoginForm_Load(object sender, EventArgs e)
         {
-            _SysCloud = CloudDbProvider.GetContext();
-            _SysLocal = new ApplicationDB();
-            if (_SysCloud == null)
-            {
-                SetToggleState(false, enabled: true);
-            }
-            else
-            {
-                SetToggleState(connected: true, enabled: false);
-                await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
-                await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
-                SetToggleState(connected: true, enabled: true);
+            //_SysCloud = CloudDbProvider.GetContext();
+            //_SysLocal = new ApplicationDB();
+            //if (_SysCloud == null)
+            //{
+            //    SetToggleState(false, enabled: true);
+            //}
+            //else
+            //{
+            //    SetToggleState(connected: true, enabled: false);
+            //    await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+            //    await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+            //    SetToggleState(connected: true, enabled: true);
 
-                StartAutoSync();
+            //    StartAutoSync();
 
 
-            }
+            //}
 
 
 

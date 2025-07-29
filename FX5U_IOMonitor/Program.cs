@@ -13,7 +13,6 @@ namespace FX5U_IOMonitor
 {
     internal static class Program
 	{
-        public static DatabaseSyncService SyncService { get; private set; }
 
         /// <summary>
         ///  The main entry point for the application.
@@ -97,7 +96,6 @@ namespace FX5U_IOMonitor
             }
           
             //Application.Run( new Main() );
-            SyncService?.Dispose();
 
         }
     }

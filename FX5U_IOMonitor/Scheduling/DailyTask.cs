@@ -29,9 +29,9 @@ namespace FX5U_IOMonitor.Scheduling
             //AddTaskOnce("Param_historyMinute", ScheduleFrequency.Minutely, TimeSpan.Zero,
             //    () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely));
             //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily);
-           
-            //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly);
-            //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly);
+
+            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly);
+            _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly);
             AddTaskOnce("Param_historyTask", ScheduleFrequency.Daily, TimeSpan.Zero,
                () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily));
             AddTaskOnce("Param_week", ScheduleFrequency.Weekly, TimeSpan.Zero,

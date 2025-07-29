@@ -62,8 +62,8 @@ namespace FX5U_IOMonitor
             _dgvUsers.DataSource = filteredUserList.ToList();
             _dgvUsers.Columns["UserName"].HeaderText = LanguageManager.Translate("UserManageForm_Lbl_Name");
             _dgvUsers.Columns["UserName"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            _dgvUsers.Columns["Scheduling"].HeaderText = LanguageManager.Translate("UserManageForm_Lab_mail");
-            _dgvUsers.Columns["Scheduling"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //_dgvUsers.Columns["Scheduling"].HeaderText = LanguageManager.Translate("UserManageForm_Lab_mail");
+            //_dgvUsers.Columns["Scheduling"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             _dgvUsers.Columns["Token"].HeaderText = "Line Notify";
             _dgvUsers.Columns["Token"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             

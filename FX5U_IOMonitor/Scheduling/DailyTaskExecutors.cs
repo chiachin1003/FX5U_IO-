@@ -226,6 +226,8 @@ namespace FX5U_IOMonitor.Scheduling
                 DateTime roundedStartTime;
                 DateTime roundedEndTime;
 
+                bool useDefaultZero = false;
+
                 switch (config)
                 {
                     case ScheduleFrequency.Minutely:
@@ -244,21 +246,33 @@ namespace FX5U_IOMonitor.Scheduling
                         roundedEndTime = yesterday.AddHours(23).AddMinutes(59).AddSeconds(59);
                         break;
                     case ScheduleFrequency.Weekly:
-                        int daysToLastSunday = (int)now.DayOfWeek + 7;
-                        roundedStartTime = now.Date.AddDays(-daysToLastSunday);
+                        int daysToLastMonday = ((int)now.DayOfWeek + 6) % 7 + 7; // 上週一
+                        roundedStartTime = now.Date.AddDays(-daysToLastMonday);
                         roundedEndTime = roundedStartTime.AddDays(6).AddHours(23).AddMinutes(59).AddSeconds(59);
                         break;
                     case ScheduleFrequency.Monthly:
                         var prevMonth = now.AddMonths(-1);
                         var monthStart = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-
-                        // 🔧 修正：起始時間不得早於最早的參數建立時間
-                        DateTime earliestParamTime = db.MachineParameters.Min(p => p.CreatedAt).ToUniversalTime();
-                        roundedStartTime = monthStart < earliestParamTime ? earliestParamTime : monthStart;
-
                         var lastDayPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-                        roundedEndTime = new DateTime(prevMonth.Year, prevMonth.Month, lastDayPrevMonth, 23, 59, 59, DateTimeKind.Utc);
-                        break;
+                        var monthEnd = new DateTime(prevMonth.Year, prevMonth.Month, lastDayPrevMonth, 23, 59, 59, DateTimeKind.Utc);
+
+                        // 查出最早參數建立時間
+                        DateTime earliestParamTime = db.MachineParameters.Min(p => p.CreatedAt).ToUniversalTime();
+
+                        if (monthEnd < earliestParamTime)
+                        {
+                            //  記錄值為 0 的初始化
+                            roundedStartTime = monthStart;
+                            roundedEndTime = monthEnd;
+                            useDefaultZero = true;
+                        }
+                        else
+                        {
+                            // 正常紀錄
+                            roundedStartTime = monthStart < earliestParamTime ? earliestParamTime : monthStart;
+                            roundedEndTime = monthEnd;
+                        }
+                        break; 
                     default:
                         throw new NotSupportedException($"不支援的排程頻率：{config}");
                 }
@@ -305,10 +319,12 @@ namespace FX5U_IOMonitor.Scheduling
 
                     if (alreadyExists)
                         continue;
+                    // 取得目前的值：
+                    int currentValue = useDefaultZero? 0
+                        : DBfunction.Get_Machine_History_NumericValue(param.Name) + DBfunction.Get_Machine_number(param.Name);
 
-                    int currentValue = DBfunction.Get_Machine_History_NumericValue(param.Name) +
-                                       DBfunction.Get_Machine_number(param.Name);
-
+                    
+                    //寫入紀錄(公制)
                     db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
                     {
                         MachineParameterId = param.Id,
@@ -323,9 +339,9 @@ namespace FX5U_IOMonitor.Scheduling
                     if (!string.IsNullOrWhiteSpace(param.Read_addr) && param.Imperial_transfer.HasValue)
                     {
                         double imperialFactor = param.Imperial_transfer.Value / param.Unit_transfer;
-                        int? currentImperial = param.now_NumericValue.HasValue
-                            ? (int?)(param.now_NumericValue.Value * imperialFactor)
-                            : null;
+                        int? currentImperial = useDefaultZero ? 0
+                            : (param.now_NumericValue.HasValue ? (int?)(param.now_NumericValue.Value * imperialFactor) : null);
+
 
                         db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
                         {
@@ -351,7 +367,7 @@ namespace FX5U_IOMonitor.Scheduling
             }
             catch (Exception ex)
             {
-                MessageBox.Show("失敗");
+                //MessageBox.Show("失敗");
 
                 return new TaskResult
                 {
