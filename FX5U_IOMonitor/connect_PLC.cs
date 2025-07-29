@@ -1,17 +1,22 @@
 ﻿
-using FX5U_IOMonitor.Scheduling;
 using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.panel_control;
-using FX5U_IOMonitor.Resources;
-using FX5U_IOMonitor.Message;
-using Modbus.Device; // 來自 NModbus4
+using FX5U_IOMonitor.Scheduling;
 using SLMP;
-using System.Diagnostics;
+using System.IO.Ports;
+using Modbus.Device; // 來自 NModbus4
+using static FX5U_IOMonitor.Models.MonitoringService;
+using static FX5U_IOMonitor.Models.ModbusMonitorService;
+using FX5U_IOMonitor.panel_control;
 using System.IO.Ports;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Message.Send_mode;
 using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using static FX5U_IOMonitor.Models.MonitoringService;
+using FX5U_IOMonitor.Resources;
+using FX5U_IOMonitor.Message;
+using Modbus.Device; // 來自 NModbus4
+using SLMP;
+using System.Diagnostics;
 
 
 
