@@ -123,7 +123,6 @@ namespace FX5U_IOMonitor.Models
     public class CloudDbContext : IdentityDbContext<ApplicationUser>
     {
         readonly string _dbFullName = "element";
-        public CloudDbContext(DbContextOptions<CloudDbContext> options) : base(options) { }
 
         public DbSet<Machine_number> Machine { get; set; }
 
@@ -194,6 +193,26 @@ namespace FX5U_IOMonitor.Models
                 }
             }
 
+        }
+        public static CloudDbContext? TryConnectCloud(out string? error)
+        {
+            try
+            {
+                var context = new CloudDbContext(); // ✅ 自動走 OnConfiguring()
+                if (!context.Database.CanConnect())
+                {
+                    error = "資料庫無法連線（CanConnect 回傳 false）";
+                    return null;
+                }
+
+                error = null;
+                return context;
+            }
+            catch (Exception ex)
+            {
+                error = $"連線過程中發生錯誤：{ex.Message}";
+                return null;
+            }
         }
     }
 

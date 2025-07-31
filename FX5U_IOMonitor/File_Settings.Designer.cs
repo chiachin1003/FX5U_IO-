@@ -34,6 +34,8 @@
             btn_update = new Button();
             label1 = new Label();
             comb_select = new ComboBox();
+            btn_cloud = new Button();
+            lab_cloudstatus = new Label();
             SuspendLayout();
             // 
             // label7
@@ -49,7 +51,7 @@
             // btn_download
             // 
             btn_download.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_download.Location = new Point(22, 107);
+            btn_download.Location = new Point(20, 112);
             btn_download.Name = "btn_download";
             btn_download.Size = new Size(86, 36);
             btn_download.TabIndex = 39;
@@ -71,7 +73,7 @@
             // btn_update
             // 
             btn_update.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            btn_update.Location = new Point(114, 107);
+            btn_update.Location = new Point(121, 112);
             btn_update.Name = "btn_update";
             btn_update.Size = new Size(82, 36);
             btn_update.TabIndex = 42;
@@ -100,12 +102,33 @@
             comb_select.Size = new Size(266, 28);
             comb_select.TabIndex = 44;
             // 
+            // btn_cloud
+            // 
+            btn_cloud.Location = new Point(307, 117);
+            btn_cloud.Name = "btn_cloud";
+            btn_cloud.Size = new Size(123, 29);
+            btn_cloud.TabIndex = 45;
+            btn_cloud.Text = "載入雲端資料";
+            btn_cloud.UseVisualStyleBackColor = true;
+            btn_cloud.Click += btn_cloud_Click;
+            // 
+            // lab_cloudstatus
+            // 
+            lab_cloudstatus.AutoSize = true;
+            lab_cloudstatus.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_cloudstatus.Location = new Point(24, 163);
+            lab_cloudstatus.Name = "lab_cloudstatus";
+            lab_cloudstatus.Size = new Size(0, 20);
+            lab_cloudstatus.TabIndex = 46;
+            // 
             // File_Settings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
-            ClientSize = new Size(443, 170);
+            ClientSize = new Size(443, 197);
+            Controls.Add(lab_cloudstatus);
+            Controls.Add(btn_cloud);
             Controls.Add(comb_select);
             Controls.Add(label1);
             Controls.Add(btn_update);
@@ -126,5 +149,7 @@
         private Button btn_update;
         private Label label1;
         private ComboBox comb_select;
+        private Button btn_cloud;
+        private Label lab_cloudstatus;
     }
 }

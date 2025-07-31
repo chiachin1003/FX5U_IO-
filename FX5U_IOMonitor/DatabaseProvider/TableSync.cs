@@ -75,14 +75,17 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
             try
             {
-                // 清除已追蹤的實體
-                foreach (var entry in cloud.ChangeTracker.Entries().ToList())
+                // ✅ 用 Attach + Modified 方式避免 UpdateRange 錯誤
+                foreach (var entity in toUpdate)
                 {
-                    entry.State = EntityState.Detached;
+                    cloudSet.Attach(entity); // 附加到雲端 DbContext
+                    cloud.Entry(entity).State = EntityState.Modified; // 標記為修改
                 }
-                // 統一更新與新增
-                cloudSet.UpdateRange(toUpdate);
-                cloudSet.AddRange(toAdd);
+
+                // ✅ 新增的資料仍可直接使用 AddRange
+                await cloudSet.AddRangeAsync(toAdd);
+
+                // ✅ 寫入資料庫
                 await cloud.SaveChangesAsync();
             }
             catch (DbUpdateException ex)

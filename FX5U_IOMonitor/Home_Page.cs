@@ -394,11 +394,15 @@ namespace FX5U_IOMonitor
             localTimer.Enabled = true;
         }
 
+        /// <summary>
+        /// 重新連線
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns></returns>
         private async Task ConnectAndStartSyncAsync(Button control)
         {
             DbConfig.LoadFromJson("DbConfig.json");
-            CloudDbProvider.Init();
-            _SysCloud = CloudDbProvider.GetContext();
+            _SysCloud = new CloudDbContext();
             _SysLocal ??= new ApplicationDB();
 
             if (_SysCloud != null)
