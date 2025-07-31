@@ -24,7 +24,7 @@ namespace FX5U_IOMonitor
     {
         private Connect_PLC plcForm; // 連接介面
         private Search_main search_main;
-        private Main_form main_Form;
+        private Main_form_test main_Form;
         public event EventHandler? LoginSucceeded;
         public event EventHandler? LogoutSucceeded;
         public List<Button> machineButtons;
@@ -169,7 +169,7 @@ namespace FX5U_IOMonitor
 
             //DBfunction.Initiali_current_single();
 
-            main_Form = new Main_form();
+            main_Form = new Main_form_test();
             main_Form.TopLevel = false; // 禁止作為獨立窗口
             main_Form.FormBorderStyle = FormBorderStyle.None; // 移除邊框
             main_Form.Dock = DockStyle.Fill; // 填滿 Panel

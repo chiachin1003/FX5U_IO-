@@ -1601,6 +1601,7 @@ namespace FX5U_IOMonitor.Models
                 return machine?.now_TextValue ?? "";
             }
         }
+      
         public static DateTime Get_Machine_creatTime(string name)
         {
             using (var context = new ApplicationDB())

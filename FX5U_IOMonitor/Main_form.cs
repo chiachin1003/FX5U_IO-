@@ -425,6 +425,7 @@ namespace FX5U_IOMonitor
             lb_swing_motor_currentText.Text = LanguageManager.Translate("Mainform_MotorCurrent");
             lb_cutingtimeText.Text = LanguageManager.Translate("Mainform_ProcessingTime");
             lb_Drill_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
+
             btn_SawBand.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
             btn_Drill_Info.Text = LanguageManager.Translate("Mainform_MachineInfo");
             //btn_Drill_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");

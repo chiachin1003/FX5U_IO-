@@ -82,8 +82,8 @@ namespace FX5U_IOMonitor
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            //Main_form_test add_saw_Form = new Main_form_test();
-            History_record add_saw_Form = new History_record();
+            //Main_form_test add_sawband_Form = new Main_form_test();
+            Saw_Info add_saw_Form = new Saw_Info();
 
             add_saw_Form.Show();
         }

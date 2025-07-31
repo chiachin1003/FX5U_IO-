@@ -73,6 +73,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="Sawband_Info.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Saw_Info.cs">
       <SubType>Form</SubType>
     </Compile>

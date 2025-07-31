@@ -85,8 +85,8 @@
             lab_connectS = new Label();
             lab_connect_swing = new Label();
             panel4 = new Panel();
-            button1 = new Button();
-            btn_ = new Button();
+            btn_Saw = new Button();
+            btn_Sawband = new Button();
             tbPanel_Swing_red = new TableLayoutPanel();
             lab_rS = new Label();
             lab_red_swing = new Label();
@@ -165,7 +165,6 @@
             panel12.Name = "panel12";
             panel12.Size = new Size(385, 296);
             panel12.TabIndex = 48;
-            panel12.Paint += panel12_Paint;
             // 
             // panel3
             // 
@@ -175,7 +174,7 @@
             panel3.Controls.Add(lab_connect_2);
             panel3.Location = new Point(21, 218);
             panel3.Name = "panel3";
-            panel3.Size = new Size(220, 63);
+            panel3.Size = new Size(216, 63);
             panel3.TabIndex = 57;
             // 
             // lab_IP_Port2
@@ -296,37 +295,38 @@
             // 
             panel4.BackColor = SystemColors.ButtonHighlight;
             panel4.BorderStyle = BorderStyle.FixedSingle;
-            panel4.Controls.Add(button1);
-            panel4.Controls.Add(btn_);
+            panel4.Controls.Add(btn_Saw);
+            panel4.Controls.Add(btn_Sawband);
             panel4.Location = new Point(253, 218);
             panel4.Name = "panel4";
-            panel4.Size = new Size(103, 63);
+            panel4.Size = new Size(103, 67);
             panel4.TabIndex = 48;
             // 
-            // button1
+            // btn_Saw
             // 
-            button1.BackColor = SystemColors.ButtonHighlight;
-            button1.FlatStyle = FlatStyle.Flat;
-            button1.Location = new Point(52, 12);
-            button1.Margin = new Padding(4);
-            button1.Name = "button1";
-            button1.Size = new Size(47, 40);
-            button1.TabIndex = 55;
-            button1.Text = "鋸床";
-            button1.UseVisualStyleBackColor = false;
+            btn_Saw.BackColor = SystemColors.ButtonHighlight;
+            btn_Saw.FlatStyle = FlatStyle.Flat;
+            btn_Saw.Location = new Point(53, 4);
+            btn_Saw.Margin = new Padding(4);
+            btn_Saw.Name = "btn_Saw";
+            btn_Saw.Size = new Size(45, 59);
+            btn_Saw.TabIndex = 55;
+            btn_Saw.Text = "鋸床";
+            btn_Saw.UseVisualStyleBackColor = false;
+            btn_Saw.Click += btn_saw_Click;
             // 
-            // btn_
+            // btn_Sawband
             // 
-            btn_.BackColor = SystemColors.ButtonHighlight;
-            btn_.FlatStyle = FlatStyle.Flat;
-            btn_.Location = new Point(2, 12);
-            btn_.Margin = new Padding(4);
-            btn_.Name = "btn_";
-            btn_.Size = new Size(47, 40);
-            btn_.TabIndex = 54;
-            btn_.Text = "鋸帶";
-            btn_.UseVisualStyleBackColor = false;
-            btn_.Click += btn_SawBand_Click;
+            btn_Sawband.BackColor = SystemColors.ButtonHighlight;
+            btn_Sawband.FlatStyle = FlatStyle.Flat;
+            btn_Sawband.Location = new Point(4, 4);
+            btn_Sawband.Margin = new Padding(4);
+            btn_Sawband.Name = "btn_Sawband";
+            btn_Sawband.Size = new Size(45, 59);
+            btn_Sawband.TabIndex = 54;
+            btn_Sawband.Text = "鋸帶";
+            btn_Sawband.UseVisualStyleBackColor = false;
+            btn_Sawband.Click += btn_SawBand_Click;
             // 
             // tbPanel_Swing_red
             // 
@@ -520,7 +520,6 @@
             panel11.Name = "panel11";
             panel11.Size = new Size(385, 297);
             panel11.TabIndex = 49;
-            panel11.Paint += panel11_Paint;
             // 
             // tbPanel_Drill_sum
             // 
@@ -833,10 +832,10 @@
             // 
             btn_Drill_Info.BackColor = SystemColors.ButtonHighlight;
             btn_Drill_Info.FlatStyle = FlatStyle.Flat;
-            btn_Drill_Info.Location = new Point(5, 14);
+            btn_Drill_Info.Location = new Point(2, 2);
             btn_Drill_Info.Margin = new Padding(4);
             btn_Drill_Info.Name = "btn_Drill_Info";
-            btn_Drill_Info.Size = new Size(90, 26);
+            btn_Drill_Info.Size = new Size(96, 50);
             btn_Drill_Info.TabIndex = 53;
             btn_Drill_Info.Text = "機台資訊";
             btn_Drill_Info.UseVisualStyleBackColor = false;
@@ -884,7 +883,7 @@
             label1.AutoSize = true;
             label1.FlatStyle = FlatStyle.Flat;
             label1.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            label1.Location = new Point(874, 561);
+            label1.Location = new Point(874, 560);
             label1.Name = "label1";
             label1.Size = new Size(60, 17);
             label1.TabIndex = 52;
@@ -958,7 +957,7 @@
         }
 
         #endregion
-        private Button btn_;
+        private Button btn_Sawband;
         private Panel panel12;
         private TableLayoutPanel tbPanel_Swing_sum;
         private Label lab_sumS;
@@ -1009,7 +1008,7 @@
         private Label lab_connect_2;
         private Label lab_IP_Port2;
         private Label lab_IP_Port1;
-        private Button button1;
+        private Button btn_Saw;
         private Label label1;
         private CheckBox chk_toggle;
     }

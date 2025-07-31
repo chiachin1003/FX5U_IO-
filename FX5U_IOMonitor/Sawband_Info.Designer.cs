@@ -1,6 +1,6 @@
 ﻿namespace FX5U_IOMonitor
 {
-    partial class Saw_Info
+    partial class Sawband_Info
     {
         /// <summary>
         /// 設計工具所需的變數。
@@ -74,7 +74,7 @@
             Margin = new Padding(4);
             Name = "Saw_Info";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "鋸床資料";
+            Text = "鋸帶資料";
             ResumeLayout(false);
         }
 

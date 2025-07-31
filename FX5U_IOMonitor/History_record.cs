@@ -179,7 +179,7 @@ namespace FX5U_IO元件監控
                 });
             ComboBoxHelper.BindDisplayValueItems(comb_name, new[]
             {
-                 ("鋸床馬達電流",1),
+                ("鋸床馬達電流",1),
                 ("鋸床切削速度",2),
                 ("鋸床電壓平均值",3),
                 ("鋸床電流平均值",4),
