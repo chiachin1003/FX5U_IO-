@@ -56,14 +56,7 @@ namespace FX5U_IO元件監控
             {
                 
                 frequency = ComboBoxHelper.GetSelectedValue<string>(comb_record);
-                // 公制/英制 選項
-                //string? resetBy = comb_unit.SelectedItem?.ToString();
-                //// 所選參數
-                //int? selectedParamId = ComboBoxHelper.GetSelectedValue<int>(comb_name);
-
-
-                //selectedParamId = null;
-
+                
                 var result = DBfunction.Get_Searchparam_HistoryRecords(startDate, endDate, frequency);
                 dataGridView1.DataSource = result;
 
@@ -179,7 +172,7 @@ namespace FX5U_IO元件監控
                 });
             ComboBoxHelper.BindDisplayValueItems(comb_name, new[]
             {
-                 ("鋸床馬達電流",1),
+                ("鋸床馬達電流",1),
                 ("鋸床切削速度",2),
                 ("鋸床電壓平均值",3),
                 ("鋸床電流平均值",4),

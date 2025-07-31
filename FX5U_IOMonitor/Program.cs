@@ -30,10 +30,8 @@ namespace FX5U_IOMonitor
             try
             {
                 DBfunction.InitMachineInfoDatabase();
-                CloudDbProvider.Init();
                 LocalDbProvider.Init(); 
                 using var userService = LocalDbProvider.GetUserService();
-
                 userService.CreateDefaultUserAsync().Wait();
                
             }
@@ -43,18 +41,12 @@ namespace FX5U_IOMonitor
                 return;
             }
 
-            ///雲端資料庫更新
-            //var syncService = new DatabaseSyncService();
-            //syncService.CurrentSyncMode = SyncMode.CompleteSync;
-            //syncService.Start();
-
             // 啟動每日各項排程
             Scheduling.DailyTask.StartAllSchedulers();
            
             try
             {
-             
-                //var importResult = LanguageImportHelper.ImportLanguage("language.csv");
+                var importResult = LanguageImportHelper.ImportLanguage("language.csv",true);
                 string lang = Properties.Settings.Default.LanguageSetting;
                 LanguageManager.LoadLanguageFromDatabase(lang);
             }

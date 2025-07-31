@@ -33,10 +33,6 @@ namespace FX5U_IO元件監控
             label1 = new Label();
             label2 = new Label();
             panel1 = new Panel();
-            label5 = new Label();
-            comb_unit = new ComboBox();
-            label4 = new Label();
-            comb_name = new ComboBox();
             lab_metricType = new Label();
             comb_record = new ComboBox();
             btn_exportCsv = new Button();
@@ -47,6 +43,10 @@ namespace FX5U_IO元件監控
             dateTime_start = new DateTimePicker();
             panel2 = new Panel();
             dataGridView1 = new DataGridView();
+            comb_name = new ComboBox();
+            label4 = new Label();
+            comb_unit = new ComboBox();
+            label5 = new Label();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
@@ -97,56 +97,6 @@ namespace FX5U_IO元件監控
             panel1.Name = "panel1";
             panel1.Size = new Size(817, 118);
             panel1.TabIndex = 7;
-            // 
-            // label5
-            // 
-            label5.AutoSize = true;
-            label5.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
-            label5.Location = new Point(13, 87);
-            label5.Margin = new Padding(4, 0, 4, 0);
-            label5.Name = "label5";
-            label5.Size = new Size(73, 17);
-            label5.TabIndex = 25;
-            label5.Text = "單位選擇：";
-            label5.Visible = false;
-            // 
-            // comb_unit
-            // 
-            comb_unit.BackColor = SystemColors.ButtonHighlight;
-            comb_unit.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_unit.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
-            comb_unit.FormattingEnabled = true;
-            comb_unit.Items.AddRange(new object[] { "每周", "每月" });
-            comb_unit.Location = new Point(179, 88);
-            comb_unit.Name = "comb_unit";
-            comb_unit.Size = new Size(172, 25);
-            comb_unit.TabIndex = 24;
-            comb_unit.Visible = false;
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
-            label4.Location = new Point(13, 122);
-            label4.Margin = new Padding(4, 0, 4, 0);
-            label4.Name = "label4";
-            label4.Size = new Size(73, 17);
-            label4.TabIndex = 23;
-            label4.Text = "選擇參數：";
-            label4.Visible = false;
-            // 
-            // comb_name
-            // 
-            comb_name.BackColor = SystemColors.ButtonHighlight;
-            comb_name.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_name.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
-            comb_name.FormattingEnabled = true;
-            comb_name.Items.AddRange(new object[] { "每周", "每月" });
-            comb_name.Location = new Point(179, 123);
-            comb_name.Name = "comb_name";
-            comb_name.Size = new Size(172, 25);
-            comb_name.TabIndex = 22;
-            comb_name.Visible = false;
             // 
             // lab_metricType
             // 
@@ -250,6 +200,56 @@ namespace FX5U_IO元件監控
             dataGridView1.TabIndex = 9;
             dataGridView1.RowPostPaint += dataGridView1_RowPostPaint;
             // 
+            // comb_name
+            // 
+            comb_name.BackColor = SystemColors.ButtonHighlight;
+            comb_name.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_name.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
+            comb_name.FormattingEnabled = true;
+            comb_name.Items.AddRange(new object[] { "每周", "每月" });
+            comb_name.Location = new Point(179, 123);
+            comb_name.Name = "comb_name";
+            comb_name.Size = new Size(172, 25);
+            comb_name.TabIndex = 22;
+            comb_name.Visible = false;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
+            label4.Location = new Point(13, 122);
+            label4.Margin = new Padding(4, 0, 4, 0);
+            label4.Name = "label4";
+            label4.Size = new Size(73, 17);
+            label4.TabIndex = 23;
+            label4.Text = "選擇參數：";
+            label4.Visible = false;
+            // 
+            // comb_unit
+            // 
+            comb_unit.BackColor = SystemColors.ButtonHighlight;
+            comb_unit.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_unit.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
+            comb_unit.FormattingEnabled = true;
+            comb_unit.Items.AddRange(new object[] { "每周", "每月" });
+            comb_unit.Location = new Point(179, 88);
+            comb_unit.Name = "comb_unit";
+            comb_unit.Size = new Size(172, 25);
+            comb_unit.TabIndex = 24;
+            comb_unit.Visible = false;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font("微軟正黑體", 9.75F, FontStyle.Bold);
+            label5.Location = new Point(13, 87);
+            label5.Margin = new Padding(4, 0, 4, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(73, 17);
+            label5.TabIndex = 25;
+            label5.Text = "單位選擇：";
+            label5.Visible = false;
+            // 
             // History_record
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -284,11 +284,11 @@ namespace FX5U_IO元件監控
         private Button btn_exportCsv;
         private Label lab_metricType;
         private ComboBox comb_record;
-        private Label label4;
-        private ComboBox comb_name;
-        private Label label5;
-        private ComboBox comb_unit;
         private Panel panel2;
         private DataGridView dataGridView1;
+        private Label label5;
+        private ComboBox comb_unit;
+        private Label label4;
+        private ComboBox comb_name;
     }
 }

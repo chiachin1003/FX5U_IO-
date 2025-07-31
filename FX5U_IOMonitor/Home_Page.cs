@@ -1,36 +1,41 @@
-﻿using SLMP;
-using FX5U_IOMonitor.Models;
+﻿using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
-using static FX5U_IOMonitor.Connect_PLC;
-using static FX5U_IOMonitor.Models.MonitoringService;
-using FX5U_IO元件監控;
-using static FX5U_IO元件監控.Part_Search;
+using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
-using System.Diagnostics;
+using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
-using static FX5U_IOMonitor.Data.GlobalMachineHub;
-using static FX5U_IOMonitor.Models.ParameterHistoryManager;
 using FX5U_IOMonitor.Resources;
+using FX5U_IO元件監控;
+using SLMP;
+using System.Diagnostics;
+using static FX5U_IOMonitor.Connect_PLC;
+using static FX5U_IOMonitor.Data.GlobalMachineHub;
+using static FX5U_IOMonitor.Models.MonitoringService;
+using static FX5U_IOMonitor.Models.ParameterHistoryManager;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static FX5U_IO元件監控.Part_Search;
 
 
 
 namespace FX5U_IOMonitor
 {
-    public partial class Main_form : Form
+    public partial class Home_Page : Form
     {
-
-
         private CancellationTokenSource? _cts;
+        private Sawband_Info? add_sawband_Form = null;
+        private Saw_Info? add_saw_Form = null;
+        private Stopwatch stopwatch;
 
+        // 同步功能呼叫變數
+        private static System.Timers.Timer? _syncTimer;
+        private static readonly SemaphoreSlim _syncLock = new(1, 1);
+        private static ApplicationDB? _SysLocal;
+        private static CloudDbContext? _SysCloud;
+        private bool _isSwitching = false;
 
-        public Main_form()
+        public Home_Page()
         {
             InitializeComponent();
-            //btn_Drill_lifesetting.Enabled = true;
-            //btn_Sawing_lifesetting.Enabled = true;
-            //Main.Instance.LoginSucceeded += Main_LoginSucceeded;
-            //Main.Instance.LogoutSucceeded += Main_LogoutSucceeded;
             this.Load += Main_Load;
             this.FormClosing += Info_FormClosing;
             string lang = Properties.Settings.Default.LanguageSetting;
@@ -44,7 +49,7 @@ namespace FX5U_IOMonitor
 
             SwitchLanguage();
         }
-      
+
         private void Info_FormClosing(object? sender, FormClosingEventArgs e)
         {
             _cts?.Cancel(); // 關閉時自動取消背景任務
@@ -57,6 +62,7 @@ namespace FX5U_IOMonitor
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
+            _ = ConnectAndStartSyncAsync(btn_toggle);
             //_ = Task.Run(async () =>
             //{
             //    await ParameterHistoryScheduler.InitializeMonthlySchedule();
@@ -64,7 +70,7 @@ namespace FX5U_IOMonitor
 
 
         }
-        private Stopwatch stopwatch;
+
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -97,27 +103,6 @@ namespace FX5U_IOMonitor
 
             }
         }
-        private void Main_LoginSucceeded(object? sender, EventArgs e)
-        {
-
-
-            //if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
-            //{
-            //    btn_Drill_lifesetting.Enabled = true;
-            //    btn_Sawing_lifesetting.Enabled = true;
-            //}
-            //else
-            //{
-            //    btn_Drill_lifesetting.Enabled = false;
-            //    btn_Sawing_lifesetting.Enabled = false;
-            //}
-        }
-        private void Main_LogoutSucceeded(object? sender, EventArgs e)
-        {
-            //btn_Drill_lifesetting.Enabled = false;
-            //btn_Sawing_lifesetting.Enabled = false;
-        }
-
 
         private void reset_lab_connectText()//更新主頁面連接狀況
         {
@@ -136,7 +121,7 @@ namespace FX5U_IOMonitor
                 lab_IP_Port1.Text = LanguageManager.Translate("Mainform_IP_Port_none");
                 lab_IP_Port1.Text = $"IP = {machineList.IP_address}；Port = {machineList.Port} ";
             }
-            else 
+            else
             {
                 lab_IP_Port1.Text = $"IP = {machineList.IP_address}；Port = {machineList.Port} ";
             }
@@ -156,9 +141,7 @@ namespace FX5U_IOMonitor
 
             if (existingContext != null && existingContext.IsConnected)
             {
-                Drill_main_update();
                 lab_connect.Text = existingContext.ConnectSummary.connect.ToString();
-
                 List<string> breakdowm_part = DBfunction.Get_breakdown_part(existingContext.MachineName);
                 lab_disconnect.Text = DBfunction.Get_address_ByBreakdownParts(existingContext.MachineName, breakdowm_part).Count.ToString();
                 List<string> sawingbreakdowm_part = DBfunction.Get_breakdown_part("Sawing");
@@ -172,7 +155,6 @@ namespace FX5U_IOMonitor
                 lab_connect_1.ForeColor = Color.Red;
                 lab_connect.Text = "0";
                 lab_disconnect.Text = "0";
-                Drill_main_update();
 
             }
 
@@ -181,7 +163,6 @@ namespace FX5U_IOMonitor
             {
                 lab_connect_2.Text = LanguageManager.Translate("Mainform_connect");
                 lab_connect_2.ForeColor = Color.Green;
-                swing_main_update();
                 lab_connect_swing.Text = existingContext.ConnectSummary.connect.ToString();
 
             }
@@ -191,108 +172,37 @@ namespace FX5U_IOMonitor
                 lab_connect_2.ForeColor = Color.Red;
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
-                swing_main_update();
             }
 
 
 
         }
 
-        private void swing_main_update()
-        {
 
-            lb_swing_current.Text = DBfunction.Get_Machine_now_string("motor_current") + "(A)";
-            lb_sawing_cutingspeed.Text = DBfunction.Get_Machine_now_string("Sawing", "cuttingspeed") + Text_design.ConvertUnitLabel("(mm/min)");
-            lb_swing_Voltage.Text = DBfunction.Get_Machine_now_string("Sawing", "voltage") + "(V)";
-            lb_swing_motor_current.Text = DBfunction.Get_Machine_now_string("Sawing", "current") + "(A)";
-            lb_oilpress.Text = DBfunction.Get_Machine_now_string("Sawing", "oil_pressure");
-
-            lb_swingpower.Text = DBfunction.Get_Machine_now_string("Sawing", "Sawing_power") + "(kWh)";
-            lb_electricity.Text = DBfunction.Get_Machine_now_string("Sawing", "electricity") + "(kWh)";
-            lb_totaltime.Text = DBfunction.Get_Machine_now_string("Sawing", "total_time");
-            lb_countdown_time.Text = DBfunction.Get_Machine_now_string("Sawing", "countdown_time");
-            lb_remain_tools.Text = DBfunction.Get_Machine_now_string("Sawing", "remain_tools");
-
-        }
-        private void Drill_main_update()
-        {
-            lb_cutingtime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_plc_usetime") + (DBfunction.Get_Machine_number("Drill_plc_usetime"))));
-            lb_Drill_totaltime.Text = MonitorFunction.ConvertSecondsToDHMS((DBfunction.Get_Machine_History_NumericValue("Drill_total_Time") + (DBfunction.Get_Machine_number("Drill_total_Time"))));
-            lb_drill_Voltage.Text = DBfunction.Get_Machine_now_string("Drill", "voltage") + "\n(V)";
-            lb_drill_current.Text = DBfunction.Get_Machine_now_string("Drill", "current") + "\n(A) ";
-            lb_drillpower.Text = DBfunction.Get_Machine_now_string("Drill", "power") + "\n(kW) ";
-            lb_drill_du.Text = DBfunction.Get_Machine_now_string("Drill", "electricity") + "\n(kWh)";
-
-        }
 
         private void Main_form_TextChanged(object sender, EventArgs e)
         {
             reset_lab_connectText();
-
         }
 
         private void btn_SawBand_Click(object sender, EventArgs e)
         {
-            if (add_saw_Form == null || add_saw_Form.IsDisposed)
+            if (add_sawband_Form == null || add_sawband_Form.IsDisposed)
             {
-                add_saw_Form = new Saw_Info();
-                add_saw_Form.Show();
+                add_sawband_Form = new Sawband_Info();
+                add_sawband_Form.Show();
             }
             else
             {
-                add_saw_Form.BringToFront();  // 若已開啟，拉到最前面
-            }
-
-            
-
-        }
-
-        private Part_Search? part_Search = null;
-        private Part_Search? part_Search_1 = null;
-
-        private Saw_Info? add_saw_Form = null;
-
-        private void btn_Drill_lifesetting_Click(object sender, EventArgs e)
-        {
-
-
-            //if (part_Search == null || part_Search.IsDisposed)
-            //{
-            //    part_Search = new Part_Search(ShowPage.Drill);
-            //    part_Search.Show();
-            //}
-            //else
-            //{
-            //    part_Search.BringToFront();
-            //}
-
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            if (part_Search_1 == null || part_Search_1.IsDisposed)
-            {
-                part_Search_1 = new Part_Search(ShowPage.Sawing);
-                part_Search_1.Show();
-            }
-            else
-            {
-                part_Search_1.BringToFront();  // 若已開啟，拉到最前面
+                add_sawband_Form.BringToFront();  // 若已開啟，拉到最前面
             }
 
         }
+
 
         private void btn_Drill_Info_Click(object sender, EventArgs e)
         {
-            //if (addInfo_Form == null || addInfo_Form.IsDisposed)
-            //{
-            //    addInfo_Form = new Drill_Info();
-            //    addInfo_Form.Show();
-            //}
-            //else
-            //{
-            //    addInfo_Form.BringToFront();  // 若已開啟，拉到最前面
-            //}
+
             // 建立選單
             var menu = new ContextMenuStrip();
 
@@ -320,29 +230,6 @@ namespace FX5U_IOMonitor
             form.ShowDialog(this);
         }
 
-        private void lab_power_Click(object sender, EventArgs e)
-        {
-            // 顯示目前值，並要求輸入新值
-            string input = Microsoft.VisualBasic.Interaction.InputBox(
-                "請輸入 COS 值（小數）：", "修改 COS 值", Properties.Settings.Default.COSValue.ToString());
-
-            if (double.TryParse(input, out double newValue))
-            {
-                Properties.Settings.Default.COSValue = newValue;
-                Properties.Settings.Default.Save(); // ✅ 寫入設定檔
-                MessageBox.Show($"COS 值已更新為 {newValue:F2}");
-            }
-            else
-            {
-                MessageBox.Show("請輸入有效的數字格式！");
-            }
-        }
-
-        private void lab_reset_Click(object sender, EventArgs e)
-        {
-
-
-        }
 
         private void lab_disconnect_Click(object sender, EventArgs e)
         {
@@ -409,60 +296,138 @@ namespace FX5U_IOMonitor
             lab_yS.Text = LanguageManager.Translate("Mainform_YellowLights");
             lab_gD.Text = LanguageManager.Translate("Mainform_GreenLights");
             lab_gS.Text = LanguageManager.Translate("Mainform_GreenLights");
-            lab_reset.Text = LanguageManager.Translate("Mainform_PowerConsumption");
-            lab_reset1.Text = LanguageManager.Translate("Mainform_PowerConsumption");
-            lab_power.Text = LanguageManager.Translate("Mainform_Power");
-            lab_power1.Text = LanguageManager.Translate("Mainform_Power");
-            label_Ammeter.Text = LanguageManager.Translate("Mainform_Current");
-            label_Ammeter1.Text = LanguageManager.Translate("Mainform_Current");
-            lb_Voltage.Text = LanguageManager.Translate("Mainform_Voltage");
-            lb_Voltage1.Text = LanguageManager.Translate("Mainform_Voltage");
-            lb_countdown_timeText.Text = LanguageManager.Translate("Mainform_SawingCountdownTimer");
-            lb_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
-            lb_remain_toolsText.Text = LanguageManager.Translate("Mainform_RemainingTools");
-            lb_oilpressText.Text = LanguageManager.Translate("Mainform_HydraulicTensionStatus");
-            lb_sawing_cutingspeedText.Text = LanguageManager.Translate("Mainform_CuttingSpeed");
-            lb_swing_motor_currentText.Text = LanguageManager.Translate("Mainform_MotorCurrent");
-            lb_cutingtimeText.Text = LanguageManager.Translate("Mainform_ProcessingTime");
-            lb_Drill_totaltimeText.Text = LanguageManager.Translate("Mainform_TotalRuntime");
-            btn_SawBand.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
             btn_Drill_Info.Text = LanguageManager.Translate("Mainform_MachineInfo");
-            //btn_Drill_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
-            //btn_Sawing_lifesetting.Text = LanguageManager.Translate("Mainform_Settings");
-            //lab_connect_2.Text = LanguageManager.Translate("Mainform_LifeSettings");
-            //lab_connect_1.Text = LanguageManager.Translate("Mainform_LifeSettings");
-        }
 
-        private void panel12_Paint(object sender, PaintEventArgs e)
-        {
+            btn_Sawband.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
+            btn_Saw.Text = LanguageManager.Translate("Mainform_Sawing");
 
         }
 
-        private void panel11_Paint(object sender, PaintEventArgs e)
-        {
 
-        }
-
-        private void btn_Sawing_lifesetting_Click(object sender, EventArgs e)
-        {
-            if (part_Search == null || part_Search.IsDisposed)
-            {
-                part_Search = new Part_Search(ShowPage.Sawing);
-                part_Search.Show();
-            }
-            else
-            {
-                part_Search.BringToFront();
-            }
-        }
-
-      
+        // 歸零
         private void lb_drill_du_Click(object sender, EventArgs e)
         {
             //Drill_Info.ConfirmAndResetUsetime("Drill", "electricity", "確定要將用電紀錄歸零嗎?", "用電紀錄已成功歸零");
-            DBfunction.Set_Machine_now_string("Drill", "electricity","0");
+            DBfunction.Set_Machine_now_string("Drill", "electricity", "0");
         }
 
-    
+        private void btn_saw_Click(object sender, EventArgs e)
+        {
+
+            if (add_saw_Form == null || add_saw_Form.IsDisposed)
+            {
+                add_saw_Form = new Saw_Info();
+                add_saw_Form.Show();
+            }
+            else
+            {
+                add_saw_Form.BringToFront();  // 若已開啟，拉到最前面
+            }
+        }
+        private void lab_power_Click(object sender, EventArgs e)
+        {
+            // 顯示目前值，並要求輸入新值
+            string input = Microsoft.VisualBasic.Interaction.InputBox(
+                "請輸入 COS 值（小數）：", "修改 COS 值", Properties.Settings.Default.COSValue.ToString());
+
+            if (double.TryParse(input, out double newValue))
+            {
+                Properties.Settings.Default.COSValue = newValue;
+                Properties.Settings.Default.Save(); // ✅ 寫入設定檔
+                MessageBox.Show($"COS 值已更新為 {newValue:F2}");
+            }
+            else
+            {
+                MessageBox.Show("請輸入有效的數字格式！");
+            }
+        }
+
+        private async void btn_toggle_Click(object sender, EventArgs e)
+        {
+            if (_isSwitching) return;
+
+            _isSwitching = true;
+
+            if (_SysCloud == null) // 將嘗試建立連線
+            {
+                await ConnectAndStartSyncAsync(btn_toggle);
+                _isSwitching = false;
+            }
+            else
+            {
+                btn_toggle.Enabled = false;
+            }
+
+        }
+        /// <summary>
+        /// 開啟地端同步計時器
+        /// </summary>
+        private static void StartAutoSync()
+        {
+            if (_SysLocal == null || _SysCloud == null)
+                return;
+
+            var localTimer = new System.Timers.Timer(30_000); // ← 使用局部變數
+            _syncTimer = localTimer;
+
+            localTimer.Elapsed += async (s, e) =>
+            {
+                localTimer.Enabled = false; // ✅ 使用封閉實體，避免 null 錯誤
+                await _syncLock.WaitAsync();
+
+                try
+                {
+                    await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"❌ 同步時發生錯誤：{ex.Message}");
+                }
+                finally
+                {
+                    _syncLock.Release();
+                    localTimer.Enabled = true;
+                }
+            };
+
+            localTimer.AutoReset = true;
+            localTimer.Enabled = true;
+        }
+
+        private async Task ConnectAndStartSyncAsync(Button control)
+        {
+            DbConfig.LoadFromJson("DbConfig.json");
+            CloudDbProvider.Init();
+            _SysCloud = CloudDbProvider.GetContext();
+            _SysLocal ??= new ApplicationDB();
+
+            if (_SysCloud != null)
+            {
+                control.Text = "Local";
+                control.BackColor = Color.LightBlue;
+                control.ForeColor = Color.Black;
+                control.Enabled = false;
+                //await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+
+                control.Text = "Switching";
+                control.BackColor = Color.LightBlue;
+                control.ForeColor = Color.Black;
+                control.Enabled = false;
+
+                await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                StartAutoSync();
+
+                control.Text = "Connect";
+                control.BackColor = Color.DodgerBlue;
+                control.ForeColor = Color.White;
+                control.Enabled = false;
+            }
+            else
+            {
+                control.Text = "Disconnect";
+                control.BackColor = Color.Gainsboro;
+                control.ForeColor = Color.Black;
+            }
+        }
     }
 }

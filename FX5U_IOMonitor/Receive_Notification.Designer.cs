@@ -39,7 +39,7 @@
             check_Email.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             check_Email.Location = new Point(12, 54);
             check_Email.Name = "check_Email";
-            check_Email.Size = new Size(79, 28);
+            check_Email.Size = new Size(131, 28);
             check_Email.TabIndex = 5;
             check_Email.Text = "Scheduling";
             check_Email.UseVisualStyleBackColor = true;
@@ -48,7 +48,7 @@
             // 
             check_Line.AutoSize = true;
             check_Line.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            check_Line.Location = new Point(12, 97);
+            check_Line.Location = new Point(12, 107);
             check_Line.Name = "check_Line";
             check_Line.Size = new Size(181, 28);
             check_Line.TabIndex = 6;
@@ -57,7 +57,7 @@
             // 
             // btn_Confirm
             // 
-            btn_Confirm.Location = new Point(191, 96);
+            btn_Confirm.Location = new Point(290, 106);
             btn_Confirm.Name = "btn_Confirm";
             btn_Confirm.Size = new Size(75, 29);
             btn_Confirm.TabIndex = 7;
@@ -79,7 +79,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
-            ClientSize = new Size(275, 151);
+            ClientSize = new Size(388, 170);
             Controls.Add(lab_CurrentUser);
             Controls.Add(btn_Confirm);
             Controls.Add(check_Line);

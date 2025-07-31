@@ -21,6 +21,9 @@ namespace FX5U_IOMonitor.panel_control
     {
         private CancellationTokenSource? _cts;
         ScheduleFrequency history_Frequency;
+        private Dictionary<string, MachineActiveCard> cardMap = new();
+        private Dictionary<string, MachineInfoCard> infoCardMap = new();
+
         public Machine_monitoring_interface_card(ScheduleFrequency scheduleFrequency)
         {
             InitializeComponent();
@@ -43,7 +46,7 @@ namespace FX5U_IOMonitor.panel_control
             if (existingContext != null && existingContext.IsConnected)
             {
                 InitCards(); // 初始顯示一次
-
+                InitInfoCards();
                 _cts = new CancellationTokenSource();
                 _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
 
@@ -51,7 +54,7 @@ namespace FX5U_IOMonitor.panel_control
             else
             {
                 InitCards(); // 初始顯示一次
-
+                InitInfoCards();
             }
 
 
@@ -60,7 +63,7 @@ namespace FX5U_IOMonitor.panel_control
         {
             _cts?.Cancel(); // 關閉時自動取消背景任務
         }
-        private Dictionary<string, MachineActiveCard> cardMap = new();
+
 
         private List<(string ParamName, string LangKey)> timeCardSourceList = new()
         {
@@ -72,6 +75,7 @@ namespace FX5U_IOMonitor.panel_control
             ("Drill_inverter", "DrillInfo_DrillinverterText"),
             ("Drill_outverter", "DrillInfo_DrilloutverterText"),
             ("Drill_total_Time", "DrillInfo_DrilltotalTimeText"),
+
         };
         private List<(string ParamName, string LangKey)> countCardSourceList = new()
         {
@@ -81,6 +85,15 @@ namespace FX5U_IOMonitor.panel_control
             ("Drill_clamping","DrillInfo_DrillclampingText")
 
         };
+        private readonly List<(string Param, string LangKey, string Unit)> infoCardList = new()
+        {
+            ("voltage",     "DrillInfo_VoltageText",    "(V)"),
+            ("current",      "DrillInfo_CurrentText",     "(A)"),
+            ("power",      "DrillInfo_PowerText",     "(kW)"),
+            ("electricity",    "DrillInfo_ElectricityText",   "(kWh)")
+        };
+
+       
         private void InitCards()
         {
             flowLayoutPanel1.Controls.Clear();
@@ -144,6 +157,21 @@ namespace FX5U_IOMonitor.panel_control
                 flowLayoutPanel1.Controls.Add(card_count);
             }
         }
+        private void InitInfoCards()
+        {
+            infoCardMap.Clear(); // 確保不重複
+
+            foreach (var (param, key, unit) in infoCardList)
+            {
+                var card = new MachineInfoCard();
+                string val = DBfunction.Get_Machine_now_string("Drill", param);
+                card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
+
+                infoCardMap[param] = card;
+                flowLayoutPanel1.Controls.Add(card);
+            }
+        }
+
         private void UpdateCardValues()
         {
             foreach (var (paramName, langKey) in timeCardSourceList)
@@ -198,6 +226,15 @@ namespace FX5U_IOMonitor.panel_control
 
             }
         }
+        private void UpdateInfoCards()
+        {
+            foreach (var (param, key, unit) in infoCardList)
+            {
+                if (!infoCardMap.TryGetValue(param, out var card)) continue;
+                string val = DBfunction.Get_Machine_now_string("Drill", param);
+                card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
+            }
+        }
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -211,6 +248,7 @@ namespace FX5U_IOMonitor.panel_control
                         this.Invoke(() =>
                         {
                             UpdateCardValues(); // 每次自動更新畫面數值
+                            UpdateInfoCards();
                         });
                     }
 
@@ -231,41 +269,6 @@ namespace FX5U_IOMonitor.panel_control
         private void SwitchLanguage()
         {
             this.Text = LanguageManager.Translate("DrillInfo_FormText");
-
-            //// 處理時間型卡片
-            //foreach (var (paramName, langKey) in timeCardSourceList)
-            //{
-            //    if (cardMap.TryGetValue(paramName, out var card))
-            //    {
-            //        int seconds = DBfunction.Get_Machine_History_NumericValue(paramName)
-            //                    + DBfunction.Get_Machine_number(paramName);
-            //        string time = MonitorFunction.ConvertSecondsToDHMS(seconds);
-
-            //        var record_late = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-            //        var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
-            //        DateTime now = DateTime.UtcNow;
-            //        string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
-
-            //        card.DisplayMode = CardDisplayMode.Time;
-            //        card.SetData(LanguageManager.Translate(langKey), time, record_late.Delta, SecondLate.Delta, re, history_Frequency);
-            //    }
-            //}
-
-            //// 處理次數型卡片
-            //foreach (var (paramName, langKey) in countCardSourceList)
-            //{
-            //    if (cardMap.TryGetValue(paramName, out var card))
-            //    {
-            //        int count = DBfunction.Get_Machine_History_NumericValue(paramName);
-            //        var record_late = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-            //        var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
-            //        DateTime now = DateTime.UtcNow;
-            //        string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
-
-            //        cardMap[paramName].SetData(LanguageManager.Translate(langKey), count.ToString(), SecondLate.Delta, record_late.Delta, re, history_Frequency);
-            //    }
-            //}
-
 
         }
 

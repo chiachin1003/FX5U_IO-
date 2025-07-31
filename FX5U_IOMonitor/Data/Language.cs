@@ -368,7 +368,16 @@ public class LanguageImportService
             }
         }
 
-        _context.SaveChanges();
+        try
+        {
+            _context.SaveChanges();
+        }
+        catch (DbUpdateException ex)
+        {
+            var inner = ex.InnerException?.Message ?? ex.Message;
+            MessageBox.Show($"❌ 匯入失敗：{inner}");
+            throw;
+        }
         return result;
     }
 
@@ -443,20 +452,11 @@ public static class LanguageImportHelper
     public static ImportResult ImportLanguage(string? filepath = null, bool isInit = false)
     {
 
-        var context = CloudDbProvider.GetContext();
+        
         LanguageImportService importService;
-        if (context!=null)
-        {
-            importService = new LanguageImportService(context);
-        }
-        else
-        {
-            using var Localcontext = new ApplicationDB();
-
-            importService = new LanguageImportService(Localcontext);
-
-        }
-
+        using var Localcontext = new ApplicationDB();
+        importService = new LanguageImportService(Localcontext);
+       
         return importService.ImportLanguageCsv(filepath, isInit);
     }
 

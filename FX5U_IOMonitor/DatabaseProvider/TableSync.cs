@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -96,7 +97,76 @@ namespace FX5U_IOMonitor.DatabaseProvider
             return result;
 
         }
-        
+
+
+        /// <summary>
+        /// 只新增不更新
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="local"></param>
+        /// <param name="cloud"></param>
+        /// <param name="tableName"></param>
+        /// <param name="ignoreProperties"></param>
+        /// <returns></returns>
+        public static async Task<SyncResult> SyncFromLocalToCloud_AddOnly<T>(
+    ApplicationDB local, CloudDbContext cloud, string tableName, params string[] ignoreProperties) where T : class
+        {
+            var result = new SyncResult { TableName = tableName };
+
+            // 取得本地與雲端資料
+            var localData = await local.Set<T>().AsNoTracking().ToListAsync();
+
+            // 自動建立資料表與欄位
+            await EnsureTableAndColumnsExist<T>(cloud, tableName);
+
+            // 雲端目前資料
+            var cloudSet = cloud.Set<T>();
+            var cloudData = await cloudSet.AsNoTracking().ToListAsync();
+
+            // 以 Id 為主鍵比對
+            var localDict = localData.ToDictionary(d => GetPrimaryKeyValue(d));
+            var cloudDict = cloudData.ToDictionary(d => GetPrimaryKeyValue(d));
+            var toAdd = new List<T>();
+
+            foreach (var kv in localDict)
+            {
+                var key = kv.Key;
+                var localValue = kv.Value;
+
+                if (!cloudDict.ContainsKey(key))
+                {
+                    var prop = localValue.GetType().GetProperty("IsSynced");
+                    if (prop != null)
+                        prop.SetValue(localValue, true);
+                    toAdd.Add(localValue);
+                    result.Added++;
+                }
+            }
+
+            try
+            {
+                // 清除已追蹤的實體
+                foreach (var entry in cloud.ChangeTracker.Entries().ToList())
+                {
+                    entry.State = EntityState.Detached;
+                }
+
+                // 只新增，不更新
+                cloudSet.AddRange(toAdd);
+                await cloud.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                var inner = ex.InnerException?.Message ?? "❓ 無內部錯誤細節";
+                MessageBox.Show($"❌ 新增同步失敗：{ex.Message}\n\n👉 InnerException：{inner}", "同步錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"❌ 新增同步時發生未預期錯誤：{ex.Message}", "同步錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            return result;
+        }
         /// <summary>
         /// 雲端更新地端
         /// </summary>
@@ -420,31 +490,36 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
                 // 執行同步
                 var Machine = await TableSync.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
-                var Histories = await TableSync.SyncFromLocalToCloud<History>(local, cloud, "Histories");
                 var MachineParameters = await TableSync.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
-                var AlarmHistories = await TableSync.SyncFromLocalToCloud<AlarmHistory>(local, cloud, "AlarmHistories");
                 var Machine_IO = await TableSync.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
-                var MachineParameterHistoryRecode = await TableSync.SyncFromLocalToCloud<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
                 var MachineIOTranslations = await TableSync.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
-                
                 var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
-                var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation","AlarmId","Id");
-                var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(local, cloud, "Blade_brand");
-                var Blade_brand_TPI = await TableSync.SyncFromLocalToCloud<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
-                var Language = await TableSync.SyncFromLocalToCloud<Language>(local, cloud, "Language");
+                var Histories = await TableSync.SyncFromLocalToCloud_AddOnly<History>(local, cloud, "Histories");
+                var MachineParameterHistoryRecode = await TableSync.SyncFromLocalToCloud_AddOnly<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
+                var AlarmHistories = await TableSync.SyncFromLocalToCloud_AddOnly<AlarmHistory>(local, cloud, "AlarmHistories");
+
                 // 記錄 log
                 TableSync.LogSyncResult(Machine);
                 TableSync.LogSyncResult(Histories);
                 TableSync.LogSyncResult(MachineParameters);
-                TableSync.LogSyncResult(Blade_brand);
-                TableSync.LogSyncResult(Blade_brand_TPI);
-                TableSync.LogSyncResult(Language);
-                TableSync.LogSyncResult(alarm);
                 TableSync.LogSyncResult(AlarmHistories);
                 TableSync.LogSyncResult(Machine_IO);
                 TableSync.LogSyncResult(MachineParameterHistoryRecode);
                 TableSync.LogSyncResult(MachineIOTranslations);
-                TableSync.LogSyncResult(AlarmTranslation);
+                TableSync.LogSyncResult(alarm);
+
+
+                //var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
+                //var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation","AlarmId","Id");
+                //var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(local, cloud, "Blade_brand");
+                //var Blade_brand_TPI = await TableSync.SyncFromLocalToCloud<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
+                //var Language = await TableSync.SyncFromLocalToCloud<Language>(local, cloud, "Language");
+
+                //TableSync.LogSyncResult(Blade_brand);
+                //TableSync.LogSyncResult(Blade_brand_TPI);
+                //TableSync.LogSyncResult(Language);
+                //TableSync.LogSyncResult(alarm);
+                //TableSync.LogSyncResult(AlarmTranslation);
             }
             catch (Exception ex)
             {
