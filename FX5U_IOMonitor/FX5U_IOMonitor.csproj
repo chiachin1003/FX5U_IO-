@@ -65,6 +65,9 @@
     <Compile Update="Home_Page.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="panel_control\MachinePowerCard.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Update="panel_control\MachineInfoCard.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -56,7 +56,7 @@ namespace FX5U_IOMonitor
             // btn_file_download
             // 
             btn_file_download.Enabled = false;
-            btn_file_download.Location = new Point(3, 147);
+            btn_file_download.Location = new Point(13, 157);
             btn_file_download.Name = "btn_file_download";
             btn_file_download.Size = new Size(124, 42);
             btn_file_download.TabIndex = 8;
@@ -67,7 +67,7 @@ namespace FX5U_IOMonitor
             // btn_Mail_Manager
             // 
             btn_Mail_Manager.Enabled = false;
-            btn_Mail_Manager.Location = new Point(3, 99);
+            btn_Mail_Manager.Location = new Point(13, 109);
             btn_Mail_Manager.Name = "btn_Mail_Manager";
             btn_Mail_Manager.Size = new Size(124, 42);
             btn_Mail_Manager.TabIndex = 8;
@@ -78,7 +78,7 @@ namespace FX5U_IOMonitor
             // btn_usersetting
             // 
             btn_usersetting.Enabled = false;
-            btn_usersetting.Location = new Point(3, 51);
+            btn_usersetting.Location = new Point(13, 61);
             btn_usersetting.Name = "btn_usersetting";
             btn_usersetting.Size = new Size(124, 42);
             btn_usersetting.TabIndex = 9;
@@ -89,7 +89,7 @@ namespace FX5U_IOMonitor
             // btn_Alrm_Notify
             // 
             btn_Alrm_Notify.Enabled = false;
-            btn_Alrm_Notify.Location = new Point(3, 3);
+            btn_Alrm_Notify.Location = new Point(13, 13);
             btn_Alrm_Notify.Name = "btn_Alrm_Notify";
             btn_Alrm_Notify.Size = new Size(124, 42);
             btn_Alrm_Notify.TabIndex = 10;
@@ -99,7 +99,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_history
             // 
-            btn_history.Location = new Point(3, 285);
+            btn_history.Location = new Point(13, 295);
             btn_history.Name = "btn_history";
             btn_history.Size = new Size(124, 42);
             btn_history.TabIndex = 11;
@@ -120,7 +120,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(3, 333);
+            btn_checkpoint.Location = new Point(13, 343);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -136,6 +136,7 @@ namespace FX5U_IOMonitor
             button1.TabIndex = 14;
             button1.Text = "雲端下載檔案";
             button1.UseVisualStyleBackColor = true;
+            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // button2
@@ -151,7 +152,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_notify
             // 
-            btn_notify.Location = new Point(3, 195);
+            btn_notify.Location = new Point(13, 205);
             btn_notify.Name = "btn_notify";
             btn_notify.Size = new Size(124, 39);
             btn_notify.TabIndex = 16;
@@ -167,6 +168,7 @@ namespace FX5U_IOMonitor
             btn_alarm.TabIndex = 17;
             btn_alarm.Text = "地端資料同步雲端資料";
             btn_alarm.UseVisualStyleBackColor = true;
+            btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
             // button3
@@ -182,7 +184,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_unit
             // 
-            btn_unit.Location = new Point(3, 240);
+            btn_unit.Location = new Point(13, 250);
             btn_unit.Name = "btn_unit";
             btn_unit.Size = new Size(124, 39);
             btn_unit.TabIndex = 20;
@@ -192,6 +194,8 @@ namespace FX5U_IOMonitor
             // 
             // flowLayoutPanel1
             // 
+            flowLayoutPanel1.AutoScroll = true;
+            flowLayoutPanel1.AutoScrollMargin = new Size(20, 20);
             flowLayoutPanel1.Controls.Add(btn_Alrm_Notify);
             flowLayoutPanel1.Controls.Add(btn_usersetting);
             flowLayoutPanel1.Controls.Add(btn_Mail_Manager);
@@ -202,7 +206,8 @@ namespace FX5U_IOMonitor
             flowLayoutPanel1.Controls.Add(btn_checkpoint);
             flowLayoutPanel1.Location = new Point(47, 39);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
-            flowLayoutPanel1.Size = new Size(156, 428);
+            flowLayoutPanel1.Padding = new Padding(10);
+            flowLayoutPanel1.Size = new Size(164, 428);
             flowLayoutPanel1.TabIndex = 21;
             // 
             // Setting

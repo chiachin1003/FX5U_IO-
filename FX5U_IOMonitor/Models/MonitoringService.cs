@@ -699,257 +699,346 @@ namespace FX5U_IOMonitor.Models
             /// 
             public async Task Read_Word_Monitor_AllModesAsync(string machine_name, int[] ReadTypes, CancellationToken? token = null)
             {
-               
-
                 while (token == null || !token.Value.IsCancellationRequested)
                 {
-                    // 初始化對應監控清單
-                    var modeAddressMap = new Dictionary<int, List<(string name, string address, ushort address_index)>>();
+                    // 同時獲取公制和英制的地址映射
+                    var modeAddressMap_Metric = new Dictionary<int, List<(string name, string address, ushort address_index)>>();
+                    var modeAddressMap_Imperial = new Dictionary<int, List<(string name, string address, ushort address_index)>>();
+
+                    // 獲取當前單位制
+                    string currentUnit = UnitManager.CurrentUnit; // 假設這是獲取當前單位的方式
 
                     foreach (int now_readType in ReadTypes.Distinct())
                     {
                         var names = DBfunction.Get_Machine_read_view(now_readType, machine_name);
                         var addresses = DBfunction.Get_Read_word_machineparameter_address(machine_name, names);
-                        modeAddressMap[now_readType] = addresses;
+                        // 分別獲取公制和英制的地址
+                        var addresses_metric = DBfunction.Get_Read_word_machineparameter_address_WithUnit(machine_name, names, "Metric");
+                        var addresses_imperial = DBfunction.Get_Read_word_machineparameter_address_WithUnit(machine_name, names, "Imperial");
+
+                        modeAddressMap_Metric[now_readType] = addresses_metric;
+                        modeAddressMap_Imperial[now_readType] = addresses_imperial;
+
                     }
 
                     try
                     {
+                        // 處理公制數值
+                        await ProcessUnitValues(modeAddressMap_Metric, machine_name, "Metric", currentUnit);
 
-                        foreach (var kv in modeAddressMap)
-                        {
-                            int type = kv.Key;
-                            var paramList = kv.Value;
-                            var prefixes = paramList
-                                    .Select(a => new string(a.address.TakeWhile(char.IsLetter).ToArray()))
-                                    .Distinct() // 去除重複
-                                    .ToList();
-
-                            var paramLists = Calculate.SplitAddressSections(paramList.Select(p => p.address).ToList());
-                            var sectionGroups = paramLists
-                                                .GroupBy(s => s.Prefix)
-                                                .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-
-                            foreach (var prefix in sectionGroups.Keys)
-                            {
-                                var blocks = sectionGroups[prefix];
-
-                                ushort[] readResults;
-
-                                foreach (var block in blocks)
-                                {
-                                    string device = prefix + block.Start;
-                                    Checkpoint_time.Start("Saw_main");
-
-                                    lock (externalLock ?? new object())
-                                    {
-                                        
-                                        readResults = plc.ReadWordDevice(device, 256);
-
-                                    }
-
-                                    List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
-
-                                    // 對目前這個區塊內的參數做處理（篩選 paramList 中對應此區塊的）
-                                    var relevantParams = paramList
-                                        .Where(p => p.address.StartsWith(prefix))
-                                        .ToList();
-
-                                    Checkpoint_time.Stop("Saw_main");
-                                    Checkpoint_time.Start("Saw_brand");
-
-                                    foreach (var (name, address, address_index) in relevantParams)
-                                    {
-                                        // 從 result 中找出對應位址的值
-                                        var match = result.FirstOrDefault(r => r.address == address);
-                                        if (match == null) continue;
-                                        try
-                                        {
-                                            switch (type)
-                                            {
-                                                case 0:
-                                                    if (address_index == 1)
-                                                    {
-                                                        ushort val = match.current_number;
-                                                        double resultVal = val * DBfunction.Get_Unit_transfer(name);
-                                                        DBfunction.Set_Machine_now_number(machine_name, name, (ushort)resultVal);
-                                                        DBfunction.Set_Machine_History_NumericValue(machine_name, name, val);
-
-                                                        DBfunction.Set_Machine_now_string(machine_name,name, resultVal.ToString("F1"));
-
-                                                        //Debug.WriteLine($"[0] {name} ({address}) = {resultVal}");
-                                                    }
-                                                    else if (address_index == 2)
-                                                    {
-                                                        string nextAddress = GenerateNextAddress(address);
-                                                        var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
-                                                        if (nextMatch != null)
-                                                        {
-                                                            ushort[] values = { match.current_number, nextMatch.current_number };
-                                                            double merged = MonitorFunction.mergenumber(values) * DBfunction.Get_Unit_transfer(name);
-                                                           
-                                                            int currentvalue = (int)MonitorFunction.mergenumber(values);
-                                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, currentvalue);
-                                                            DBfunction.Set_Machine_now_string(name, merged.ToString("F1"));
-                                                            //Debug.WriteLine($"[0] {name} ({address}+{nextAddress}) = {merged}");
-                                                        }
-                                                        else
-                                                        {
-                                                            Debug.WriteLine($"❗ 無法取得 {address} 的第二段：{nextAddress}");
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        Debug.WriteLine($"❌ 無效 Machine：{address_index}");
-                                                    }
-                                                    break;
-
-                                                case 1:
-                                                    if (address_index == 2)
-                                                    {
-                                                        string nextAddress = GenerateNextAddress(address);
-                                                        var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
-                                                        if (nextMatch != null)
-                                                        {
-                                                            ushort[] values = { match.current_number, nextMatch.current_number };
-                                                            string formatted = MonitorFunction.FormatPlcTime(values);
-                                                            DBfunction.Set_Machine_now_string(name, formatted);
-                                                            int currentvalue = (int)MonitorFunction.mergenumber(values);
-                                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, currentvalue);
-
-                                                            //Debug.WriteLine($"[1] {name} = {formatted}");
-                                                        }
-                                                        else
-                                                        {
-                                                            Debug.WriteLine($"❗ 時間格式地址錯誤：缺少 {nextAddress}");
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        Debug.WriteLine($"[1] {name} 超出範圍");
-                                                    }
-                                                    break;
-
-                                                case 2:
-                                                    if (address_index == 2)
-                                                    {
-                                                        string nextAddress = GenerateNextAddress(address);
-                                                        var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
-                                                        if (nextMatch != null)
-                                                        {
-                                                            ushort[] values = { match.current_number, nextMatch.current_number };
-                                                            ushort resultVal = (ushort)(values.Max() - values.Min());
-                                                            DBfunction.Set_Machine_now_number(machine_name, name, resultVal);
-                                                            DBfunction.Set_Machine_now_string(name, resultVal.ToString());
-
-                                                            //Debug.WriteLine($"[2] {name} = {resultVal}");
-                                                        }
-                                                        else
-                                                        {
-                                                            Debug.WriteLine($"❗ 區間計算缺少第二字：{nextAddress}");
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        Debug.WriteLine($"[2] {name} 超出範圍");
-                                                    }
-                                                    break;
-
-                                                case 3:
-                                                    {
-                                                        if (!timer_word.ContainsKey(name))
-                                                        {
-                                                            int historyVal = DBfunction.Get_History_NumericValue(machine_name, name);
-                                                            timer_word[name] = new MonitorFunction.RuntimewordTimer
-                                                            {
-                                                                HistoryValue = historyVal,
-                                                                LastUpdateTime = (DateTime.UtcNow),
-                                                                AverageBuffer = new List<double>()
-                                                            };
-                                                        }
-
-                                                        var timer = timer_word[name];
-                                                        timer.IsCounting = true;
-                                                        if (((DateTime.UtcNow) - timer.LastUpdateTime).TotalSeconds >= 1)
-                                                        {
-                                                            timer.LastUpdateTime =(DateTime.UtcNow);
-
-                                                            ushort val = match.current_number;
-
-                                                            DBfunction.Set_Machine_now_number(machine_name, name, val);
-                                                            DBfunction.Set_Machine_now_string(machine_name, name, val.ToString("F2"));
-
-                                                            string timeStr = DateTime.UtcNow.ToString("HH:mm:ss");
-                                                            //Debug.WriteLine($"[{timeStr}] ▶ 即時值：{val}");
-
-                                                            timer.AverageBuffer.Add(val);
-
-                                                            if (timer.AverageBuffer.Count >= 10)
-                                                            {
-                                                                double avg = timer.AverageBuffer.Average();
-                                                                timer.HistoryValue = (int)Math.Round(avg);
-                                                                DBfunction.Set_Machine_History_NumericValue(machine_name, name, timer.HistoryValue);
-                                                                //Debug.WriteLine($"📊 10秒平均：{avg:F2}，平均為 {timer.HistoryValue}");
-                                                                timer.AverageBuffer.Clear();
-                                                            }
-                                                        }
-                                                        break;
-                                                    }
-                                                case 4:
-                                                    {
-                                                        
-
-                                                        int val = match.current_number;
-                                                        string input = name switch
-                                                        {
-                                                            "oil_pressure" => MonitorFunction.oil_press_transfer(val),
-                                                            "Sawband_brand" => DBfunction.Get_Blade_brand_name(val),
-                                                            "Sawblade_material" => DBfunction.Get_Blade_brand_material(val),
-                                                            "Sawblade_type" => DBfunction.Get_Blade_brand_type(
-                                                                DBfunction.Get_Machine_number("Sawband_brand"),
-                                                                DBfunction.Get_Machine_number("Sawblade_material"),
-                                                                val),
-                                                            "Sawblade_teeth" => DBfunction.Get_Blade_TPI_type(val),
-                                                            _ => "未知參數"
-                                                        };
-
-                                                        DBfunction.Set_Machine_now_number(machine_name, name, val);
-                                                        DBfunction.Set_Machine_now_string(name, input);
-                                                        Debug.WriteLine($"[4] {name} = {input}+{val}");
-                                                        break;
-
-                                                    }
-                                                case 5:
-                                                    Debug.WriteLine($"[{type}] 尚未實作 {name}");
-                                                    break;
-
-                                                default:
-                                                    Debug.WriteLine($"❌ 未支援的讀取類型：{type}");
-                                                    break;
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Debug.WriteLine($"❗ 錯誤處理 {name}：{ex.Message}");
-                                        }
-
-                                    }
-                                    Checkpoint_time.Stop("Saw_brand");
-
-                                }
-                            }
-                        }
-
+                        // 處理英制數值
+                        await ProcessUnitValues(modeAddressMap_Imperial, machine_name, "Imperial", currentUnit);
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
+                        Debug.WriteLine($"❌ Word 監控錯誤：{ex.Message}");
                     }
 
                     await Task.Delay(100, token ?? CancellationToken.None); // 輪詢節流
                 }
-            }
 
+            }
+            /// <summary>
+            /// Word讀值方式更新
+            /// </summary>
+            /// <param name="modeAddressMap"></param>
+            /// <param name="machine_name"></param>
+            /// <param name="unit"></param>
+            /// <param name="currentDisplayUnit"></param>
+            /// <returns></returns>
+            private async Task ProcessUnitValues(Dictionary<int, List<(string name, string address, ushort address_index)>> modeAddressMap,
+                                   string machine_name, string unit, string currentDisplayUnit)
+            {
+                foreach (var kv in modeAddressMap)
+                {
+                    int type = kv.Key;
+                    var paramList = kv.Value;
+
+                    if (!paramList.Any()) continue; // 如果沒有此單位的參數，跳過
+
+                    var prefixes = paramList
+                            .Select(a => new string(a.address.TakeWhile(char.IsLetter).ToArray()))
+                            .Distinct()
+                            .ToList();
+
+                    var paramLists = Calculate.SplitAddressSections(paramList.Select(p => p.address).ToList());
+                    var sectionGroups = paramLists
+                                        .GroupBy(s => s.Prefix)
+                                        .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
+
+                    foreach (var prefix in sectionGroups.Keys)
+                    {
+                        var blocks = sectionGroups[prefix];
+                        ushort[] readResults;
+
+                        foreach (var block in blocks)
+                        {
+                            string device = prefix + block.Start;
+                            Checkpoint_time.Start("Saw_main");
+
+                            lock (externalLock ?? new object())
+                            {
+                                readResults = plc.ReadWordDevice(device, 256);
+                            }
+
+                            List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
+
+                            var relevantParams = paramList
+                                .Where(p => p.address.StartsWith(prefix))
+                                .ToList();
+
+                            Checkpoint_time.Stop("Saw_main");
+                            Checkpoint_time.Start("Saw_brand");
+
+                            foreach (var (name, address, address_index) in relevantParams)
+                            {
+                                var match = result.FirstOrDefault(r => r.address == address);
+                                if (match == null) continue;
+
+                                try
+                                {
+                                    switch (type)
+                                    {
+                                        case 0:
+                                            if (address_index == 1)
+                                            {
+                                                ushort val = match.current_number;
+                                                double resultVal = val * DBfunction.Get_Unit_transfer(machine_name, name);
+
+                                                // 根據單位制儲存到不同位置
+                                                if (unit == "Imperial")
+                                                {
+                                                    DBfunction.Set_Machine_now_number(machine_name, name, val);
+                                                }
+                                                else // Metric
+                                                {
+                                                    DBfunction.Set_Machine_History_NumericValue(machine_name, name, val);
+                                                }
+
+                                                // 只有當前顯示單位才更新字串顯示
+                                                if (unit == currentDisplayUnit)
+                                                {
+                                                    DBfunction.Set_Machine_now_string(machine_name, name, resultVal.ToString("F1"));
+                                                }
+                                            }
+                                            else if (address_index == 2)
+                                            {
+                                                string nextAddress = GenerateNextAddress(address);
+                                                var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
+                                                if (nextMatch != null)
+                                                {
+                                                    ushort[] values = { match.current_number, nextMatch.current_number };
+                                                    double merged = MonitorFunction.mergenumber(values) * DBfunction.Get_Unit_transfer(machine_name, name);
+                                                    int currentvalue = (int)MonitorFunction.mergenumber(values);
+
+                                                    // 根據單位制儲存到不同位置
+                                                    if (unit == "Imperial")
+                                                    {
+                                                        DBfunction.Set_Machine_now_number(machine_name, name, currentvalue);
+                                                    }
+                                                    else // Metric
+                                                    {
+                                                        DBfunction.Set_Machine_History_NumericValue(machine_name, name, currentvalue);
+                                                    }
+
+                                                    // 只有當前顯示單位才更新字串顯示
+                                                    if (unit == currentDisplayUnit)
+                                                    {
+                                                        DBfunction.Set_Machine_now_string(machine_name, name, merged.ToString("F1"));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Debug.WriteLine($"❗ 無法取得 {address} 的第二段：{nextAddress}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Debug.WriteLine($"❌ 無效 Machine：{address_index}");
+                                            }
+                                            break;
+
+                                        case 1:
+                                            if (address_index == 2)
+                                            {
+                                                string nextAddress = GenerateNextAddress(address);
+                                                var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
+                                                if (nextMatch != null)
+                                                {
+                                                    ushort[] values = { match.current_number, nextMatch.current_number };
+                                                    string formatted = MonitorFunction.FormatPlcTime(values);
+                                                    int currentvalue = (int)MonitorFunction.mergenumber(values);
+
+                                                    // 根據單位制儲存到不同位置
+                                                    if (unit == "Imperial")
+                                                    {
+                                                        DBfunction.Set_Machine_now_number(machine_name, name, currentvalue);
+                                                    }
+                                                    else // Metric
+                                                    {
+                                                        DBfunction.Set_Machine_History_NumericValue(machine_name, name, currentvalue);
+                                                    }
+
+                                                    // 只有當前顯示單位才更新字串顯示
+                                                    if (unit == currentDisplayUnit)
+                                                    {
+                                                        DBfunction.Set_Machine_now_string(machine_name, name, formatted);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Debug.WriteLine($"❗ 時間格式地址錯誤：缺少 {nextAddress}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Debug.WriteLine($"[1] {name} 超出範圍");
+                                            }
+                                            break;
+
+                                        case 2:
+                                            if (address_index == 2)
+                                            {
+                                                string nextAddress = GenerateNextAddress(address);
+                                                var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
+                                                if (nextMatch != null)
+                                                {
+                                                    ushort[] values = { match.current_number, nextMatch.current_number };
+                                                    ushort resultVal = (ushort)(values.Max() - values.Min());
+
+                                                    // 根據單位制儲存到不同位置
+                                                    if (unit == "Imperial")
+                                                    {
+                                                        DBfunction.Set_Machine_now_number(machine_name, name, resultVal);
+                                                    }
+                                                    else // Metric
+                                                    {
+                                                        // 如果需要的話可以加上 History_NumericValue 的儲存
+                                                        DBfunction.Set_Machine_History_NumericValue(machine_name, name, resultVal);
+                                                    }
+
+                                                    // 只有當前顯示單位才更新字串顯示
+                                                    if (unit == currentDisplayUnit)
+                                                    {
+                                                        DBfunction.Set_Machine_now_string(machine_name, name, resultVal.ToString());
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Debug.WriteLine($"❗ 區間計算缺少第二字：{nextAddress}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Debug.WriteLine($"[2] {name} 超出範圍");
+                                            }
+                                            break;
+
+                                        case 3:
+                                            {
+                                                string timerKey = $"{name}_{unit}"; // 為不同單位創建不同的 timer key
+
+                                                if (!timer_word.ContainsKey(timerKey))
+                                                {
+                                                    // 根據單位制決定從哪裡讀取歷史值
+                                                    int historyVal;
+                                                    if (unit == "Imperial")
+                                                    {
+                                                        historyVal = DBfunction.Get_Machine_number(machine_name, name);
+                                                    }
+                                                    else
+                                                    {
+                                                        historyVal = DBfunction.Get_History_NumericValue(machine_name, name);
+                                                    }
+
+                                                    timer_word[timerKey] = new MonitorFunction.RuntimewordTimer
+                                                    {
+                                                        HistoryValue = historyVal,
+                                                        LastUpdateTime = (DateTime.UtcNow),
+                                                        AverageBuffer = new List<double>()
+                                                    };
+                                                }
+
+                                                var timer = timer_word[timerKey];
+                                                timer.IsCounting = true;
+                                                if (((DateTime.UtcNow) - timer.LastUpdateTime).TotalSeconds >= 1)
+                                                {
+                                                    timer.LastUpdateTime = (DateTime.UtcNow);
+                                                    ushort val = match.current_number;
+
+                                                    // 只有當前顯示單位才更新即時顯示
+                                                    if (unit == currentDisplayUnit)
+                                                    {
+                                                        DBfunction.Set_Machine_now_number(machine_name, name, val);
+                                                        DBfunction.Set_Machine_now_string(machine_name, name, val.ToString("F2"));
+                                                    }
+
+                                                    timer.AverageBuffer.Add(val);
+
+                                                    if (timer.AverageBuffer.Count >= 10)
+                                                    {
+                                                        double avg = timer.AverageBuffer.Average();
+                                                        timer.HistoryValue = (int)Math.Round(avg);
+
+                                                        // 根據單位制儲存到不同位置
+                                                        if (unit == "Imperial")
+                                                        {
+                                                            DBfunction.Set_Machine_now_number(machine_name, name, timer.HistoryValue);
+                                                        }
+                                                        else
+                                                        {
+                                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, timer.HistoryValue);
+                                                        }
+
+                                                        timer.AverageBuffer.Clear();
+                                                    }
+                                                }
+                                                break;
+                                            }
+                                        case 4:
+                                            {
+                                                int val = match.current_number;
+                                                string input = name switch
+                                                {
+                                                    "oil_pressure" => MonitorFunction.oil_press_transfer(val),
+                                                    "Sawband_brand" => DBfunction.Get_Blade_brand_name(val),
+                                                    "Sawblade_material" => DBfunction.Get_Blade_brand_material(val),
+                                                    "Sawblade_type" => DBfunction.Get_Blade_brand_type(
+                                                        DBfunction.Get_Machine_number("Sawband_brand"),
+                                                        DBfunction.Get_Machine_number("Sawblade_material"),
+                                                        val),
+                                                    "Sawblade_teeth" => DBfunction.Get_Blade_TPI_type(val),
+                                                    _ => "未知參數"
+                                                };
+
+                                                // Case 4 通常不分單位制
+                                                if (unit == currentDisplayUnit)
+                                                {
+                                                    DBfunction.Set_Machine_now_number(machine_name, name, val);
+                                                    DBfunction.Set_Machine_now_string(machine_name, name, input);
+                                                    Debug.WriteLine($"[4] {name} = {input}+{val}");
+                                                }
+                                                break;
+                                            }
+                                        case 5:
+                                            Debug.WriteLine($"[{type}] 尚未實作 {name}");
+                                            break;
+
+                                        default:
+                                            Debug.WriteLine($"❌ 未支援的讀取類型：{type}");
+                                            break;
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine($"❗ 錯誤處理 {name} ({unit})：{ex.Message}");
+                                }
+                            }
+                            Checkpoint_time.Stop("Saw_brand");
+                        }
+                    }
+                }
+            }
             /// <summary>
             /// 計算用電量及功率的函數
             /// </summary>

@@ -319,39 +319,59 @@ namespace FX5U_IOMonitor.Scheduling
 
                     if (alreadyExists)
                         continue;
-                    // 取得目前的值：
-                    int currentValue = useDefaultZero? 0
-                        : DBfunction.Get_Machine_History_NumericValue(param.Name) + DBfunction.Get_Machine_number(param.Name);
 
-                    
-                    //寫入紀錄(公制)
-                    db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                    if (param.Read_type == "bit")
                     {
-                        MachineParameterId = param.Id,
-                        StartTime = roundedStartTime,
-                        EndTime = roundedEndTime,
-                        History_NumericValue = currentValue,
-                        ResetBy = "SystemRecord_Metric",
-                        PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric"
-                    });
+                        // 取得目前的值：
+                        int currentValue = useDefaultZero ? 0
+                            : DBfunction.
+                            Get_Machine_History_NumericValue(param.Machine_Name, param.Name) + DBfunction.Get_Machine_number(param.Machine_Name, param.Name);
+                        //寫入紀錄
+                        db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                        {
+                            MachineParameterId = param.Id,
+                            StartTime = roundedStartTime,
+                            EndTime = roundedEndTime,
+                            History_NumericValue = currentValue,
+                            ResetBy = "SystemRecord_Metric",
+                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric"
+                        });
+                    }
 
-                    // === 英制（若支援） ===
-                    if (!string.IsNullOrWhiteSpace(param.Read_addr) && param.Imperial_transfer.HasValue)
+                    if (param.Read_type == "word")
                     {
-                        double imperialFactor = param.Imperial_transfer.Value / param.Unit_transfer;
-                        int? currentImperial = useDefaultZero ? 0
-                            : (param.now_NumericValue.HasValue ? (int?)(param.now_NumericValue.Value * imperialFactor) : null);
 
+                        // === 公制記錄（從 History_NumericValue 取得） ===
+                        int currentValue = useDefaultZero ? 0
+                            : DBfunction.Get_Machine_History_NumericValue(param.Machine_Name, param.Name);
 
                         db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
                         {
                             MachineParameterId = param.Id,
                             StartTime = roundedStartTime,
                             EndTime = roundedEndTime,
-                            History_NumericValue = currentImperial,
-                            ResetBy = "SystemRecord_Imperial",
-                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Imperial"
+                            History_NumericValue = currentValue,
+                            ResetBy = "SystemRecord_Metric",
+                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric"
                         });
+
+                        // === 英制記錄（若支援，直接從 now_NumericValue 取得） ===
+                        if (!string.IsNullOrWhiteSpace(param.Read_addr) && param.Imperial_transfer.HasValue)
+                        {
+                            // 直接從 now_NumericValue 取得英制數值，不再進行轉換計算
+                            int? currentImperial = useDefaultZero ? 0
+                                : (param.now_NumericValue.HasValue ? param.now_NumericValue.Value : null);
+
+                            db.MachineParameterHistoryRecodes.Add(new MachineParameterHistoryRecode
+                            {
+                                MachineParameterId = param.Id,
+                                StartTime = roundedStartTime,
+                                EndTime = roundedEndTime,
+                                History_NumericValue = currentImperial,
+                                ResetBy = "SystemRecord_Imperial",
+                                PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Imperial"
+                            });
+                        }
                     }
                 }
 

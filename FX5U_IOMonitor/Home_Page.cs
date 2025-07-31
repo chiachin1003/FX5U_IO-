@@ -11,7 +11,6 @@ using System.Diagnostics;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
-using static FX5U_IOMonitor.Models.ParameterHistoryManager;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static FX5U_IO元件監控.Part_Search;
 
@@ -413,7 +412,7 @@ namespace FX5U_IOMonitor
                 control.Enabled = false;
                 //await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
 
-                control.Text = "Switching";
+                control.Text = "Connecting";
                 control.BackColor = Color.LightBlue;
                 control.ForeColor = Color.Black;
                 control.Enabled = false;
@@ -421,14 +420,14 @@ namespace FX5U_IOMonitor
                 await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
                 StartAutoSync();
 
-                control.Text = "Connect";
+                control.Text = "Connected";
                 control.BackColor = Color.DodgerBlue;
                 control.ForeColor = Color.White;
                 control.Enabled = false;
             }
             else
             {
-                control.Text = "Disconnect";
+                control.Text = "Disconnected";
                 control.BackColor = Color.Gainsboro;
                 control.ForeColor = Color.Black;
             }

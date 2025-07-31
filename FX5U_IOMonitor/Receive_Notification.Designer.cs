@@ -39,9 +39,9 @@
             check_Email.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             check_Email.Location = new Point(12, 54);
             check_Email.Name = "check_Email";
-            check_Email.Size = new Size(131, 28);
+            check_Email.Size = new Size(79, 28);
             check_Email.TabIndex = 5;
-            check_Email.Text = "Scheduling";
+            check_Email.Text = "Email";
             check_Email.UseVisualStyleBackColor = true;
             // 
             // check_Line

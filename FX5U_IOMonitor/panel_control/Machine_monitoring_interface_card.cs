@@ -1,6 +1,6 @@
 ﻿using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor.Scheduling;
 using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.Scheduling;
 using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -22,7 +23,7 @@ namespace FX5U_IOMonitor.panel_control
         private CancellationTokenSource? _cts;
         ScheduleFrequency history_Frequency;
         private Dictionary<string, MachineActiveCard> cardMap = new();
-        private Dictionary<string, MachineInfoCard> infoCardMap = new();
+        private Dictionary<string, MachinePowerCard> infoCardMap = new();
 
         public Machine_monitoring_interface_card(ScheduleFrequency scheduleFrequency)
         {
@@ -107,8 +108,8 @@ namespace FX5U_IOMonitor.panel_control
 
                 var card = new MachineActiveCard();
                 card.DisplayMode = CardDisplayMode.Time;
-                var record_late = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill",paramName, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", paramName, history_Frequency);
                 DateTime now = DateTime.UtcNow;
                 string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
                 
@@ -137,8 +138,8 @@ namespace FX5U_IOMonitor.panel_control
                 string display = count.ToString(); // 直接顯示次數
                 var card_count = new MachineActiveCard();
                 card_count.DisplayMode = CardDisplayMode.Count;
-                var record_late = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill", paramName, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", paramName, history_Frequency);
                 DateTime now = DateTime.UtcNow;
                 string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
                 if (SecondLate == null)
@@ -163,13 +164,34 @@ namespace FX5U_IOMonitor.panel_control
 
             foreach (var (param, key, unit) in infoCardList)
             {
-                var card = new MachineInfoCard();
+
+                var card = new MachinePowerCard();
+                string title = LanguageManager.Translate(key);
                 string val = DBfunction.Get_Machine_now_string("Drill", param);
-                card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
+
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill", param, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", param, history_Frequency);
+
+                DateTime now = DateTime.UtcNow;
+                string re = DBfunction.Get_Machine_creatTime(param).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
+                
+                if (SecondLate == null)
+                {
+                    int secondDelta = 0;
+                    card.SetData(title, val, unit, re, secondDelta, record_late.Delta,  history_Frequency);
+                }
+                else
+                {
+                    var secondDelta = SecondLate.Delta;
+                    card.SetData(title, val, unit, re, secondDelta, record_late.Delta, history_Frequency);
+                }
+
 
                 infoCardMap[param] = card;
                 flowLayoutPanel1.Controls.Add(card);
             }
+
+           
         }
 
         private void UpdateCardValues()
@@ -180,8 +202,8 @@ namespace FX5U_IOMonitor.panel_control
 
                 int seconds = DBfunction.Get_Machine_History_NumericValue(paramName) + DBfunction.Get_Machine_number(paramName);
                 string time = MonitorFunction.ConvertSecondsToDHMS(seconds);
-                var record_late = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill",paramName, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", paramName, history_Frequency);
                 DateTime now = DateTime.UtcNow;
 
                 string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
@@ -206,8 +228,8 @@ namespace FX5U_IOMonitor.panel_control
                 if (!cardMap.ContainsKey(paramName)) continue;
 
                 int count = DBfunction.Get_Machine_History_NumericValue(paramName);
-                var record_late = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill", paramName, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", paramName, history_Frequency);
                 DateTime now = DateTime.UtcNow;
                 string re = DBfunction.Get_Machine_creatTime(paramName).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
                 if (SecondLate == null)
@@ -231,8 +253,34 @@ namespace FX5U_IOMonitor.panel_control
             foreach (var (param, key, unit) in infoCardList)
             {
                 if (!infoCardMap.TryGetValue(param, out var card)) continue;
+
+                // 即時值
                 string val = DBfunction.Get_Machine_now_string("Drill", param);
-                card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
+
+                // 安全轉 float（避免顯示錯誤）
+                if (!float.TryParse(val, out float valNum))
+                    valNum = 0;
+                string valStr = valNum.ToString("0.##");
+
+                // 歷史統計資料
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill", param, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", param, history_Frequency);
+
+                DateTime now = DateTime.UtcNow;
+                string re = DBfunction.Get_Machine_creatTime(param).ToString("yyyy/MM/dd HH:mm") + "~" + now.ToString("yyyy/MM/dd HH:mm");
+
+                int deltaNow = record_late?.Delta ?? 0;
+                int deltaPrev = SecondLate?.Delta ?? 0;
+
+                card.SetData(
+                    LanguageManager.Translate(key),
+                    valStr,
+                    Text_design.ConvertUnitLabel(unit),
+                    re,
+                    deltaPrev,
+                    deltaNow,
+                    history_Frequency
+                );
             }
         }
         private async Task AutoUpdateAsync(CancellationToken token)

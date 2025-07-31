@@ -92,7 +92,7 @@ namespace FX5U_IOMonitor.Models
                 return context.Machine_IO.Where(a => a.Machine_name == machineName).Count();
             }
         }
-        public static HistoryRecordDto? GetLatestHistoryRecordByName(string paramName, ScheduleFrequency frequency)
+        public static HistoryRecordDto? GetLatestHistoryRecordByName(string machineName, string paramName, ScheduleFrequency frequency)
         {
             using (var context = new ApplicationDB())
             {
@@ -101,7 +101,10 @@ namespace FX5U_IOMonitor.Models
                 // 最新歷史紀錄（上一筆）
                 var latestRecord = (from h in context.MachineParameterHistoryRecodes
                                     join p in context.MachineParameters on h.MachineParameterId equals p.Id
-                                    where p.Name == paramName && h.PeriodTag != null && h.PeriodTag.Contains(freqTag)
+                                    where p.Name == paramName
+                                        && p.Machine_Name == machineName
+                                        && h.PeriodTag != null
+                                        && h.PeriodTag.Contains(freqTag)
                                     orderby h.StartTime descending
                                     select new
                                     {
@@ -116,8 +119,8 @@ namespace FX5U_IOMonitor.Models
                     return null;
 
                 // 目前機台狀態的數值
-                int currentValue = DBfunction.Get_Machine_History_NumericValue(paramName)
-                   + DBfunction.Get_Machine_number(paramName);
+                int currentValue = DBfunction.Get_Machine_History_NumericValue(machineName, paramName)
+                   + DBfunction.Get_Machine_number(machineName,paramName);
               
                 int delta = currentValue - latestRecord.HistoryValue;
                 if (delta < 0) delta = 0; // 防止負值
@@ -132,7 +135,7 @@ namespace FX5U_IOMonitor.Models
                
             }
         }
-        public static HistoryRecordDto? GetSecondLatestHistoryRecordByName(string paramName, ScheduleFrequency frequency)
+        public static HistoryRecordDto? GetSecondLatestHistoryRecordByName(string machineName, string paramName, ScheduleFrequency frequency)
         {
             using (var context = new ApplicationDB())
             {
@@ -141,7 +144,10 @@ namespace FX5U_IOMonitor.Models
                 // 上一筆
                 var latestRecord = (from h in context.MachineParameterHistoryRecodes
                                     join p in context.MachineParameters on h.MachineParameterId equals p.Id
-                                    where p.Name == paramName && h.PeriodTag != null && h.PeriodTag.Contains(freqTag)
+                                    where p.Name == paramName
+                                       && p.Machine_Name == machineName
+                                       && h.PeriodTag != null
+                                       && h.PeriodTag.Contains(freqTag)
                                     orderby h.StartTime descending
                                     select new
                                     {
@@ -155,7 +161,10 @@ namespace FX5U_IOMonitor.Models
                 // 上上筆
                 var secdRecord = (from h in context.MachineParameterHistoryRecodes
                                   join p in context.MachineParameters on h.MachineParameterId equals p.Id
-                                  where p.Name == paramName && h.PeriodTag != null && h.PeriodTag.Contains(freqTag)
+                                  where p.Name == paramName
+                                        && p.Machine_Name == machineName
+                                        && h.PeriodTag != null
+                                        && h.PeriodTag.Contains(freqTag)
                                   orderby h.StartTime descending
                                   select new
                                   {
@@ -1401,22 +1410,36 @@ namespace FX5U_IOMonitor.Models
 
             using (var context = new ApplicationDB())
             {
+
                 //var result = context.MachineParameters
-                //            .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
-                //            .Select(m => new { m.Name, m.Read_address, m.Read_address_index, m.Read_addr })
-                //            .ToList()
-                //            .Select(x => (x.Name, x.Read_address, (ushort)x.Read_address_index))
-                //            .ToList();
+                //                    .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
+                //                    .AsEnumerable() // ⚠️ 改成在記憶體中操作，才能使用 GetAddress
+                //                    .Select(m => (
+                //                        Name: m.Name,
+                //                        Address: m.GetAddress(UnitManager.CurrentUnit),
+                //                        AddressIndex: (ushort)m.Read_address_index
+                //                    ))
+                //                    .ToList();
+                //return result;
+                return Get_Read_word_machineparameter_address_WithUnit(machine_name, Machineprameter_name, UnitManager.CurrentUnit);
+
+            }
+        }
+        
+        public static List<(string, string, ushort)> Get_Read_word_machineparameter_address_WithUnit(string machine_name, List<string> Machineprameter_name, string unit)
+        {
+            using (var context = new ApplicationDB())
+            {
                 var result = context.MachineParameters
                                     .Where(m => Machineprameter_name.Contains(m.Name) && m.Read_type == "word" && m.Machine_Name == machine_name)
                                     .AsEnumerable() // ⚠️ 改成在記憶體中操作，才能使用 GetAddress
                                     .Select(m => (
                                         Name: m.Name,
-                                        Address: m.GetAddress(UnitManager.CurrentUnit),
+                                        Address: m.GetAddress(unit),
                                         AddressIndex: (ushort)m.Read_address_index
                                     ))
+                                    .Where(x => !string.IsNullOrWhiteSpace(x.Address)) // 過濾掉沒有對應單位地址的項目
                                     .ToList();
-
                 return result;
             }
         }
@@ -1585,6 +1608,22 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
+        public static MachineParameter Get_MachineParameter(string machine_name, string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.MachineParameters
+                              .FirstOrDefault(m => m.Machine_Name == machine_name && m.Name == name);
+            }
+        }
+        public static int Get_Machine_number(string machineName,string name)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name==machineName);
+                return machine?.now_NumericValue ?? 0;
+            }
+        }
         public static int Get_Machine_number(string name)
         {
             using (var context = new ApplicationDB())
@@ -1610,18 +1649,7 @@ namespace FX5U_IOMonitor.Models
                 return machine.CreatedAt;
             }
         }
-        public static double Get_Unit_transfer(string name)
-        {
-
-            using (var context = new ApplicationDB())
-            {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
-                if (machine == null)
-                    return 0;
-
-                return machine.GetScale(UnitManager.CurrentUnit); // 使用你已實作的倍率轉換方法
-            }
-        }
+       
         public static double Get_Unit_transfer(string machine,string name)
         {
 
@@ -1631,7 +1659,7 @@ namespace FX5U_IOMonitor.Models
                 if (param == null)
                     return 0;
 
-                return param.GetScale(UnitManager.CurrentUnit); // 使用你已實作的倍率轉換方法
+                return param.GetScale(UnitManager.CurrentUnit); //  英制公制轉換方法
             }
         }
         public static string Get_Blade_brand_name(int brand_id)

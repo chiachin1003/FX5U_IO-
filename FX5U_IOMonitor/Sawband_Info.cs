@@ -161,8 +161,8 @@ namespace FX5U_IOMonitor
             string nowTime = MonitorFunction.ConvertSecondsToDHMS(totalSec);
 
             // 取最新兩筆歷史紀錄
-            var latest = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-            var second = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
+            var latest = DBfunction.GetLatestHistoryRecordByName("Sawing",paramName, history_Frequency);
+            var second = DBfunction.GetSecondLatestHistoryRecordByName("Sawing", paramName, history_Frequency);
 
             int prevVal = second?.Delta ?? 0;
             int thisVal = latest?.Delta ?? totalSec;
@@ -175,10 +175,10 @@ namespace FX5U_IOMonitor
         }
         private void FillCountCard(MachineActiveCard card, string paramName, string langKey)
         {
-            int totalCount = DBfunction.Get_Machine_History_NumericValue(paramName);
+            int totalCount = DBfunction.Get_Machine_History_NumericValue("Sawing", paramName);
 
-            var latest = DBfunction.GetLatestHistoryRecordByName(paramName, history_Frequency);
-            var second = DBfunction.GetSecondLatestHistoryRecordByName(paramName, history_Frequency);
+            var latest = DBfunction.GetLatestHistoryRecordByName("Sawing", paramName, history_Frequency);
+            var second = DBfunction.GetSecondLatestHistoryRecordByName("Sawing", paramName, history_Frequency);
 
             int prevVal = second?.Delta ?? 0;
             int thisVal = latest?.Delta ?? totalCount;

@@ -4,6 +4,7 @@ using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Reflection.PortableExecutable;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Models.Test_;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 
 
 
@@ -82,9 +84,13 @@ namespace FX5U_IOMonitor
         private async void button1_Click(object sender, EventArgs e)
         {
             //Main_form_test add_sawband_Form = new Main_form_test();
+            //Machine_monitoring_interface_card add_saw_Form = new Machine_monitoring_interface_card(ScheduleFrequency.Weekly);
             Saw_Info add_saw_Form = new Saw_Info();
 
             add_saw_Form.Show();
+            Sawband_Info saw_Form = new Sawband_Info();
+
+            saw_Form.Show();
         }
        
     }

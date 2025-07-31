@@ -27,6 +27,7 @@ namespace FX5U_IOMonitor
         {
             this.Text = LanguageManager.Translate("Receive_Notification");
             lab_CurrentUser.Text = LanguageManager.Translate("Receive_Notification_User") +"："+_currentUser.UserName;
+            //check_Email.Text = LanguageManager.Translate("Receive_Notification_Email");
             btn_Confirm.Text = LanguageManager.Translate("Mainform_Settings");
         }
 

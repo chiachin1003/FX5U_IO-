@@ -35,8 +35,8 @@ namespace FX5U_IOMonitor.Login
 
         public const string Default_Schedule_Tag = "None";
 
-        public const string Default_Email = "jenny963200@hotmail.com";
-        public const string Default_Line = "U9941555f9b9a028b5e89b587ef8877cf";
+        public const string Default_Email = "";
+        public const string Default_Line = "";
 
     }
 
