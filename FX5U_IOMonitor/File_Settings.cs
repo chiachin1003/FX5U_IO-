@@ -1,6 +1,8 @@
-﻿using FX5U_IOMonitor.Data;
+﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Models;
+using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Properties;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Data;
@@ -17,67 +19,101 @@ namespace FX5U_IOMonitor.Resources
         public File_Settings()
         {
             InitializeComponent();
-            var TableList = new List<DisplayValuePair<string>>
-            {
-                new DisplayValuePair<string>("警告資料表", "alarm"),
-                new DisplayValuePair<string>("鋸帶材質資料表", "Blade_brand"),
-                new DisplayValuePair<string>("鋸帶尺數資料表", "Blade_brand_TPI"),
-                new DisplayValuePair<string>("語系資料表", "Language")
+            string lang = Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageFromDatabase(lang);
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            SwitchLanguage();
 
-            };
+            //var TableList = new List<DisplayValuePair<string>>
+            //{
+            //    new DisplayValuePair<string>("警告資料表", "alarm"),
+            //    new DisplayValuePair<string>("鋸帶材質資料表", "Blade_brand"),
+            //    new DisplayValuePair<string>("鋸帶尺數資料表", "Blade_brand_TPI"),
+            //    new DisplayValuePair<string>("語系資料表", "Language")
 
-            var SaveList = new List<DisplayValuePair<string>>
-            {
-                new DisplayValuePair<string>("自動儲存至下載", "auto"),
-                new DisplayValuePair<string>("使用者自選", "manual"),
-            };
+            //};
+            //foreach (var item in TableList)
+            //{
+            //    comb_datatable.Items.Add(item);  // item.ToString() 會顯示 Display 值
+            //}
 
-            foreach (var item in TableList)
-            {
-                comb_datatable.Items.Add(item);  // item.ToString() 會顯示 Display 值
-            }
-            comb_datatable.SelectedIndex = 0;
-            Text_design.SetComboBoxCenteredDraw(comb_datatable);
+            //var SaveList = new List<DisplayValuePair<string>>
+            //{
+            //    new DisplayValuePair<string>("自動儲存至下載", "auto"),
+            //    new DisplayValuePair<string>("使用者自選", "manual"),
+            //};
+            //foreach (var item in SaveList)
+            //{
+            //    comb_select.Items.Add(item);  // item.ToString() 會顯示 Display 值
+            //}
 
-            foreach (var item in SaveList)
-            {
-                comb_select.Items.Add(item);  // item.ToString() 會顯示 Display 值
-            }
-            comb_select.SelectedIndex = 0;
-            Text_design.SetComboBoxCenteredDraw(comb_select);
+
+
+
         }
-
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+        }
 
 
         private void btn_setting_Click(object sender, EventArgs e)
         {
             lab_cloudstatus.Text = "";
+            string? tableName = ComboBoxHelper.GetSelectedValue<string>(comb_datatable);
+            string? saveMode = ComboBoxHelper.GetSelectedValue<string>(comb_select);
 
-            if (comb_datatable.SelectedItem is DisplayValuePair<string> tableItem &&
-                comb_select.SelectedItem is DisplayValuePair<string> saveModeItem)
+            if (string.IsNullOrWhiteSpace(tableName) || string.IsNullOrWhiteSpace(saveMode))
             {
-                string tableName = tableItem.Value;     // 內部資料表名稱
-                string saveMode = saveModeItem.Value;   // "auto" or "manual"
+                Message_Config.LogMessage(LanguageManager.Translate("File_Settings_Message_Check"));
+                return;
+            }
 
+            try
+            {
                 if (tableName == "Language")
                 {
                     LanguageImportHelper.ExportLanguageTemplate(saveMode);
                 }
-                if (tableName == "alarm")
+                else if (tableName == "alarm")
                 {
                     TableImportExportManager.Export_AlarmToCSV(saveMode);
                 }
                 else
                 {
-                    TableImportExportManager.ExportTableToCsv(tableName, saveMode);  // 呼叫對應函數
+                    TableImportExportManager.ExportTableToCsv(tableName, saveMode);
                 }
-
-
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("❌ 請確認已選擇資料表與儲存模式！");
+                Message_Config.LogMessage($"[匯出失敗] 資料表：{tableName}，模式：{saveMode}，錯誤：{ex.Message}");
             }
+            //if (comb_datatable.SelectedItem is DisplayValuePair<string> tableItem &&
+            //    comb_select.SelectedItem is DisplayValuePair<string> saveModeItem)
+            //{
+            //    string tableName = tableItem.Value;     // 內部資料表名稱
+            //    string saveMode = saveModeItem.Value;   // "auto" or "manual"
+
+            //    if (tableName == "Language")
+            //    {
+            //        LanguageImportHelper.ExportLanguageTemplate(saveMode);
+            //    }
+            //    if (tableName == "alarm")
+            //    {
+            //        TableImportExportManager.Export_AlarmToCSV(saveMode);
+            //    }
+            //    else
+            //    {
+            //        TableImportExportManager.ExportTableToCsv(tableName, saveMode);  // 呼叫對應函數
+            //    }
+
+
+            //}
+            //else
+            //{
+            //    Message_Config.LogMessage("當前選擇的資料表與儲存格式不符合");
+            //}
         }
 
         private async void btn_update_Click(object sender, EventArgs e)
@@ -85,72 +121,44 @@ namespace FX5U_IOMonitor.Resources
             using var Cloud_context = new CloudDbContext();
             using var Local_context = new ApplicationDB();
             lab_cloudstatus.Text = "";
-            if (comb_datatable.SelectedItem is DisplayValuePair<string> tableItem)
+            string? tableName = ComboBoxHelper.GetSelectedValue<string>(comb_datatable);
+
+            if (string.IsNullOrWhiteSpace(tableName))
             {
-                string tableName = tableItem.Value;     // 內部資料表名稱
+                Message_Config.LogMessage(LanguageManager.Translate("File_Settings_Message_Check"));
+                return;
+            }
 
-                if (tableName == "Language")
+            if (tableName == "Language")
+            {
+                var result = LanguageImportHelper.ImportLanguage();
+                if (result != null)
                 {
-                    var result = LanguageImportHelper.ImportLanguage();
-                    if (result != null)
-                    {
-                        // 5. 顯示結果
-                        MessageBox.Show(
-                            $"語系資料匯入完成：\n" +
-                            $"新增 {result.InsertCount} 筆\n" +
-                            $"更新 {result.UpdateCount} 筆\n" +
-                            $"刪除 {result.DeleteCount} 筆 匯入成功");
+                    // 5. 顯示結果
+                    MessageBox.Show(
+                        $"語系資料匯入完成：\n" +
+                        $"新增 {result.InsertCount} 筆\n" +
+                        $"更新 {result.UpdateCount} 筆\n" +
+                        $"刪除 {result.DeleteCount} 筆 匯入成功");
 
-                        string lang = Properties.Settings.Default.LanguageSetting;
-                        LanguageManager.LoadLanguageFromDatabase(lang);
-                        LanguageManager.SetLanguage(lang); // ✅ 自動載入 + 儲存 + 觸發事件
-                        LanguageManager.SyncAvailableLanguages(LanguageManager.Currentlanguge);
-                        try
-                        {
-                            lab_cloudstatus.Text = "雲端同步中";
-                            lab_cloudstatus.ForeColor = Color.Gray;
-                            if (Cloud_context == null)
-                            {
-                                lab_cloudstatus.Text = "雲端同步失敗";
-                                lab_cloudstatus.ForeColor = Color.Red;
-                            }
-                            else
-                            {
-                                var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, "Language");
-                                TableSync.LogSyncResult(Language);
-                                lab_cloudstatus.Text = "雲端同步成功";
-                                lab_cloudstatus.ForeColor = Color.Green;
-
-                            }
-
-                        }
-                        catch (Exception ex)
-                        {
-                            lab_cloudstatus.Text = "雲端同步失敗";
-                            lab_cloudstatus.ForeColor = Color.Red;
-                            MessageBox.Show($"雲端同步失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                        }
-                    }
-
-                }
-                else
-                {
-                    Csv2Db.UpdateTable(tableName);
-
+                    string lang = Properties.Settings.Default.LanguageSetting;
+                    LanguageManager.LoadLanguageFromDatabase(lang);
+                    LanguageManager.SetLanguage(lang); // ✅ 自動載入 + 儲存 + 觸發事件
+                    LanguageManager.SyncAvailableLanguages(LanguageManager.Currentlanguge);
                     try
                     {
-                        lab_cloudstatus.Text = "雲端同步中";
+                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
                         lab_cloudstatus.ForeColor = Color.Gray;
                         if (Cloud_context == null)
                         {
-                            lab_cloudstatus.Text = "雲端同步失敗";
+                            lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
                             lab_cloudstatus.ForeColor = Color.Red;
                         }
                         else
                         {
-                            var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, tableName);
-                            lab_cloudstatus.Text = "雲端同步完成";
+                            var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, "Language");
+                            TableSync.LogSyncResult(Language);
+                            lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                             lab_cloudstatus.ForeColor = Color.Green;
 
                         }
@@ -158,17 +166,43 @@ namespace FX5U_IOMonitor.Resources
                     }
                     catch (Exception ex)
                     {
-                        lab_cloudstatus.Text = "雲端同步失敗";
+                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
                         lab_cloudstatus.ForeColor = Color.Red;
+
                     }
                 }
-
 
             }
             else
             {
-                MessageBox.Show("❌ 請確認已選擇資料表與儲存模式！");
+                Csv2Db.UpdateTable(tableName);
+
+                try
+                {
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
+                    lab_cloudstatus.ForeColor = Color.Gray;
+                    if (Cloud_context == null)
+                    {
+                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
+                        lab_cloudstatus.ForeColor = Color.Red;
+                    }
+                    else
+                    {
+                        var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, tableName);
+                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
+                        lab_cloudstatus.ForeColor = Color.Green;
+
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
+                    lab_cloudstatus.ForeColor = Color.Red;
+                }
             }
+
+
         }
 
         private async void btn_cloud_Click(object sender, EventArgs e)
@@ -176,39 +210,76 @@ namespace FX5U_IOMonitor.Resources
             using var Cloud_context = new CloudDbContext();
             using var Local_context = new ApplicationDB();
             lab_cloudstatus.Text = "";
-            if (comb_datatable.SelectedItem is DisplayValuePair<string> tableItem)
+            string? tableName = ComboBoxHelper.GetSelectedValue<string>(comb_datatable);
+
+            if (string.IsNullOrWhiteSpace(tableName))
             {
-                string tableName = tableItem.Value;
-                try
+                Message_Config.LogMessage(LanguageManager.Translate("File_Settings_Message_Check"));
+                return;
+            }
+            try
+            {
+                lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloading");
+                lab_cloudstatus.ForeColor = Color.Gray;
+                if (Cloud_context == null)
                 {
-                    lab_cloudstatus.Text = "雲端資料下載至地端資料中";
-                    lab_cloudstatus.ForeColor = Color.Gray;
-                    if (Cloud_context == null)
-                    {
-                        lab_cloudstatus.Text = "地端同步失敗";
-                        lab_cloudstatus.ForeColor = Color.Red;
-                    }
-                    else
-                    {
-                        var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
-                        lab_cloudstatus.Text = "地端同步成功";
-                        lab_cloudstatus.ForeColor = Color.Green;
-
-
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    lab_cloudstatus.Text = "雲端同步失敗";
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadFailed");
                     lab_cloudstatus.ForeColor = Color.Red;
                 }
+                else
+                {
+                    var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadSuccess");
+                    lab_cloudstatus.ForeColor = Color.Green;
 
 
+                }
 
             }
+            catch (Exception ex)
+            {
+                lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadFailed");
+                lab_cloudstatus.ForeColor = Color.Red;
+            }
+
 
         }
+        private void SwitchLanguage()
+        {
+            this.Text = LanguageManager.Translate("File_Settings_Title");
+            btn_download.Text = LanguageManager.Translate("File_Settings_Button_download");
+            btn_update.Text = LanguageManager.Translate("File_Settings_Button_update");
+            btn_cloud.Text = LanguageManager.Translate("File_Settings_Button_cloud");
+            lab_TableSelect.Text = LanguageManager.Translate("File_Settings_lab_TableSelect");
+            lab_save_location.Text = LanguageManager.Translate("File_Settings_lab_save_location");
+
+            Text_design.SafeAdjustFont(btn_download, btn_download.Text);
+            Text_design.SafeAdjustFont(lab_TableSelect, lab_TableSelect.Text);
+            Text_design.SafeAdjustFont(lab_save_location, lab_save_location.Text);
+
+
+
+            ComboBoxHelper.BindDisplayValueItems<string>(comb_datatable, new[]
+               {
+                    (LanguageManager.Translate("File_Settings_AlarmTable"), "alarm"),
+                    (LanguageManager.Translate("File_Settings_MaterialTable"), "Blade_brand"),
+                    (LanguageManager.Translate("File_Settings_TPI_Table"), "Blade_brand_TPI"),
+                    (LanguageManager.Translate("File_Settings_LanguageTable"), "Language")
+                });
+
+            comb_datatable.SelectedIndex = 0;
+            Text_design.SetComboBoxCenteredDraw(comb_datatable);
+
+            ComboBoxHelper.BindDisplayValueItems<string>(comb_select, new[]
+            {
+                (LanguageManager.Translate("File_Settings_AutoSave"), "auto"),
+                (LanguageManager.Translate("File_Settings_UserSelection"), "manual"),
+            });
+            comb_select.SelectedIndex = 0;
+            Text_design.SetComboBoxCenteredDraw(comb_select);
+        }
+
+
     }
 
 }

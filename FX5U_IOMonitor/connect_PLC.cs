@@ -1,22 +1,23 @@
 ﻿
+using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Message;
 using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.Scheduling;
-using SLMP;
-using System.IO.Ports;
-using Modbus.Device; // 來自 NModbus4
-using static FX5U_IOMonitor.Models.MonitoringService;
-using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using FX5U_IOMonitor.panel_control;
+using FX5U_IOMonitor.Resources;
+using FX5U_IOMonitor.Scheduling;
+using Modbus.Device; // 來自 NModbus4
+using Modbus.Device; // 來自 NModbus4
+using SLMP;
+using SLMP;
+using System.Diagnostics;
+using System.IO.Ports;
 using System.IO.Ports;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Message.Send_mode;
 using static FX5U_IOMonitor.Models.ModbusMonitorService;
+using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using static FX5U_IOMonitor.Models.MonitoringService;
-using FX5U_IOMonitor.Resources;
-using FX5U_IOMonitor.Message;
-using Modbus.Device; // 來自 NModbus4
-using SLMP;
-using System.Diagnostics;
+using static FX5U_IOMonitor.Models.MonitoringService;
 
 
 
@@ -514,7 +515,7 @@ namespace FX5U_IOMonitor
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"❌ 背景郵件任務錯誤：{ex.Message}");
+                            Message_Config.LogMessage($"❌ 背景郵件任務錯誤：{ex.Message}");
                         }
                     });
 
@@ -645,7 +646,8 @@ namespace FX5U_IOMonitor
             lab_Parity.Text = LanguageManager.Translate("Connect_RS_Parity");
             lab_StopBits.Text = LanguageManager.Translate("Connect_RS_StopBits");
             btn_addmachine.Text = LanguageManager.Translate("Element_btn_add");
-
+            btn_mishubishi.Text = LanguageManager.Translate("Connect_PLC_Switch");
+            btn_delete.Text = LanguageManager.Translate("Connect_PLC_Delete");
         }
         private void combobox_text_center()
         {

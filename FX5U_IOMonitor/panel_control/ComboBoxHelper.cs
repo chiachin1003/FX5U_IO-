@@ -19,14 +19,30 @@ namespace FX5U_IOMonitor.panel_control
         IEnumerable<(string Display, T Value)> items,
         int defaultIndex = 0)
         {
-            var data = items.Select(i => new { Text = i.Display, Value = i.Value }).ToList();
-
+            var data = items
+                .Select(i => new DisplayValuePair<T>(i.Display, i.Value))
+                .ToList();
             comboBox.DataSource = data;
             comboBox.DisplayMember = "Text";
             comboBox.ValueMember = "Value";
             comboBox.SelectedIndex = defaultIndex;
         }
+        public class DisplayValuePair<T>
+        {
+            public string Text { get; set; }
+            public T Value { get; set; }
 
+            public DisplayValuePair(string text, T value)
+            {
+                Text = text;
+                Value = value;
+            }
+
+            public override string ToString()
+            {
+                return Text;
+            }
+        }
         /// <summary>
         /// 取得目前選中的實際值（Value）
         /// </summary>

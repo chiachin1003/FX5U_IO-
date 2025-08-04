@@ -28,25 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label7 = new Label();
+            lab_TableSelect = new Label();
             btn_download = new Button();
             comb_datatable = new ComboBox();
             btn_update = new Button();
-            label1 = new Label();
+            lab_save_location = new Label();
             comb_select = new ComboBox();
             btn_cloud = new Button();
             lab_cloudstatus = new Label();
             SuspendLayout();
             // 
-            // label7
+            // lab_TableSelect
             // 
-            label7.AutoSize = true;
-            label7.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label7.Location = new Point(20, 19);
-            label7.Name = "label7";
-            label7.Size = new Size(138, 26);
-            label7.TabIndex = 30;
-            label7.Text = "資料表選擇：";
+            lab_TableSelect.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_TableSelect.Location = new Point(20, 19);
+            lab_TableSelect.Name = "lab_TableSelect";
+            lab_TableSelect.Size = new Size(138, 26);
+            lab_TableSelect.TabIndex = 30;
+            lab_TableSelect.Text = "資料表選擇：";
             // 
             // btn_download
             // 
@@ -81,15 +80,14 @@
             btn_update.UseVisualStyleBackColor = true;
             btn_update.Click += btn_update_Click;
             // 
-            // label1
+            // lab_save_location
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            label1.Location = new Point(41, 61);
-            label1.Name = "label1";
-            label1.Size = new Size(117, 26);
-            label1.TabIndex = 43;
-            label1.Text = "儲存位置：";
+            lab_save_location.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_save_location.Location = new Point(20, 63);
+            lab_save_location.Name = "lab_save_location";
+            lab_save_location.Size = new Size(138, 26);
+            lab_save_location.TabIndex = 43;
+            lab_save_location.Text = "儲存位置：";
             // 
             // comb_select
             // 
@@ -130,11 +128,11 @@
             Controls.Add(lab_cloudstatus);
             Controls.Add(btn_cloud);
             Controls.Add(comb_select);
-            Controls.Add(label1);
+            Controls.Add(lab_save_location);
             Controls.Add(btn_update);
             Controls.Add(comb_datatable);
             Controls.Add(btn_download);
-            Controls.Add(label7);
+            Controls.Add(lab_TableSelect);
             Name = "File_Settings";
             StartPosition = FormStartPosition.CenterParent;
             Text = "檔案更新";
@@ -143,11 +141,11 @@
         }
 
         #endregion
-        private Label label7;
+        private Label lab_TableSelect;
         private Button btn_download;
         private ComboBox comb_datatable;
         private Button btn_update;
-        private Label label1;
+        private Label lab_save_location;
         private ComboBox comb_select;
         private Button btn_cloud;
         private Label lab_cloudstatus;

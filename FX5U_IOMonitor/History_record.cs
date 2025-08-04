@@ -14,6 +14,7 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Resources.Element_Settings;
@@ -33,7 +34,15 @@ namespace FX5U_IO元件監控
         {
 
             InitializeComponent();
-
+            string lang = FX5U_IOMonitor.Properties.Settings.Default.LanguageSetting;
+            LanguageManager.LoadLanguageFromDatabase(lang);
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+            SwitchLanguage();
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
         }
 
 
@@ -94,7 +103,8 @@ namespace FX5U_IO元件監控
         {
             if (dataGridView1.Rows.Count == 0)
             {
-                MessageBox.Show("沒有資料可以匯出！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(LanguageManager.Translate("History_record_No_Message"),
+                    LanguageManager.Translate("Prompt_Title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -108,11 +118,13 @@ namespace FX5U_IO元件監控
                     try
                     {
                         ExportDataGridViewToCsv(dataGridView1, sfd.FileName);
-                        MessageBox.Show("✅ 匯出成功！", "完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(LanguageManager.Translate("History_record_Message_Success"),
+                            LanguageManager.Translate("Completed_Title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("匯出失敗：" + ex.Message, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LanguageManager.Translate("History_record_Message_Failed") + ex.Message,
+                             LanguageManager.Translate("Error_Title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -213,12 +225,20 @@ namespace FX5U_IO元件監控
             });
         }
 
-        private void label2_Click(object sender, EventArgs e)
+       
+        private void SwitchLanguage()
         {
+            this.Text = LanguageManager.Translate("History_record_Title");
+            lab_startTime.Text = LanguageManager.Translate("History_record_lab_startTime");
+            lab_endTime.Text = LanguageManager.Translate("History_record_lab_endTime");
+            lab_historyType.Text = LanguageManager.Translate("History_record_lab_historyType");
+            lab_metricType.Text = LanguageManager.Translate("History_record_lab_metricType");
+            lab_unit.Text = LanguageManager.Translate("History_record_lab_unit");
+            btn_search.Text = LanguageManager.Translate("History_record_btn_search");
+            btn_exportCsv.Text = LanguageManager.Translate("History_record_btn_exportCsv");
 
         }
 
-       
     }
 }
 

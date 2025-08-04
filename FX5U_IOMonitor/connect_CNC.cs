@@ -102,19 +102,19 @@ namespace FX5U_IOMonitor
                         systemType = 9;
                         break;
                     default:
-                        MessageBox.Show("未定義的模式！");
+                        MessageBox.Show(LanguageManager.Translate("connect_CNC_Wrong_Type"));
                         break;
                 }
                 IRet = EZNcCom.Open2(systemType, 1, 10, "EZNC_LOCALHOST");
                 if (IRet != 0)
                 {
-                    MessageBox.Show("❌ CNC 連線失敗，請確認控制器型號");
+                    MessageBox.Show(LanguageManager.Translate("connect_CNC_Wrong_Type"));
                     return;
                 }
                 IRet = EZNcCom.SetHead(1);
                 if (IRet != 0)
                 {
-                    MessageBox.Show("⚠️ 無法設置 Head，請確認 CNC 連線狀態！");
+                    MessageBox.Show(LanguageManager.Translate("connect_CNC_No_SetHead"));
                     return;
                 }
                 _ = StartMonitoringAsync(); // ✅ 啟動背景監控
@@ -123,7 +123,7 @@ namespace FX5U_IOMonitor
             }
             else 
             {
-                MessageBox.Show("連線失敗、請確認IP及Port是否有誤");
+                MessageBox.Show(LanguageManager.Translate("Connect_CNC_Error"));
             }
 
         }
@@ -149,7 +149,7 @@ namespace FX5U_IOMonitor
             IRet = EZNcCom.SetTCPIPProtocol(txb_IP.Text, int.Parse(txb_port.Text)); //三菱模擬器連線
             if (IRet != 0)
             {
-                AbortWithError("❌ TCP/IP 連線設定失敗");
+                AbortWithError(LanguageManager.Translate("Connect_CNC_Error"));
                 return;
             }
             string selected = control_choose.SelectedItem.ToString();
@@ -163,21 +163,21 @@ namespace FX5U_IOMonitor
             };
             if (systemType == -1)
             {
-                AbortWithError("❌ 未定義的控制器型號");
+                AbortWithError(LanguageManager.Translate("connect_CNC_Wrong_Type"));
                 return;
             }
 
             IRet = EZNcCom.Open2(systemType, 1, 10, "EZNC_LOCALHOST");
             if (IRet != 0)
             {
-                AbortWithError("❌ CNC 連線失敗，請確認控制器型號");
+                AbortWithError(LanguageManager.Translate("connect_CNC_Wrong_Type"));
                 return;
             }
 
             IRet = EZNcCom.SetHead(1);
             if (IRet != 0)
             {
-                AbortWithError("⚠️ 無法設置 Head，請確認 CNC 連線狀態！");
+                AbortWithError(LanguageManager.Translate("connect_CNC_No_SetHead"));
                 return;
             }
 
@@ -188,19 +188,19 @@ namespace FX5U_IOMonitor
             IRet = EZNcCom.File_ResetDir();
             if (IRet != 0)
             {
-                AbortWithError("⚠️ 無法重置檔案資料夾");
+                AbortWithError(LanguageManager.Translate("Connect_CNC_File_ResetFail"));
                 return;
             }
 
             IRet = EZNcCom.File_Delete(fullPath);
             if (IRet != 0)
             {
-                AbortWithError("⚠️ 無法刪除檔案，請確認是否有權限或路徑正確");
+                AbortWithError(LanguageManager.Translate("Connect_CNC_File_DeleteError"));
                 return;
             }
 
             EZNcCom.Close();
-            lab_Error.Text = "✅ 檔案已成功刪除";
+            lab_Error.Text = LanguageManager.Translate("Connect_CNC_File_DeleteSuccess");
             lab_Error.ForeColor = Color.Green;
         }
 
@@ -241,7 +241,7 @@ namespace FX5U_IOMonitor
             EZNcCom = new DispEZNcCommunication();
 
             IRet = EZNcCom.SetTCPIPProtocol(txb_IP.Text, int.Parse(txb_port.Text));
-            if (IRet != 0) { AbortWithError("❌ TCP/IP 連線設定失敗"); return; }
+            if (IRet != 0) { AbortWithError(LanguageManager.Translate("Connect_CNC_Error")); return; }
 
             string selected = control_choose.SelectedItem.ToString();
             int systemType = selected switch
@@ -253,27 +253,27 @@ namespace FX5U_IOMonitor
                 _ => -1
             };
 
-            if (systemType == -1) { AbortWithError("❌ 未定義的控制器型號"); return; }
+            if (systemType == -1) { AbortWithError(LanguageManager.Translate("connect_CNC_Wrong_Type")); return; }
 
             IRet = EZNcCom.Open2(systemType, 1, 10, "EZNC_LOCALHOST");
-            if (IRet != 0) { AbortWithError("❌ CNC 連線失敗，請確認控制器型號"); return; }
+            if (IRet != 0) { AbortWithError(LanguageManager.Translate("connect_CNC_Wrong_Type")); return; }
 
             IRet = EZNcCom.SetHead(1);
-            if (IRet != 0) { AbortWithError("⚠️ 無法設置 Head，請確認 CNC 連線狀態！"); return; }
+            if (IRet != 0) { AbortWithError(LanguageManager.Translate("connect_CNC_No_SetHead")); return; }
 
             IRet = EZNcCom.File_OpenNCFile2(txb_file_address.Text + txb_file_name.Text, 3);
-            if (IRet != 0) { AbortWithError("⚠️ 檔案路徑有誤，請確認檔案路徑是否正確！"); return; }
+            if (IRet != 0) { AbortWithError(LanguageManager.Translate("Connect_CNC_Path_Error")); return; }
 
             byte[] ncBytes = File.ReadAllBytes(txb_file_name.Text);
             IRet = EZNcCom.File_WriteNCFile(ncBytes);
-            if (IRet != 0) { AbortWithError("❌ 檔案寫入失敗"); return; }
+            if (IRet != 0) { AbortWithError(LanguageManager.Translate("Connect_CNC_File_writefail")); return; }
 
             IRet = EZNcCom.File_CloseNCFile2();
-            if (IRet != 0) { AbortWithError("⚠️ 檔案未正確關閉"); return; }
+            if (IRet != 0) { AbortWithError(LanguageManager.Translate("Connect_CNC_File_NotClose")); return; }
 
             // 最後再主動關閉連線
             EZNcCom.Close();
-            lab_Error.Text = "✅ 程式已成功傳送至 CNC ";
+            lab_Error.Text = LanguageManager.Translate("Connect_CNC_ProgramFile_success");
             lab_Error.ForeColor=Color.Green;
 
         }
@@ -300,7 +300,7 @@ namespace FX5U_IOMonitor
           
             btn_disconnect_RS485.Text = LanguageManager.Translate("Connect_Filedelete");
             button_FILE.Text = LanguageManager.Translate("Connect_Fileinput");
-
+            btn_mishubishi.Text = LanguageManager.Translate("Connect_CNC_Switch");
         }
         private void combobox_text_center()
         {

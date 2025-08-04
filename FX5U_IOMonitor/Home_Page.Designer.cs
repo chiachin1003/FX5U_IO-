@@ -882,12 +882,12 @@
             btn_toggle.BackColor = SystemColors.ButtonHighlight;
             btn_toggle.FlatAppearance.BorderSize = 0;
             btn_toggle.FlatStyle = FlatStyle.Flat;
-            btn_toggle.Location = new Point(866, 587);
+            btn_toggle.Location = new Point(854, 587);
             btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(78, 31);
+            btn_toggle.Size = new Size(98, 31);
             btn_toggle.TabIndex = 56;
             btn_toggle.UseVisualStyleBackColor = false;
-            btn_toggle.Click += this.btn_toggle_Click;
+            btn_toggle.Click += btn_toggle_Click;
             // 
             // Home_Page
             // 

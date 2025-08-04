@@ -480,7 +480,7 @@ namespace FX5U_IOMonitor
             btn_delete.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btn_delete.Location = new Point(651, 33);
             btn_delete.Name = "btn_delete";
-            btn_delete.Size = new Size(94, 43);
+            btn_delete.Size = new Size(117, 43);
             btn_delete.TabIndex = 27;
             btn_delete.Text = "刪除";
             btn_delete.UseVisualStyleBackColor = false;
@@ -618,7 +618,7 @@ namespace FX5U_IOMonitor
             btn_mishubishi.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btn_mishubishi.Location = new Point(651, 88);
             btn_mishubishi.Name = "btn_mishubishi";
-            btn_mishubishi.Size = new Size(94, 52);
+            btn_mishubishi.Size = new Size(117, 52);
             btn_mishubishi.TabIndex = 30;
             btn_mishubishi.Text = "切換監控\r\n三菱控制器";
             btn_mishubishi.UseVisualStyleBackColor = false;

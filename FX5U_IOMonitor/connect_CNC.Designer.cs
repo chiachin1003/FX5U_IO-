@@ -598,7 +598,7 @@ namespace FX5U_IOMonitor
             btn_mishubishi.Font = new Font("Microsoft JhengHei UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 136);
             btn_mishubishi.Location = new Point(651, 88);
             btn_mishubishi.Name = "btn_mishubishi";
-            btn_mishubishi.Size = new Size(94, 52);
+            btn_mishubishi.Size = new Size(108, 52);
             btn_mishubishi.TabIndex = 30;
             btn_mishubishi.Text = "切換監控\r\n三菱PLC";
             btn_mishubishi.UseVisualStyleBackColor = false;

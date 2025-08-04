@@ -231,7 +231,7 @@ namespace FX5U_IO元件監控
             if (radioButton_alluser.Checked)
             {
                 //using var userService = new UserService<ApplicationDB>();
-                using var userService = LocalDbProvider.GetUserService(); 
+                using var userService = LocalDbProvider.GetUserService();
 
                 var userNameList = userService.GetAllUser();
                 _ = All_NotifyUser(userNameList, datatable);
@@ -351,7 +351,8 @@ namespace FX5U_IO元件監控
                 }
                 await db.SaveChangesAsync();
 
-            };
+            }
+            ;
 
         }
         private static void All_NotifyUser(string[] userNameList, string datatable)
@@ -367,7 +368,8 @@ namespace FX5U_IO元件監控
                     alarm.AlarmNotifyuser = userNames;
                 }
                 db.SaveChanges();
-            };
+            }
+            ;
 
         }
 
@@ -651,7 +653,7 @@ namespace FX5U_IO元件監控
 
                 var alarms = db.alarm.Where(a => a.classTag == classTag)
                                     .ToList();
-         
+
                 // 子節點自動勾選
                 foreach (TreeNode child in classNode.Nodes)
                 {
@@ -689,6 +691,7 @@ namespace FX5U_IO元件監控
         {
 
         }
+
     }
 }
 

@@ -47,6 +47,7 @@ namespace FX5U_IOMonitor
             tableLayoutPanel6.BorderStyle = BorderStyle.FixedSingle;
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
             LanguageManager.LanguageChanged += OnLanguageChanged;
             SwitchLanguage();
             Monitor_alarm();
@@ -276,24 +277,24 @@ namespace FX5U_IOMonitor
 
         private void lab_connect_Click(object sender, EventArgs e)
         {
-            var context = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
+            //var context = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
 
-            if (context != null && context.IsConnected)
-            {
-                if (int.Parse(context.ConnectSummary.read_time) > 70)
-                {
-                    MessageBox.Show("當前監控總數更新時間：70ms");
+            //if (context != null && context.IsConnected)
+            //{
+            //    if (int.Parse(context.ConnectSummary.read_time) > 70)
+            //    {
+            //        MessageBox.Show("當前監控總數更新時間：70ms");
 
-                }
-                else
-                {
-                    MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time + "ms");
-                }
-            }
-            else
-            {
-                MessageBox.Show("當前無資料監控與更新");
-            }
+            //    }
+            //    else
+            //    {
+            //        MessageBox.Show("當前監控總數更新時間：" + context.ConnectSummary.read_time + "ms");
+            //    }
+            //}
+            //else
+            //{
+            //    MessageBox.Show("當前無資料監控與更新");
+            //}
         }
 
         private void Swing_main_VisibleChanged(object sender, EventArgs e)
@@ -326,12 +327,12 @@ namespace FX5U_IOMonitor
                 }
                 else
                 {
-                    MessageBox.Show("目前料件未出現異常");
+                    MessageBox.Show(LanguageManager.Translate("Machine_main_Message_Noabnormalities"));
                 }
             }
             else
             {
-                MessageBox.Show("鑽床機尚未連線，請連線後再確認故障元件");
+                MessageBox.Show(LanguageManager.Translate("Machine_main_Message_Drill_Notconnect"));
             }
 
 
@@ -382,17 +383,21 @@ namespace FX5U_IOMonitor
                     string repair = DBfunction.Get_Repair_steps_ByAddress(e.Address);
 
                     MessageBox.Show(
-                        $"⚠️ 錯誤警告\n來源：{table} | 錯誤信息位址：{e.Address}\n錯誤料件：{Description}\n" +
-                        $"錯誤訊息：{error}\n料件描述：{comment}\n可能原因：{possible}\n" +
-                        $"錯誤排除步驟：\n{repair}",
-                        "偵測警告系統已觸發錯誤",
+                        $"{LanguageManager.Translate("Alarm_Message_Error_Warning")}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Source")}：{table} | {LanguageManager.Translate("Alarm_Message_Error_Address")}：{e.Address}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Error_Item")}：{Description}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Error_Message")}：{error}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Item_Comment")}：{comment}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Possible_Cause")}：{possible}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Repair_Steps")}：\n{repair}",
+                        LanguageManager.Translate("Alarm_Message_Error_Window_Title"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );
                 }
                 else
                 {
-                    MessageBox.Show($"⚠ 找不到對應 Description：{des} 的 Drill 或 Saw 資料。");
+                    MessageBox.Show(LanguageManager.Translate("Machine_main_AlarmMessage_MachineconnectError") + $"{des} ");
                 }
             }
         }
@@ -495,6 +500,7 @@ namespace FX5U_IOMonitor
             label6.Text = LanguageManager.Translate("Mainform_MonitoredItems");
             label_txt.Text = LanguageManager.Translate("Mainform_TextSearch");
             btn_search.Text = LanguageManager.Translate("Mainform_Search");
+            btn_addElement.Text = LanguageManager.Translate("Machine_main_Add_Component");
             for (int i = 0; i < groupList.Count && i < matchedBtnTags.Count; i++)
             {
                 groupList[i].UpdateButtonLabel(LanguageManager.Translate(matchedBtnTags[i]));

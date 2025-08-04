@@ -40,6 +40,7 @@ namespace FX5U_IOMonitor
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
             SwitchLanguage();
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
             LanguageManager.LanguageChanged += OnLanguageChanged;
         }
         private void OnLanguageChanged(string cultureName)
@@ -246,12 +247,12 @@ namespace FX5U_IOMonitor
                 }
                 else
                 {
-                    MessageBox.Show("目前料件未出現異常");
+                    MessageBox.Show(LanguageManager.Translate("Machine_main_Message_Noabnormalities"));
                 }
             }
             else
             {
-                MessageBox.Show("請連線機台");
+                MessageBox.Show(LanguageManager.Translate("Machine_main_Message_Drill_Notconnect"));
             }
         }
 
@@ -271,12 +272,12 @@ namespace FX5U_IOMonitor
                 }
                 else
                 {
-                    MessageBox.Show("目前料件未出現異常");
+                    MessageBox.Show(LanguageManager.Translate("Machine_main_Message_Noabnormalities"));
                 }
             }
             else
             {
-                MessageBox.Show("請連線機台");
+                MessageBox.Show(LanguageManager.Translate("Machine_main_Message_Drill_Notconnect"));
             }
         }
 

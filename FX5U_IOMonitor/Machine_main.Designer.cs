@@ -358,10 +358,10 @@ namespace FX5U_IOMonitor
             // 
             btn_addElement.BackColor = SystemColors.ButtonHighlight;
             btn_addElement.Font = new Font("微軟正黑體", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            btn_addElement.Location = new Point(858, 13);
+            btn_addElement.Location = new Point(779, 11);
             btn_addElement.Margin = new Padding(4);
             btn_addElement.Name = "btn_addElement";
-            btn_addElement.Size = new Size(67, 28);
+            btn_addElement.Size = new Size(143, 30);
             btn_addElement.TabIndex = 37;
             btn_addElement.Text = "新增元件";
             btn_addElement.UseVisualStyleBackColor = false;
