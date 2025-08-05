@@ -59,7 +59,8 @@ namespace FX5U_IOMonitor.Resources
 
                 if (context.Machine_IO.Any(d => d.address == fullAddress && d.Machine_name == this.tableName))
                 {
-                    MessageBox.Show($"⚠️ 地址 '{fullAddress}' 已存在，請重新設定！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"⚠️ 地址 '{fullAddress}' 已存在，請重新設定！", 
+                        LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 var newDrillIO = new MachineIO
@@ -87,13 +88,13 @@ namespace FX5U_IOMonitor.Resources
                 {
                     AddMachineElement(context, comb_machine.Text, newDrillIO, translations);
                     context.SaveChanges();
-                    MessageBox.Show("✅ 新增成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("✅ 新增成功！", LanguageManager.Translate("Message_Success"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     OnDataUpdated?.Invoke();
                     this.Close();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"❌ 新增失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"❌ 新增失敗：{ex.Message}", LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -155,14 +156,14 @@ namespace FX5U_IOMonitor.Resources
                 string.IsNullOrWhiteSpace(txb_description.Text) ||
                 string.IsNullOrWhiteSpace(txb_comment.Text))
             {
-                MessageBox.Show("⚠️ 請確實填寫所有欄位，不能有空白！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("⚠️ 請確實填寫所有欄位，不能有空白！", LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             if (Convert.ToInt32(txb_max_number.Text) <= 0 ||
                 Convert.ToInt32(txb_yellow_light.Text) <= 0 ||
                 Convert.ToInt32(txb_red_light.Text) <= 0)
             {
-                MessageBox.Show("⚠️ 數值設定不能小於或等於0！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("⚠️ 數值設定不能小於或等於0！", LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
             return true;
@@ -263,7 +264,8 @@ namespace FX5U_IOMonitor.Resources
                 }
                 else
                 {
-                    MessageBox.Show("⚠️ 找不到要更新的資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("⚠️ 找不到要更新的資料",
+                        LanguageManager.Translate("Message_Success"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
             };

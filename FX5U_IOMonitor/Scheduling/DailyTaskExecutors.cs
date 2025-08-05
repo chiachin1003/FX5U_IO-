@@ -1,6 +1,7 @@
-﻿using FX5U_IOMonitor.Data;
-using FX5U_IOMonitor.Models;
+﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Message;
+using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static FX5U_IOMonitor.Message.Notify_Message;
 using static FX5U_IOMonitor.Message.Send_mode;
+using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 
 namespace FX5U_IOMonitor.Scheduling
 {
@@ -196,22 +197,23 @@ namespace FX5U_IOMonitor.Scheduling
         public static string BuildDateAlarmBody(List<AlarmHistory> alarms)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("📌 以下為尚未排除的警告摘要：\n");
+            sb.AppendLine(LanguageManager.Translate("Alarm_Message_UnresolvedSummary") +"\n");
 
             foreach (var h in alarms)
             {
-                sb.AppendLine($"故障地址：{h.Alarm.address}");                       // 警告位置
-                sb.AppendLine($"警告描述：{h.Alarm.Description}");                  // 更換料件
-                sb.AppendLine($"錯誤內容：{h.Alarm.Error}");                        // 錯誤內容
-                sb.AppendLine($"錯誤可能原因：{h.Alarm.Possible}");                     // 錯誤內容
-                sb.AppendLine($"錯誤維修方式：{h.Alarm.Repair_steps}");                     // 錯誤內容
-                sb.AppendLine($"發生時間：{h.StartTime:yyyy-MM-dd HH:mm}");   // 發生時間
-                sb.AppendLine($"已發送次數：{h.Records + 1}");                 // 預估下一次寄送是第幾次
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_Error_Address") + $"：{h.Alarm.address}");                       // 警告位置
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_Error_Item")+$"：{h.Alarm.Description}");                  // 更換料件
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_Error_Message")+$"：{h.Alarm.Error}");                        // 錯誤內容
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_Possible_Cause") + $"：{h.Alarm.Possible}");                     // 錯誤內容
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_Repair_Steps") + $"：{h.Alarm.Repair_steps}");                     // 錯誤內容
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_SentTime") + $"：{h.StartTime:yyyy-MM-dd HH:mm}");   // 發生時間
+                sb.AppendLine(LanguageManager.Translate("Alarm_Message_SentCount") + $"：{h.Records + 1}");                 // 預估下一次寄送是第幾次
                 sb.AppendLine("-------------------------------------------");
             }
 
             return sb.ToString();
         }
+        
         /// <summary>
         /// 定時紀錄機台參數
         /// </summary>
@@ -376,7 +378,7 @@ namespace FX5U_IOMonitor.Scheduling
                 }
 
                 await db.SaveChangesAsync();
-                MessageBox.Show("成功");
+                Message_Config.LogMessage($"✅ 成功紀錄 {config} 快照（{roundedStartTime:yyyy-MM-dd HH:mm} ~ {roundedEndTime:HH:mm}）");
 
                 return new TaskResult
                 {
@@ -417,22 +419,22 @@ namespace FX5U_IOMonitor.Scheduling
                 ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
                 : "（尚未提供建議）";
 
-            string body = $@"
-                            📣 發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
-                            設備名稱：{machineName}
-                            更換料號名稱：{partNumber}
-                            元件儲存器位置：{string.Join("、", addressList)}
-                            故障信息為：{faultLocation}
+            string body = $@"{LanguageManager.Translate("Alarm_Message_Error_Warning")}
+                           📣 {LanguageManager.Translate("Alarm_Message_SentTime")}：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
+                            {LanguageManager.Translate("Alarm_Message_Source")}：{machineName}
+                            {LanguageManager.Translate("Alarm_Message_Error_Item")}：{partNumber}
+                            {LanguageManager.Translate("Alarm_Message_Error_Address")}：{string.Join("、", addressList)}
+                            {LanguageManager.Translate("Alarm_Message_Error_Message")}：{faultLocation}
 
-                            系統判定此元件處於「故障狀態」。
+                            {LanguageManager.Translate("Alarm_Message_FaultState")}
 
-                            可能故障原因：
+                            {LanguageManager.Translate("Alarm_Message_Possible_Cause")}：
                             {reasonText}
 
-                            建議處理方式：
+                            {LanguageManager.Translate("Alarm_Message_Repair_Steps")}：
                             {suggestionText}
 
-                            （自動通報信息）
+                            {LanguageManager.Translate("Alarm_Message_AutoNotification")}
                             ";
 
             return (subject, body);

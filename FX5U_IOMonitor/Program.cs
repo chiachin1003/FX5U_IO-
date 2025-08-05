@@ -37,7 +37,8 @@ namespace FX5U_IOMonitor
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"InitMachineInfoDatabase 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LanguageManager.Translate("Message_InitalError") + $"InitMachineInfoDatabase ：{ex.Message}", 
+                    LanguageManager.Translate("Message_InitalError"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -53,7 +54,8 @@ namespace FX5U_IOMonitor
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"語言檔匯入失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LanguageManager.Translate("File_Settings_InputFailed") +$"Language：{ex.Message}",
+                    LanguageManager.Translate("Message_InitalError"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
 
             }

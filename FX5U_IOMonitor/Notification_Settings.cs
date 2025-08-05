@@ -47,7 +47,8 @@ namespace FX5U_IOMonitor.Resources
             Properties.Settings.Default.Gmail_SMTP_server = "smtp.gmail.com";
             Properties.Settings.Default.TLS_port = Convert.ToInt32(comb_port.Text); // 建議使用應用程式專用密碼
             Properties.Settings.Default.Save(); // ✅ 寫入設定檔
-            MessageBox.Show("Gmail 設定已儲存！", "設定成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(LanguageManager.Translate("Notification_Settings_Gmail"),
+                LanguageManager.Translate("Message_Success"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
         }
         private void SwitchLanguage()

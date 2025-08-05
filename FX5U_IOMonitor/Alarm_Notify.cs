@@ -235,7 +235,7 @@ namespace FX5U_IO元件監控
 
                 var userNameList = userService.GetAllUser();
                 _ = All_NotifyUser(userNameList, datatable);
-                MessageBox.Show("更新成功！");
+                MessageBox.Show(LanguageManager.Translate("Alarm_Notify_UpdateSuccess"));
 
             }
             else if (radioButton_special.Checked)
@@ -247,20 +247,21 @@ namespace FX5U_IO元件監控
 
                 if (selectedUsers == null || selectedUsers.Length == 0)
                 {
-                    MessageBox.Show("⚠️ 請至少選擇一位接收通知的使用者！", "未選擇使用者", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(LanguageManager.Translate("Alarm_Notify_errormessage_selectUser"),
+                        LanguageManager.Translate("Alarm_Notify_errormessage_NoUser"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 All_NotifyUser(selectedUsers, datatable);
 
                 treeView1.CheckBoxes = false;
-                MessageBox.Show("✅ 更新成功！");
+                MessageBox.Show(LanguageManager.Translate("Alarm_Notify_UpdateSuccess"));
 
 
             }
             else if (radioButton_DesignatedUser.Checked)
             {
                 checkcombobox_special.Visible = false;
-                MessageBox.Show("更新成功！");
+                MessageBox.Show(LanguageManager.Translate("Alarm_Notify_UpdateSuccess"));
                 treeView1.CheckBoxes = true;
 
                 // ✅ 根據資料庫自動打勾「已設定的分類」
@@ -476,7 +477,7 @@ namespace FX5U_IO元件監控
             {
                 if (radioButton_alluser == null || radioButton_special == null || radioButton_DesignatedUser == null)
                 {
-                    MessageBox.Show("RadioButton 尚未初始化！");
+                    MessageBox.Show("RadioButton"+ LanguageManager.Translate("Alarm_Notify_errormessage_NoInitial"));
                     return;
                 }
 
@@ -486,7 +487,7 @@ namespace FX5U_IO元件監控
 
                 if (notifyClass == 0)
                 {
-                    MessageBox.Show("請選擇一個通知方式！");
+                    MessageBox.Show(LanguageManager.Translate("Alarm_Notify_notification_method"));
                     return;
                 }
 
@@ -496,7 +497,7 @@ namespace FX5U_IO元件監控
 
                     if (alarm == null)
                     {
-                        MessageBox.Show($"找不到  Alarm Class資料。");
+                        MessageBox.Show(LanguageManager.Translate("Alarm_Notify_errormessage_NoGroup"));
                         return;
                     }
 
@@ -511,7 +512,7 @@ namespace FX5U_IO元件監控
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"錯誤：{ex.Message}");
+                MessageBox.Show(LanguageManager.Translate("Message_Error") + $"：{ex.Message}");
             }
 
 
@@ -545,7 +546,7 @@ namespace FX5U_IO元件監控
 
             if (mode != 3)
             {
-                MessageBox.Show("跳出");
+                MessageBox.Show(LanguageManager.Translate("Message_Error"));
                 return;
             }
 
@@ -569,7 +570,7 @@ namespace FX5U_IO元件監控
                 var allMatching = db.alarm.ToList(); // ➤ 強制先取回所有 alarm
                 targetAlarms = allMatching.Where(a => a.classTag == category).ToList();
 
-                formTitle = $"設定分類：{category}";
+                formTitle = LanguageManager.Translate("Alarm_Notify_Setting_group") + $"：{category}";
             }
             else
             {
@@ -580,7 +581,7 @@ namespace FX5U_IO元件監控
 
                 alarmKey = alarm.Error;
                 targetAlarms = new List<Alarm> { alarm };
-                formTitle = $"設定異常：{alarmKey}";
+                formTitle = LanguageManager.Translate("Alarm_Notify_Setting_error") + $"：{alarmKey}";
             }
 
             var currentUsersRaw = targetAlarms.FirstOrDefault()?.AlarmNotifyuser;

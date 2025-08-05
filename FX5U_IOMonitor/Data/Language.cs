@@ -122,7 +122,8 @@ public class LanguageImportService
             var csvData = ReadCsvWithDynamicColumns(filepath);
             if (!csvData.Any())
             {
-                MessageBox.Show("❌ CSV 檔案沒有資料", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(LanguageManager.Translate("Message_Error_File_null")
+                    , LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return null;
             }
 
@@ -142,7 +143,8 @@ public class LanguageImportService
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"❌ 語系資料匯入失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(LanguageManager.Translate("File_Settings_InputFailed") + $"{ex.Message}",
+                LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             return null;
         }
     }
@@ -320,7 +322,8 @@ public class LanguageImportService
 
             if (!idSet.Add(record.Id))
             {
-                MessageBox.Show($"❌ 匯入失敗：CSV 中出現重複的 Id: {record.Id}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LanguageManager.Translate("File_Settings_InputFailed") + LanguageManager.Translate("Message_Error_Duplicate_data") + $"Key: {record.Key}", 
+                    LanguageManager.Translate("Message_Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -375,7 +378,7 @@ public class LanguageImportService
         catch (DbUpdateException ex)
         {
             var inner = ex.InnerException?.Message ?? ex.Message;
-            MessageBox.Show($"❌ 匯入失敗：{inner}");
+            MessageBox.Show(LanguageManager.Translate("File_Settings_OutputFailed")+$"{inner}");
             throw;
         }
         return result;
@@ -514,7 +517,7 @@ public static class LanguageImportHelper
             var languages = context.Language.ToList();
             foreach (var lang in languages)
             {
-                var values = new List<string> { lang.Id.ToString(), lang.Key };
+                var values = new List<string> { "", lang.Key };
 
                 foreach (var column in languageColumns)
                 {
@@ -527,11 +530,13 @@ public static class LanguageImportHelper
             }
             
 
-            MessageBox.Show($"✅ 語系範本匯出完成：\n📄 {filePath}", "匯出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(LanguageManager.Translate("File_Settings_OutputSuccess") + $"\n📄 {filePath}",
+                LanguageManager.Translate("File_Settings_OutputSuccess") , MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"❌ 匯出失敗：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(LanguageManager.Translate("File_Settings_OutputFailed") + $"{ex.Message}",
+                LanguageManager.Translate("File_Settings_OutputFailed") , MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
