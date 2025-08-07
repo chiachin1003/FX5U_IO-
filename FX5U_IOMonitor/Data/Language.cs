@@ -133,8 +133,25 @@ public class LanguageImportService
 
             // 3. 處理 ID 驗證
             var processedData = ProcessLanguageIds(csvData);
-            if (processedData == null) return null;
 
+            // 3.5 匯入前檢查是否有重複 Key
+            var duplicateKeys = processedData
+                .GroupBy(d => d.Key)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateKeys.Any())
+            {
+                MessageBox.Show(
+                    $"匯入失敗：發現重複的 Key 值：\n{string.Join("\n", duplicateKeys)}",
+                    LanguageManager.Translate("Message_Error"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return null;
+            }
+
+            if (processedData == null) return null;
             // 4. 執行匯入
             var result = ExecuteLanguageImport(processedData, languageColumns);
 
@@ -160,7 +177,10 @@ public class LanguageImportService
             Encoding = System.Text.Encoding.UTF8,
             PrepareHeaderForMatch = args => args.Header.Trim(),
             MissingFieldFound = null,
-            HeaderValidated = null
+            HeaderValidated = null,
+            BadDataFound = null,
+            Mode = CsvMode.RFC4180  // << 這個就是讓引號內可以有換行！
+
         };
 
         using var reader = new StreamReader(filePath);
