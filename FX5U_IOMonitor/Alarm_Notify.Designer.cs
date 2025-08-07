@@ -146,6 +146,7 @@ namespace FX5U_IO元件監控
             radioButton_special.TabStop = true;
             radioButton_special.Text = "特定使用者接受訊息";
             radioButton_special.UseVisualStyleBackColor = false;
+            radioButton_special.CheckedChanged += radioButton_special_CheckedChanged;
             // 
             // panel2
             // 
