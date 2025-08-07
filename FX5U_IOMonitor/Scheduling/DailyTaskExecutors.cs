@@ -390,6 +390,7 @@ namespace FX5U_IOMonitor.Scheduling
             catch (Exception ex)
             {
                 //MessageBox.Show("失敗");
+                Message_Config.LogMessage($"紀錄失敗{ex.Message}");
 
                 return new TaskResult
                 {
@@ -397,6 +398,7 @@ namespace FX5U_IOMonitor.Scheduling
                     Message = $"記錄參數快照失敗：{ex.Message}",
                     ExecutionTime = DateTime.UtcNow
                 };
+
             }
         }
 
