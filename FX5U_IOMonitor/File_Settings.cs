@@ -183,16 +183,36 @@ namespace FX5U_IOMonitor.Resources
                     lab_cloudstatus.ForeColor = Color.Gray;
                     if (Cloud_context == null)
                     {
-                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
-                        lab_cloudstatus.ForeColor = Color.Red;
+                        throw new Exception("Cloud context 為 null");
                     }
-                    else
+                    switch (tableName)
                     {
-                        var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, tableName);
-                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
-                        lab_cloudstatus.ForeColor = Color.Green;
+                        case "Blade_brand_TPI":
+                            var Blade_brand_TPI = await TableSync.SyncFromLocalToCloud<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
+                            TableSync.LogSyncResult(Blade_brand_TPI);
 
+                            break;
+                        case "Blade_brand":
+                            var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
+                            TableSync.LogSyncResult(Blade_brand);
+
+                            break;
+
+
+                        case "alarm":
+                            var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(Local_context, Cloud_context, "alarm", "IPC_table");
+                            var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(Local_context, Cloud_context, "AlarmTranslation", "AlarmId", "Id");
+                            TableSync.LogSyncResult(alarm);
+                            TableSync.LogSyncResult(AlarmTranslation);
+                            break;
+
+                        default:
+                            throw new NotSupportedException($"未支援的 tableName: {tableName}");
+                            
                     }
+
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
+                    lab_cloudstatus.ForeColor = Color.Green;
 
                 }
                 catch (Exception ex)
@@ -201,7 +221,6 @@ namespace FX5U_IOMonitor.Resources
                     lab_cloudstatus.ForeColor = Color.Red;
                 }
             }
-
 
         }
 
