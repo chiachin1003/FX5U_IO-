@@ -305,7 +305,7 @@
             // 
             btn_Saw.BackColor = SystemColors.ButtonHighlight;
             btn_Saw.FlatStyle = FlatStyle.Flat;
-            btn_Saw.Location = new Point(53, 4);
+            btn_Saw.Location = new Point(54, 3);
             btn_Saw.Margin = new Padding(4);
             btn_Saw.Name = "btn_Saw";
             btn_Saw.Size = new Size(45, 59);
@@ -318,10 +318,10 @@
             // 
             btn_Sawband.BackColor = SystemColors.ButtonHighlight;
             btn_Sawband.FlatStyle = FlatStyle.Flat;
-            btn_Sawband.Location = new Point(4, 4);
+            btn_Sawband.Location = new Point(2, 3);
             btn_Sawband.Margin = new Padding(4);
             btn_Sawband.Name = "btn_Sawband";
-            btn_Sawband.Size = new Size(45, 59);
+            btn_Sawband.Size = new Size(53, 59);
             btn_Sawband.TabIndex = 54;
             btn_Sawband.Text = "鋸帶";
             btn_Sawband.UseVisualStyleBackColor = false;

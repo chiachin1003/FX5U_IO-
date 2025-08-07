@@ -42,9 +42,6 @@ namespace FX5U_IOMonitor
                 return;
             }
 
-            // 啟動每日各項排程
-            Scheduling.DailyTask.StartAllSchedulers();
-           
             try
             {
              
@@ -59,7 +56,8 @@ namespace FX5U_IOMonitor
                 return;
 
             }
-
+            // 啟動每日各項排程
+            Scheduling.DailyTask.StartAllSchedulers();
             bool loginSucceeded = false;
             // 登入
             while (!loginSucceeded)

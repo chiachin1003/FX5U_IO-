@@ -5,6 +5,7 @@ using MailKit.Security;
 using MimeKit;
 using LineNotification.NotificationManagerModule;
 using LineNotificationModule;
+using FX5U_IOMonitor.Config;
 
 
 namespace FX5U_IOMonitor.Message
@@ -73,18 +74,20 @@ namespace FX5U_IOMonitor.Message
             }
             catch (SslHandshakeException sslEx)
             {
-                // 可改為寫入 log 或顯示給使用者
-                MessageBox.Show("SSL 錯誤：無法建立安全連線，請確認伺服器憑證是否有效，或考慮改用 Port 587。", "連線錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Console.WriteLine(sslEx); // 可改為 log
+                string resultMessage = "SSL 錯誤：無法建立安全連線，請確認伺服器憑證是否有效，或考慮改用 Port 587。";
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] {resultMessage}");
+                Console.WriteLine(sslEx); 
             }
             catch (AuthenticationException authEx)
             {
-                MessageBox.Show("驗證失敗：請確認帳號密碼是否正確。", "帳號錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string resultMessage = "驗證失敗：請確認帳號密碼是否正確。";
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] {resultMessage}");
                 Console.WriteLine(authEx);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("發送失敗：" + ex.Message, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string resultMessage = $"郵件發送訊息的過程出錯：{ex.Message}";
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] {resultMessage}");
                 Console.WriteLine(ex);
             }
             finally
@@ -113,13 +116,13 @@ namespace FX5U_IOMonitor.Message
 
             if (messageInfo == null || !messageInfo.Receivers.Any())
             {
-                MessageBox.Show("沒有接收到使用者！");
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] 目前沒有任何使用者的Line被勾選需要被通知信息！");
                 return false;
             }
 
             if (messageInfo == null || string.IsNullOrWhiteSpace(messageInfo.Body))
             {
-                MessageBox.Show("推播內容不可為空！");
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] 訊息發送的資料為空");
                 return false;
             }
 
@@ -135,13 +138,16 @@ namespace FX5U_IOMonitor.Message
                     bool success = await notificationManager.SendToSingleUserAsync(userId, message);
                     allSuccess &= success; // 只要有一個失敗就為 false
                 }
+                string resultMessage = allSuccess ? "Line 通知全部發送成功！" : "部分 Line 通知發送失敗！";
 
-                MessageBox.Show(allSuccess ? "Line 通知全部發送成功！" : "部分 Line 通知發送失敗！");
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] {resultMessage}");
                 return allSuccess;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"推播過程出錯：{ex.Message}", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string resultMessage = $"Line發送訊息的過程出錯：{ex.Message}";
+                Message_Config.LogMessage($"[{DateTime.Now:yyyy/MM/dd HH:mm:ss}] {resultMessage}");
+
                 return false;
             }
         }

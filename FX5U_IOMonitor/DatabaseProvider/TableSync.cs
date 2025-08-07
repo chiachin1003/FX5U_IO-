@@ -56,19 +56,35 @@ namespace FX5U_IOMonitor.DatabaseProvider
                     // 判斷是否真的有差異（可自訂比對邏輯）
                     if (!AreEntitiesEqual(localValue, cloudValue, ignoreProperties))
                     {
-                        var prop = localValue.GetType().GetProperty("IsSynced");
+                        var cloudEntity = CloneEntity(localValue);
+
+                        var prop = cloudEntity.GetType().GetProperty("IsSynced");
                         if (prop != null)
-                            prop.SetValue(localValue, true);
-                        toUpdate.Add(localValue);
+                            prop.SetValue(cloudEntity, true);
+
+                        var updatedAtProp = cloudEntity.GetType().GetProperty("UpdatedAt");
+                        if (updatedAtProp != null &&
+                            (updatedAtProp.PropertyType == typeof(DateTime) || updatedAtProp.PropertyType == typeof(DateTime?)))
+                            updatedAtProp.SetValue(cloudEntity, DateTime.UtcNow);
+
+                        toUpdate.Add(cloudEntity);
                         result.Updated++;
                     }
                 }
                 else
                 {
-                    var prop = localValue.GetType().GetProperty("IsSynced");
+                    var newEntity = CloneEntity(localValue);
+
+                    var prop = newEntity.GetType().GetProperty("IsSynced");
                     if (prop != null)
-                        prop.SetValue(localValue, true);
-                    toAdd.Add(localValue);
+                        prop.SetValue(newEntity, true);
+
+                    var updatedAtProp = newEntity.GetType().GetProperty("UpdatedAt");
+                    if (updatedAtProp != null &&
+                        (updatedAtProp.PropertyType == typeof(DateTime) || updatedAtProp.PropertyType == typeof(DateTime?)))
+                        updatedAtProp.SetValue(newEntity, DateTime.UtcNow);
+
+                    toAdd.Add(newEntity);
                     result.Added++;
                 }
             }
@@ -101,7 +117,19 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
         }
 
+        private static T CloneEntity<T>(T source) where T : class
+        {
+            var target = Activator.CreateInstance<T>(); // 不需 new()
+            var props = typeof(T).GetProperties().Where(p => p.CanRead && p.CanWrite);
 
+            foreach (var prop in props)
+            {
+                var value = prop.GetValue(source);
+                prop.SetValue(target, value);
+            }
+
+            return target;
+        }
         /// <summary>
         /// 只新增不更新
         /// </summary>
@@ -466,11 +494,11 @@ namespace FX5U_IOMonitor.DatabaseProvider
             }
             else if (direction == 2)
             {
-                message = $"地端資料表上傳雲端失敗請檢查原因";
+                message = $"[{result.TableName}]的地端資料表上傳雲端失敗";
             }
             else
             {
-                message = $"雲端資料表同步地端失敗請檢查原因";
+                message = $"[{result.TableName}]的雲端資料表同步地端失敗";
             }
             OnLogMessage(message);
         }

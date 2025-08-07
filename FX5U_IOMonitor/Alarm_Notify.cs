@@ -234,7 +234,7 @@ namespace FX5U_IO元件監控
                 using var userService = LocalDbProvider.GetUserService();
 
                 var userNameList = userService.GetAllUser();
-                _ = All_NotifyUser(userNameList, datatable);
+                _ = All_NotifyUser(userNameList);
                 MessageBox.Show(LanguageManager.Translate("Alarm_Notify_UpdateSuccess"));
 
             }
@@ -335,7 +335,7 @@ namespace FX5U_IO元件監控
         /// 取得所有使用者
         /// </summary>
         /// <returns></returns>
-        private async Task All_NotifyUser(List<ApplicationUser> userNameList, string datatable)
+        private async Task All_NotifyUser(List<ApplicationUser> userNameList)
         {
             //using var userService = new UserService<ApplicationDB>();
             //var userNameList = await userService.GetAllUser();
@@ -345,7 +345,7 @@ namespace FX5U_IO元件監控
 
             using (var db = new ApplicationDB())
             {
-                var allAlarms = db.alarm.Where(a => a.SourceMachine == datatable).ToList();
+                var allAlarms = db.alarm.ToList();
                 foreach (var alarm in allAlarms)
                 {
                     alarm.AlarmNotifyuser = userNames;
@@ -363,7 +363,7 @@ namespace FX5U_IO元件監控
 
             using (var db = new ApplicationDB())
             {
-                var allAlarms = db.alarm.Where(a => a.SourceMachine == datatable).ToList();
+                var allAlarms = db.alarm.ToList();
                 foreach (var alarm in allAlarms)
                 {
                     alarm.AlarmNotifyuser = userNames;
@@ -477,7 +477,7 @@ namespace FX5U_IO元件監控
             {
                 if (radioButton_alluser == null || radioButton_special == null || radioButton_DesignatedUser == null)
                 {
-                    MessageBox.Show("RadioButton"+ LanguageManager.Translate("Alarm_Notify_errormessage_NoInitial"));
+                    MessageBox.Show("RadioButton" + LanguageManager.Translate("Alarm_Notify_errormessage_NoInitial"));
                     return;
                 }
 
@@ -693,6 +693,10 @@ namespace FX5U_IO元件監控
 
         }
 
+        private void radioButton_special_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

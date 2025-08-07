@@ -419,23 +419,25 @@ namespace FX5U_IOMonitor.Scheduling
                 ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
                 : "（尚未提供建議）";
 
-            string body = $@"{LanguageManager.Translate("Alarm_Message_Error_Warning")}
-                           📣 {LanguageManager.Translate("Alarm_Message_SentTime")}：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
-                            {LanguageManager.Translate("Alarm_Message_Source")}：{machineName}
-                            {LanguageManager.Translate("Alarm_Message_Error_Item")}：{partNumber}
-                            {LanguageManager.Translate("Alarm_Message_Error_Address")}：{string.Join("、", addressList)}
-                            {LanguageManager.Translate("Alarm_Message_Error_Message")}：{faultLocation}
+            string body = $@"
+            {LanguageManager.Translate("Alarm_Message_Error_Warning")}
 
-                            {LanguageManager.Translate("Alarm_Message_FaultState")}
+            📣 {LanguageManager.Translate("Alarm_Message_SentTime")}：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
+            {LanguageManager.Translate("Alarm_Message_Source")}：{machineName}
+            {LanguageManager.Translate("Alarm_Message_Error_Item")}：{partNumber}
+            {LanguageManager.Translate("Alarm_Message_Error_Address")}：{string.Join("、", addressList)}
+            {LanguageManager.Translate("Alarm_Message_Error_Message")}：{faultLocation}
 
-                            {LanguageManager.Translate("Alarm_Message_Possible_Cause")}：
-                            {reasonText}
+            {LanguageManager.Translate("Alarm_Message_FaultState")}
 
-                            {LanguageManager.Translate("Alarm_Message_Repair_Steps")}：
-                            {suggestionText}
+            {LanguageManager.Translate("Alarm_Message_Possible_Cause")}：
+            - {reasonText.Replace("\n", "\n- ")}
 
-                            {LanguageManager.Translate("Alarm_Message_AutoNotification")}
-                            ";
+            {LanguageManager.Translate("Alarm_Message_Repair_Steps")}：
+            1. {suggestionText.Replace("\n", "\n2. ")}
+
+            {LanguageManager.Translate("Alarm_Message_AutoNotification")}
+            ";
 
             return (subject, body);
         }

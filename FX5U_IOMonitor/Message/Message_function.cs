@@ -63,7 +63,7 @@ namespace FX5U_IOMonitor.Message
         {
             using var context = new ApplicationDB();
             var lines = context.Users
-                .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.LineNotifyToken) && u.NotifyByEmail == true)
+                .Where(u => usernames.Contains(u.UserName) && !string.IsNullOrWhiteSpace(u.LineNotifyToken) && u.NotifyByLine == true)
                 .Select(u => u.LineNotifyToken!)
                 .Distinct() 
                 .ToList();
