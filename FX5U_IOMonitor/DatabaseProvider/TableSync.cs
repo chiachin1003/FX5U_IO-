@@ -518,11 +518,11 @@ namespace FX5U_IOMonitor.DatabaseProvider
             }
             else if (direction == 2)
             {
-                message = $"[{result.TableName}]的地端資料表上傳雲端失敗";
+                message = $"地端資料表上傳雲端失敗";
             }
             else
             {
-                message = $"[{result.TableName}]的雲端資料表同步地端失敗";
+                message = $"雲端資料表同步地端失敗";
             }
             OnLogMessage(message);
         }

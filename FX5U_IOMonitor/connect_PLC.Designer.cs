@@ -71,6 +71,8 @@ namespace FX5U_IOMonitor
             txb_machine = new TextBox();
             lab_Add_Machine = new Label();
             btn_mishubishi = new Button();
+            lab_MC_Type = new Label();
+            comb_MC_Type = new ComboBox();
             panel_Ethernet.SuspendLayout();
             panel_RS485.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -82,6 +84,8 @@ namespace FX5U_IOMonitor
             // panel_Ethernet
             // 
             panel_Ethernet.BackColor = SystemColors.ButtonHighlight;
+            panel_Ethernet.Controls.Add(comb_MC_Type);
+            panel_Ethernet.Controls.Add(lab_MC_Type);
             panel_Ethernet.Controls.Add(btn_disconnect_ethernet);
             panel_Ethernet.Controls.Add(btn_connect_ethernet);
             panel_Ethernet.Controls.Add(txb_port);
@@ -99,7 +103,7 @@ namespace FX5U_IOMonitor
             btn_disconnect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_disconnect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_disconnect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_disconnect_ethernet.Location = new Point(418, 289);
+            btn_disconnect_ethernet.Location = new Point(418, 280);
             btn_disconnect_ethernet.Name = "btn_disconnect_ethernet";
             btn_disconnect_ethernet.Size = new Size(110, 43);
             btn_disconnect_ethernet.TabIndex = 6;
@@ -112,7 +116,7 @@ namespace FX5U_IOMonitor
             btn_connect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_connect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_connect_ethernet.Location = new Point(299, 289);
+            btn_connect_ethernet.Location = new Point(301, 280);
             btn_connect_ethernet.Name = "btn_connect_ethernet";
             btn_connect_ethernet.Size = new Size(94, 43);
             btn_connect_ethernet.TabIndex = 5;
@@ -124,7 +128,7 @@ namespace FX5U_IOMonitor
             // 
             txb_port.BackColor = SystemColors.ButtonHighlight;
             txb_port.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            txb_port.Location = new Point(24, 201);
+            txb_port.Location = new Point(24, 182);
             txb_port.Name = "txb_port";
             txb_port.Size = new Size(504, 34);
             txb_port.TabIndex = 4;
@@ -135,7 +139,7 @@ namespace FX5U_IOMonitor
             // 
             txb_IP.BackColor = SystemColors.ButtonHighlight;
             txb_IP.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            txb_IP.Location = new Point(24, 80);
+            txb_IP.Location = new Point(24, 62);
             txb_IP.Name = "txb_IP";
             txb_IP.Size = new Size(504, 34);
             txb_IP.TabIndex = 3;
@@ -147,7 +151,7 @@ namespace FX5U_IOMonitor
             lab_Enthernetport.AutoSize = true;
             lab_Enthernetport.BackColor = SystemColors.ButtonHighlight;
             lab_Enthernetport.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            lab_Enthernetport.Location = new Point(24, 151);
+            lab_Enthernetport.Location = new Point(24, 132);
             lab_Enthernetport.Name = "lab_Enthernetport";
             lab_Enthernetport.Size = new Size(117, 26);
             lab_Enthernetport.TabIndex = 2;
@@ -624,6 +628,30 @@ namespace FX5U_IOMonitor
             btn_mishubishi.UseVisualStyleBackColor = false;
             btn_mishubishi.Click += btn_mishubishi_Click;
             // 
+            // lab_MC_Type
+            // 
+            lab_MC_Type.AutoSize = true;
+            lab_MC_Type.BackColor = SystemColors.ButtonHighlight;
+            lab_MC_Type.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_MC_Type.Location = new Point(24, 249);
+            lab_MC_Type.Name = "lab_MC_Type";
+            lab_MC_Type.Size = new Size(117, 26);
+            lab_MC_Type.TabIndex = 7;
+            lab_MC_Type.Text = "連接模式：";
+            // 
+            // comb_MC_Type
+            // 
+            comb_MC_Type.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_MC_Type.BackColor = SystemColors.ButtonHighlight;
+            comb_MC_Type.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_MC_Type.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            comb_MC_Type.FormattingEnabled = true;
+            comb_MC_Type.Items.AddRange(new object[] { "MC1E", "MC3E" });
+            comb_MC_Type.Location = new Point(24, 289);
+            comb_MC_Type.Name = "comb_MC_Type";
+            comb_MC_Type.Size = new Size(239, 34);
+            comb_MC_Type.TabIndex = 17;
+            // 
             // Connect_PLC
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -699,5 +727,7 @@ namespace FX5U_IOMonitor
         private TextBox txb_machine;
         private Label lab_Add_Machine;
         private Button btn_mishubishi;
+        private Label lab_MC_Type;
+        private ComboBox comb_MC_Type;
     }
 }

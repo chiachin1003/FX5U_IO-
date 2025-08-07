@@ -3,21 +3,16 @@ using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Message;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
-using FX5U_IOMonitor.Resources;
 using FX5U_IOMonitor.Scheduling;
 using Modbus.Device; // 來自 NModbus4
-using Modbus.Device; // 來自 NModbus4
-using SLMP;
 using SLMP;
 using System.Diagnostics;
 using System.IO.Ports;
-using System.IO.Ports;
-using System.Windows.Forms;
 using static FX5U_IOMonitor.Message.Send_mode;
-using static FX5U_IOMonitor.Models.ModbusMonitorService;
-using static FX5U_IOMonitor.Models.ModbusMonitorService;
 using static FX5U_IOMonitor.Models.MonitoringService;
-using static FX5U_IOMonitor.Models.MonitoringService;
+using MCProtocol;
+
+
 
 
 
@@ -185,8 +180,10 @@ namespace FX5U_IOMonitor
             }
 
         }
+
         private static SlmpClient? SLMP_connect(string IP, int port)
         {
+
             SlmpConfig cfg = new(IP, port);
             cfg.ConnTimeout = 3000;
             SlmpClient _plc = new(cfg);

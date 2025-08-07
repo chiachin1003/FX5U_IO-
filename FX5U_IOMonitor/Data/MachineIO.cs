@@ -105,6 +105,15 @@ namespace FX5U_IOMonitor.Data
         public string? IP_address { get; set; }
 
         public int Port { get; set; }
+
+        public string MC_Type { get; set; }
+
+        [NotMapped] 
+        public McFrame mcFrame
+        {
+            get => Enum.TryParse<McFrame>(MC_Type, out var val) ? val : McFrame.MC1E;
+            set => MC_Type = value.ToString();
+        }
     }
 
     public enum RelayType
@@ -112,5 +121,9 @@ namespace FX5U_IOMonitor.Data
         Electronic = 0,  // False
         Machanical = 1  // True
     }
-  
+    public enum McFrame
+    {
+        MC1E,
+        MC3E,
+    }
 }
