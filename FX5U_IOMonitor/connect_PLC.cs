@@ -1,4 +1,6 @@
 ﻿
+using CommunicationDriver.Include.Driver;
+using CommunicationDriver.Include.Tools;
 using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Message;
 using FX5U_IOMonitor.Models;
@@ -10,7 +12,6 @@ using System.Diagnostics;
 using System.IO.Ports;
 using static FX5U_IOMonitor.Message.Send_mode;
 using static FX5U_IOMonitor.Models.MonitoringService;
-using MCProtocol;
 
 
 
@@ -20,7 +21,6 @@ namespace FX5U_IOMonitor
 {
     public partial class Connect_PLC : Form
     {
-
 
         Main main_control;
 
@@ -61,87 +61,7 @@ namespace FX5U_IOMonitor
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
 
         }
-        /// <summary>
-        /// 自動連線當前機台
-        /// </summary>
-        public static void AutoConnectAllMachines(Connect_PLC plcForm)
-        {
-         
-            using var context = new ApplicationDB();
-            var machineList = context.Machine.ToList();
-            var failedMachines = new List<string>();
-            var ipPortSet = new HashSet<string>();
 
-            foreach (var machine in machineList)
-            {
-                if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
-                    continue;
-
-                string ipPortKey = $"{machine.IP_address}:{machine.Port}";
-                if (ipPortSet.Contains(ipPortKey))
-                {
-                    Debug.WriteLine($"⚠ IP/Port 重複：{ipPortKey}");
-                    continue;
-                }
-                ipPortSet.Add(ipPortKey);
-
-                var existing = MachineHub.Get(machine.Name);
-                if (existing != null && existing.IsConnected)
-                    continue;
-
-                var plc = SLMP_connect(machine.IP_address, machine.Port);
-                if (plc == null)
-                {
-                    Debug.WriteLine($"❌ {machine.Name} 無法連線");
-                    failedMachines.Add(machine.Name);
-                    continue;
-                }
-
-                MachineHub.RegisterMachine(machine.Name, plc);
-                var contextItem = MachineHub.Get(machine.Name);
-                if (contextItem == null || !contextItem.IsConnected)
-                {
-                    Debug.WriteLine($"❌ {machine.Name} 註冊失敗");
-                    failedMachines.Add(machine.Name);
-                    continue;
-                }
-
-                contextItem.Monitor.SetExternalLock(contextItem.LockObject);
-                _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
-                var notifier = new RULNotifier();
-                contextItem.Monitor.RULThresholdCrossed += (s, e) =>
-                {
-                    notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
-                };
-                if (contextItem.IsMaster)
-                {
-                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
-                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
-                    contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
-                }
-
-                int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
-                int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
-
-                _ = Task.Run(() => contextItem.Monitor.Read_Bit_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
-                _ = Task.Run(() => contextItem.Monitor.Read_Word_Monitor_AllModesAsync(contextItem.MachineName, read_modes, contextItem.TokenSource.Token));
-                _ = Task.Run(() => contextItem.Monitor.Read_None_Monitor_AllModesAsync(contextItem.MachineName, contextItem.TokenSource.Token));
-                _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
-
-                contextItem.Monitor.IOUpdated += DB_update_change;
-
-                Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
-            }
-            string summary = $"失敗機台數：{failedMachines.Count}";
-
-            if (failedMachines.Count > 0)
-            {
-                summary += "\n失敗機台如下：\n" + string.Join("\n", failedMachines);
-                MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-
-
-        }
         private void connect_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
 
@@ -204,10 +124,41 @@ namespace FX5U_IOMonitor
             {
                 return null;
             }
+            
+        }
+        private static IMitsubishiPlc? connectPLC(string IP, int port,string type)
+        {
+            IMitsubishiPlc _plc = type switch
+            {
+                "MC1E" => new CMITSUBISHIPLC1E(),
+                "MC3E" => new CMITSUBISHIPLC(),
+                _ => throw new NotSupportedException("Unsupported frame type.")
+            };
+            var linkMode = CSOCKETNET.LINKMODE.TCP;
+            int recvTimeout = 1000;
+            int sendTimeout = 1000;
+            int retry = 3;
 
+            _plc.CreatePLC(linkMode, IP, port, recvTimeout, sendTimeout, retry);
+            try
+            {
+                bool isConnected = _plc.IsConnect();
+                if (isConnected)
+                {
+                    return _plc;
+                }
+                else
+                {
+                    return null;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
 
         }
-
 
         private void btn_connect_ethernet_Click(object sender, EventArgs e)
         {
@@ -220,10 +171,11 @@ namespace FX5U_IOMonitor
                 return;
 
             }
-            var plc = SLMP_connect(txb_IP.Text.Trim(), int.Parse(txb_port.Text));
+            var plc = connectPLC(txb_IP.Text.Trim(), int.Parse(txb_port.Text), comb_MC_Type.Text);
+           
             if (plc == null)
             {
-                MessageBox.Show($"連線失敗，請檢查硬體IP及位置後重新連線");
+                MessageBox.Show($"連線失敗，請確認硬體IP、位置、連線格式後重新連線");
                 return;
             }
 
@@ -273,7 +225,7 @@ namespace FX5U_IOMonitor
             _ = Task.Run(() => context.Monitor.Write_Word_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
 
             string? errorMessage;
-            bool result = DBfunction.SetMachineIP(connect_machine, txb_IP.Text.Trim(), txb_port.Text, out errorMessage);
+            bool result = DBfunction.SetMachineIP(connect_machine, txb_IP.Text.Trim(), txb_port.Text, comb_MC_Type.Text, out errorMessage);
 
             if (!result)
             {
@@ -331,7 +283,7 @@ namespace FX5U_IOMonitor
         {
             string connect_machine = control_choose.Text;
 
-            // 註冊機台與自動掛上監控器
+            // 註冊機台與卸載
             MachineHub.UnregisterMachine(connect_machine);
 
         }
@@ -683,7 +635,88 @@ namespace FX5U_IOMonitor
             main_control.panel_main.Controls.Add(cncForm); // 添加子窗體
             cncForm.Show(); // 顯示子窗體
         }
+        /// <summary>
+        /// 自動連線當前機台
+        /// </summary>
+        public static void AutoConnectAllMachines(Connect_PLC plcForm)
+        {
 
+            using var context = new ApplicationDB();
+            var machineList = context.Machine.ToList();
+            var failedMachines = new List<string>();
+            var ipPortSet = new HashSet<string>();
+
+            foreach (var machine in machineList)
+            {
+                if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
+                    continue;
+
+                string ipPortKey = $"{machine.IP_address}:{machine.Port}";
+                if (ipPortSet.Contains(ipPortKey))
+                {
+                    Debug.WriteLine($"⚠ IP/Port 重複：{ipPortKey}");
+                    continue;
+                }
+                ipPortSet.Add(ipPortKey);
+
+                var existing = MachineHub.Get(machine.Name);
+                if (existing != null && existing.IsConnected)
+                    continue;
+
+                var plc = connectPLC(machine.IP_address, machine.Port, machine.MC_Type);
+
+                if (plc == null)
+                {
+                    Debug.WriteLine($"❌ {machine.Name} 無法連線");
+                    failedMachines.Add(machine.Name);
+                    continue;
+                }
+
+                MachineHub.RegisterMachine(machine.Name, plc);
+                var contextItem = MachineHub.Get(machine.Name);
+                if (contextItem == null || !contextItem.IsConnected)
+                {
+                    Debug.WriteLine($"❌ {machine.Name} 註冊失敗");
+                    failedMachines.Add(machine.Name);
+                    continue;
+                }
+
+                contextItem.Monitor.SetExternalLock(contextItem.LockObject);
+                _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
+                var notifier = new RULNotifier();
+                contextItem.Monitor.RULThresholdCrossed += (s, e) =>
+                {
+                    notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
+                };
+                if (contextItem.IsMaster)
+                {
+                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
+                    contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
+                }
+
+                int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
+                int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
+
+                _ = Task.Run(() => contextItem.Monitor.Read_Bit_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Read_Word_Monitor_AllModesAsync(contextItem.MachineName, read_modes, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Read_None_Monitor_AllModesAsync(contextItem.MachineName, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
+
+                contextItem.Monitor.IOUpdated += DB_update_change;
+
+                Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
+            }
+            string summary = $"失敗機台數：{failedMachines.Count}";
+
+            if (failedMachines.Count > 0)
+            {
+                summary += "\n失敗機台如下：\n" + string.Join("\n", failedMachines);
+                MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+
+        }
     }
       
 }

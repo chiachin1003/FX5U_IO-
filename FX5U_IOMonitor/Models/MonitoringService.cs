@@ -1,31 +1,15 @@
-﻿using FX5U_IOMonitor.Data;
+﻿using CommunicationDriver.Include.Driver;
+using CommunicationDriver.Include.Tools;
+using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Message;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using SLMP;
-using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipelines;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Xml.Linq;
 using static FX5U_IOMonitor.Check_point;
-using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitorFunction;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static System.Collections.Specialized.BitVector32;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static System.Windows.Forms.DataFormats;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using static MCProtocol.Mitsubishi;
 
 
 namespace FX5U_IOMonitor.Models
@@ -59,8 +43,8 @@ namespace FX5U_IOMonitor.Models
 
             public event EventHandler<MachineParameterChangedEventArgs>? MachineParameterChanged;
 
-
-            private SlmpClient plc;
+            private IMitsubishiPlc plc;
+            
             private object? externalLock;
             private bool isFirstRead = true; // 實體元件監控是否初始化
             private bool alarmFirstRead = true;
@@ -72,22 +56,23 @@ namespace FX5U_IOMonitor.Models
 
 
             // 宣告目標 plc 
-            public MonitorService(SlmpClient PLC, string machineName)
-            {
-                this.plc = PLC;
-                this.MachineName = machineName;
-                bool isFirstRead = true;
-                bool alarmFirstRead = true; // 實體元件監控是否初始化
+        public MonitorService( IMitsubishiPlc Plc2, string machineName)
+        {
+            this.plc = Plc2;
+            this.MachineName = machineName;
+            bool isFirstRead = true;
+            bool alarmFirstRead = true; // 實體元件監控是否初始化
 
         }
+       
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name=""></param>
-        /// <returns></returns>
-        public async Task MonitoringLoop(CancellationToken token, string machinname)
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="token"></param>
+            /// <param name=""></param>
+            /// <returns></returns>
+            public async Task MonitoringLoop(CancellationToken token, string machinname)
             {
                 
                 while (!token.IsCancellationRequested)
@@ -128,7 +113,8 @@ namespace FX5U_IOMonitor.Models
                             string device = prefix + block.Start;
                             try
                             {
-                                bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                plc.ReadBitsPLC(out var plc_result, device, 256);
+                                //bool[] plc_result = plc.ReadBitDevice(device, 256);
                                 var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
                                 if (isFirstRead)
                                 {
@@ -298,7 +284,9 @@ namespace FX5U_IOMonitor.Models
                             string device = prefix + block.Start;
                             try
                             {
-                                bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                plc.ReadBitsPLC(out var plc_result, device, 256);
+
+                               // bool[] plc_result = plc.ReadBitDevice(device, 256);
                                 var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
                                 if (isFirstRead)
                                 {
@@ -407,7 +395,7 @@ namespace FX5U_IOMonitor.Models
                             {
                                 var blocks = sectionGroups[prefix];
 
-                                ushort[] readResults;
+                                short[] readResult = new short[256];
 
                                 foreach (var block in blocks)
                                 {
@@ -415,10 +403,13 @@ namespace FX5U_IOMonitor.Models
 
                                     lock (externalLock ?? new object())
                                     {
-                                        readResults = plc.ReadWordDevice(device, 256);
+
+                                        plc.ReadBatchPLC(ref readResult, device, 256); // 這個API 一次讀 1 word(16 bits)
+
+                                        //readResults = plc.ReadWordDevice(device, 256);
                                     }
 
-                                    List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
+                                    List<now_number> result = Calculate.Convert_wordsingle(readResult, prefix, block.Start);
 
                                     // 對目前這個區塊內的參數做處理（篩選 paramList 中對應此區塊的）
                                     var relevantParams = paramList
@@ -444,7 +435,9 @@ namespace FX5U_IOMonitor.Models
                                                 ushort value = (ushort)(DBfunction.Get_History_NumericValue(machine_name, name));  // 範例：寫入秒數
                                                 lock (externalLock ?? new object())
                                                 {
-                                                    plc.WriteWordDevice(match.address, value);
+                                                    plc.WriteBatchPLC(ToWord16(value), match.address, 1);           // 寫 36 到 D100
+
+                                                    //plc.WriteWordDevice(match.address, value);
                                                 }
                                                 //Debug.WriteLine($" [{name}] Machine=1 → 寫入次數：{value}");
                                             }
@@ -458,18 +451,15 @@ namespace FX5U_IOMonitor.Models
                                                     return;
                                                 }
 
-                                                ushort[] write2plc = MonitorFunction.SmartWordSplit(value.Value, 2,1);
+                                               //ushort[] write2plc = MonitorFunction.SmartWordSplit(value.Value, 2,1);
 
                                                 lock (externalLock ?? new object())
                                                 {
-                                                    plc.WriteWordDevice(match.address, write2plc);
+                                                    plc.WriteBatchPLC(ToWord32(value.Value), match.address, 2);   
+
+                                                    //plc.WriteWordDevice(match.address, write2plc);
                                                 }
-                                                //ushort[] write2plc = MonitorFunction.SmartWordSplit(value, (int)address_index);
-                                                //lock (externalLock ?? new object())
-                                                //{
-                                                //    plc.WriteWordDevice(match.address, write2plc);
-                                                //}
-                                                ////Debug.WriteLine($" [{name}] 寫入位址 {match.address}，值：{value} → WordData = [{string.Join(", ", write2plc)}]");
+                                       
                                             }
                                         }
                                         catch (Exception ex)
@@ -549,7 +539,9 @@ namespace FX5U_IOMonitor.Models
 
                                     lock (externalLock ?? new object())
                                     {
-                                        readResults = plc.ReadBitDevice(device, 256);
+                                        plc.ReadBitsPLC(out readResults, device, 256);
+
+                                        //readResults = plc.ReadBitDevice(device, 256);
                                     }
 
                                     List<now_single> result = Calculate.Convert_alarmsingle(readResults, prefix, block.Start);
@@ -635,7 +627,7 @@ namespace FX5U_IOMonitor.Models
                                                     ushort now_total = (ushort)(DBfunction.Get_Machine_NowValue(machine_name, name)+ (ushort)elapsed.TotalSeconds);
                                                     DBfunction.Set_Machine_now_number(machine_name, name, now_total);
 
-                                                    //Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
+                                                    Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
                                                     
                                                     //Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_Machine_History_NumericValue(name)}");
 
@@ -769,7 +761,7 @@ namespace FX5U_IOMonitor.Models
                     foreach (var prefix in sectionGroups.Keys)
                     {
                         var blocks = sectionGroups[prefix];
-                        ushort[] readResults;
+                        short[] readResults = new short[256];
 
                         foreach (var block in blocks)
                         {
@@ -778,7 +770,8 @@ namespace FX5U_IOMonitor.Models
 
                             lock (externalLock ?? new object())
                             {
-                                readResults = plc.ReadWordDevice(device, 256);
+                                plc.ReadBatchPLC(ref readResults, device, 256); // 這個API 一次讀 1 word(16 bits)
+                                //readResults = plc.ReadWordDevice(device, 256);
                             }
 
                             List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
@@ -802,7 +795,7 @@ namespace FX5U_IOMonitor.Models
                                         case 0:
                                             if (address_index == 1)
                                             {
-                                                ushort val = match.current_number;
+                                                short val = match.current_number;
                                                 double resultVal = val * DBfunction.Get_Unit_transfer(machine_name, name);
 
                                                 // 根據單位制儲存到不同位置
@@ -827,9 +820,9 @@ namespace FX5U_IOMonitor.Models
                                                 var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
                                                 if (nextMatch != null)
                                                 {
-                                                    ushort[] values = { match.current_number, nextMatch.current_number };
-                                                    double merged = MonitorFunction.mergenumber(values) * DBfunction.Get_Unit_transfer(machine_name, name);
-                                                    int currentvalue = (int)MonitorFunction.mergenumber(values);
+                                                    short[] values = { match.current_number, nextMatch.current_number };
+                                                    double merged = MonitorFunction.MergeNumber(values) * DBfunction.Get_Unit_transfer(machine_name, name);
+                                                    int currentvalue = (int)MonitorFunction.MergeNumber(values);
 
                                                     // 根據單位制儲存到不同位置
                                                     if (unit == "Imperial")
@@ -865,9 +858,9 @@ namespace FX5U_IOMonitor.Models
                                                 var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
                                                 if (nextMatch != null)
                                                 {
-                                                    ushort[] values = { match.current_number, nextMatch.current_number };
+                                                    short[] values = { match.current_number, nextMatch.current_number };
                                                     string formatted = MonitorFunction.FormatPlcTime(values);
-                                                    int currentvalue = (int)MonitorFunction.mergenumber(values);
+                                                    int currentvalue = (int)MonitorFunction.MergeNumber(values);
 
                                                     // 根據單位制儲存到不同位置
                                                     if (unit == "Imperial")
@@ -903,8 +896,8 @@ namespace FX5U_IOMonitor.Models
                                                 var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
                                                 if (nextMatch != null)
                                                 {
-                                                    ushort[] values = { match.current_number, nextMatch.current_number };
-                                                    ushort resultVal = (ushort)(values.Max() - values.Min());
+                                                    short[] values = { match.current_number, nextMatch.current_number };
+                                                    short resultVal = (short)(values.Max() - values.Min());
 
                                                     // 根據單位制儲存到不同位置
                                                     if (unit == "Imperial")
@@ -964,7 +957,7 @@ namespace FX5U_IOMonitor.Models
                                                 if (((DateTime.UtcNow) - timer.LastUpdateTime).TotalSeconds >= 1)
                                                 {
                                                     timer.LastUpdateTime = (DateTime.UtcNow);
-                                                    ushort val = match.current_number;
+                                                    short val = match.current_number;
 
                                                     // 只有當前顯示單位才更新即時顯示
                                                     if (unit == currentDisplayUnit)
@@ -1016,7 +1009,7 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     DBfunction.Set_Machine_now_number(machine_name, name, val);
                                                     DBfunction.Set_Machine_now_string(machine_name, name, input);
-                                                    Debug.WriteLine($"[4] {name} = {input}+{val}");
+                                                    //Debug.WriteLine($"[4] {name} = {input}+{val}");
                                                 }
                                                 break;
                                             }

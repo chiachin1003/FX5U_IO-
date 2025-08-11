@@ -63,7 +63,7 @@ namespace FX5U_IOMonitor.Data
     public class now_number // 當前連接總數
     {
         public string address { get; set; }
-        public ushort current_number { get; set; }
+        public short current_number { get; set; }
 
     }
     // 監控資料庫是否更新用參數

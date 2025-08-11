@@ -34,6 +34,7 @@ namespace FX5U_IOMonitor.panel_control
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
             SwitchLanguage();
+            LanguageManager.LanguageChanged -= OnLanguageChanged;
             LanguageManager.LanguageChanged += OnLanguageChanged;
 
         }
@@ -300,7 +301,7 @@ namespace FX5U_IOMonitor.panel_control
                         });
                     }
 
-                    await Task.Delay(500, token); // 每秒更新一次
+                    await Task.Delay(20, token); // 每秒更新一次
                 }
                 catch (OperationCanceledException)
                 {

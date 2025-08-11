@@ -47,6 +47,29 @@ namespace FX5U_IOMonitor.Models
             return $"{span:hh\\:mm\\:ss}";
 
         }
+        // 2) 新增：short[] 版本（只改詮釋，不改位元）
+        public static string FormatPlcTime(short[] wordData)
+        {
+            if (wordData == null || wordData.Length != 2)
+                throw new ArgumentException("wordData 必須是長度為 2 的 short 陣列");
+
+            ushort low = unchecked((ushort)wordData[0]);
+            ushort high = unchecked((ushort)wordData[1]);
+            uint totalSeconds = ((uint)high << 16) | low;
+            return FormatPlcTime(totalSeconds);
+        }
+        // 3) 共同：直接吃秒數（方便單元測試與重用）
+        public static string FormatPlcTime(uint totalSeconds)
+        {
+            var span = TimeSpan.FromSeconds(totalSeconds);
+
+            // 注意：自帶格式 "hh" 會取 0–23 小時，如果超過 24 小時你想顯示天數，可以改這段：
+            // return (span.TotalHours >= 24)
+            //     ? $"{(int)span.TotalHours:D2}:{span.Minutes:D2}:{span.Seconds:D2}"
+            //     : $"{span:hh\\:mm\\:ss}";
+
+            return $"{span:hh\\:mm\\:ss}";
+        }
         ///
         /// 
         public static uint mergenumber(ushort[] plc2read)
@@ -59,6 +82,18 @@ namespace FX5U_IOMonitor.Models
 
             // 回傳
             return totalnumber;
+        }
+        public static uint MergeNumber(short[] plc2read)
+        {
+            if (plc2read == null || plc2read.Length != 2)
+                throw new ArgumentException("plc2read 必須是長度為 2 的 short 陣列");
+
+            // 小端序：低位在前
+            ushort low = unchecked((ushort)plc2read[0]);
+            ushort high = unchecked((ushort)plc2read[1]);
+
+            uint total = ((uint)high << 16) | low;
+            return total;
         }
         /// <summary>
         /// 將秒數轉為兩個 Word（ushort）並寫入 PLC 指定地址。
@@ -114,6 +149,7 @@ namespace FX5U_IOMonitor.Models
 
             return result.ToArray();
         }
+      
         /// <summary>
         /// 高低位數值切割，支援64Bit
         /// </summary>
@@ -140,6 +176,15 @@ namespace FX5U_IOMonitor.Models
 
             return result.ToArray();
         }
+        public static short[] ToWord16(int value) => new[] { unchecked((short)value) }; // 16-bit
+
+        public static short[] ToWord32(int value)
+        {
+            ushort lo = (ushort)(value & 0xFFFF);
+            ushort hi = (ushort)((uint)value >> 16);
+            return new[] { unchecked((short)lo), unchecked((short)hi) }; // 低字在前
+        }
+
         public static string oil_press_transfer(int code)
         {
             return code switch

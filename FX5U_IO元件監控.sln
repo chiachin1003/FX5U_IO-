@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLMP", "SLMP\SLMP.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FX5U_IOMonitor", "FX5U_IOMonitor\FX5U_IOMonitor.csproj", "{605DAE13-AE5B-4232-9C1F-051014E962BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunicationDriver", "..\mitsubishi_mcprotocol\CommunicationDriver\CommunicationDriver.csproj", "{18B05985-9B2E-07C7-C8AC-D4F5E520A2DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{605DAE13-AE5B-4232-9C1F-051014E962BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{605DAE13-AE5B-4232-9C1F-051014E962BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{605DAE13-AE5B-4232-9C1F-051014E962BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18B05985-9B2E-07C7-C8AC-D4F5E520A2DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18B05985-9B2E-07C7-C8AC-D4F5E520A2DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18B05985-9B2E-07C7-C8AC-D4F5E520A2DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18B05985-9B2E-07C7-C8AC-D4F5E520A2DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,11 +1,6 @@
 ﻿using FX5U_IOMonitor.Data;
 using SLMP;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static FX5U_IOMonitor.Connect_PLC;
+using CommunicationDriver.Include.Driver;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
 
@@ -19,12 +14,13 @@ namespace FX5U_IOMonitor.Models
         /// <summary>
         /// 註冊機台並初始化監控器與連線狀態
         /// </summary>
-        public static void RegisterMachine(string name, SlmpClient plc)
+       
+        public static void RegisterMachine(string name, IMitsubishiPlc plc)
         {
             var context = new MachineContext
             {
                 MachineName = name,
-                Plc = plc,
+                plc = plc,
                 TokenSource = new CancellationTokenSource(),
                 LockObject = new object(),
                 Monitor = new MonitorService(plc, name),
@@ -49,7 +45,7 @@ namespace FX5U_IOMonitor.Models
                 context.TokenSource.Cancel();
 
                 // 關閉 PLC 連線
-                context.Plc? .Disconnect(); 
+                context.plc? .ClosePLC(); 
 
                 // 移除 context
                 machines.Remove(name);
@@ -77,11 +73,11 @@ namespace FX5U_IOMonitor.Models
         }
 
         /// <summary>
-        /// 取得對應名稱的 SlmpClient
+        /// 取得對應名稱的 
         /// </summary>
-        public static SlmpClient? GetPlc(string name)
+        public static IMitsubishiPlc? GetPlc(string name)
         {
-            return machines.TryGetValue(name, out var context) ? context.Plc : null;
+            return machines.TryGetValue(name, out var context) ? context.plc : null;
         }
 
         /// <summary>
@@ -120,12 +116,14 @@ namespace FX5U_IOMonitor.Models
     public class MachineContext : IMachineContext
     {
         public string MachineName { get; set; } = string.Empty;
-        public SlmpClient Plc { get; set; }
+        public IMitsubishiPlc? plc { get; set; }
+
         public CancellationTokenSource TokenSource { get; set; }
         public object LockObject { get; set; } = new object();
         public MonitorService Monitor { get; set; }
         public connect_Summary ConnectSummary { get; set; }
-        public bool IsConnected => Plc != null;
+        public bool IsConnected => plc != null;
+
         public bool IsMaster { get; set; } = false;  // 新增主機標記(產線主機台，鑽床)
 
 

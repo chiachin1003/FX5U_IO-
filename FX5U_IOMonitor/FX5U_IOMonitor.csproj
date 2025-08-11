@@ -44,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\mitsubishi_mcprotocol\CommunicationDriver\CommunicationDriver.csproj" />
     <ProjectReference Include="..\SLMP\SLMP.csproj" />
   </ItemGroup>
 

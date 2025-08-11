@@ -168,7 +168,7 @@ namespace FX5U_IOMonitor.Models
             }).ToList();
         }
 
-        public static List<now_number> Convert_wordsingle(ushort[] plcWords, string prefix, int startIndex)
+        public static List<now_number> Convert_wordsingle(short[] plcWords, string prefix, int startIndex)
         {
             if (plcWords == null || plcWords.Length == 0 || string.IsNullOrEmpty(prefix))
             {
