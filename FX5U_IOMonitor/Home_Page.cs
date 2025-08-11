@@ -187,15 +187,24 @@ namespace FX5U_IOMonitor
 
         private void btn_SawBand_Click(object sender, EventArgs e)
         {
-            if (add_sawband_Form == null || add_sawband_Form.IsDisposed)
+            // 建立選單
+            var menu = new ContextMenuStrip();
+
+            // 加入「每週記錄」
+            menu.Items.Add(LanguageManager.Translate("DrillInfo_Week_Record"), null, (_, __) =>
             {
-                add_sawband_Form = new Sawband_Info();
-                add_sawband_Form.Show();
-            }
-            else
+                OpeSawbandInfoface(ScheduleFrequency.Weekly);
+            });
+
+            // 加入「每月記錄」
+            menu.Items.Add(LanguageManager.Translate("DrillInfo_Month_Record"), null, (_, __) =>
             {
-                add_sawband_Form.BringToFront();  // 若已開啟，拉到最前面
-            }
+                OpeSawbandInfoface(ScheduleFrequency.Monthly);
+            });
+
+            // 顯示在滑鼠點擊處（或按鈕位置）
+            var btn = (Button)sender;
+            menu.Show(btn, new Point(0, btn.Height)); // 顯示在按鈕下方
 
         }
 
@@ -229,8 +238,18 @@ namespace FX5U_IOMonitor
             form.StartPosition = FormStartPosition.CenterParent;
             form.ShowDialog(this);
         }
-
-
+        private void OpeSawbandInfoface(ScheduleFrequency freq)
+        {
+            using var form = new Sawband_Info(freq);
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.ShowDialog(this);
+        }
+        private void OpeSawInfoface(ScheduleFrequency freq)
+        {
+            using var form = new Saw_Info(freq);
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.ShowDialog(this);
+        }
         private void lab_disconnect_Click(object sender, EventArgs e)
         {
             var existingContext = MachineHub.Get("Drill");
@@ -314,15 +333,24 @@ namespace FX5U_IOMonitor
         private void btn_saw_Click(object sender, EventArgs e)
         {
 
-            if (add_saw_Form == null || add_saw_Form.IsDisposed)
+            // 建立選單
+            var menu = new ContextMenuStrip();
+
+            // 加入「每週記錄」
+            menu.Items.Add(LanguageManager.Translate("DrillInfo_Week_Record"), null, (_, __) =>
             {
-                add_saw_Form = new Saw_Info();
-                add_saw_Form.Show();
-            }
-            else
+                OpeSawInfoface(ScheduleFrequency.Weekly);
+            });
+
+            // 加入「每月記錄」
+            menu.Items.Add(LanguageManager.Translate("DrillInfo_Month_Record"), null, (_, __) =>
             {
-                add_saw_Form.BringToFront();  // 若已開啟，拉到最前面
-            }
+                OpeSawInfoface(ScheduleFrequency.Monthly);
+            });
+
+            // 顯示在滑鼠點擊處（或按鈕位置）
+            var btn = (Button)sender;
+            menu.Show(btn, new Point(0, btn.Height)); // 顯示在按鈕下方
         }
         private void lab_power_Click(object sender, EventArgs e)
         {
