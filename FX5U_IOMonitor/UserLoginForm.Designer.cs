@@ -94,6 +94,7 @@
             button1.TabIndex = 5;
             button1.Text = "1";
             button1.UseVisualStyleBackColor = false;
+            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // UserLoginForm

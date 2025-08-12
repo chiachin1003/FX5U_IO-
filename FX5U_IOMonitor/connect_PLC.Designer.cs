@@ -31,6 +31,8 @@ namespace FX5U_IOMonitor
         private void InitializeComponent()
         {
             panel_Ethernet = new Panel();
+            comb_MC_Type = new ComboBox();
+            lab_MC_Type = new Label();
             btn_disconnect_ethernet = new Button();
             btn_connect_ethernet = new Button();
             txb_port = new TextBox();
@@ -71,8 +73,6 @@ namespace FX5U_IOMonitor
             txb_machine = new TextBox();
             lab_Add_Machine = new Label();
             btn_mishubishi = new Button();
-            lab_MC_Type = new Label();
-            comb_MC_Type = new ComboBox();
             panel_Ethernet.SuspendLayout();
             panel_RS485.SuspendLayout();
             tableLayoutPanel2.SuspendLayout();
@@ -92,11 +92,35 @@ namespace FX5U_IOMonitor
             panel_Ethernet.Controls.Add(txb_IP);
             panel_Ethernet.Controls.Add(lab_Enthernetport);
             panel_Ethernet.Controls.Add(label_IP);
-            panel_Ethernet.Location = new Point(78, 223);
+            panel_Ethernet.Location = new Point(78, 211);
             panel_Ethernet.Name = "panel_Ethernet";
             panel_Ethernet.Size = new Size(558, 363);
             panel_Ethernet.TabIndex = 16;
             panel_Ethernet.Visible = false;
+            // 
+            // comb_MC_Type
+            // 
+            comb_MC_Type.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            comb_MC_Type.BackColor = SystemColors.ButtonHighlight;
+            comb_MC_Type.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_MC_Type.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            comb_MC_Type.FormattingEnabled = true;
+            comb_MC_Type.Items.AddRange(new object[] { "MC1E", "MC3E" });
+            comb_MC_Type.Location = new Point(24, 289);
+            comb_MC_Type.Name = "comb_MC_Type";
+            comb_MC_Type.Size = new Size(239, 34);
+            comb_MC_Type.TabIndex = 17;
+            // 
+            // lab_MC_Type
+            // 
+            lab_MC_Type.AutoSize = true;
+            lab_MC_Type.BackColor = SystemColors.ButtonHighlight;
+            lab_MC_Type.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_MC_Type.Location = new Point(24, 249);
+            lab_MC_Type.Name = "lab_MC_Type";
+            lab_MC_Type.Size = new Size(117, 26);
+            lab_MC_Type.TabIndex = 7;
+            lab_MC_Type.Text = "連接模式：";
             // 
             // btn_disconnect_ethernet
             // 
@@ -627,30 +651,6 @@ namespace FX5U_IOMonitor
             btn_mishubishi.Text = "切換監控\r\n三菱控制器";
             btn_mishubishi.UseVisualStyleBackColor = false;
             btn_mishubishi.Click += btn_mishubishi_Click;
-            // 
-            // lab_MC_Type
-            // 
-            lab_MC_Type.AutoSize = true;
-            lab_MC_Type.BackColor = SystemColors.ButtonHighlight;
-            lab_MC_Type.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            lab_MC_Type.Location = new Point(24, 249);
-            lab_MC_Type.Name = "lab_MC_Type";
-            lab_MC_Type.Size = new Size(117, 26);
-            lab_MC_Type.TabIndex = 7;
-            lab_MC_Type.Text = "連接模式：";
-            // 
-            // comb_MC_Type
-            // 
-            comb_MC_Type.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-            comb_MC_Type.BackColor = SystemColors.ButtonHighlight;
-            comb_MC_Type.DropDownStyle = ComboBoxStyle.DropDownList;
-            comb_MC_Type.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            comb_MC_Type.FormattingEnabled = true;
-            comb_MC_Type.Items.AddRange(new object[] { "MC1E", "MC3E" });
-            comb_MC_Type.Location = new Point(24, 289);
-            comb_MC_Type.Name = "comb_MC_Type";
-            comb_MC_Type.Size = new Size(239, 34);
-            comb_MC_Type.TabIndex = 17;
             // 
             // Connect_PLC
             // 
