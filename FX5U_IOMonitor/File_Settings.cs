@@ -257,10 +257,43 @@ namespace FX5U_IOMonitor.Resources
                 }
                 else
                 {
-                    var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
+                    if (Cloud_context == null)
+                    {
+                        throw new Exception("Cloud context 為 null");
+                    }
+                    switch (tableName)
+                    {
+                        case "Language":
+                            var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
+                            TableSync.LogSyncResult(Language);
+
+                            break;
+
+                        case "Blade_brand_TPI":
+                            var Blade_brand_TPI = await TableSync.SyncFromCloudToLocal<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
+                            TableSync.LogSyncResult(Blade_brand_TPI);
+
+                            break;
+                        case "Blade_brand":
+                            var Blade_brand = await TableSync.SyncFromCloudToLocal<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
+                            TableSync.LogSyncResult(Blade_brand);
+
+                            break;
+
+
+                        case "alarm":
+                            var alarm = await TableSync.SyncFromCloudToLocal<Alarm>(Local_context, Cloud_context, "alarm", "IPC_table");
+                            var AlarmTranslation = await TableSync.SyncFromCloudToLocal<AlarmTranslation>(Local_context, Cloud_context, "AlarmTranslation", "AlarmId", "Id");
+                            TableSync.LogSyncResult(alarm);
+                            TableSync.LogSyncResult(AlarmTranslation);
+                            break;
+
+                        default:
+                            throw new NotSupportedException($"未支援的 tableName: {tableName}");
+
+                    }
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
-
 
                 }
 

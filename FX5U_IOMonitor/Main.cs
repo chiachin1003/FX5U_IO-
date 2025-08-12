@@ -59,53 +59,6 @@ namespace FX5U_IOMonitor
 
             InitializeComponent();
 
-
-            try
-            {
-                Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Blade TPI 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-
-            }
-
-            try
-            {
-                Initialization_BladeBrandFromCSV("Blade_brand.csv");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Blade Brand 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-
-            }
-
-            try
-            {
-                Initialization_AlarmFromCSV("alarm.csv");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Alarm 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-
-            }
-
-
-
-            try
-            {
-                Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Machine parameter 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-
-            }
-
             // 檢查是否已初始化
             try
             {

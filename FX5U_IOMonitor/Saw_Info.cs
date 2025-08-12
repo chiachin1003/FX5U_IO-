@@ -27,7 +27,7 @@ namespace FX5U_IOMonitor
 
         // 資訊卡加入(累計次數/或面積，純粹數值類型)
 
-        private readonly ScheduleFrequency history_Frequency = ScheduleFrequency.Monthly;
+        private readonly ScheduleFrequency history_Frequency ;
 
         // 依序加入所需欄位(靜態)
         private readonly List<(string Param, string LangKey, string Unit)> infoCardList = new()
@@ -56,9 +56,10 @@ namespace FX5U_IOMonitor
         };
      
 
-        public Saw_Info()
+        public Saw_Info(ScheduleFrequency Frequency)
         {
             InitializeComponent();
+            history_Frequency = Frequency;
             this.Load += Saw_Info_Load;
             this.FormClosing += (_, __) => _cts?.Cancel();
 
@@ -243,7 +244,7 @@ namespace FX5U_IOMonitor
         /* ---------- 語系切換 ---------- */
         private void SwitchLanguage()
         {
-            this.Text = LanguageManager.Translate("SawingInfo_FormText");
+            this.Text = LanguageManager.Translate("Mainform_SawInfo");
             UpdateInfoCards();
             UpdateTimeCards();
             UpdatePowerCards();

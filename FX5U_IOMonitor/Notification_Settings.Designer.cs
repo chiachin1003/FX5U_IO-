@@ -215,7 +215,7 @@
             tabPage1.Padding = new Padding(3);
             tabPage1.Size = new Size(508, 290);
             tabPage1.TabIndex = 0;
-            tabPage1.Text = "Scheduling";
+            tabPage1.Text = "Email";
             // 
             // tabPage2
             // 

@@ -22,6 +22,8 @@ using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Data.Recordmode;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using static FX5U_IOMonitor.Models.Csv2Db;
+
 
 namespace FX5U_IOMonitor.Models
 {
@@ -31,7 +33,52 @@ namespace FX5U_IOMonitor.Models
         {
             using (var context = new ApplicationDB())
             {
-                context.Database.EnsureCreated();
+                // EnsureCreated 會回傳 true 代表這次有建立資料庫
+                if (context.Database.EnsureCreated())
+                {
+                    try
+                    {
+                        Initialization_BladeTPIFromCSV("Blade_brand_TPI.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Blade TPI 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    try
+                    {
+                        Initialization_BladeBrandFromCSV("Blade_brand.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Blade Brand 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    try
+                    {
+                        Initialization_AlarmFromCSV("alarm.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Alarm 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    try
+                    {
+                        Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Machine parameter 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+
+                }
+
             }
         }
         //-------

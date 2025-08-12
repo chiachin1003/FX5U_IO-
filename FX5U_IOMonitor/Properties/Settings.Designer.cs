@@ -12,7 +12,7 @@ namespace FX5U_IOMonitor.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.12.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -49,7 +49,7 @@ namespace FX5U_IOMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("itrid400itri@gmail.com")]
+        [global::System.Configuration.DefaultSettingValueAttribute("webform@mechalogix.com")]
         public string senderEmail {
             get {
                 return ((string)(this["senderEmail"]));
@@ -61,7 +61,7 @@ namespace FX5U_IOMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("wmfisqognlhnhcsc")]
+        [global::System.Configuration.DefaultSettingValueAttribute("jvvswkymcyokcvug")]
         public string senderPassword {
             get {
                 return ((string)(this["senderPassword"]));
@@ -85,7 +85,7 @@ namespace FX5U_IOMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("587")]
+        [global::System.Configuration.DefaultSettingValueAttribute("465")]
         public int TLS_port {
             get {
                 return ((int)(this["TLS_port"]));
