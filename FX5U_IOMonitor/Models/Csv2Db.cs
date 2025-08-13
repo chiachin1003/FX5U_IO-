@@ -585,7 +585,7 @@ namespace FX5U_IOMonitor.Models
                 Machine_number? machine = context.Machine.FirstOrDefault(m => m.Name == targetMachine);
                 if (machine == null)
                 {
-                    machine = new() { Name = targetMachine ,IP_address = "", Port = 0};
+                    machine = new() { Name = targetMachine ,IP_address = "", Port = 0,MC_Type="MC3E"};
                     context.Machine.Add(machine);
                     context.SaveChanges();
                 }
