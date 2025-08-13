@@ -1,5 +1,4 @@
-﻿
-using CommunicationDriver.Include.Driver;
+﻿using CommunicationDriver.Include.Driver;
 using CommunicationDriver.Include.Tools;
 using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Message;

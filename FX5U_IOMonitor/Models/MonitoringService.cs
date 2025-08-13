@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Models.MonitorFunction;
-using static MCProtocol.Mitsubishi;
 
 
 namespace FX5U_IOMonitor.Models
@@ -60,8 +59,8 @@ namespace FX5U_IOMonitor.Models
         {
             this.plc = Plc2;
             this.MachineName = machineName;
-            bool isFirstRead = true;
-            bool alarmFirstRead = true; // 實體元件監控是否初始化
+            this.isFirstRead = true;
+            this.alarmFirstRead = true; // 實體元件監控是否初始化
 
         }
        
@@ -96,8 +95,7 @@ namespace FX5U_IOMonitor.Models
                     .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                lock (externalLock ?? new object())
-                {
+               
                     //if ((DateTime.Now - _lastRULCacheTime) > _cacheDuration || _rulCache.Count == 0)
                     //{
                     //    _rulCache = RULNotifier.GetRULMapByMachine(machinname);
@@ -111,46 +109,50 @@ namespace FX5U_IOMonitor.Models
                         foreach (var block in blocks)
                         {
                             string device = prefix + block.Start;
-                            try
+                            List<now_single> result = new List<now_single>();
+                        try
+                        {
+                            lock (externalLock ?? new object())
                             {
                                 plc.ReadBitsPLC(out var plc_result, device, 256);
                                 //bool[] plc_result = plc.ReadBitDevice(device, 256);
-                                var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
-                                if (isFirstRead)
-                                {
-                                    int updated = Calculate.UpdateIOCurrentSingleToDB(result, machinname);
-                                    // 初始化 Message 狀態快取
-                                    foreach (var now in result)
-                                    {
-                                        if (_rulCache.TryGetValue(now.address, out var info))
-                                        {
-                                            string initialState = GetRULState(info); 
-                                            _lastRULState[now.address] = initialState;
-                                        }
-                                    }
-                                    var context = MachineHub.Get(machinname);
-                                    if (context != null)
-                                    {
-                                     
-                                        context.ConnectSummary.connect += updated;
-                                    }
-
-                                }
-                                else
-                                {
-                                    //UpdateIODataBaseFromNowSingle(result, old_single);
-                                    UpdateIODataBaseFromNowSingle(result, old_single, _rulCache);
-                                }
-
-
+                                result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
                             }
-                            catch
+                            if (isFirstRead)
                             {
-                                isFirstRead = true; // 斷線時設定下次重新初始化
-                                break;
-                                //return; // 中止此次讀取
+                                int updated = Calculate.UpdateIOCurrentSingleToDB(result, machinname);
+                                // 初始化 Message 狀態快取
+                                foreach (var now in result)
+                                {
+                                    if (_rulCache.TryGetValue(now.address, out var info))
+                                    {
+                                        string initialState = GetRULState(info);
+                                        _lastRULState[now.address] = initialState;
+                                    }
+                                }
+                                var context = MachineHub.Get(machinname);
+                                if (context != null)
+                                {
+
+                                    context.ConnectSummary.connect += updated;
+                                }
+
                             }
+                            else
+                            {
+                                //UpdateIODataBaseFromNowSingle(result, old_single);
+                                UpdateIODataBaseFromNowSingle(result, old_single, _rulCache);
+                            }
+
                         }
+
+                        catch
+                        {
+                            isFirstRead = true; // 斷線時設定下次重新初始化
+                            break;
+                            //return; // 中止此次讀取
+                        }
+                        
 
                     }
                     stopwatch.Stop();
@@ -273,8 +275,7 @@ namespace FX5U_IOMonitor.Models
                     .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
 
 
-                lock (externalLock ?? new object())
-                {
+               
                     foreach (var prefix in sectionGroups.Keys)
                     {
                         var blocks = sectionGroups[prefix];
@@ -282,13 +283,18 @@ namespace FX5U_IOMonitor.Models
                         foreach (var block in blocks)
                         {
                             string device = prefix + block.Start;
+                            List<now_single> result = new List<now_single>();
+
                             try
+                            {
+                            lock (externalLock ?? new object())
                             {
                                 plc.ReadBitsPLC(out var plc_result, device, 256);
 
                                // bool[] plc_result = plc.ReadBitDevice(device, 256);
-                                var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
-                                if (isFirstRead)
+                                 result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
+                            }
+                            if (isFirstRead)
                                 {
                                    Calculate.UpdatealarmCurrentSingleToDB(result);
                                 }
@@ -305,7 +311,7 @@ namespace FX5U_IOMonitor.Models
                                 return; // 中止此次讀取
                             }
                         }
-                    }
+                    
 
                 }
                 alarmFirstRead = false; // ✅ 完成第一次後設定為 false
