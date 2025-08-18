@@ -178,7 +178,15 @@ namespace FX5U_IOMonitor.panel_control
                 if (SecondLate == null)
                 {
                     int secondDelta = 0;
-                    card.SetData(title, val, unit, re, secondDelta, record_late.Delta,  history_Frequency);
+                    if (record_late == null)
+                    {
+                        int record_lateDelta = 0;
+                        card.SetData(title, val, unit, re, secondDelta, record_lateDelta, history_Frequency);
+                    }
+                    else
+                    {
+                        card.SetData(title, val, unit, re, secondDelta, record_late.Delta, history_Frequency);
+                    }
                 }
                 else
                 {
