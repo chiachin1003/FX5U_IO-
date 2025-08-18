@@ -371,7 +371,7 @@ namespace FX5U_IOMonitor.Resources
                 var machine = context.Machine.FirstOrDefault(m => m.Name == targetMachine);
                 if (machine == null)
                 {
-                    machine = new Machine_number { Name = targetMachine, IP_address = "", Port = 0 };
+                    machine = new Machine_number { Name = targetMachine, IP_address = "", Port = 0 ,MC_Type="MC3E"};
                     context.Machine.Add(machine);
                     context.SaveChanges();
                 }

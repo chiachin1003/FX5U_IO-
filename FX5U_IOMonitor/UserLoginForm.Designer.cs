@@ -94,6 +94,7 @@
             button1.TabIndex = 5;
             button1.Text = "1";
             button1.UseVisualStyleBackColor = false;
+            button1.Visible = false;
             button1.Click += button1_Click;
             // 
             // UserLoginForm
@@ -108,6 +109,9 @@
             Controls.Add(_txtAccount);
             Controls.Add(_lblPassword);
             Controls.Add(_lblAccount);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "UserLoginForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "使用者登入";

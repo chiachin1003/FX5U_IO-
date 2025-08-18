@@ -63,7 +63,7 @@
             flowLayoutPanel1.Size = new Size(800, 477);
             flowLayoutPanel1.TabIndex = 0;
             // 
-            // Saw_Info
+            // Sawband_Info
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -72,7 +72,7 @@
             ClientSize = new Size(800, 477);
             Controls.Add(flowLayoutPanel1);
             Margin = new Padding(4);
-            Name = "Saw_Info";
+            Name = "Sawband_Info";
             StartPosition = FormStartPosition.CenterParent;
             Text = "鋸帶資料";
             ResumeLayout(false);

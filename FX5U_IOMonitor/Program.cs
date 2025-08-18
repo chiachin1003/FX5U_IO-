@@ -58,37 +58,8 @@ namespace FX5U_IOMonitor
             }
             // 啟動每日各項排程
             Scheduling.DailyTask.StartAllSchedulers();
-            bool loginSucceeded = false;
-            // 登入
-            while (!loginSucceeded)
-            {
-                var loginForm = new UserLoginForm();
-                var result = loginForm.ShowDialog();
-
-                if (result == DialogResult.OK)
-                {
-                    var currentUser = loginForm.CurrentUser;
-                    if (currentUser != null)
-                    {
-                        Application.Run(new Main());
-                    }
-                    loginSucceeded = true;
-                }
-                else
-                {
-                    var retry = MessageBox.Show(LanguageManager.Translate("User_Login_Form_Message"), LanguageManager.Translate("User_Login_Form_hint"), MessageBoxButtons.YesNo);
-                    if (retry == DialogResult.No)
-                    {
-                        return;
-                    }
-                    else 
-                    {
-                        Application.Exit();
-                    }
-                }
-            }
           
-            //Application.Run( new Main() );
+            Application.Run( new Main() );
 
         }
     }

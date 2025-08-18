@@ -132,8 +132,7 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Add(main_Form); // 添加子窗體
             main_Form.Show(); // 顯示子窗體
 
-           
-           
+            this.Shown += Main_Shown;
 
         }
 
@@ -178,10 +177,6 @@ namespace FX5U_IOMonitor
         }
 
 
-
-        private void Main_Load(object sender, EventArgs e)
-        {
-        }
 
 
         private void btn_search_Click(object sender, EventArgs e)
@@ -315,7 +310,7 @@ namespace FX5U_IOMonitor
 
 
         }
-        
+
 
         private void SwitchLanguage()
         {
@@ -347,7 +342,7 @@ namespace FX5U_IOMonitor
                 //Properties.Settings.Default.Save(); // ✅ 寫入設定檔
 
                 LanguageManager.SetLanguage(selectedLang); // ✅ 自動載入 + 儲存 + 觸發事件
-                
+
                 SwitchLanguage();
                 InitLanguageComboBox();
             }
@@ -370,8 +365,61 @@ namespace FX5U_IOMonitor
             //DisplayLanguage();
         }
 
-      
+        private bool _loginDone = false;
+        private void Main_Shown(object sender, EventArgs e)
+        {
+            // 避免多次觸發（例如重新顯示/Activate）
+            if (_loginDone) return;
+            _loginDone = true;
 
-       
+            // 先禁用整個主視窗互動，避免使用者在未授權時亂點
+            this.Enabled = false;
+
+            // 若主畫面有背景初始化（例如載入儀表/佈局），可先 await 完成
+            // await InitUiAsync();
+
+            bool loggedIn = ShowLoginLoop(); // 成功才會回傳 true
+
+            if (!loggedIn)
+            {
+                // 使用者取消且不重試 → 關閉主視窗（結束應用）
+                this.Close();
+                return;
+            }
+
+            // ✅ 登入成功，開放互動
+            this.Enabled = true;
+        }
+        /// <summary>
+        /// 顯示登入對話框；回傳是否登入成功。
+        /// 失敗時提供重試，否則關閉。
+        /// </summary>
+        private bool ShowLoginLoop()
+        {
+            while (true)
+            {
+                using (var loginForm = new UserLoginForm())
+                {
+                    var result = loginForm.ShowDialog();
+                    if (result == DialogResult.OK && loginForm.CurrentUser != null)
+                    {
+                        var CurrentUser = loginForm.CurrentUser;
+                        return true; // ✅ 登入成功
+                    }
+                }
+
+                // 失敗或關閉，詢問是否重試
+                var retry = MessageBox.Show(
+                    LanguageManager.Translate("User_Login_Form_Message"),
+                    LanguageManager.Translate("User_Login_Form_hint"),
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (retry == DialogResult.No)
+                {
+                    return false; // ❌ 不重試
+                }
+            }
+        }
+
     }
 }

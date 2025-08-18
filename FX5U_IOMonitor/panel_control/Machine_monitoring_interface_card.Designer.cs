@@ -48,6 +48,7 @@
             ClientSize = new Size(800, 477);
             Controls.Add(flowLayoutPanel1);
             Name = "Machine_monitoring_interface_card";
+            StartPosition = FormStartPosition.CenterParent;
             Text = "Form1";
             Load += Machine_monitoring_interface_card_Load;
             ResumeLayout(false);

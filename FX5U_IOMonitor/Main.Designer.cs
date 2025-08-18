@@ -220,8 +220,9 @@
             Controls.Add(panel_choose);
             Margin = new Padding(4);
             Name = "Main";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "視覺化元件監控";
-            Load += Main_Load;
+            Shown += Main_Shown;
             panel_choose.ResumeLayout(false);
             panel_select.ResumeLayout(false);
             panel_language.ResumeLayout(false);
