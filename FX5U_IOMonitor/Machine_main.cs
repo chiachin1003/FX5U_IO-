@@ -1,5 +1,6 @@
 ﻿using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;

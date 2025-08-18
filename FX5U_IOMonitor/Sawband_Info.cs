@@ -9,6 +9,7 @@ using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 
 
 

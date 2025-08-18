@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Npgsql;
@@ -20,13 +21,35 @@ using System.Xml.Linq;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace FX5U_IOMonitor.Models
 {
-    internal class Test_
+    public class Test_
     {
 
-       
+        public static void read_view()
+        {
+            IPlcClient client = PlcClientFactory.CreateByFrame("MC1E", "192.168.10.77", 2001);
+            bool a1 = client.Connect();
+            IPlcClient client2 = PlcClientFactory.CreateByFrame("MC3E", "192.168.9.2", 2000);
+
+            bool a2 = client2.Connect();
+
+            ushort[] a = client.ReadWords("D805", 200);                   
+            bool[] b = client.ReadBits("Y0", 16);
+            client.WriteWord("D900", 20);
+            ushort[] values = [20,15];
+            client.WriteWords("D800", values);
+
+            ushort[] aa = client2.ReadWords("D805", 200);
+            bool[] bb = client2.ReadBits("Y0", 256);
+            client2.WriteWord("D900", 20);
+            ushort[] valuess = [30, 20];
+            client2.WriteWords("D800", values);
+
+        }
+        
 
 
 
@@ -208,81 +231,81 @@ namespace FX5U_IOMonitor.Models
 
         }
 
-        public static Dictionary<string, RuntimebitTimer> timers = new();
-        System.Timers.Timer checkTimer;
-        public static bool isProcessing = false;
-        /// <summary>
-        /// 偵測到啟動時計時，測試用
-        /// </summary>
-        /// <param name="plc"></param>
-        public static void CheckTimers(SlmpClient plc)
-        {
+        //public static Dictionary<string, RuntimebitTimer> timers = new();
+        //System.Timers.Timer checkTimer;
+        //public static bool isProcessing = false;
+        ///// <summary>
+        ///// 偵測到啟動時計時，測試用
+        ///// </summary>
+        ///// <param name="plc"></param>
+        //public static void CheckTimers(SlmpClient plc)
+        //{
 
-            if (isProcessing) return; // 防止重入
+        //    if (isProcessing) return; // 防止重入
 
-            isProcessing = true;
+        //    isProcessing = true;
 
-            try
-            {
-                List<string> machine_output = DBfunction.Get_Machine_Calculate_type(2, "Drill");
-                List<(string name, string address)> a = DBfunction.Get_Calculate_Readbit_address(machine_output);
+        //    try
+        //    {
+        //        List<string> machine_output = DBfunction.Get_Machine_Calculate_type(2, "Drill");
+        //        List<(string name, string address)> a = DBfunction.Get_Calculate_Readbit_address(machine_output);
 
-                foreach (var (name, address) in a)
-                {
-                    bool isOn = plc.ReadBitDevice(address);
+        //        foreach (var (name, address) in a)
+        //        {
+        //            bool isOn = plc.ReadBitDevice(address);
 
-                    if (!timers.ContainsKey(name))
-                    {
-                        int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
-                        timers[name] = new MonitorFunction.RuntimebitTimer
-                        {
-                            HistoryValue = historyVal
-                        };
-                    }
+        //            if (!timers.ContainsKey(name))
+        //            {
+        //                int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
+        //                timers[name] = new MonitorFunction.RuntimebitTimer
+        //                {
+        //                    HistoryValue = historyVal
+        //                };
+        //            }
 
-                    var timer = timers[name];
+        //            var timer = timers[name];
 
-                    if (isOn)
-                    {
-                        timer.IsCounting = true;
-                        timer.NowValue += 1;
+        //            if (isOn)
+        //            {
+        //                timer.IsCounting = true;
+        //                timer.NowValue += 1;
 
-                        //DBfunction.Set_Machine_now_number(name, (ushort)timer.NowValue);
-                        Debug.WriteLine($"🟢 {name} 計時中：{timer.NowValue}");
+        //                //DBfunction.Set_Machine_now_number(name, (ushort)timer.NowValue);
+        //                Debug.WriteLine($"🟢 {name} 計時中：{timer.NowValue}");
 
-                        if ((timer.NowValue) >= 30)
-                        {
-                            timer.HistoryValue += timer.NowValue;
-                            //DBfunction.Set_Machine_History_NumericValue(name, (ushort)timer.HistoryValue);
-                            timer.NowValue = 0;
-                            //DBfunction.Set_Machine_now_number(name, 0);
-                            Debug.WriteLine($"📥 {name} 達 600 秒：寫入歷史 = {timer.HistoryValue}");
-                        }
-                    }
-                    else
-                    {
-                        if (timer.IsCounting && timer.NowValue > 0)
-                        {
-                            timer.HistoryValue += timer.NowValue;
-                            //DBfunction.Set_Machine_History_NumericValue(name, (ushort)timer.HistoryValue);
-                            //DBfunction.Set_Machine_now_number(name, 0);
-                            timer.NowValue = 0;
-                            Debug.WriteLine($"⏹ {name} 停止：寫入歷史 = {timer.HistoryValue}");
-                        }
+        //                if ((timer.NowValue) >= 30)
+        //                {
+        //                    timer.HistoryValue += timer.NowValue;
+        //                    //DBfunction.Set_Machine_History_NumericValue(name, (ushort)timer.HistoryValue);
+        //                    timer.NowValue = 0;
+        //                    //DBfunction.Set_Machine_now_number(name, 0);
+        //                    Debug.WriteLine($"📥 {name} 達 600 秒：寫入歷史 = {timer.HistoryValue}");
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (timer.IsCounting && timer.NowValue > 0)
+        //                {
+        //                    timer.HistoryValue += timer.NowValue;
+        //                    //DBfunction.Set_Machine_History_NumericValue(name, (ushort)timer.HistoryValue);
+        //                    //DBfunction.Set_Machine_now_number(name, 0);
+        //                    timer.NowValue = 0;
+        //                    Debug.WriteLine($"⏹ {name} 停止：寫入歷史 = {timer.HistoryValue}");
+        //                }
 
-                        timer.IsCounting = false;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"❌ 背景 Timer 發生錯誤：{ex.Message}");
-            }
-            finally
-            {
-                isProcessing = false;
-            }
-        }
+        //                timer.IsCounting = false;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine($"❌ 背景 Timer 發生錯誤：{ex.Message}");
+        //    }
+        //    finally
+        //    {
+        //        isProcessing = false;
+        //    }
+        //}
 
         void test2()
         {

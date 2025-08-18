@@ -89,7 +89,16 @@ namespace FX5U_IOMonitor.Models
                 return context.Machine.FirstOrDefault(a => a.Name == connect_machine);
             }
         }
-
+        public static string GetMachineType(string machine, string defaultType = "UNKnown")
+        {
+            using (var context = new ApplicationDB())
+            {
+                return context.Machine
+                              .Where(m => m.Name == machine)
+                              .Select(m => m.MC_Type)
+                              .FirstOrDefault() ?? defaultType;
+            }
+        }
         public static bool SetMachineIP(string connect_machine, string ip, string port, out string? errorMessage)
         {
             using (var context = new ApplicationDB())

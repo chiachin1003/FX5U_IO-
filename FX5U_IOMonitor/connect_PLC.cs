@@ -1,16 +1,18 @@
-﻿
-using FX5U_IOMonitor.Config;
+﻿using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Message;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Scheduling;
+using MCProtocol;
 using Modbus.Device; // 來自 NModbus4
 using SLMP;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Reflection.PortableExecutable;
 using static FX5U_IOMonitor.Message.Send_mode;
 using static FX5U_IOMonitor.Models.MonitoringService;
-using MCProtocol;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 
 
@@ -89,8 +91,9 @@ namespace FX5U_IOMonitor
                 if (existing != null && existing.IsConnected)
                     continue;
 
-                var plc = SLMP_connect(machine.IP_address, machine.Port);
-                if (plc == null)
+                var plc = PlcClientFactory.CreateByFrame(machine.MC_Type, machine.IP_address, machine.Port);
+                bool isconnect = plc.Connect();
+                if (isconnect == false)
                 {
                     Debug.WriteLine($"❌ {machine.Name} 無法連線");
                     failedMachines.Add(machine.Name);
@@ -181,55 +184,30 @@ namespace FX5U_IOMonitor
 
         }
 
-        private static SlmpClient? SLMP_connect(string IP, int port)
-        {
-
-            SlmpConfig cfg = new(IP, port);
-            cfg.ConnTimeout = 3000;
-            SlmpClient _plc = new(cfg);
-            try
-            {
-                _plc.Connect();
-                if (_plc.IsConnected())
-                {
-                    return _plc;
-                }
-                else 
-                { 
-                    return null; 
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-
-
-        }
-
-
         private void btn_connect_ethernet_Click(object sender, EventArgs e)
         {
             string connect_machine = control_choose.Text;
+            string ip = txb_IP.Text.Trim();
+            if (!int.TryParse(txb_port.Text, out int port)) { MessageBox.Show("Port 格式錯誤"); return; }
 
             // 先判斷 Drill 是否已經連線
             var existingContext = MachineHub.Get(connect_machine);
             if (existingContext != null && existingContext.IsConnected)
             {
-                return;
-
+                return; 
             }
-            var plc = SLMP_connect(txb_IP.Text.Trim(), int.Parse(txb_port.Text));
-            if (plc == null)
+
+            string frameText = comb_MC_Type.Text;
+
+            var plc = PlcClientFactory.CreateByFrame(frameText,txb_IP.Text.Trim(), int.Parse(txb_port.Text));
+            bool isconnect = plc.Connect();
+            if (isconnect == false)
             {
                 MessageBox.Show($"連線失敗，請檢查硬體IP及位置後重新連線");
                 return;
             }
-
             // 註冊機台與自動掛上監控器
             MachineHub.RegisterMachine(connect_machine, plc);
-
             // 取得註冊後的 context
             var context = MachineHub.Get(connect_machine);
             if (context == null || !context.IsConnected)
@@ -237,7 +215,6 @@ namespace FX5U_IOMonitor
                 MessageBox.Show($"註冊後讀取 {connect_machine} 資訊失敗");
                 return;
             }
-            
             
             // 告知 Monitor 要使用對應 Lock
             context.Monitor.SetExternalLock(context.LockObject);

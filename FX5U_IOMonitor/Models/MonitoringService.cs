@@ -1,5 +1,6 @@
 ﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Message;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -60,7 +61,7 @@ namespace FX5U_IOMonitor.Models
             public event EventHandler<MachineParameterChangedEventArgs>? MachineParameterChanged;
 
 
-            private SlmpClient plc;
+            private IPlcClient plc;
             private object? externalLock;
             private bool isFirstRead = true; // 實體元件監控是否初始化
             private bool alarmFirstRead = true;
@@ -72,14 +73,14 @@ namespace FX5U_IOMonitor.Models
 
 
             // 宣告目標 plc 
-            public MonitorService(SlmpClient PLC, string machineName)
+            public MonitorService(IPlcClient PLC, string machineName)
             {
                 this.plc = PLC;
                 this.MachineName = machineName;
                 bool isFirstRead = true;
                 bool alarmFirstRead = true; // 實體元件監控是否初始化
 
-        }
+             }
 
         /// <summary>
         /// 
@@ -105,10 +106,13 @@ namespace FX5U_IOMonitor.Models
             {
                 List<now_single> old_single = DBfunction.Get_Machine_current_single_all(machinname);
                 string format = DBfunction.Get_Element_baseType(machinname);
-                var Drill = Calculate.AnalyzeIOSections(machinname, format); 
+                var Drill = Calculate.AnalyzeIOSections(machinname, format);
+                string mcType = DBfunction.GetMachineType(machinname); // 判斷使用哪個
+
                 var sectionGroups = Drill
                     .GroupBy(s => s.Prefix)
-                    .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
+                    .ToDictionary(g => g.Key,
+                    g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First(), mcType));
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
                 lock (externalLock ?? new object())
@@ -128,7 +132,9 @@ namespace FX5U_IOMonitor.Models
                             string device = prefix + block.Start;
                             try
                             {
-                                bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                //bool[] plc_result = plc.ReadBitDevice(device, (ushort)block.Range);
+                                bool[] plc_result = plc.ReadBits(device, (ushort)block.Range);
+
                                 var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
                                 if (isFirstRead)
                                 {
@@ -282,6 +288,7 @@ namespace FX5U_IOMonitor.Models
                 List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
 
                 var alarm = Calculate.Alarm_trans();
+
                 var sectionGroups = alarm
                     .GroupBy(s => s.Prefix)
                     .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
@@ -298,7 +305,9 @@ namespace FX5U_IOMonitor.Models
                             string device = prefix + block.Start;
                             try
                             {
-                                bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                //bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                bool[] plc_result = plc.ReadBits(device, 256);
+
                                 var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
                                 if (isFirstRead)
                                 {
@@ -415,7 +424,9 @@ namespace FX5U_IOMonitor.Models
 
                                     lock (externalLock ?? new object())
                                     {
-                                        readResults = plc.ReadWordDevice(device, 256);
+                                        //readResults = plc.ReadWordDevice(device, 256);
+                                        readResults = plc.ReadWords(device, 256);
+
                                     }
 
                                     List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
@@ -444,7 +455,9 @@ namespace FX5U_IOMonitor.Models
                                                 ushort value = (ushort)(DBfunction.Get_History_NumericValue(machine_name, name));  // 範例：寫入秒數
                                                 lock (externalLock ?? new object())
                                                 {
-                                                    plc.WriteWordDevice(match.address, value);
+                                                   // plc.WriteWordDevice(match.address, value);
+                                                    plc.WriteWord(match.address, value);
+
                                                 }
                                                 //Debug.WriteLine($" [{name}] Machine=1 → 寫入次數：{value}");
                                             }
@@ -462,7 +475,9 @@ namespace FX5U_IOMonitor.Models
 
                                                 lock (externalLock ?? new object())
                                                 {
-                                                    plc.WriteWordDevice(match.address, write2plc);
+                                                    //plc.WriteWordDevice(match.address, write2plc);
+                                                    plc.WriteWords(match.address, write2plc);
+
                                                 }
                                                 //ushort[] write2plc = MonitorFunction.SmartWordSplit(value, (int)address_index);
                                                 //lock (externalLock ?? new object())
@@ -533,9 +548,11 @@ namespace FX5U_IOMonitor.Models
                                         .ToList();
 
                             var paramLists = Calculate.SplitAddressSections(prefixes);
+                            string mcType = DBfunction.GetMachineType(machine_name); 
+
                             var sectionGroups = paramLists
                                .GroupBy(s => s.Prefix)
-                               .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
+                               .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First(), mcType));
 
                             foreach (var prefix in sectionGroups.Keys)
                             {
@@ -549,7 +566,9 @@ namespace FX5U_IOMonitor.Models
 
                                     lock (externalLock ?? new object())
                                     {
-                                        readResults = plc.ReadBitDevice(device, 256);
+                                        //readResults = plc.ReadBitDevice(device, (ushort)block.Range);
+                                        readResults = plc.ReadBits(device, (ushort)block.Range);
+
                                     }
 
                                     List<now_single> result = Calculate.Convert_alarmsingle(readResults, prefix, block.Start);
@@ -778,7 +797,8 @@ namespace FX5U_IOMonitor.Models
 
                             lock (externalLock ?? new object())
                             {
-                                readResults = plc.ReadWordDevice(device, 256);
+                                //readResults = plc.ReadWordDevice(device, 256);
+                                readResults = plc.ReadWords(device, 256);
                             }
 
                             List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);

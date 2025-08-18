@@ -111,6 +111,7 @@
             Name = "UserLoginForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "使用者登入";
+            Load += UserLoginForm_Load;
             ResumeLayout(false);
             PerformLayout();
         }

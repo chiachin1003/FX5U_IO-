@@ -349,6 +349,8 @@ namespace FX5U_IOMonitor.Models
             public string Prefix { get; set; }
             public int Start { get; set; }
             public int End { get; set; }
+            public int Range { get; set; }
+
 
             public override string ToString() => $"{Prefix}{Start:X3} ~ {Prefix}{End:X3}";
         }
@@ -374,38 +376,40 @@ namespace FX5U_IOMonitor.Models
 
                 return result;
             }
+            public static List<AddressBlockRange> ExpandToBlockRanges(
+            IOSectionInfo section,
+            string mcType,
+            int defaultBlockSize = 256)
+            {
+                var result = new List<AddressBlockRange>();
+
+                // 依機型決定單位：MC1E=128，其它=defaultBlockSize(預設256)
+                int unit = string.Equals(mcType, "MC1E", StringComparison.OrdinalIgnoreCase) ? 128 : defaultBlockSize;
+
+                // 將 [StartAddress..EndAddress] 依 unit 切段
+                int total = section.EndAddress - section.StartAddress + 1;   // 總長度（含頭尾）
+                if (total <= 0) return result;
+
+                int blocks = (total + unit - 1) / unit; // ceil(total / unit)
+
+                for (int i = 0; i < blocks; i++)
+                {
+                    int start = section.StartAddress + i * unit;
+                    int end = Math.Min(start + unit - 1, section.EndAddress);
+
+                    result.Add(new AddressBlockRange
+                    {
+                        Prefix = section.Prefix,
+                        Start = start,
+                        End = end,
+                        Range = end - start + 1 // 可能是 unit，也可能是最後一段不足 unit
+                    });
+                }
+
+                return result;
+            }
         }
-        public static List<IOSectionInfo> Drill_test() ///測試用(實機測試不用)
-        {
-            using var context = new ApplicationDB();
-            var drillList = context.Machine_IO.Where(d => d.Machine_name == "Drill").ToList();
-
-
-            var result = new List<IOSectionInfo>();
-
-            var xList = drillList
-                .Where(d => d.address.StartsWith("X"))
-                .Select(d => SafeParseAddressStrictly(d.address, 'X', 8)) // or base 8
-                .Where(val => val.HasValue)
-                .Select(val => val.Value)
-                .ToList();
-
-
-            if (xList.Any())
-                result.Add(BuildSectionFormatted("X", xList, "hex"));
-
-            var yList = drillList
-                .Where(d => d.address.StartsWith("Y"))
-                .Select(d => SafeParseAddressStrictly(d.address, 'Y', 8)) // or base 8
-                .Where(val => val.HasValue)
-                .Select(val => val.Value)
-                .ToList();
-
-            if (yList.Any())
-                result.Add(BuildSectionFormatted("Y", yList, "hex"));
-
-            return result;
-        }
+     
         public static int? SafeParseAddressStrictly(string address, char prefix, int baseFormat) 
         {
             if (string.IsNullOrWhiteSpace(address) || !address.StartsWith(prefix))

@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using SLMP;
@@ -76,7 +77,7 @@ namespace FX5U_IOMonitor
             InitTimeCards();
             InitPowerCards();
             // 如果 PLC 已連線就開始背景更新
-            if (MachineHub.Get("Sawing")?.IsConnected == true)
+            if (Models.MachineHub.Get("Sawing")?.IsConnected == true)
             {
                 _cts = new CancellationTokenSource();
                 _ = Task.Run(() => AutoUpdateAsync(_cts.Token));

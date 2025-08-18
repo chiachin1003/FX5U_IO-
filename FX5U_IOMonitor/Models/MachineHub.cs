@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Data;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using SLMP;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace FX5U_IOMonitor.Models
         /// <summary>
         /// 註冊機台並初始化監控器與連線狀態
         /// </summary>
-        public static void RegisterMachine(string name, SlmpClient plc)
+        public static void RegisterMachine(string name, IPlcClient plc)
         {
             var context = new MachineContext
             {
@@ -79,7 +80,7 @@ namespace FX5U_IOMonitor.Models
         /// <summary>
         /// 取得對應名稱的 SlmpClient
         /// </summary>
-        public static SlmpClient? GetPlc(string name)
+        public static IPlcClient? GetPlc(string name)
         {
             return machines.TryGetValue(name, out var context) ? context.Plc : null;
         }
@@ -120,7 +121,7 @@ namespace FX5U_IOMonitor.Models
     public class MachineContext : IMachineContext
     {
         public string MachineName { get; set; } = string.Empty;
-        public SlmpClient Plc { get; set; }
+        public IPlcClient Plc { get; set; }
         public CancellationTokenSource TokenSource { get; set; }
         public object LockObject { get; set; } = new object();
         public MonitorService Monitor { get; set; }
