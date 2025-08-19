@@ -56,6 +56,14 @@ namespace FX5U_IOMonitor.Models
             modelBuilder.Entity<ScheduleTag>().HasData(
                 new ScheduleTag { Id = 1, Name = SD.Default_Schedule_Tag });
 
+            // OnModelCreating
+            modelBuilder.Entity<MachineIO>()
+                .HasIndex(x => new { x.Machine_name, x.address })
+                .IsUnique();
+
+            modelBuilder.Entity<MachineIOTranslation>()
+                .HasIndex(x => new { x.MachineIOId, x.LanguageCode })
+                .IsUnique(); // 依你的實務唯一鍵調整
 
             // 為所有實體表添加同步欄位
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())

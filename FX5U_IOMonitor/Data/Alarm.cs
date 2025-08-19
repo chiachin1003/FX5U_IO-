@@ -81,6 +81,8 @@ namespace FX5U_IOMonitor.Data
         public DateTime? EndTime { get; set; }     // 故障排除時間
         public TimeSpan? Duration { get; set; }    // 故障持續時間
         public DateTime RecordTime { get; set; }   // 記錄時間
+        public string? Note { get; set; }   // 備註
+
         public int Records { get; set; }   // 記錄警告發送次數
 
     }
@@ -93,6 +95,8 @@ namespace FX5U_IOMonitor.Data
         public string classTag { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
+        public string Note { get; set; }
+
         public TimeSpan? Duration { get; set; }    // 故障持續時間
 
     }

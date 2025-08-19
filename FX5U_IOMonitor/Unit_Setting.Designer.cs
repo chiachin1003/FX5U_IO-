@@ -41,16 +41,16 @@
             panel_unit.Dock = DockStyle.Fill;
             panel_unit.Location = new Point(0, 0);
             panel_unit.Name = "panel_unit";
-            panel_unit.Size = new Size(204, 129);
+            panel_unit.Size = new Size(216, 148);
             panel_unit.TabIndex = 17;
             // 
             // btn_unit
             // 
             btn_unit.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             btn_unit.BackColor = SystemColors.ButtonHighlight;
-            btn_unit.Location = new Point(89, 71);
+            btn_unit.Location = new Point(89, 96);
             btn_unit.Name = "btn_unit";
-            btn_unit.Size = new Size(85, 28);
+            btn_unit.Size = new Size(97, 28);
             btn_unit.TabIndex = 17;
             btn_unit.Text = "單位切換";
             btn_unit.UseVisualStyleBackColor = false;
@@ -61,10 +61,11 @@
             comb_unit.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             comb_unit.BackColor = SystemColors.ButtonHighlight;
             comb_unit.DropDownStyle = ComboBoxStyle.DropDownList;
+            comb_unit.Font = new Font("Microsoft JhengHei UI", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 136);
             comb_unit.FormattingEnabled = true;
             comb_unit.Location = new Point(23, 28);
             comb_unit.Name = "comb_unit";
-            comb_unit.Size = new Size(151, 23);
+            comb_unit.Size = new Size(163, 43);
             comb_unit.TabIndex = 18;
             // 
             // Unit_Setting
@@ -72,8 +73,9 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
-            ClientSize = new Size(204, 129);
+            ClientSize = new Size(216, 148);
             Controls.Add(panel_unit);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "Unit_Setting";

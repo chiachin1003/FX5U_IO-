@@ -106,21 +106,19 @@ namespace FX5U_IOMonitor
                 machineButtons.Add(btn);
 
                 panel_choose.Controls.Add(btn);
-                panel_choose.Controls.SetChildIndex(btn, indexBelowMain); // ✅ 固定插在原本 btn_Main 的位置
+                panel_choose.Controls.SetChildIndex(btn, indexBelowMain); // 順序向下插入原本 btn_Main 的位置
             }
 
             InitLanguageComboBox();
 
 
-            _instance = this;  // 確保單例指向目前的主視窗
+            _instance = this; 
             plcForm = new Connect_PLC(this);
             Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
 
             search_main = new Search_main();
 
             this.Shown += MainForm_Shown;
-
-            //DBfunction.Initiali_current_single();
 
             main_Form = new Home_Page();
             main_Form.TopLevel = false; // 禁止作為獨立窗口
@@ -203,42 +201,6 @@ namespace FX5U_IOMonitor
 
         }
 
-
-        /// <summary>
-        /// 登入機能的設定尚未完成
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void log_in_Setting()
-        {
-            using (var form = new UserLoginForm())
-            {
-                form.StartPosition = FormStartPosition.CenterParent;
-                var result = form.ShowDialog(this);
-                if (result == DialogResult.OK)
-                {
-
-
-                    if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
-                    {
-                        btn_search.Enabled = true;
-
-                    }
-                    else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)
-                    {
-
-                    }
-                    else if (UserService<ApplicationDB>.CurrentRole == SD.Role_User)
-                    {
-
-                    }
-                    LoginSucceeded?.Invoke(this, EventArgs.Empty);
-
-                    MessageBox.Show($"{LanguageManager.Translate("User_Login_Welcome")} {UserService<ApplicationDB>.CurrentRole}: {UserService<ApplicationDB>.CurrentUser.UserName}");
-                }
-            }
-        }
-
         private void btn_log_out_Click(object sender, EventArgs e)
         {
             using (var userService = LocalDbProvider.GetUserService())
@@ -247,7 +209,7 @@ namespace FX5U_IOMonitor
             }
             LogoutSucceeded?.Invoke(this, EventArgs.Empty);
 
-            this.Hide();            // 隱藏當前主畫面
+            this.Enabled = false;
 
             bool loginSucceeded = false;
 
@@ -259,6 +221,8 @@ namespace FX5U_IOMonitor
                 if (result == DialogResult.OK)
                 {
                     loginSucceeded = true;
+                    this.Enabled = true;
+
                 }
                 else
                 {

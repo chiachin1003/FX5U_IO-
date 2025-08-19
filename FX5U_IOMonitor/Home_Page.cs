@@ -9,6 +9,7 @@ using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
 using SLMP;
 using System.Diagnostics;
+using System.Windows.Forms;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
@@ -31,7 +32,6 @@ namespace FX5U_IOMonitor
         private static readonly SemaphoreSlim _syncLock = new(1, 1);
         private static ApplicationDB? _SysLocal;
         private static CloudDbContext? _SysCloud;
-        private bool _isSwitching = false;
 
         public Home_Page()
         {
@@ -373,56 +373,67 @@ namespace FX5U_IOMonitor
 
         private async void btn_toggle_Click(object sender, EventArgs e)
         {
-            if (_isSwitching) return;
 
-            _isSwitching = true;
+            btn_toggle.Enabled = false;
 
-            if (_SysCloud == null) // 將嘗試建立連線
+            try
             {
-                await ConnectAndStartSyncAsync(btn_toggle);
-                _isSwitching = false;
+                // 若尚未建立或不可連線，先嘗試連線一次
+                var connected = _SysCloud != null && await _SysCloud.Database.CanConnectAsync();
+                if (!connected)
+                {
+                    await ConnectAndStartSyncAsync(btn_toggle);   
+                    connected = _SysCloud != null && await _SysCloud.Database.CanConnectAsync();
+                    if (!connected)
+                    {
+                        btn_toggle.Text = "Disconnected";
+                        btn_toggle.BackColor = Color.Gainsboro;
+                        btn_toggle.ForeColor = Color.Black;
+                        btn_toggle.Enabled = true;
+                        return;
+                    }
+                }
+
+                // 開始連線-切換同步狀態
+                if (_autoSyncRunning)
+                {
+                    // 停止同步
+                    btn_toggle.Text = "Stopping...";
+                    await StopAutoSyncAsync();
+
+                    btn_toggle.Text = "Start Sync";
+                    btn_toggle.BackColor = Color.Gainsboro;
+                    btn_toggle.ForeColor = Color.Black;
+                    btn_toggle.Enabled = true;
+                }
+                else
+                {
+                    // 開始同步
+                    btn_toggle.Text = "Starting...";
+                    await StartAutoSyncAsync(TimeSpan.FromMinutes(0.5)); // 自訂間隔
+
+                    btn_toggle.Text = "Stop Sync";
+                    btn_toggle.BackColor = Color.DodgerBlue;
+                    btn_toggle.ForeColor = Color.White;
+                    btn_toggle.Enabled = true;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                btn_toggle.Enabled = false;
+                MessageBox.Show($"切換同步時發生錯誤：{ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                // 回復按鈕狀態
+                btn_toggle.Text = _autoSyncRunning ? "Stop Sync" : "Start Sync";
+                btn_toggle.Enabled = true;
             }
+
+
 
         }
-        /// <summary>
-        /// 開啟地端同步計時器
-        /// </summary>
-        private static void StartAutoSync()
-        {
-            if (_SysLocal == null || _SysCloud == null)
-                return;
-
-            var localTimer = new System.Timers.Timer(30_000); // ← 使用局部變數
-            _syncTimer = localTimer;
-
-            localTimer.Elapsed += async (s, e) =>
-            {
-                localTimer.Enabled = false; // ✅ 使用封閉實體，避免 null 錯誤
-                await _syncLock.WaitAsync();
-
-                try
-                {
-                    await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"❌ 同步時發生錯誤：{ex.Message}");
-                }
-                finally
-                {
-                    _syncLock.Release();
-                    localTimer.Enabled = true;
-                }
-            };
-
-            localTimer.AutoReset = true;
-            localTimer.Enabled = true;
-        }
-
+        private CancellationTokenSource? _autoSyncCts;
+        private Task? _autoSyncTask;
+        private volatile bool _autoSyncRunning;   // 方便判斷目前是否在自動同步
         /// <summary>
         /// 重新連線
         /// </summary>
@@ -430,37 +441,119 @@ namespace FX5U_IOMonitor
         /// <returns></returns>
         private async Task ConnectAndStartSyncAsync(Button control)
         {
-            DbConfig.LoadFromJson("DbConfig.json");
-            _SysCloud = new CloudDbContext();
-            _SysLocal ??= new ApplicationDB();
-
-            if (_SysCloud != null)
+            try
             {
-                control.Text = "Local";
-                control.BackColor = Color.LightBlue;
-                control.ForeColor = Color.Black;
-                control.Enabled = false;
-                //await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                await StopAutoSyncAsync(); 
+
+                DbConfig.LoadFromJson("DbConfig.json");
+                // 先把舊的 context 正確釋放
+                if (_SysCloud != null) { await _SysCloud.DisposeAsync(); _SysCloud = null; }
+                if (_SysLocal != null) { await _SysLocal.DisposeAsync(); _SysLocal = null; }
+
+                _SysCloud = new CloudDbContext();
+                _SysLocal = new ApplicationDB();
 
                 control.Text = "Connecting";
                 control.BackColor = Color.LightBlue;
                 control.ForeColor = Color.Black;
                 control.Enabled = false;
 
+                // 先檢查本地與雲端是否能連
+                var cloudOk = await _SysCloud.Database.CanConnectAsync();
+
+                if (!cloudOk)
+                {
+                    control.Text = "Disconnected";
+                    control.BackColor = Color.Gainsboro;
+                    control.ForeColor = Color.Black;
+                    btn_toggle.Enabled = true;         
+                    return;
+                }
+
+                control.Text = "Syncing...";
+                control.BackColor = Color.DodgerBlue;
+                control.ForeColor = Color.Black;
+                await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+
                 await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
-                StartAutoSync();
+                await StartAutoSyncAsync(TimeSpan.FromSeconds(30)); // ★ 改用 async 版
 
                 control.Text = "Connected";
                 control.BackColor = Color.DodgerBlue;
                 control.ForeColor = Color.White;
-                control.Enabled = false;
+                control.Enabled = true;
+
             }
-            else
+            catch (Exception ex)
             {
                 control.Text = "Disconnected";
                 control.BackColor = Color.Gainsboro;
                 control.ForeColor = Color.Black;
+                //btn_toggle.Enabled = true;
             }
         }
+        /// <summary>
+        /// 開啟同步
+        /// </summary>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        private Task StartAutoSyncAsync(TimeSpan? interval = null)
+        {
+            if (_autoSyncRunning) return Task.CompletedTask; // 已在跑就略過
+            _autoSyncRunning = true;
+
+            _autoSyncCts = new CancellationTokenSource();
+            var token = _autoSyncCts.Token;
+            var gap = interval ?? TimeSpan.FromMinutes(0.5);   // 同步間隔
+
+            _autoSyncTask = Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        // 開啟同步
+                        await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break; // 被取消就跳出
+                    }
+                    catch (Exception ex)
+                    {
+                        // 記一下錯誤，但不中斷整體 loop
+                        Message_Config.LogMessage($"AutoSync error: {ex.Message}");
+                    }
+
+                    try { await Task.Delay(gap, token); }
+                    catch (OperationCanceledException) { break; }
+                }
+            }, token);
+
+            return Task.CompletedTask;
+        }
+        /// <summary>
+        /// 關閉同步
+        /// </summary>
+        /// <returns></returns>
+        private async Task StopAutoSyncAsync()
+        {
+            if (!_autoSyncRunning) return;
+
+            try
+            {
+                _autoSyncCts?.Cancel();
+                if (_autoSyncTask != null)
+                    await _autoSyncTask.ConfigureAwait(false);
+            }
+            finally
+            {
+                _autoSyncTask = null;
+                _autoSyncCts?.Dispose();
+                _autoSyncCts = null;
+                _autoSyncRunning = false;
+            }
+        }
+
     }
 }

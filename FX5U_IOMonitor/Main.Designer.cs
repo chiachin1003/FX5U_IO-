@@ -218,6 +218,7 @@
             Controls.Add(panel_main);
             Controls.Add(panel_select);
             Controls.Add(panel_choose);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(4);
             Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;

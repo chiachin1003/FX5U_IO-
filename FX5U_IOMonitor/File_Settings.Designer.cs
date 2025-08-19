@@ -133,6 +133,9 @@
             Controls.Add(comb_datatable);
             Controls.Add(btn_download);
             Controls.Add(lab_TableSelect);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "File_Settings";
             StartPosition = FormStartPosition.CenterParent;
             Text = "檔案更新";

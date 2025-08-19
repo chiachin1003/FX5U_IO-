@@ -150,7 +150,7 @@ namespace FX5U_IOMonitor.Models
 
             }
         }
-        public static List<now_single> Convert_alarmsingle(bool[] plc, string InorOut, int startIndex)
+        public static List<now_single> Convert_Single(bool[] plc, string InorOut, int startIndex)
         {
             if (plc == null || plc.Length == 0 || string.IsNullOrEmpty(InorOut))
             {

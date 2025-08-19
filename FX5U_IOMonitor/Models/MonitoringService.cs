@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Utilities.Net;
 using SLMP;
 using System;
 using System.Collections;
@@ -40,6 +41,8 @@ namespace FX5U_IOMonitor.Models
             public string Address { get; set; }
             public bool NewValue { get; set; }
             public bool OldValue { get; set; }
+            public int? AdditionalValue { get; set; } // 新增：對應的字串
+            public string? AdditionalAddress { get; set; } // 新增：對應的地址
         }
 
         public class MonitorService
@@ -53,8 +56,7 @@ namespace FX5U_IOMonitor.Models
 
             private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
             private Dictionary<string, RULThresholdInfo> _rulCache = new();
-            private DateTime _lastRULCacheTime = DateTime.MinValue;
-            private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(5);
+
 
             public string MachineName { get; }
 
@@ -65,10 +67,12 @@ namespace FX5U_IOMonitor.Models
             private object? externalLock;
             private bool isFirstRead = true; // 實體元件監控是否初始化
             private bool alarmFirstRead = true;
+            private readonly object _ioLock = new();
+            private object _lockRef;
 
-            public void SetExternalLock(object locker)
+            public void SetExternalLock(object? locker)
             {
-                this.externalLock = locker;
+                _lockRef = locker ?? _ioLock;
             }
 
 
@@ -77,18 +81,19 @@ namespace FX5U_IOMonitor.Models
             {
                 this.plc = PLC;
                 this.MachineName = machineName;
-                bool isFirstRead = true;
-                bool alarmFirstRead = true; // 實體元件監控是否初始化
+                this.isFirstRead = true; 
+                this.alarmFirstRead = true;
+                _lockRef = _ioLock;   // 先用保底鎖
 
-             }
+            }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name=""></param>
-        /// <returns></returns>
-        public async Task MonitoringLoop(CancellationToken token, string machinname)
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="token"></param>
+            /// <param name=""></param>
+            /// <returns></returns>
+            public async Task MonitoringLoop(CancellationToken token, string machinname)
             {
                 
                 while (!token.IsCancellationRequested)
@@ -115,7 +120,7 @@ namespace FX5U_IOMonitor.Models
                     g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First(), mcType));
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                lock (externalLock ?? new object())
+                lock (_lockRef)
                 {
                     //if ((DateTime.Now - _lastRULCacheTime) > _cacheDuration || _rulCache.Count == 0)
                     //{
@@ -294,8 +299,7 @@ namespace FX5U_IOMonitor.Models
                     .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
 
 
-                lock (externalLock ?? new object())
-                {
+               
                     foreach (var prefix in sectionGroups.Keys)
                     {
                         var blocks = sectionGroups[prefix];
@@ -303,15 +307,18 @@ namespace FX5U_IOMonitor.Models
                         foreach (var block in blocks)
                         {
                             string device = prefix + block.Start;
+                            bool[] plc_result;
                             try
                             {
-                                //bool[] plc_result = plc.ReadBitDevice(device, 256);
-                                bool[] plc_result = plc.ReadBits(device, 256);
-
-                                var result = Calculate.Convert_alarmsingle(plc_result, prefix, block.Start);
+                                lock (_lockRef)
+                                {
+                                    //bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                    plc_result = plc.ReadBits(device, 256); //256為SLMP_一次讀取的bit的最大值
+                                }
+                                var result = Calculate.Convert_Single(plc_result, prefix, block.Start);
                                 if (isFirstRead)
                                 {
-                                   Calculate.UpdatealarmCurrentSingleToDB(result);
+                                    Calculate.UpdatealarmCurrentSingleToDB(result);
                                 }
                                 else
                                 {
@@ -326,7 +333,7 @@ namespace FX5U_IOMonitor.Models
                                 return; // 中止此次讀取
                             }
                         }
-                    }
+                   
 
                 }
                 alarmFirstRead = false; // ✅ 完成第一次後設定為 false
@@ -359,12 +366,26 @@ namespace FX5U_IOMonitor.Models
                             if (oldVal != newVal)
                             {
                                 ioMatch.current_single = newVal;
+                                // 檢查是否需要讀取對應的數值
+                                int? additionalValue = null;
+                                string additionalAddress = null;
+                                if (_alarmToDataMapping.TryGetValue(now.address, out additionalAddress))
+                                {
+                                    lock (_lockRef)
+                                    {
+                                        ushort[] result = plc.ReadWords(additionalAddress, 1);
+                                        additionalValue = result[0];
+                                    }
+                                    // 讀取對應的數值
+                                }
 
                                 alarm_event?.Invoke(this, new IOUpdateEventArgs
                                 {
                                     Address = now.address,
                                     OldValue = oldVal,
-                                    NewValue = newVal
+                                    NewValue = newVal,
+                                    AdditionalValue = additionalValue,
+                                    AdditionalAddress = additionalAddress
                                 });
 
                             }
@@ -373,7 +394,15 @@ namespace FX5U_IOMonitor.Models
 
                 }
             }
-
+            private readonly Dictionary<string, string> _alarmToDataMapping = new Dictionary<string, string>
+            {
+                { "L8030", "ZR40400" },
+                { "L8160", "ZR40410" },
+                { "L8190", "ZR40420" },
+                { "L30", "R4000" },
+                { "L60", "R4010" },
+                { "L90", "R4020" }
+            };
 
 
             private readonly Dictionary<string, bool> lastStates = new();
@@ -422,7 +451,7 @@ namespace FX5U_IOMonitor.Models
                                 {
                                     string device = prefix + block.Start;
 
-                                    lock (externalLock ?? new object())
+                                    lock (_lockRef)
                                     {
                                         //readResults = plc.ReadWordDevice(device, 256);
                                         readResults = plc.ReadWords(device, 256);
@@ -453,7 +482,7 @@ namespace FX5U_IOMonitor.Models
                                             {
                                                 // 寫入固定值、遞增值、時間戳等你自訂邏輯
                                                 ushort value = (ushort)(DBfunction.Get_History_NumericValue(machine_name, name));  // 範例：寫入秒數
-                                                lock (externalLock ?? new object())
+                                                lock (_lockRef)
                                                 {
                                                    // plc.WriteWordDevice(match.address, value);
                                                     plc.WriteWord(match.address, value);
@@ -473,7 +502,7 @@ namespace FX5U_IOMonitor.Models
 
                                                 ushort[] write2plc = MonitorFunction.SmartWordSplit(value.Value, 2,1);
 
-                                                lock (externalLock ?? new object())
+                                                lock (_lockRef)
                                                 {
                                                     //plc.WriteWordDevice(match.address, write2plc);
                                                     plc.WriteWords(match.address, write2plc);
@@ -564,14 +593,14 @@ namespace FX5U_IOMonitor.Models
                                     string device = prefix + block.Start;
                                     Checkpoint_time.Start("Drill_main");
 
-                                    lock (externalLock ?? new object())
+                                    lock (_lockRef)
                                     {
                                         //readResults = plc.ReadBitDevice(device, (ushort)block.Range);
                                         readResults = plc.ReadBits(device, (ushort)block.Range);
 
                                     }
 
-                                    List<now_single> result = Calculate.Convert_alarmsingle(readResults, prefix, block.Start);
+                                    List<now_single> result = Calculate.Convert_Single(readResults, prefix, block.Start);
 
                                     // 對目前這個區塊內的參數做處理（篩選 paramList 中對應此區塊的）
                                     var relevantParams = paramList
@@ -795,7 +824,7 @@ namespace FX5U_IOMonitor.Models
                             string device = prefix + block.Start;
                             Checkpoint_time.Start("Saw_main");
 
-                            lock (externalLock ?? new object())
+                            lock (_lockRef )
                             {
                                 //readResults = plc.ReadWordDevice(device, 256);
                                 readResults = plc.ReadWords(device, 256);

@@ -84,6 +84,9 @@
             Controls.Add(btn_Confirm);
             Controls.Add(check_Line);
             Controls.Add(check_Email);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "Receive_Notification";
             StartPosition = FormStartPosition.CenterParent;
             Text = "接收通知設定";

@@ -318,6 +318,9 @@
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(516, 318);
             Controls.Add(tabControl1);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "Notification_Settings";
             StartPosition = FormStartPosition.CenterParent;
             Load += Email_Settings_Load;

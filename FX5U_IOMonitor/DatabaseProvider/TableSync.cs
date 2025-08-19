@@ -504,26 +504,25 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 Debug.WriteLine($"⚠️ 寫入同步 log 檔案失敗：{ex.Message}");
             }
         }
-        public static void LogSyncResult(SyncResult? result = null, int direction =0)
+        public static void LogSyncResult(string message,SyncResult? result = null, int direction =0)
         {
-            string message;
-
-            if (direction == 0)
+            if (result == null)
             {
-                message = $"地端資料上傳至雲端資料庫表格 [{result.TableName}] 完成：新增 {result.Added} 筆，更新 {result.Updated} 筆，共 {result.Total} 筆";
-            }
-            else if (direction == 1)
-            {
-                message = $"雲端資料庫已同步至地端資料庫表格 [{result.TableName}] 完成：新增 {result.Added} 筆，更新 {result.Updated} 筆，共 {result.Total} 筆";
-            }
-            else if (direction == 2)
-            {
-                message = $"地端資料表上傳雲端失敗";
+                // 🛑 沒有結果 → 顯示未更新
+                message = "表格未更新";
             }
             else
             {
-                message = $"雲端資料表同步地端失敗";
+                if (direction == 0)
+                {
+                    message = $"地端資料上傳至雲端資料庫表格 [{result.TableName}] 完成：新增 {result.Added} 筆，更新 {result.Updated} 筆，共 {result.Total} 筆";
+                }
+                else if (direction == 1)
+                {
+                    message = $"雲端資料庫已同步至地端資料庫表格 [{result.TableName}] 完成：新增 {result.Added} 筆，更新 {result.Updated} 筆，共 {result.Total} 筆";
+                }
             }
+           
             OnLogMessage(message);
         }
         /// <summary>
@@ -539,7 +538,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
                 if (cloud == null)
                 {
-                    TableSync.LogSyncResult(direction: 2);
+                    TableSync.LogSyncResult("雲端資料庫未連線");
                     return;
                 }
 
@@ -554,14 +553,14 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 var AlarmHistories = await TableSync.SyncFromLocalToCloud_AddOnly<AlarmHistory>(local, cloud, "AlarmHistories");
 
                 // 記錄 log
-                TableSync.LogSyncResult(Machine);
-                TableSync.LogSyncResult(Histories);
-                TableSync.LogSyncResult(MachineParameters);
-                TableSync.LogSyncResult(AlarmHistories);
-                TableSync.LogSyncResult(Machine_IO);
-                TableSync.LogSyncResult(MachineParameterHistoryRecode);
-                TableSync.LogSyncResult(MachineIOTranslations);
-                TableSync.LogSyncResult(alarm);
+                TableSync.LogSyncResult("",Machine);
+                TableSync.LogSyncResult("", Histories);
+                TableSync.LogSyncResult("", MachineParameters);
+                TableSync.LogSyncResult("", AlarmHistories);
+                TableSync.LogSyncResult("", Machine_IO);
+                TableSync.LogSyncResult("", MachineParameterHistoryRecode);
+                TableSync.LogSyncResult("", MachineIOTranslations);
+                TableSync.LogSyncResult("", alarm);
 
 
                 //var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
@@ -578,7 +577,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
             }
             catch (Exception ex)
             {
-                TableSync.LogSyncResult(direction: 2);
+                TableSync.LogSyncResult("地端資料庫同步雲端資料庫時發生錯誤");
             }
         }
 
@@ -593,7 +592,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
             if (cloud == null)
             {
-                TableSync.LogSyncResult(direction: 3);
+                TableSync.LogSyncResult("雲端資料庫未連線");
                 return;
             }
             try
@@ -601,18 +600,18 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 var Blade_brand = await TableSync.SyncFromCloudToLocal<Blade_brand>(local, cloud, "Blade_brand");
                 var Blade_brand_TPI = await TableSync.SyncFromCloudToLocal<Blade_brand_TPI>(local, cloud, "Blade_brand_TPI");
                 var Language = await TableSync.SyncFromCloudToLocal<Language>(local, cloud, "Language");
-                var MachineIOTranslations = await TableSync.SyncFromCloudToLocal<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
+                //var MachineIOTranslations = await TableSync.SyncFromCloudToLocal<MachineIOTranslation>(local, cloud, "MachineIOTranslation", "MachineIOId");
                 var AlarmTranslation = await TableSync.SyncFromCloudToLocal<AlarmTranslation>(local, cloud, "AlarmTranslation");
 
-                TableSync.LogSyncResult(Blade_brand, 1);
-                TableSync.LogSyncResult(Blade_brand_TPI, 1);
-                TableSync.LogSyncResult(Language, 1);
-                TableSync.LogSyncResult(MachineIOTranslations, 1);
-                TableSync.LogSyncResult(AlarmTranslation, 1);
+                TableSync.LogSyncResult("", Blade_brand, 1);
+                TableSync.LogSyncResult("", Blade_brand_TPI, 1);
+                TableSync.LogSyncResult("", Language, 1);
+                //TableSync.LogSyncResult("", MachineIOTranslations, 1);
+                TableSync.LogSyncResult("", AlarmTranslation, 1);
             }
             catch (Exception)
             {
-                TableSync.LogSyncResult(direction: 3); // 失敗 log
+                TableSync.LogSyncResult("雲端資料表同步地端時失敗"); 
             }
         }
     }
@@ -623,6 +622,8 @@ namespace FX5U_IOMonitor.DatabaseProvider
         public int Added { get; set; }
         public int Updated { get; set; }
         public int Total => Added + Updated;
+        public bool Success { get; init; }
+        public List<string> Errors { get; } = new();
 
         public override string ToString()
         {

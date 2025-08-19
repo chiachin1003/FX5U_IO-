@@ -1083,7 +1083,34 @@ namespace FX5U_IOMonitor.Models
                 }
             }
         }
-        
+
+        public static void Set_Alarm_Note_ByAddress(string address,string message)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
+
+                if (alarm != null)
+                {
+                    var history = new AlarmHistory
+                    {
+                        AlarmId = alarm.Id,
+                        StartTime = DateTime.UtcNow,
+                        RecordTime = DateTime.UtcNow,
+                        Note = message,
+                        Records = 1
+                    };
+                    context.AlarmHistories.Add(history);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 address 為 {address} 的警告");
+                }
+            }
+
+        }
+
         /// <summary>
         /// 查詢警告對應指定的維修步驟
         /// </summary>
@@ -2157,6 +2184,7 @@ namespace FX5U_IOMonitor.Models
                        classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
+                       Note = ah.Note,
                        Duration = ah.Duration
                    }).ToList();
 

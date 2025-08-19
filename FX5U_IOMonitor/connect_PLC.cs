@@ -449,6 +449,7 @@ namespace FX5U_IOMonitor
 
         }
 
+
         /// <summary>
         /// 發出警告郵件
         /// </summary>
@@ -480,7 +481,17 @@ namespace FX5U_IOMonitor
 
                 if (e.NewValue == true)
                 {
-                    DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
+                    // 根據是否有額外數值來決定呼叫哪個資料庫函數
+                    if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.AdditionalAddress))
+                    {
+                        // 呼叫帶有額外數值的函數
+                        DBfunction.Set_Alarm_Note_ByAddress(e.Address, e.AdditionalValue.Value.ToString());
+                    }
+                    else
+                    {
+                        // 原本的函數
+                        DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
+                    }
                     _ = Task.Run(async () =>
                     {
                         try
@@ -497,7 +508,6 @@ namespace FX5U_IOMonitor
                 else 
                 {
                     DBfunction.Set_Alarm_EndTimeByAddress(e.Address);
-
                 }
 
 
@@ -506,9 +516,6 @@ namespace FX5U_IOMonitor
             {
                 Console.WriteLine($"❌ Monitor_DBuse_Updated 發生例外：{ex.Message}");
             }
-
-
-
 
         }
         public async Task HandleAlarmAndSendEmailAsync(IOUpdateEventArgs e)

@@ -66,7 +66,7 @@
             // 
             _lblAccount.AutoSize = true;
             _lblAccount.BackColor = SystemColors.ButtonHighlight;
-            _lblAccount.Location = new Point(15, 173);
+            _lblAccount.Location = new Point(15, 177);
             _lblAccount.Name = "_lblAccount";
             _lblAccount.Size = new Size(34, 15);
             _lblAccount.TabIndex = 1;
@@ -76,7 +76,7 @@
             // 
             _lblPassword.AutoSize = true;
             _lblPassword.BackColor = SystemColors.ButtonHighlight;
-            _lblPassword.Location = new Point(15, 203);
+            _lblPassword.Location = new Point(15, 207);
             _lblPassword.Name = "_lblPassword";
             _lblPassword.Size = new Size(34, 15);
             _lblPassword.TabIndex = 2;
@@ -86,7 +86,7 @@
             // 
             _lblConfirmPassword.AutoSize = true;
             _lblConfirmPassword.BackColor = SystemColors.ButtonHighlight;
-            _lblConfirmPassword.Location = new Point(15, 235);
+            _lblConfirmPassword.Location = new Point(15, 239);
             _lblConfirmPassword.Name = "_lblConfirmPassword";
             _lblConfirmPassword.Size = new Size(58, 15);
             _lblConfirmPassword.TabIndex = 3;
@@ -98,7 +98,7 @@
             _txtAccount.BackColor = SystemColors.ButtonHighlight;
             _txtAccount.BorderStyle = BorderStyle.FixedSingle;
             _txtAccount.CausesValidation = false;
-            _txtAccount.Location = new Point(149, 165);
+            _txtAccount.Location = new Point(149, 169);
             _txtAccount.Name = "_txtAccount";
             _txtAccount.Size = new Size(139, 23);
             _txtAccount.TabIndex = 4;
@@ -109,7 +109,7 @@
             _txtPassword.BackColor = SystemColors.ButtonHighlight;
             _txtPassword.BorderStyle = BorderStyle.FixedSingle;
             _txtPassword.CausesValidation = false;
-            _txtPassword.Location = new Point(149, 200);
+            _txtPassword.Location = new Point(149, 204);
             _txtPassword.Name = "_txtPassword";
             _txtPassword.Size = new Size(139, 23);
             _txtPassword.TabIndex = 5;
@@ -120,7 +120,7 @@
             _txtConfirmPassword.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _txtConfirmPassword.BackColor = SystemColors.ButtonHighlight;
             _txtConfirmPassword.BorderStyle = BorderStyle.FixedSingle;
-            _txtConfirmPassword.Location = new Point(149, 232);
+            _txtConfirmPassword.Location = new Point(149, 236);
             _txtConfirmPassword.Name = "_txtConfirmPassword";
             _txtConfirmPassword.Size = new Size(139, 23);
             _txtConfirmPassword.TabIndex = 6;
@@ -130,7 +130,7 @@
             // 
             _lblRole.AutoSize = true;
             _lblRole.BackColor = SystemColors.ButtonHighlight;
-            _lblRole.Location = new Point(15, 272);
+            _lblRole.Location = new Point(15, 276);
             _lblRole.Name = "_lblRole";
             _lblRole.Size = new Size(34, 15);
             _lblRole.TabIndex = 7;
@@ -143,7 +143,7 @@
             _cbRole.CausesValidation = false;
             _cbRole.DropDownStyle = ComboBoxStyle.DropDownList;
             _cbRole.FormattingEnabled = true;
-            _cbRole.Location = new Point(149, 269);
+            _cbRole.Location = new Point(149, 273);
             _cbRole.Name = "_cbRole";
             _cbRole.Size = new Size(139, 23);
             _cbRole.TabIndex = 8;
@@ -152,7 +152,7 @@
             // 
             _btnAdd.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnAdd.BackColor = SystemColors.ButtonHighlight;
-            _btnAdd.Location = new Point(149, 346);
+            _btnAdd.Location = new Point(149, 350);
             _btnAdd.Name = "_btnAdd";
             _btnAdd.Size = new Size(62, 33);
             _btnAdd.TabIndex = 9;
@@ -164,7 +164,7 @@
             // 
             _btnDelete.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _btnDelete.BackColor = SystemColors.ButtonHighlight;
-            _btnDelete.Location = new Point(224, 346);
+            _btnDelete.Location = new Point(224, 350);
             _btnDelete.Name = "_btnDelete";
             _btnDelete.Size = new Size(64, 33);
             _btnDelete.TabIndex = 10;
@@ -198,7 +198,7 @@
             // 
             lab_emailsetting.AutoSize = true;
             lab_emailsetting.BackColor = SystemColors.ButtonHighlight;
-            lab_emailsetting.Location = new Point(15, 316);
+            lab_emailsetting.Location = new Point(15, 320);
             lab_emailsetting.Name = "lab_emailsetting";
             lab_emailsetting.Size = new Size(34, 15);
             lab_emailsetting.TabIndex = 13;
@@ -209,7 +209,7 @@
             _txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _txtEmail.BackColor = SystemColors.ButtonHighlight;
             _txtEmail.BorderStyle = BorderStyle.FixedSingle;
-            _txtEmail.Location = new Point(149, 312);
+            _txtEmail.Location = new Point(149, 316);
             _txtEmail.Name = "_txtEmail";
             _txtEmail.Size = new Size(139, 23);
             _txtEmail.TabIndex = 14;
@@ -218,7 +218,7 @@
             // 
             lab_line.AutoSize = true;
             lab_line.BackColor = SystemColors.ButtonHighlight;
-            lab_line.Location = new Point(296, 167);
+            lab_line.Location = new Point(296, 171);
             lab_line.Name = "lab_line";
             lab_line.Size = new Size(114, 15);
             lab_line.TabIndex = 15;
@@ -229,14 +229,14 @@
             _txt_Line.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             _txt_Line.BackColor = SystemColors.ButtonHighlight;
             _txt_Line.BorderStyle = BorderStyle.FixedSingle;
-            _txt_Line.Location = new Point(451, 165);
+            _txt_Line.Location = new Point(451, 169);
             _txt_Line.Name = "_txt_Line";
             _txt_Line.Size = new Size(139, 23);
             _txt_Line.TabIndex = 16;
             // 
             // pictureBox_Official_Account
             // 
-            pictureBox_Official_Account.Location = new Point(365, 259);
+            pictureBox_Official_Account.Location = new Point(451, 263);
             pictureBox_Official_Account.Name = "pictureBox_Official_Account";
             pictureBox_Official_Account.Size = new Size(132, 120);
             pictureBox_Official_Account.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -246,7 +246,7 @@
             // lab_hint
             // 
             lab_hint.AutoSize = true;
-            lab_hint.Location = new Point(296, 203);
+            lab_hint.Location = new Point(296, 207);
             lab_hint.MaximumSize = new Size(294, 0);
             lab_hint.Name = "lab_hint";
             lab_hint.Size = new Size(294, 30);
@@ -258,7 +258,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
-            ClientSize = new Size(602, 391);
+            ClientSize = new Size(602, 416);
             Controls.Add(pictureBox_Official_Account);
             Controls.Add(lab_hint);
             Controls.Add(_txt_Line);
@@ -278,6 +278,9 @@
             Controls.Add(_lblPassword);
             Controls.Add(_lblAccount);
             Controls.Add(_dgvUsers);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "UserManageForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "使用者管理";

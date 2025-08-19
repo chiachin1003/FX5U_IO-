@@ -35,8 +35,8 @@ namespace FX5U_IOMonitor.Login
 
         public const string Default_Schedule_Tag = "None";
 
-        public const string Default_Email = "";
-        public const string Default_Line = "";
+        public const string Default_Email = null;
+        public const string Default_Line = null;
         public const bool NotifyByEmail = false;
         public const bool NotifyByLine = false;
 

@@ -158,7 +158,7 @@ namespace FX5U_IOMonitor.Resources
                         else
                         {
                             var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, "Language");
-                            TableSync.LogSyncResult(Language);
+                            TableSync.LogSyncResult("", Language);
                             // ✅ 檢查是否真的有更新成功
                             if (Language.Added > 0 || Language.Updated > 0)
                             {
@@ -199,12 +199,12 @@ namespace FX5U_IOMonitor.Resources
                     {
                         case "Blade_brand_TPI":
                             var Blade_brand_TPI = await TableSync.SyncFromLocalToCloud<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
-                            TableSync.LogSyncResult(Blade_brand_TPI);
+                            TableSync.LogSyncResult("", Blade_brand_TPI);
 
                             break;
                         case "Blade_brand":
                             var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
-                            TableSync.LogSyncResult(Blade_brand);
+                            TableSync.LogSyncResult("", Blade_brand);
 
                             break;
 
@@ -212,8 +212,8 @@ namespace FX5U_IOMonitor.Resources
                         case "alarm":
                             var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(Local_context, Cloud_context, "alarm", "IPC_table");
                             var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(Local_context, Cloud_context, "AlarmTranslation", "AlarmId", "Id");
-                            TableSync.LogSyncResult(alarm);
-                            TableSync.LogSyncResult(AlarmTranslation);
+                            TableSync.LogSyncResult("",alarm);
+                            TableSync.LogSyncResult("", AlarmTranslation);
                             break;
 
                         default:
@@ -265,18 +265,18 @@ namespace FX5U_IOMonitor.Resources
                     {
                         case "Language":
                             var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
-                            TableSync.LogSyncResult(Language);
+                            TableSync.LogSyncResult("", Language);
 
                             break;
 
                         case "Blade_brand_TPI":
                             var Blade_brand_TPI = await TableSync.SyncFromCloudToLocal<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
-                            TableSync.LogSyncResult(Blade_brand_TPI);
+                            TableSync.LogSyncResult("", Blade_brand_TPI);
 
                             break;
                         case "Blade_brand":
                             var Blade_brand = await TableSync.SyncFromCloudToLocal<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
-                            TableSync.LogSyncResult(Blade_brand);
+                            TableSync.LogSyncResult("", Blade_brand);
 
                             break;
 
@@ -284,8 +284,8 @@ namespace FX5U_IOMonitor.Resources
                         case "alarm":
                             var alarm = await TableSync.SyncFromCloudToLocal<Alarm>(Local_context, Cloud_context, "alarm", "IPC_table");
                             var AlarmTranslation = await TableSync.SyncFromCloudToLocal<AlarmTranslation>(Local_context, Cloud_context, "AlarmTranslation", "AlarmId", "Id");
-                            TableSync.LogSyncResult(alarm);
-                            TableSync.LogSyncResult(AlarmTranslation);
+                            TableSync.LogSyncResult("", alarm);
+                            TableSync.LogSyncResult("", AlarmTranslation);
                             break;
 
                         default:

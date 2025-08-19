@@ -207,7 +207,7 @@ namespace FX5U_IOMonitor
             flowLayoutPanel1.Location = new Point(47, 39);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Padding = new Padding(10);
-            flowLayoutPanel1.Size = new Size(164, 428);
+            flowLayoutPanel1.Size = new Size(196, 428);
             flowLayoutPanel1.TabIndex = 21;
             // 
             // Setting

@@ -109,7 +109,7 @@
             Controls.Add(_txtAccount);
             Controls.Add(_lblPassword);
             Controls.Add(_lblAccount);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "UserLoginForm";
