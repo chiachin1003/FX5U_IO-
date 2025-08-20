@@ -1,23 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using CsvHelper.Configuration;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json.Linq;
 using static FX5U_IOMonitor.Models.MonitoringService;
 
 namespace FX5U_IOMonitor.panel_control
@@ -124,7 +110,8 @@ namespace FX5U_IOMonitor.panel_control
 
                 if (alarms == null || alarms.Count == 0)
                 {
-                    MessageBox.Show($"🔍 未找到該設備（{lbl.Text}）的異常資料。", "查詢結果", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"{LanguageManager.Translate("Alarm_Message_No_anomaly_data")}：{lbl.Text}）", 
+                        $"{LanguageManager.Translate("Alarm_Message_LookupResult")}", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -136,25 +123,32 @@ namespace FX5U_IOMonitor.panel_control
                     string repair = DBfunction.Get_Repair_steps_ByAddress(alarm);
 
                     MessageBox.Show(
-                        $"⚠️ 錯誤警告\n料件：{lbl.Text}\n\n錯誤訊息：{error}\n" +
-                        $"錯誤排除步驟：\n{repair}",
-                        "料件錯誤警告",
+                        $"{LanguageManager.Translate("Alarm_Message_Error_Warning")}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Error_Item")}：{lbl.Text}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Error_Message")}：{error}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Possible_Cause")}：{possible}\n" +
+                        $"{LanguageManager.Translate("Alarm_Message_Repair_Steps")}：\n{repair}",
+                        LanguageManager.Translate("Alarm_Message_Error_Window_Title"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );
                 }
                 else
                 {
-                    string all = $"⚠️ 錯誤警告\n料件：{lbl.Text}\n共發現 {alarms.Count} 筆異常：\n\n";
+                    string all = $"{LanguageManager.Translate("Alarm_Message_Error_Warning")}\n" +
+                                 $"{LanguageManager.Translate("Alarm_Message_Error_Item")}：{lbl.Text}\n" +
+                                 $"{LanguageManager.Translate("Alarm_Message_AnomalyLine")}：{alarms.Count}\n\n";
+
 
                     foreach (var alarm in alarms)
                     {
                         string possible = DBfunction.Get_Possible_ByAddress(alarm.ToString());
                         string error = DBfunction.Get_Error_ByAddress(alarm.ToString());
-                        all += $"\n\n錯誤訊息：{error}\n可能原因：{possible}\n--------------------\n";
+                        all += $"\n\n{LanguageManager.Translate("Alarm_Message_Error_Message")}：{error}\n" +
+                            $"{LanguageManager.Translate("Alarm_Message_Possible_Cause")}：{possible}\n--------------------\n";
                     }
 
-                    MessageBox.Show(all, "多筆 I/O 錯誤偵測", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(all, $"{LanguageManager.Translate("Alarm_Message_MultipleErrors")}", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
         }
