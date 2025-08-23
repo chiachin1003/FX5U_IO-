@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -44,7 +45,7 @@ namespace FX5U_IOMonitor.Models
             public int? AdditionalValue { get; set; } // 新增：對應的字串
             public string? AdditionalAddress { get; set; } // 新增：對應的地址
         }
-
+      
         public class MonitorService
         {
 
@@ -57,7 +58,7 @@ namespace FX5U_IOMonitor.Models
             private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
             private Dictionary<string, RULThresholdInfo> _rulCache = new();
 
-
+           
             public string MachineName { get; }
 
             public event EventHandler<MachineParameterChangedEventArgs>? MachineParameterChanged;
@@ -70,6 +71,34 @@ namespace FX5U_IOMonitor.Models
             private readonly object _ioLock = new();
             private object _lockRef;
 
+            private int _failureCount = 0;      // 累計失敗次數
+            private int _triggerGate = 0;       // 0=未觸發；1=已觸發（防止重複）
+            private DateTime _firstFailureTime = DateTime.MinValue;
+
+            /// <summary>
+            /// 任一來源報告「一次失敗」時呼叫（可被多個 Timer/執行緒呼叫）
+            /// </summary>
+            public void ReportOneFailure(string? reason = null)
+            {
+                int current = Interlocked.Increment(ref _failureCount);
+
+                if (!string.IsNullOrWhiteSpace(reason))
+                    DisconnectEvents.RaiseCommunicationFailureOnce(MachineName, reason);
+
+                if (current >= 3 && Interlocked.Exchange(ref _triggerGate, 1) == 0)
+                {
+                    DisconnectEvents.RaiseFailureConnect(MachineName);
+                }
+            }
+
+            /// <summary>
+            /// 成功重連後重置門檻（由視窗B或外部呼叫）
+            /// </summary>
+            public void ResetFailureGate()
+            {
+                Interlocked.Exchange(ref _failureCount, 0);
+                Interlocked.Exchange(ref _triggerGate, 0);
+            }
             public void SetExternalLock(object? locker)
             {
                 _lockRef = locker ?? _ioLock;
@@ -85,8 +114,9 @@ namespace FX5U_IOMonitor.Models
                 this.alarmFirstRead = true;
                 _lockRef = _ioLock;   // 先用保底鎖
 
-
             }
+            bool lastConnected = true; // 初始假設一開始是連線的
+
             /// <summary>
             /// 
             /// </summary>
@@ -96,8 +126,10 @@ namespace FX5U_IOMonitor.Models
             public async Task MonitoringLoop(CancellationToken token, string machinname)
             {
 
+
                 while (!token.IsCancellationRequested)
-                { 
+                {
+
                     Monitoring(machinname); // 你的讀取流程          
                     await Task.Delay(500, token);
                 }
@@ -121,75 +153,78 @@ namespace FX5U_IOMonitor.Models
                     g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First(), mcType));
 
                 Stopwatch stopwatch = Stopwatch.StartNew();
-                lock (_lockRef)
+                
+                //if ((DateTime.Now - _lastRULCacheTime) > _cacheDuration || _rulCache.Count == 0)
+                //{
+                //    _rulCache = RULNotifier.GetRULMapByMachine(machinname);
+                //    _lastRULCacheTime = DateTime.Now;
+                //}
+                _rulCache = RULNotifier.GetRULMapByMachine(machinname);
+                foreach (var prefix in sectionGroups.Keys)
                 {
-                    //if ((DateTime.Now - _lastRULCacheTime) > _cacheDuration || _rulCache.Count == 0)
-                    //{
-                    //    _rulCache = RULNotifier.GetRULMapByMachine(machinname);
-                    //    _lastRULCacheTime = DateTime.Now;
-                    //}
-                    _rulCache = RULNotifier.GetRULMapByMachine(machinname);
-                    foreach (var prefix in sectionGroups.Keys)
-                    {
-                        var blocks = sectionGroups[prefix];
+                    var blocks = sectionGroups[prefix];
 
-                        foreach (var block in blocks)
+                    foreach (var block in blocks)
+                    {
+                        string device = prefix + block.Start;
+                        bool[] plc_result;
+                        try
                         {
-                            string device = prefix + block.Start;
-                            try
+                            lock (_lockRef)
                             {
                                 //bool[] plc_result = plc.ReadBitDevice(device, (ushort)block.Range);
-                                bool[] plc_result = plc.ReadBits(device, (ushort)block.Range);
-
-                                var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
-                                if (isFirstRead)
-                                {
-                                    int updated = Calculate.UpdateIOCurrentSingleToDB(result, machinname);
-                                    // 初始化 Message 狀態快取
-                                    foreach (var now in result)
-                                    {
-                                        if (_rulCache.TryGetValue(now.address, out var info))
-                                        {
-                                            string initialState = GetRULState(info); 
-                                            _lastRULState[now.address] = initialState;
-                                        }
-                                    }
-                                    var context = MachineHub.Get(machinname);
-                                    if (context != null)
-                                    {
-                                     
-                                        context.ConnectSummary.connect += updated;
-                                    }
-
-                                }
-                                else
-                                {
-                                    //UpdateIODataBaseFromNowSingle(result, old_single);
-                                    UpdateIODataBaseFromNowSingle(result, old_single, _rulCache);
-                                }
-
-
+                                plc_result = plc.ReadBits(device, (ushort)block.Range);
                             }
-                            catch
+
+                            var result = Calculate.ConvertPlcToNowSingle(plc_result, prefix, block.Start, format);
+                            if (isFirstRead)
                             {
-                                isFirstRead = true; // 斷線時設定下次重新初始化
-                                break;
-                                //return; // 中止此次讀取
-                            }
-                        }
+                                int updated = Calculate.UpdateIOCurrentSingleToDB(result, machinname);
+                                // 初始化 Message 狀態快取
+                                foreach (var now in result)
+                                {
+                                    if (_rulCache.TryGetValue(now.address, out var info))
+                                    {
+                                        string initialState = GetRULState(info); 
+                                        _lastRULState[now.address] = initialState;
+                                    }
+                                }
+                                var context = MachineHub.Get(machinname);
+                                if (context != null)
+                                {
+                                     
+                                    context.ConnectSummary.connect += updated;
+                                }
 
+                            }
+                            else
+                            {
+                                //UpdateIODataBaseFromNowSingle(result, old_single);
+                                UpdateIODataBaseFromNowSingle(result, old_single, _rulCache);
+                            }
+
+                        }
+                        catch
+                        {
+                            ReportOneFailure();
+                            isFirstRead = true; // 斷線時設定下次重新初始化
+                            break;
+                            //return; // 中止此次讀取
+                        }
                     }
-                    stopwatch.Stop();
-                    // ✅ 更新斷線數與耗時資訊
-                    var monition = MachineHub.Get(machinname);
-                    if (monition != null)
-                    {
-                        monition.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds}";
-                        monition.ConnectSummary.disconnect = DBfunction.GetMachineRowCount(monition.MachineName) - monition.ConnectSummary.connect;
-                        
-                    }
+
                 }
-                isFirstRead = false; // ✅ 完成第一次後設定為 false
+                stopwatch.Stop();
+                // ✅ 更新斷線數與耗時資訊
+                var monition = MachineHub.Get(machinname);
+                if (monition != null)
+                {
+                    monition.ConnectSummary.read_time = $" {stopwatch.ElapsedMilliseconds}";
+                    monition.ConnectSummary.disconnect = DBfunction.GetMachineRowCount(monition.MachineName) - monition.ConnectSummary.connect;
+                        
+                }
+                
+            isFirstRead = false; // ✅ 完成第一次後設定為 false
             }
 
             /// <summary>
@@ -278,7 +313,7 @@ namespace FX5U_IOMonitor.Models
             /// <returns></returns>
             public async Task alarm_MonitoringLoop(CancellationToken token)
             {
-                
+
                 while (!token.IsCancellationRequested)
                 {
                     Alarm_Monitoring();
@@ -332,6 +367,7 @@ namespace FX5U_IOMonitor.Models
                             {
                                 alarmFirstRead = true; // 斷線時設定下次重新初始化
                                 return; // 中止此次讀取
+
                             }
                         }
                    
@@ -425,6 +461,7 @@ namespace FX5U_IOMonitor.Models
 
                 while (token == null || !token.Value.IsCancellationRequested)
                 {
+                   
                     try
                     {
 
@@ -485,7 +522,7 @@ namespace FX5U_IOMonitor.Models
                                                 ushort value = (ushort)(DBfunction.Get_History_NumericValue(machine_name, name));  // 範例：寫入秒數
                                                 lock (_lockRef)
                                                 {
-                                                   // plc.WriteWordDevice(match.address, value);
+                                                    // plc.WriteWordDevice(match.address, value);
                                                     plc.WriteWord(match.address, value);
 
                                                 }
@@ -501,7 +538,7 @@ namespace FX5U_IOMonitor.Models
                                                     return;
                                                 }
 
-                                                ushort[] write2plc = MonitorFunction.SmartWordSplit(value.Value, 2,1);
+                                                ushort[] write2plc = MonitorFunction.SmartWordSplit(value.Value, 2, 1);
 
                                                 lock (_lockRef)
                                                 {
@@ -529,8 +566,9 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ 全域寫入例外（{machine_name}）：{ex.Message}");
-
+                        ReportOneFailure();
                     }
+                    await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
 
                 }
 
@@ -565,6 +603,7 @@ namespace FX5U_IOMonitor.Models
 
                 while (token == null || !token.Value.IsCancellationRequested)
                 {
+                   
                     try
                     {
 
@@ -581,8 +620,8 @@ namespace FX5U_IOMonitor.Models
                             string mcType = DBfunction.GetMachineType(machine_name); 
 
                             var sectionGroups = paramLists
-                               .GroupBy(s => s.Prefix)
-                               .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First(), mcType));
+                                .GroupBy(s => s.Prefix)
+                                .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First(), mcType));
 
                             foreach (var prefix in sectionGroups.Keys)
                             {
@@ -731,7 +770,10 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
+                        ReportOneFailure();
                     }
+                  
+
                     isFirstCycle = false; // ✅ 只在第一次後設為 false
 
                     await Task.Delay(100, token ?? CancellationToken.None); // 輪詢節流
@@ -772,18 +814,21 @@ namespace FX5U_IOMonitor.Models
 
                     try
                     {
+                        
                         // 處理公制數值
                         await ProcessUnitValues(modeAddressMap_Metric, machine_name, "Metric", currentUnit);
 
                         // 處理英制數值
-                        await ProcessUnitValues(modeAddressMap_Imperial, machine_name, "Imperial", currentUnit);
+                            await ProcessUnitValues(modeAddressMap_Imperial, machine_name, "Imperial", currentUnit);
+                      
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Word 監控錯誤：{ex.Message}");
+                        ReportOneFailure();
                     }
 
-                    await Task.Delay(100, token ?? CancellationToken.None); // 輪詢節流
+                    await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
                 }
 
             }
@@ -1151,6 +1196,7 @@ namespace FX5U_IOMonitor.Models
 
             }
 
+                   
         }
         private static string GenerateNextAddress(string address)
         {

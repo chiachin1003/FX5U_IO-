@@ -52,8 +52,6 @@ namespace FX5U_IOMonitor
         {
             ("total_time",      "SawInfo_TotalRuntime"),
              ("countdown_time",      "SawInfo_ProcessingTime")
-
-
         };
      
 

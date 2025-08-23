@@ -2,20 +2,26 @@
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
+using MailKit;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Cmp;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Data.Recordmode;
 using static FX5U_IOMonitor.Message.Notify_Message;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Models.MonitorFunction;
+using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Models.UI_Display;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
+using Timer = System.Windows.Forms.Timer;
 
 
 namespace FX5U_IOMonitor
@@ -53,6 +59,8 @@ namespace FX5U_IOMonitor
 
         }
         private readonly Dictionary<string, RuntimewordTimer> timer_word = new();
+        private readonly MonitoringService _service;
+        private Timer _checkTimer;
 
         public Main()
         {
@@ -114,7 +122,12 @@ namespace FX5U_IOMonitor
 
             _instance = this; 
             plcForm = new Connect_PLC(this);
-            Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+
+            
+            DisconnectEvents.FailureConnect += OnFailureConnect;
+
+
 
             search_main = new Search_main();
 
@@ -146,6 +159,29 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Add(plcForm); // 添加子窗體
             plcForm.Show(); // 顯示子窗體
         }
+        
+
+        private async void OnFailureConnect(string machineName)
+        {
+            MachineHub.UnregisterMachine(machineName);
+            MessageBox.Show(machineName + "連線中斷，請檢查網路線");
+            int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
+            if (repeat != 0)
+            {
+                for (int i = 0; i < 4; i++) // 最多再 4 次
+                {
+                    await Task.Delay(10000); // 不會卡 UI
+                    Debug.WriteLine("第" + i.ToString() + "次連線測試");
+                    repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
+
+                    if (repeat == 0)
+                        break; // 成功就結束
+                }
+            }
+
+        }
+      
+    
 
         private void btn_Main_Click(object sender, EventArgs e)
         { // 清空 Panel 的內容
