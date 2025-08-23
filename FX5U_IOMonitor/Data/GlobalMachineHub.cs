@@ -56,6 +56,7 @@ namespace FX5U_IOMonitor.Data
         {
             string MachineName { get; }
             bool IsConnected { get; }
+            object Machine_context => GetContext(MachineName);
             connect_Summary ConnectSummary { get; }
         }
 

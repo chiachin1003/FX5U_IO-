@@ -85,8 +85,8 @@ namespace FX5U_IOMonitor.Models
                 this.alarmFirstRead = true;
                 _lockRef = _ioLock;   // 先用保底鎖
 
-            }
 
+            }
             /// <summary>
             /// 
             /// </summary>
@@ -95,11 +95,11 @@ namespace FX5U_IOMonitor.Models
             /// <returns></returns>
             public async Task MonitoringLoop(CancellationToken token, string machinname)
             {
-                
+
                 while (!token.IsCancellationRequested)
-                {
-                    Monitoring(machinname);
-                    await Task.Delay(500); // 每 500 毫秒執行一次
+                { 
+                    Monitoring(machinname); // 你的讀取流程          
+                    await Task.Delay(500, token);
                 }
             }
 
@@ -111,6 +111,7 @@ namespace FX5U_IOMonitor.Models
             {
                 List<now_single> old_single = DBfunction.Get_Machine_current_single_all(machinname);
                 string format = DBfunction.Get_Element_baseType(machinname);
+                format = "oct";
                 var Drill = Calculate.AnalyzeIOSections(machinname, format);
                 string mcType = DBfunction.GetMachineType(machinname); // 判斷使用哪個
 
@@ -1065,7 +1066,7 @@ namespace FX5U_IOMonitor.Models
                                                 {
                                                     DBfunction.Set_Machine_now_number(machine_name, name, val);
                                                     DBfunction.Set_Machine_now_string(machine_name, name, input);
-                                                    Debug.WriteLine($"[4] {name} = {input}+{val}");
+                                                    //Debug.WriteLine($"[4] {name} = {input}+{val}");
                                                 }
                                                 break;
                                             }

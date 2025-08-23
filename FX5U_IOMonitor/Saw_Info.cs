@@ -77,7 +77,7 @@ namespace FX5U_IOMonitor
             InitTimeCards();
             InitPowerCards();
             // 如果 PLC 已連線就開始背景更新
-            if (Models.MachineHub.Get("Sawing")?.IsConnected == true)
+            if (MachineHub.Get("Sawing")?.IsConnected == true)
             {
                 _cts = new CancellationTokenSource();
                 _ = Task.Run(() => AutoUpdateAsync(_cts.Token));

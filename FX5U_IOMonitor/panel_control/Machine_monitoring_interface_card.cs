@@ -23,7 +23,8 @@ namespace FX5U_IOMonitor.panel_control
         private CancellationTokenSource? _cts;
         ScheduleFrequency history_Frequency;
         private Dictionary<string, MachineActiveCard> cardMap = new();
-        private Dictionary<string, MachinePowerCard> infoCardMap = new();
+        private Dictionary<string, MachinePowerCard> powerCardMap = new();
+        private readonly Dictionary<string, MachineInfoCard> InfoCardMap = new();
 
         public Machine_monitoring_interface_card(ScheduleFrequency scheduleFrequency)
         {
@@ -43,10 +44,11 @@ namespace FX5U_IOMonitor.panel_control
         }
         private void Machine_monitoring_interface_card_Load(object sender, EventArgs e)
         {
-            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+            var existingContext = GetContext("Drill") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
-                InitCards(); // 初始顯示一次
+                InitCards(); 
+                InitPowerCards();
                 InitInfoCards();
                 _cts = new CancellationTokenSource();
                 _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
@@ -54,7 +56,8 @@ namespace FX5U_IOMonitor.panel_control
             }
             else
             {
-                InitCards(); // 初始顯示一次
+                InitCards(); 
+                InitPowerCards();
                 InitInfoCards();
             }
 
@@ -86,15 +89,17 @@ namespace FX5U_IOMonitor.panel_control
             ("Drill_clamping","DrillInfo_DrillclampingText")
 
         };
+        private readonly List<(string Param, string LangKey, string Unit)> powerCardList = new()
+        {
+            ("electricity",    "DrillInfo_ElectricityText",   "(kWh)")
+        };
         private readonly List<(string Param, string LangKey, string Unit)> infoCardList = new()
         {
             ("voltage",     "DrillInfo_VoltageText",    "(V)"),
             ("current",      "DrillInfo_CurrentText",     "(A)"),
             ("power",      "DrillInfo_PowerText",     "(kW)"),
-            ("electricity",    "DrillInfo_ElectricityText",   "(kWh)")
         };
 
-       
         private void InitCards()
         {
             flowLayoutPanel1.Controls.Clear();
@@ -158,11 +163,11 @@ namespace FX5U_IOMonitor.panel_control
                 flowLayoutPanel1.Controls.Add(card_count);
             }
         }
-        private void InitInfoCards()
+        private void InitPowerCards()
         {
-            infoCardMap.Clear(); // 確保不重複
+            powerCardMap.Clear(); // 確保不重複
 
-            foreach (var (param, key, unit) in infoCardList)
+            foreach (var (param, key, unit) in powerCardList)
             {
 
                 var card = new MachinePowerCard();
@@ -195,11 +200,54 @@ namespace FX5U_IOMonitor.panel_control
                 }
 
 
-                infoCardMap[param] = card;
+                powerCardMap[param] = card;
                 flowLayoutPanel1.Controls.Add(card);
             }
 
            
+        }
+        private void InitInfoCards()
+        {
+            InfoCardMap.Clear(); // 確保不重複
+
+            foreach (var (param, key, unit) in infoCardList)
+            {
+
+                var card = new MachineInfoCard();
+                string title = LanguageManager.Translate(key);
+                string val = DBfunction.Get_Machine_now_string("Drill", param);
+
+                var record_late = DBfunction.GetLatestHistoryRecordByName("Drill", param, history_Frequency);
+                var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", param, history_Frequency);
+
+                DateTime now = DateTime.UtcNow;
+              
+
+                if (SecondLate == null)
+                {
+                    int secondDelta = 0;
+                    if (record_late == null)
+                    {
+                        int record_lateDelta = 0;
+                        card.SetData(title, val, unit);
+                    }
+                    else
+                    {
+                        card.SetData(title, val, unit);
+                    }
+                }
+                else
+                {
+                    var secondDelta = SecondLate.Delta;
+                    card.SetData(title, val, unit);
+                }
+
+
+                InfoCardMap[param] = card;
+                flowLayoutPanel1.Controls.Add(card);
+            }
+
+
         }
 
         private void UpdateCardValues()
@@ -256,11 +304,11 @@ namespace FX5U_IOMonitor.panel_control
 
             }
         }
-        private void UpdateInfoCards()
+        private void UpdatepowerCards()
         {
-            foreach (var (param, key, unit) in infoCardList)
+            foreach (var (param, key, unit) in powerCardList)
             {
-                if (!infoCardMap.TryGetValue(param, out var card)) continue;
+                if (!powerCardMap.TryGetValue(param, out var card)) continue;
 
                 // 即時值
                 string val = DBfunction.Get_Machine_now_string("Drill", param);
@@ -291,6 +339,27 @@ namespace FX5U_IOMonitor.panel_control
                 );
             }
         }
+        private void UpdateInfoCards()
+        {
+            foreach (var (param, key, unit) in infoCardList)
+            {
+                if (!InfoCardMap.TryGetValue(param, out var card)) continue;
+
+                // 即時值
+                string val = DBfunction.Get_Machine_now_string("Drill", param);
+
+                // 安全轉 float（避免顯示錯誤）
+                if (!float.TryParse(val, out float valNum))
+                    valNum = 0;
+                string valStr = valNum.ToString("0.##");
+
+                card.SetData(
+                    LanguageManager.Translate(key),
+                    valStr,
+                    Text_design.ConvertUnitLabel(unit)                  
+                );
+            }
+        }
         private async Task AutoUpdateAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -304,6 +373,7 @@ namespace FX5U_IOMonitor.panel_control
                         this.Invoke(() =>
                         {
                             UpdateCardValues(); // 每次自動更新畫面數值
+                            UpdatepowerCards();
                             UpdateInfoCards();
                         });
                     }

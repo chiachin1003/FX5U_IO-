@@ -138,7 +138,7 @@ namespace FX5U_IOMonitor
                 lab_IP_Port2.Text = $"IP = {machineList.IP_address}；Port = {machineList.Port} ";
             }
 
-            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+            var existingContext = GetContext("Drill") as IMachineContext;
 
             if (existingContext != null && existingContext.IsConnected)
             {
@@ -159,7 +159,7 @@ namespace FX5U_IOMonitor
 
             }
 
-            existingContext = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+            existingContext = GetContext("Sawing") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
                 lab_connect_2.Text = LanguageManager.Translate("Mainform_connect");
