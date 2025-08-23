@@ -66,89 +66,6 @@ namespace FX5U_IOMonitor
         /// <summary>
         /// 自動連線當前機台
         /// </summary>
-        //public static void AutoConnectAllMachines(Connect_PLC plcForm)
-        //{
-         
-        //    using var context = new ApplicationDB();
-        //    //var machineList = context.Machine.Where(h => h.Name == "Drill").ToList();
-        //    var machineList = context.Machine.ToList();
-
-        //    var failedMachines = new List<string>();
-        //    var ipPortSet = new HashSet<string>();
-
-        //    foreach (var machine in machineList)
-        //    {
-        //        if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
-        //            continue;
-
-        //        string ipPortKey = $"{machine.IP_address}:{machine.Port}";
-        //        if (ipPortSet.Contains(ipPortKey))
-        //        {
-        //            Debug.WriteLine($"⚠ IP/Port 重複：{ipPortKey}");
-        //            continue;
-        //        }
-        //        ipPortSet.Add(ipPortKey);
-
-        //        var existing = MachineHub.Get(machine.Name);
-        //        if (existing != null && existing.IsConnected)
-        //            continue;
-
-        //        var plc = PlcClientFactory.CreateByFrame(machine.MC_Type, machine.IP_address, machine.Port);
-        //        //確定現在是否連線
-        //        bool isconnect = plc.Connect();
-        //        if (isconnect == false)
-        //        {
-        //            Debug.WriteLine($"❌ {machine.Name} 無法連線");
-        //            failedMachines.Add(machine.Name);
-        //            continue;
-        //        }
-        //        //註冊全域的使用者當前狀態
-        //        MachineHub.RegisterMachine(machine.Name, plc);
-        //        var contextItem = MachineHub.Get(machine.Name);
-        //        if (contextItem == null || !contextItem.IsConnected)
-        //        {
-        //            Debug.WriteLine($"❌ {machine.Name} 註冊失敗");
-        //            failedMachines.Add(machine.Name);
-        //            continue;
-        //        }
-        //        //設定每一台PLC自己對應的監控鎖
-        //        contextItem.Monitor.SetExternalLock(contextItem.LockObject);
-
-        //        _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
-        //        var notifier = new RULNotifier();
-        //        contextItem.Monitor.RULThresholdCrossed += (s, e) =>
-        //        {
-        //            notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
-        //        };
-        //        if (contextItem.IsMaster)
-        //        {
-        //            DBfunction.Fix_UnclosedAlarms_ByCurrentState();
-        //            _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
-        //            contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
-        //        }
-
-        //        int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
-        //        int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
-
-        //        _ = Task.Run(() => contextItem.Monitor.Read_Bit_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
-        //        _ = Task.Run(() => contextItem.Monitor.Read_Word_Monitor_AllModesAsync(contextItem.MachineName, read_modes, contextItem.TokenSource.Token));
-        //        _ = Task.Run(() => contextItem.Monitor.Read_None_Monitor_AllModesAsync(contextItem.MachineName, contextItem.TokenSource.Token));
-        //        _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
-
-        //        contextItem.Monitor.IOUpdated += DB_update_change;
-
-        //        Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
-        //    }
-        //    string summary = $"失敗機台數：{failedMachines.Count}";
-
-        //    if (failedMachines.Count > 0)
-        //    {
-        //        summary += "\n失敗機台如下：\n" + string.Join("\n", failedMachines);
-        //        MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //    }
-        //}
-        private static readonly Dictionary<string, MachineSupervisor> _svMap = new();
-
         public static void AutoConnectAllMachines(Connect_PLC plcForm)
         {
 
@@ -165,44 +82,72 @@ namespace FX5U_IOMonitor
                     continue;
 
                 string ipPortKey = $"{machine.IP_address}:{machine.Port}";
-                if (!ipPortSet.Add(ipPortKey))
+                if (ipPortSet.Contains(ipPortKey))
                 {
                     Debug.WriteLine($"⚠ IP/Port 重複：{ipPortKey}");
                     continue;
                 }
+                ipPortSet.Add(ipPortKey);
 
-                if (!_svMap.TryGetValue(machine.Name, out var sv))
+                var existing = MachineHub.Get(machine.Name);
+                if (existing != null && existing.IsConnected)
+                    continue;
+
+                var plc = PlcClientFactory.CreateByFrame(machine.MC_Type, machine.IP_address, machine.Port);
+                //確定現在是否連線
+                bool isconnect = plc.Connect();
+                if (isconnect == false)
                 {
-                    sv = new MachineSupervisor(machine.Name);
-                    _svMap[machine.Name] = sv;
+                    Debug.WriteLine($"❌ {machine.Name} 無法連線");
+                    failedMachines.Add(machine.Name);
+                    continue;
+                }
+                //註冊全域的使用者當前狀態
+                MachineHub.RegisterMachine(machine.Name, plc);
+                var contextItem = MachineHub.Get(machine.Name);
+                if (contextItem == null || !contextItem.IsConnected)
+                {
+                    Debug.WriteLine($"❌ {machine.Name} 註冊失敗");
+                    failedMachines.Add(machine.Name);
+                    continue;
+                }
+                //設定每一台PLC自己對應的監控鎖
+                contextItem.Monitor.SetExternalLock(contextItem.LockObject);
+
+                _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
+                var notifier = new RULNotifier();
+                contextItem.Monitor.RULThresholdCrossed += (s, e) =>
+                {
+                    notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
+                };
+                if (contextItem.IsMaster)
+                {
+                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
+                    contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
                 }
 
-                sv.Start(); // 交給 Supervisor 自己去：連線→註冊→啟動監控→斷線→重連
+                int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
+                int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
+
+                _ = Task.Run(() => contextItem.Monitor.Read_Bit_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Read_Word_Monitor_AllModesAsync(contextItem.MachineName, read_modes, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Read_None_Monitor_AllModesAsync(contextItem.MachineName, contextItem.TokenSource.Token));
+                _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
+
+                contextItem.Monitor.IOUpdated += DB_update_change;
+
+                Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
             }
+            string summary = $"失敗機台數：{failedMachines.Count}";
 
-            // 如果你仍想顯示哪些「目前」尚未成功連上，可在 Start() 之後隔個短延遲檢查一次：
-            Task.Run(async () =>
+            if (failedMachines.Count > 0)
             {
-                await Task.Delay(800); // 給 Supervisor 一點時間第一次連線
-                foreach (var m in machineList)
-                {
-                    var ctx = MachineHub.Get(m.Name);
-                    if (ctx == null || !ctx.IsConnected) failedMachines.Add(m.Name);
-                }
-
-                if (failedMachines.Count > 0)
-                {
-                    var summary = $"失敗機台數：{failedMachines.Count}\n失敗機台如下：\n{string.Join("\n", failedMachines)}";
-                    // 避免彈窗淹沒 UI，建議用狀態列/LogView；若一定要彈窗，請確保只彈一次。
-                    plcForm.BeginInvoke(new Action(() =>
-                    {
-                        MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }));
-                }
-            });
-
-
+                summary += "\n失敗機台如下：\n" + string.Join("\n", failedMachines);
+                MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
+
         private void connect_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
 
