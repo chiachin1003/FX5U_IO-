@@ -27,7 +27,7 @@ namespace FX5U_IOMonitor.MitsubishiPlc_Monior
             return CreateByFrame(f, ip, port, mode, recvTimeout, sendTimeout, retry);
         }
 
-        // 型別安全的版本
+        // 安全創建
         public static IPlcClient CreateByFrame(
             MitsubishiFrame frame,
             string ip,

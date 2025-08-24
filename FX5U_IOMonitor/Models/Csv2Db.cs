@@ -485,7 +485,30 @@ namespace FX5U_IOMonitor.Models
                                 enableSync: true
                     );
                     break;
-
+                case "MachineParameters":
+                    importService.ImportCsvToTable<MachineParameter, MachineParameter, int>(
+                           tableName: tableName,
+                           dbSet: context.MachineParameters,
+                           mapFunction: csvRecord => new MachineParameter
+                           {
+                               Id = csvRecord.Id,
+                               Calculate = csvRecord.Calculate,
+                               Calculate_type = csvRecord.Calculate_type,
+                               Unit_transfer = csvRecord.Unit_transfer,
+                               Read_type = csvRecord.Read_type,
+                               Read_view = csvRecord.Read_view,
+                               Read_address = csvRecord.Read_address,
+                               Read_address_index = csvRecord.Read_address_index,
+                               Read_addr = csvRecord.Read_addr,
+                               Imperial_transfer = csvRecord.Imperial_transfer,
+                               Write_address = csvRecord.Write_address,
+                               Write_address_index = csvRecord.Write_address_index,
+                           },
+                           entityKeySelector: entity => entity.Id,
+                           recordKeySelector: csv => csv.Id,
+                           enableSync: true
+                     ); 
+                    break;
                 default:
                     MessageBox.Show($"未支援的 tableName: {tableName}");
                     break;
@@ -521,40 +544,61 @@ namespace FX5U_IOMonitor.Models
                     .Select(p => new { p.Machine_Name, p.Name })
                     .ToHashSet();
 
-                int addCount = 0;
+                int addCount = 0, updateCount = 0;
+
                 foreach (var row in records)
                 {
-                    var key = new { row.Machine_Name, row.Name };
-                    if (existingKeys.Contains(key))
-                        continue;
+                    var existing = context.MachineParameters
+                        .FirstOrDefault(p => p.Machine_Name == row.Machine_Name && p.Name == row.Name);
 
-                    var tpi = new MachineParameter
+                    if (existing != null)
                     {
-                        Machine_Name = row.Machine_Name,
-                        Name = row.Name,
-                        Calculate = row.Calculate,
-                        Calculate_type = row.Calculate_type,
-                        Unit_transfer = row.Unit_transfer,
-                        Read_type = row.Read_type,
-                        Read_view = row.Read_view,
-                        Read_address = row.Read_address,
-                        Read_address_index = row.Read_address_index,
-                        Read_addr = row.Read_addr,
-                        Imperial_transfer = row.Imperial_transfer,
-                        Write_address = row.Write_address,
-                        Write_address_index = row.Write_address_index,
-                        History_NumericValue = row.History_NumericValue
-                    };
+                        // 更新
+                        existing.Calculate = row.Calculate;
+                        existing.Calculate_type = row.Calculate_type;
+                        existing.Unit_transfer = row.Unit_transfer;
+                        existing.Read_type = row.Read_type;
+                        existing.Read_view = row.Read_view;
+                        existing.Read_address = row.Read_address;
+                        existing.Read_address_index = row.Read_address_index;
+                        existing.Read_addr = row.Read_addr;
+                        existing.Imperial_transfer = row.Imperial_transfer;
+                        existing.Write_address = row.Write_address;
+                        existing.Write_address_index = row.Write_address_index;
+                        existing.History_NumericValue = row.History_NumericValue;
 
-                    context.MachineParameters.Add(tpi);
-                    addCount++;
+                        updateCount++;
+                    }
+                    else
+                    {
+                        // 新增
+                        var tpi = new MachineParameter
+                        {
+                            Machine_Name = row.Machine_Name,
+                            Name = row.Name,
+                            Calculate = row.Calculate,
+                            Calculate_type = row.Calculate_type,
+                            Unit_transfer = row.Unit_transfer,
+                            Read_type = row.Read_type,
+                            Read_view = row.Read_view,
+                            Read_address = row.Read_address,
+                            Read_address_index = row.Read_address_index,
+                            Read_addr = row.Read_addr,
+                            Imperial_transfer = row.Imperial_transfer,
+                            Write_address = row.Write_address,
+                            Write_address_index = row.Write_address_index,
+                            History_NumericValue = row.History_NumericValue
+                        };
+
+                        context.MachineParameters.Add(tpi);
+                        addCount++;
+                    }
                 }
 
                 context.SaveChanges();
 
-                Console.WriteLine(addCount > 0
-                    ? $"✅ 新增 {addCount} 筆 MachineParameters 資料。"
-                    : "🟡 所有 MachineParameters 資料已存在，未新增任何資料。");
+                Console.WriteLine($"✅ 新增 {addCount} 筆，更新 {updateCount} 筆 MachineParameters。");
+
             }
             catch (HeaderValidationException ex)
             {

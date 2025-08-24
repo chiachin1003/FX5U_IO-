@@ -45,6 +45,7 @@ namespace FX5U_IOMonitor
             button3 = new Button();
             btn_unit = new Button();
             flowLayoutPanel1 = new FlowLayoutPanel();
+            button4 = new Button();
             flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -162,13 +163,12 @@ namespace FX5U_IOMonitor
             // 
             // btn_alarm
             // 
-            btn_alarm.Location = new Point(719, 355);
+            btn_alarm.Location = new Point(813, 348);
             btn_alarm.Name = "btn_alarm";
-            btn_alarm.Size = new Size(173, 33);
+            btn_alarm.Size = new Size(79, 40);
             btn_alarm.TabIndex = 17;
-            btn_alarm.Text = "地端資料同步雲端資料";
+            btn_alarm.Text = "更新參數表";
             btn_alarm.UseVisualStyleBackColor = true;
-            btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
             // button3
@@ -204,11 +204,21 @@ namespace FX5U_IOMonitor
             flowLayoutPanel1.Controls.Add(btn_unit);
             flowLayoutPanel1.Controls.Add(btn_history);
             flowLayoutPanel1.Controls.Add(btn_checkpoint);
+            flowLayoutPanel1.Controls.Add(button4);
             flowLayoutPanel1.Location = new Point(47, 39);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Padding = new Padding(10);
-            flowLayoutPanel1.Size = new Size(196, 428);
+            flowLayoutPanel1.Size = new Size(196, 467);
             flowLayoutPanel1.TabIndex = 21;
+            // 
+            // button4
+            // 
+            button4.Location = new Point(13, 388);
+            button4.Name = "button4";
+            button4.Size = new Size(124, 39);
+            button4.TabIndex = 21;
+            button4.Text = "稼動率對照圖";
+            button4.UseVisualStyleBackColor = true;
             // 
             // Setting
             // 
@@ -247,5 +257,6 @@ namespace FX5U_IOMonitor
         private Button button3;
         private Button btn_unit;
         private FlowLayoutPanel flowLayoutPanel1;
+        private Button button4;
     }
 }

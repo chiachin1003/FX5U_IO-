@@ -87,6 +87,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                     toAdd.Add(newEntity);
                     result.Added++;
                 }
+
             }
 
             try
@@ -103,6 +104,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
                 // ✅ 寫入資料庫
                 await cloud.SaveChangesAsync();
+
             }
             catch (DbUpdateException ex)
             {
@@ -113,6 +115,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
             {
                 MessageBox.Show($"❌ 同步時發生未預期錯誤：{ex.Message}", "同步錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
             return result;
 
         }
@@ -531,15 +534,20 @@ namespace FX5U_IOMonitor.DatabaseProvider
         /// <param name="local"></param>
         /// <param name="cloud"></param>
         /// <returns></returns>
-        public static async Task SyncLocalToCloudAllTables(ApplicationDB local, CloudDbContext cloud)
+        public static async Task<bool> SyncLocalToCloudAllTables(ApplicationDB local, CloudDbContext cloud, CancellationToken token = default)
         {
             try
             {
-
-                if (cloud == null)
+                if (local == null || cloud == null)
                 {
-                    TableSync.LogSyncResult("雲端資料庫未連線");
-                    return;
+                    TableSync.LogSyncResult("地端或雲端 DbContext 為空，略過本輪同步");
+                    return false;
+                }
+
+                if (!await SafeCanConnectAsync(cloud, token))
+                {
+                    TableSync.LogSyncResult("雲端資料庫未連線，略過本輪同步");
+                    return false;
                 }
 
                 // 執行同步
@@ -562,7 +570,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 TableSync.LogSyncResult("", MachineIOTranslations);
                 TableSync.LogSyncResult("", alarm);
 
-
+                return true;
                 //var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
                 //var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(local, cloud, "AlarmTranslation","AlarmId","Id");
                 //var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(local, cloud, "Blade_brand");
@@ -575,13 +583,43 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 //TableSync.LogSyncResult(alarm);
                 //TableSync.LogSyncResult(AlarmTranslation);
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (ObjectDisposedException ex)
+            {
+                TableSync.LogSyncResult($"同步失敗：DbContext 已釋放 - {ex.Message}");
+                return false;
+            }
             catch (Exception ex)
             {
                 TableSync.LogSyncResult("地端資料庫同步雲端資料庫時發生錯誤");
+                return false;
             }
         }
+        /// <summary>
+        /// 安全的確定當前連線狀態
+        /// </summary>
+        /// <param name="cloud"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        public static async Task<bool> SafeCanConnectAsync(CloudDbContext? cloud, CancellationToken token = default)
+        {
+            if (cloud == null) return false;
 
-
+            try
+            {
+                return await cloud.Database.CanConnectAsync(token);
+            }
+            catch (OperationCanceledException) { throw; } // 尊重取消
+            catch (ObjectDisposedException) { return false; } // DbContext 被釋放
+            catch
+            {
+                // 其他 Provider 例外：一律視為不可連，避免在迴圈裡狂刷例外
+                return false;
+            }
+        }
 
         /// <summary>
         /// 雲端同步所有資料表到地端資料庫
@@ -622,7 +660,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
         public int Added { get; set; }
         public int Updated { get; set; }
         public int Total => Added + Updated;
-        public bool Success { get; init; }
+        public bool Isconnected { get; init; }
         public List<string> Errors { get; } = new();
 
         public override string ToString()

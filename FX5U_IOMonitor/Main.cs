@@ -87,13 +87,13 @@ namespace FX5U_IOMonitor
                     {
                         Csv2Db.Initialization_MachineElementFromCSV("Drill", "Drill_Data2.csv");
                         Csv2Db.Initialization_MachineElementFromCSV("Sawing", "Saw_Data2.csv");
-                        MessageBox.Show("✅ 機台資料匯入完成。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        //MessageBox.Show("✅ 機台資料匯入完成。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Machine_IO 初始化或檢查失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show($"Machine_IO 初始化或檢查失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
 
@@ -122,9 +122,8 @@ namespace FX5U_IOMonitor
 
             _instance = this; 
             plcForm = new Connect_PLC(this);
-            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+            //_ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
 
-            
             DisconnectEvents.FailureConnect += OnFailureConnect;
 
 
@@ -164,20 +163,47 @@ namespace FX5U_IOMonitor
         private async void OnFailureConnect(string machineName)
         {
             MachineHub.UnregisterMachine(machineName);
-            MessageBox.Show(machineName + "連線中斷，請檢查網路線");
+            await Task.Delay(1000);
             int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
+
+            // 2. 第一次嘗試失敗 → 通知一次
             if (repeat != 0)
             {
-                for (int i = 0; i < 4; i++) // 最多再 4 次
-                {
-                    await Task.Delay(10000); // 不會卡 UI
-                    Debug.WriteLine("第" + i.ToString() + "次連線測試");
-                    repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
-
-                    if (repeat == 0)
-                        break; // 成功就結束
-                }
+                await Task.Delay(10000); // 等待 10 秒再跳通知
+                MessageBox.Show(machineName + LanguageManager.Translate("Main_Message_AutoConnect"));
             }
+            // 3. 持續重連，直到成功
+            int i = 1;
+            while (repeat != 0)
+            {
+                await Task.Delay(10000); // 每 10 秒重試
+                Debug.WriteLine($"第 {i} 次連線測試");
+
+                repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
+
+                if (repeat == 0)
+                {
+                    Debug.WriteLine("✅ 連線成功");
+                    break;
+                }
+
+                i++;
+            }
+
+            //await Task.Delay(10000); //
+            //MessageBox.Show(machineName + LanguageManager.Translate("Main_Message_AutoConnect"));
+            //if (repeat != 0)
+            //{
+            //    for (int i = 0; i < 6; i++) // 最多重連次數
+            //    {
+            //        await Task.Delay(10000); //1分鐘內重新連線
+            //        Debug.WriteLine("第" + i.ToString() + "次連線測試");
+            //        repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
+
+            //        if (repeat == 0)
+            //            break; 
+            //    }
+            //}
 
         }
       

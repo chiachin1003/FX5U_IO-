@@ -150,15 +150,11 @@ namespace FX5U_IOMonitor.Models
             var exportColumns = new Dictionary<string, string[]>
             {
                 ["Blade_brand_TPI"] = new[] { "blade_TPI_id", "blade_TPI_name" },
-                ["Blade_brand"] = new[] {"Id",
-            "blade_brand_id", "blade_brand_name",
-            "blade_material_id", "blade_material_name",
-            "blade_Type_id", "blade_Type_name"
-        },
-                ["alarm"] = new[] {
-            "SourceMachine", "address","IPC_table", "Description",
-            "Error", "Possible", "Repair_steps",
-            "classTag"}
+                ["Blade_brand"] = new[] {"Id","blade_brand_id", "blade_brand_name","blade_material_id", "blade_material_name","blade_Type_id", "blade_Type_name"},
+                ["alarm"] = new[] {"SourceMachine", "address","IPC_table", "Description","Error", "Possible", "Repair_steps","classTag"},
+                ["MachineParameters"] = new[] { "Machine_Name", "Name", "Calculate", "Calculate_type", "Read_type",
+                    "Read_view", "Read_address", "Read_address_index", "Unit_transfer", "Read_addr",
+                    "Imperial_transfer", "Write_address", "Write_address_index" },
             };
 
             string connString = $"Host={DbConfig.Local.IpAddress};Port={DbConfig.Local.Port};Database=element;Username={DbConfig.Local.UserName};Password={DbConfig.Local.Password}";
