@@ -141,6 +141,8 @@ namespace FX5U_IOMonitor.Resources
                             // ✅ 檢查是否真的有更新成功
                             if (Language.Added > 0 || Language.Updated > 0)
                             {
+                                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                                Properties.Settings.Default.Save();
                                 lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                                 lab_cloudstatus.ForeColor = Color.Green;
                             }
@@ -178,6 +180,8 @@ namespace FX5U_IOMonitor.Resources
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
                     lab_cloudstatus.ForeColor = Color.Gray;
                     var prameter = await TableSync.SyncFromLocalToCloud<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
+                    Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                    Properties.Settings.Default.Save();
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
 
@@ -221,6 +225,7 @@ namespace FX5U_IOMonitor.Resources
                             throw new NotSupportedException($"未支援的 tableName: {tableName}");
 
                     }
+
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
                 }
@@ -286,11 +291,15 @@ namespace FX5U_IOMonitor.Resources
                             TableSync.LogSyncResult("", alarm);
                             TableSync.LogSyncResult("", AlarmTranslation);
                             break;
-
+                        case "MachineParameters":
+                            var MachineParameters = await TableSync.SyncFromCloudToLocal<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
+                            break;
                         default:
                             throw new NotSupportedException($"未支援的 tableName: {tableName}");
 
                     }
+                    Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                    Properties.Settings.Default.Save();
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
 

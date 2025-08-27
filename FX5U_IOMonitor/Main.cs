@@ -122,9 +122,10 @@ namespace FX5U_IOMonitor
 
             _instance = this; 
             plcForm = new Connect_PLC(this);
-            //_ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
-
             DisconnectEvents.FailureConnect += OnFailureConnect;
+
+            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+
 
 
 
@@ -164,6 +165,7 @@ namespace FX5U_IOMonitor
         {
             MachineHub.UnregisterMachine(machineName);
             await Task.Delay(1000);
+
             int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
 
             // 2. 第一次嘗試失敗 → 通知一次
@@ -183,28 +185,14 @@ namespace FX5U_IOMonitor
 
                 if (repeat == 0)
                 {
-                    Debug.WriteLine("✅ 連線成功");
+                    Debug.WriteLine("連線成功");
                     break;
                 }
 
                 i++;
             }
 
-            //await Task.Delay(10000); //
-            //MessageBox.Show(machineName + LanguageManager.Translate("Main_Message_AutoConnect"));
-            //if (repeat != 0)
-            //{
-            //    for (int i = 0; i < 6; i++) // 最多重連次數
-            //    {
-            //        await Task.Delay(10000); //1分鐘內重新連線
-            //        Debug.WriteLine("第" + i.ToString() + "次連線測試");
-            //        repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
-
-            //        if (repeat == 0)
-            //            break; 
-            //    }
-            //}
-
+           
         }
       
     

@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Message;
 using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
@@ -84,17 +85,20 @@ namespace FX5U_IOMonitor
                 //                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return -1;
             }
-            //var machineList = context.Machine.Where(h => h.Name == "Drill").ToList();
-            //
 
             var failedMachines = new List<string>();
             var ipPortSet = new HashSet<string>();
 
             foreach (var machine in machineList)
             {
-                if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
+                //if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
+                //    continue;
+                if (string.IsNullOrWhiteSpace(machine.IP_address) || string.IsNullOrWhiteSpace(machine.MC_Type) || machine.Port == 0||
+                    machine.Port < 1 || machine.Port > 65535)
+                {
+                    Debug.WriteLine($"⚠ 略過：{machine.Name} IP/Port 無效 -> {machine.IP_address}:{machine.Port}");
                     continue;
-
+                }
                 string ipPortKey = $"{machine.IP_address}:{machine.Port}";
                 if (ipPortSet.Contains(ipPortKey))
                 {
@@ -155,6 +159,7 @@ namespace FX5U_IOMonitor
                 Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
                 
             }
+
             if (failedMachines.Count == 0)
             {
                 return 0;
@@ -165,19 +170,27 @@ namespace FX5U_IOMonitor
                 //MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return failedMachines.Count;
             }
-            else 
+            else
             {
-                string summary = $"失敗機台數：{failedMachines.Count}";
+                string summary = $"開機後連線失敗機台數量：{failedMachines.Count}";
+               
+                //if (failedMachines.Count > 0)
+                //{
+                //    summary += "\n" + string.Join("\n", failedMachines);
+                //    MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                if (failedMachines.Count > 0)
+                //}
+                foreach (var name in failedMachines)
                 {
-                    summary += "\n失敗機台如下：\n" + string.Join("\n", failedMachines);
-                    MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DisconnectEvents.RaiseFailureConnect(name);
                 }
+
                 return failedMachines.Count;
             }
 
         }
+        
+
 
         private void connect_choose_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -222,31 +235,29 @@ namespace FX5U_IOMonitor
         {
             string connect_machine = control_choose.Text;
             string ip = txb_IP.Text.Trim();
-            if (!int.TryParse(txb_port.Text, out int port)) { MessageBox.Show("Port 格式錯誤"); return; }
+            if (!int.TryParse(txb_port.Text, out int port)) { MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_PortError")); return; }
 
-            // 先判斷 Drill 是否已經連線
-            var existingContext = MachineHub.Get(connect_machine);
-            if (existingContext != null && existingContext.IsConnected)
+            string frameText = comb_MC_Type.Text.Trim();
+            if (string.IsNullOrEmpty(frameText))
             {
-                return; 
+                MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_MCTypeError"));
+                return;
             }
-
-            string frameText = comb_MC_Type.Text;
 
             var plc = PlcClientFactory.CreateByFrame(frameText,txb_IP.Text.Trim(), int.Parse(txb_port.Text));
             bool isconnect = plc.Connect();
             if (isconnect == false)
             {
-                MessageBox.Show($"連線失敗，請檢查硬體IP及位置後重新連線");
+                MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_Connect_Error"));
                 return;
             }
             // 註冊機台與自動掛上監控器
             MachineHub.RegisterMachine(connect_machine, plc);
-            // 取得註冊後的 context
+            // 判斷是否有連線到機台
             var context = MachineHub.Get(connect_machine);
             if (context == null || !context.IsConnected)
             {
-                MessageBox.Show($"註冊後讀取 {connect_machine} 資訊失敗");
+                MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_GetMachineInfo_Error"));
                 return;
             }
             
@@ -288,7 +299,7 @@ namespace FX5U_IOMonitor
 
             if (!result)
             {
-                MessageBox.Show($"❌ 儲存失敗：{errorMessage}");
+                MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_SaveIP_Error"));
             }
 
             // 註冊變更事件
@@ -433,7 +444,7 @@ namespace FX5U_IOMonitor
         {
             if (string.IsNullOrEmpty(txb_machine.Text))
             {
-                MessageBox.Show("請為需監控的機台進行命名後得以匯入實體元件");
+                MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_addmachine_Null"));
                 return;
             }
             string targetMachineName = txb_machine.Text.Trim();
@@ -444,7 +455,7 @@ namespace FX5U_IOMonitor
                 bool isDuplicate = context.Machine_IO.Any(m => m.Machine_name == targetMachineName);
                 if (isDuplicate)
                 {
-                    MessageBox.Show($"❌ 機台名稱「{targetMachineName}」已存在，請重新命名後再匯入。");
+                    MessageBox.Show(LanguageManager.Translate("ConnectPLC_Message_addmachine_Reuse"));
                     return;
                 }
             }
@@ -646,6 +657,14 @@ namespace FX5U_IOMonitor
 
         private void SwitchLanguage()
         {
+            if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
+            {
+                btn_delete.Enabled = true;
+            }
+            else
+            {
+                btn_delete.Enabled = false;
+            }
             lab_Add_Machine.Text = LanguageManager.Translate("Connect_Add_Machine_name");
             lab_MachineType.Text = LanguageManager.Translate("Connect_MachineType");
             lab_Type.Text = LanguageManager.Translate("Connect_Type");
@@ -663,6 +682,8 @@ namespace FX5U_IOMonitor
             btn_addmachine.Text = LanguageManager.Translate("Element_btn_add");
             btn_mishubishi.Text = LanguageManager.Translate("Connect_PLC_Switch");
             btn_delete.Text = LanguageManager.Translate("Connect_PLC_Delete");
+            
+
         }
         private void combobox_text_center()
         {

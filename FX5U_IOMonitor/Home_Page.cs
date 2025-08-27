@@ -107,10 +107,15 @@ namespace FX5U_IOMonitor
 
         private void reset_lab_connectText()//更新主頁面連接狀況
         {
+            DateTime last = Properties.Settings.Default.Last_cloudupdatetime;
+
             lab_green.Text = DBfunction.Get_Green_number("Drill").ToString();
             lab_yellow.Text = DBfunction.Get_Yellow_number("Drill").ToString();
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
+
+            lb_Last_cloudupdatetime.Text = LanguageManager.Translate("Mainform_Database_update") + "\n" 
+                + last.ToString("yyyy/MM/dd") + "\n" + last.ToString("HH:mm:ss");
 
             lab_sum_swing.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();
@@ -503,6 +508,9 @@ namespace FX5U_IOMonitor
                 SetToggleSyncing();
 
                 await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                Properties.Settings.Default.Save();
+
                 SetToggleSyncing();
                 await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
 

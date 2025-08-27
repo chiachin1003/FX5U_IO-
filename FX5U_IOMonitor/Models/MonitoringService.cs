@@ -115,8 +115,6 @@ namespace FX5U_IOMonitor.Models
                 _lockRef = _ioLock;   // 先用保底鎖
 
             }
-            bool lastConnected = true; // 初始假設一開始是連線的
-
             /// <summary>
             /// 
             /// </summary>

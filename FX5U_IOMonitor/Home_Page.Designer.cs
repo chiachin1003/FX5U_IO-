@@ -127,6 +127,7 @@
             panel_Swing = new Panel();
             panel_Drill = new Panel();
             btn_toggle = new Button();
+            lb_Last_cloudupdatetime = new Label();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -889,6 +890,16 @@
             btn_toggle.UseVisualStyleBackColor = false;
             btn_toggle.Click += btn_toggle_Click;
             // 
+            // lb_Last_cloudupdatetime
+            // 
+            lb_Last_cloudupdatetime.AutoSize = true;
+            lb_Last_cloudupdatetime.Font = new Font("Microsoft JhengHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            lb_Last_cloudupdatetime.Location = new Point(854, 519);
+            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
+            lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
+            lb_Last_cloudupdatetime.Size = new Size(0, 15);
+            lb_Last_cloudupdatetime.TabIndex = 57;
+            // 
             // Home_Page
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -896,6 +907,7 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(956, 625);
+            Controls.Add(lb_Last_cloudupdatetime);
             Controls.Add(btn_toggle);
             Controls.Add(panel12);
             Controls.Add(panel11);
@@ -939,6 +951,7 @@
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -995,6 +1008,7 @@
         private Label lab_IP_Port1;
         private Button btn_Saw;
         private Button btn_toggle;
+        private Label lb_Last_cloudupdatetime;
     }
 }
 
