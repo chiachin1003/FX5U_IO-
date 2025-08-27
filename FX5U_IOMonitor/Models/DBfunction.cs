@@ -360,6 +360,7 @@ namespace FX5U_IOMonitor.Models
                             Address = h.Address,
                             SourceDbName = h.SourceDbName,
                             StartTime = h.StartTime.ToLocalTime(), // ✅ 轉為本地時間
+                            usetime = h.usetime,
                             EndTime = h.EndTime?.ToLocalTime(),     // ✅ nullable 也要 ?.ToLocalTime()
                         }).ToList();
 

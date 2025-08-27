@@ -167,5 +167,16 @@ namespace FX5U_IOMonitor.Properties {
                 this["NotifyTime"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.DateTime Last_cloudupdatetime {
+            get {
+                return ((global::System.DateTime)(this["Last_cloudupdatetime"]));
+            }
+            set {
+                this["Last_cloudupdatetime"] = value;
+            }
+        }
     }
 }

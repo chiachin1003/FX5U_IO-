@@ -135,10 +135,6 @@ namespace FX5U_IOMonitor
 
             string numberReplace = DBfunction.GetHistoryBySourceAndAddress(dbtable, equipmentTag).Count.ToString();
 
-            // 更新元件使用次數 
-            DBfunction.Set_use_ByAddress(dbtable, equipmentTag, 0);
-
-
             //更新頁面
             panel_main.Controls.Clear();
 
@@ -151,6 +147,9 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), StartTime
             );
+
+            // 更新元件使用次數 
+            DBfunction.Set_use_ByAddress(dbtable, equipmentTag, 0);
 
             panel_main.Controls.Add(usagePanel);
 
