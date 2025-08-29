@@ -127,6 +127,8 @@ namespace FX5U_IOMonitor.Models
         public MonitorService Monitor { get; set; }
         public connect_Summary ConnectSummary { get; set; }
         public bool IsConnected => Plc != null;
+        //public bool IsConnected => Plc.IsConnected;
+
         public bool IsMaster { get; set; } = false;  // 新增主機標記(產線主機台，鑽床)
 
 

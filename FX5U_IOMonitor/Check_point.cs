@@ -82,7 +82,7 @@ namespace FX5U_IOMonitor
         private void Main_Load(object sender, EventArgs e)
         {
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
-            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+            var existingContext = GetContext("Drill") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
                 reset_lab_connectText(); // 初始顯示一次
@@ -134,8 +134,8 @@ namespace FX5U_IOMonitor
 
         private void reset_lab_connectText()
         {
-            var Drill = GlobalMachineHub.GetContext("Drill") as IMachineContext;
-            var Saw = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+            var Drill = GetContext("Drill") as IMachineContext;
+            var Saw = GetContext("Sawing") as IMachineContext;
 
             // ✅ 工具方法：避免顯示0ms
             string FormatElapsed(long value, long limit, string fallback)

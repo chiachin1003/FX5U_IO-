@@ -2,20 +2,26 @@
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
+using MailKit;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Asn1.Cmp;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Data.Recordmode;
 using static FX5U_IOMonitor.Message.Notify_Message;
 using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Models.MonitorFunction;
+using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Models.UI_Display;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
+using Timer = System.Windows.Forms.Timer;
 
 
 namespace FX5U_IOMonitor
@@ -53,6 +59,8 @@ namespace FX5U_IOMonitor
 
         }
         private readonly Dictionary<string, RuntimewordTimer> timer_word = new();
+        private readonly MonitoringService _service;
+        private Timer _checkTimer;
 
         public Main()
         {
@@ -79,13 +87,13 @@ namespace FX5U_IOMonitor
                     {
                         Csv2Db.Initialization_MachineElementFromCSV("Drill", "Drill_Data2.csv");
                         Csv2Db.Initialization_MachineElementFromCSV("Sawing", "Saw_Data2.csv");
-                        MessageBox.Show("✅ 機台資料匯入完成。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        //MessageBox.Show("✅ 機台資料匯入完成。", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Machine_IO 初始化或檢查失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show($"Machine_IO 初始化或檢查失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
 
@@ -114,7 +122,12 @@ namespace FX5U_IOMonitor
 
             _instance = this; 
             plcForm = new Connect_PLC(this);
-            Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+            DisconnectEvents.FailureConnect += OnFailureConnect;
+
+            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+
+
+
 
             search_main = new Search_main();
 
@@ -146,6 +159,43 @@ namespace FX5U_IOMonitor
             panel_main.Controls.Add(plcForm); // 添加子窗體
             plcForm.Show(); // 顯示子窗體
         }
+        
+
+        private async void OnFailureConnect(string machineName)
+        {
+            MachineHub.UnregisterMachine(machineName);
+            await Task.Delay(1000);
+
+            int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
+
+            // 2. 第一次嘗試失敗 → 通知一次
+            if (repeat != 0)
+            {
+                await Task.Delay(10000); // 等待 10 秒再跳通知
+                MessageBox.Show(machineName + LanguageManager.Translate("Main_Message_AutoConnect"));
+            }
+            // 3. 持續重連，直到成功
+            int i = 1;
+            while (repeat != 0)
+            {
+                await Task.Delay(10000); // 每 10 秒重試
+                Debug.WriteLine($"第 {i} 次連線測試");
+
+                repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
+
+                if (repeat == 0)
+                {
+                    Debug.WriteLine("連線成功");
+                    break;
+                }
+
+                i++;
+            }
+
+           
+        }
+      
+    
 
         private void btn_Main_Click(object sender, EventArgs e)
         { // 清空 Panel 的內容
