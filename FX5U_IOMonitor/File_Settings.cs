@@ -1,12 +1,16 @@
-﻿using FX5U_IOMonitor.Config;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
+using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Properties;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Data;
+using System.Globalization;
 using System.Net;
 using System.Net.Mail;
 using static FX5U_IOMonitor.Models.UI_Display;
@@ -89,32 +93,7 @@ namespace FX5U_IOMonitor.Resources
             catch (Exception ex)
             {
                 Message_Config.LogMessage($"[匯出失敗] 資料表：{tableName}，模式：{saveMode}，錯誤：{ex.Message}");
-            }
-            //if (comb_datatable.SelectedItem is DisplayValuePair<string> tableItem &&
-            //    comb_select.SelectedItem is DisplayValuePair<string> saveModeItem)
-            //{
-            //    string tableName = tableItem.Value;     // 內部資料表名稱
-            //    string saveMode = saveModeItem.Value;   // "auto" or "manual"
-
-            //    if (tableName == "Language")
-            //    {
-            //        LanguageImportHelper.ExportLanguageTemplate(saveMode);
-            //    }
-            //    if (tableName == "alarm")
-            //    {
-            //        TableImportExportManager.Export_AlarmToCSV(saveMode);
-            //    }
-            //    else
-            //    {
-            //        TableImportExportManager.ExportTableToCsv(tableName, saveMode);  // 呼叫對應函數
-            //    }
-
-
-            //}
-            //else
-            //{
-            //    Message_Config.LogMessage("當前選擇的資料表與儲存格式不符合");
-            //}
+            }          
         }
 
         private async void btn_update_Click(object sender, EventArgs e)
@@ -162,6 +141,8 @@ namespace FX5U_IOMonitor.Resources
                             // ✅ 檢查是否真的有更新成功
                             if (Language.Added > 0 || Language.Updated > 0)
                             {
+                                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                                Properties.Settings.Default.Save();
                                 lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                                 lab_cloudstatus.ForeColor = Color.Green;
                             }
@@ -183,10 +164,37 @@ namespace FX5U_IOMonitor.Resources
                 }
 
             }
+            else if (tableName == "MachineParameters")
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Filter = "CSV 檔案 (*.csv)|*.csv",
+                    Title = $"選擇要匯入的 {tableName} CSV 檔案"
+                };
+
+                if (openFileDialog.ShowDialog() != DialogResult.OK)
+                    return;
+                try
+                {
+                    Csv2Db.Initialization_MachineprameterFromCSV(openFileDialog.FileName);
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
+                    lab_cloudstatus.ForeColor = Color.Gray;
+                    var prameter = await TableSync.SyncFromLocalToCloud<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
+                    Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                    Properties.Settings.Default.Save();
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
+                    lab_cloudstatus.ForeColor = Color.Green;
+
+                }
+                catch (Exception ex)
+                {
+                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
+                    lab_cloudstatus.ForeColor = Color.Red;
+                }
+            }
             else
             {
                 Csv2Db.UpdateTable(tableName);
-
                 try
                 {
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
@@ -205,25 +213,21 @@ namespace FX5U_IOMonitor.Resources
                         case "Blade_brand":
                             var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
                             TableSync.LogSyncResult("", Blade_brand);
-
                             break;
-
 
                         case "alarm":
                             var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(Local_context, Cloud_context, "alarm", "IPC_table");
                             var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(Local_context, Cloud_context, "AlarmTranslation", "AlarmId", "Id");
-                            TableSync.LogSyncResult("",alarm);
+                            TableSync.LogSyncResult("", alarm);
                             TableSync.LogSyncResult("", AlarmTranslation);
                             break;
-
                         default:
                             throw new NotSupportedException($"未支援的 tableName: {tableName}");
-                            
+
                     }
 
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
-
                 }
                 catch (Exception ex)
                 {
@@ -287,11 +291,15 @@ namespace FX5U_IOMonitor.Resources
                             TableSync.LogSyncResult("", alarm);
                             TableSync.LogSyncResult("", AlarmTranslation);
                             break;
-
+                        case "MachineParameters":
+                            var MachineParameters = await TableSync.SyncFromCloudToLocal<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
+                            break;
                         default:
                             throw new NotSupportedException($"未支援的 tableName: {tableName}");
 
                     }
+                    Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                    Properties.Settings.Default.Save();
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
 
@@ -319,15 +327,20 @@ namespace FX5U_IOMonitor.Resources
             Text_design.SafeAdjustFont(lab_TableSelect, lab_TableSelect.Text);
             Text_design.SafeAdjustFont(lab_save_location, lab_save_location.Text);
 
+            var items = new List<(string, string)>
+            {
+                (LanguageManager.Translate("File_Settings_AlarmTable"), "alarm"),
+                (LanguageManager.Translate("File_Settings_MaterialTable"), "Blade_brand"),
+                (LanguageManager.Translate("File_Settings_TPI_Table"), "Blade_brand_TPI"),
+                (LanguageManager.Translate("File_Settings_LanguageTable"), "Language")
+            };
 
+            if (UserService<ApplicationDB>.CurrentRole == SD.Role_Admin)
+            {
+                items.Add((LanguageManager.Translate("File_Settings_Machineprameter"), "MachineParameters"));
+            }
 
-            ComboBoxHelper.BindDisplayValueItems<string>(comb_datatable, new[]
-               {
-                    (LanguageManager.Translate("File_Settings_AlarmTable"), "alarm"),
-                    (LanguageManager.Translate("File_Settings_MaterialTable"), "Blade_brand"),
-                    (LanguageManager.Translate("File_Settings_TPI_Table"), "Blade_brand_TPI"),
-                    (LanguageManager.Translate("File_Settings_LanguageTable"), "Language")
-                });
+            ComboBoxHelper.BindDisplayValueItems<string>(comb_datatable, items);
 
             comb_datatable.SelectedIndex = 0;
             Text_design.SetComboBoxCenteredDraw(comb_datatable);
@@ -341,7 +354,7 @@ namespace FX5U_IOMonitor.Resources
             Text_design.SetComboBoxCenteredDraw(comb_select);
         }
 
-
+        
     }
 
 }

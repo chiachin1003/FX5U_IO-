@@ -80,7 +80,7 @@ namespace FX5U_IOMonitor
             lab_red.Text = DBfunction.Get_Red_number(MachineType).ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount(MachineType).ToString();
 
-            var existingContext = GlobalMachineHub.GetContext(MachineType) as IMachineContext;
+            var existingContext = GetContext(MachineType) as IMachineContext;
 
             if (existingContext != null && existingContext.IsConnected)
             {
@@ -102,7 +102,7 @@ namespace FX5U_IOMonitor
                 lab_partalarm.Text = "0";
             }
 
-            var Drill_Context = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+            var Drill_Context = GetContext("Drill") as IMachineContext;
 
             if (Drill_Context != null && Drill_Context.IsConnected)
             {
@@ -141,7 +141,7 @@ namespace FX5U_IOMonitor
 
                             for (int i = 0; i < minCount; i++)
                             {
-                                Debug.WriteLine($"更新 {matchedBtnTags[i]} => {string.Join(", ", classvalue[i])}");
+                                //Debug.WriteLine($"更新 {matchedBtnTags[i]} => {string.Join(", ", classvalue[i])}");
                                 groupList[i].UpdateDisplay(classvalue[i]);
                             }
                           
@@ -421,12 +421,12 @@ namespace FX5U_IOMonitor
 
         //                if (DB_update.IsConnected && !isEventRegistered)
         //                {
-        //                    DB_update.Monitor.alarm_event += Warning_signs;
+        //                    DB_update.Machine_context.alarm_event += Warning_signs;
         //                    isEventRegistered = true;
         //                }
         //                else if (!DB_update.IsConnected && isEventRegistered)
         //                {
-        //                    DB_update.Monitor.alarm_event -= Warning_signs;
+        //                    DB_update.Machine_context.alarm_event -= Warning_signs;
         //                    isEventRegistered = false;
         //                }
 

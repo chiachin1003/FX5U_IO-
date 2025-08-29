@@ -31,7 +31,7 @@ namespace FX5U_IOMonitor.Models
         public ApplicationDB(DbContextOptions<ApplicationDB> options) : base(options){}
         public ApplicationDB() : base()
         {
-            _dbFullName = "element";
+            _dbFullName = "elementTest";
         }
         public DbSet<Machine_number> Machine { get; set; }
 
@@ -42,6 +42,8 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<AlarmHistory> AlarmHistories { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }
+        public DbSet<FrequencyConverAlarm> FrequencyConverAlarm { get; set; }
+        public DbSet<DisconnectRecord> DisconnectRecords { get; set; }
 
         public DbSet<MachineParameterHistoryRecode> MachineParameterHistoryRecodes { get; set; }
         public DbSet<Blade_brand> Blade_brand { get; set; }
@@ -146,7 +148,8 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Blade_brand> Blade_brand { get; set; }
         public DbSet<Blade_brand_TPI> Blade_brand_TPI { get; set; }
         public DbSet<Language> Language { get; set; }
-
+        public DbSet<FrequencyConverAlarm> FrequencyConverAlarm { get; set; }
+        public DbSet<DisconnectRecord> DisconnectRecords { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

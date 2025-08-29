@@ -42,7 +42,7 @@ namespace FX5U_IOMonitor.Models
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Blade TPI 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Blade TPI Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -52,7 +52,7 @@ namespace FX5U_IOMonitor.Models
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Blade Brand 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Blade Brand Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -62,7 +62,7 @@ namespace FX5U_IOMonitor.Models
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Alarm 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Alarm Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
@@ -72,11 +72,19 @@ namespace FX5U_IOMonitor.Models
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Machine parameter 初始化失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-
-
+                    try
+                    {
+                        Initialization_FrequencyConverAlarmFromCSV("FrequenceAlarm.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    
                 }
 
             }
@@ -360,6 +368,7 @@ namespace FX5U_IOMonitor.Models
                             Address = h.Address,
                             SourceDbName = h.SourceDbName,
                             StartTime = h.StartTime.ToLocalTime(), // ✅ 轉為本地時間
+                            usetime = h.usetime,
                             EndTime = h.EndTime?.ToLocalTime(),     // ✅ nullable 也要 ?.ToLocalTime()
                         }).ToList();
 
@@ -2191,9 +2200,51 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
-       
 
-    
+        public static void SetDisconnectRecordNumb(string originate)
+        {
+            using var context = new ApplicationDB();
+
+            var targetId = context.DisconnectRecords
+                .Where(r => r.ConnectOriginate == originate && r.EndTime == null)
+                .OrderByDescending(r => r.StartTime)
+                .Select(r => r.Id)
+                .FirstOrDefault();
+
+            if (targetId == 0)
+            {
+                return;
+            }  
+
+            var affected = context.DisconnectRecords
+                .Where(r => r.Id == targetId)
+                .ExecuteUpdate(s => s.SetProperty(r => r.Records, r => r.Records + 1));
+
+            return;
+        }
+        public static void SetDisconnectEndTime(string originate)
+        {
+            using var context = new ApplicationDB();
+            var record = context.DisconnectRecords.Where(r => r.ConnectOriginate == originate && r.EndTime == null)
+                .OrderByDescending(r => r.StartTime)
+                .FirstOrDefault(); record.EndTime = DateTime.UtcNow; 
+            
+            context.SaveChanges();
+        }
+
+        public static void SetDisconnectStartTime(string originate)
+        {
+            using var context = new ApplicationDB();
+            var machine = context.DisconnectRecords.FirstOrDefault(m => m.ConnectOriginate == originate);
+            DisconnectRecord start = new DisconnectRecord 
+            {
+                ConnectOriginate = originate, 
+                StartTime = DateTime.UtcNow,
+                Records = 0
+            }; 
+            context.SaveChanges();
+        }
     }
+
 
 }

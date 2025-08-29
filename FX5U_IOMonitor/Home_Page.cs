@@ -107,10 +107,16 @@ namespace FX5U_IOMonitor
 
         private void reset_lab_connectText()//更新主頁面連接狀況
         {
+            DateTime last = Properties.Settings.Default.Last_cloudupdatetime;
+            lb_Last_cloudupdatetime.Text = LanguageManager.Translate("Mainform_Database_update") + "\n"
+                + last.ToString("yyyy/MM/dd") + "\n" + last.ToString("HH:mm:ss");
+
             lab_green.Text = DBfunction.Get_Green_number("Drill").ToString();
             lab_yellow.Text = DBfunction.Get_Yellow_number("Drill").ToString();
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
+
+            
 
             lab_sum_swing.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();
@@ -138,7 +144,7 @@ namespace FX5U_IOMonitor
                 lab_IP_Port2.Text = $"IP = {machineList.IP_address}；Port = {machineList.Port} ";
             }
 
-            var existingContext = GlobalMachineHub.GetContext("Drill") as IMachineContext;
+            var existingContext = GetContext("Drill") as IMachineContext;
 
             if (existingContext != null && existingContext.IsConnected)
             {
@@ -159,7 +165,7 @@ namespace FX5U_IOMonitor
 
             }
 
-            existingContext = GlobalMachineHub.GetContext("Sawing") as IMachineContext;
+            existingContext = GetContext("Sawing") as IMachineContext;
             if (existingContext != null && existingContext.IsConnected)
             {
                 lab_connect_2.Text = LanguageManager.Translate("Mainform_connect");
@@ -370,7 +376,7 @@ namespace FX5U_IOMonitor
                 MessageBox.Show("請輸入有效的數字格式！");
             }
         }
-
+        private WeakReference<Button>? _statusBtnRef; 
         private async void btn_toggle_Click(object sender, EventArgs e)
         {
 
@@ -428,12 +434,34 @@ namespace FX5U_IOMonitor
                 btn_toggle.Enabled = true;
             }
 
-
-
         }
         private CancellationTokenSource? _autoSyncCts;
         private Task? _autoSyncTask;
         private volatile bool _autoSyncRunning;   // 方便判斷目前是否在自動同步
+       
+        private void SetUiConnectedFromAnyThread()
+        {
+            if (_statusBtnRef != null && _statusBtnRef.TryGetTarget(out var btn))
+            {
+                if (btn.IsHandleCreated && btn.InvokeRequired)
+                {
+                    btn.BeginInvoke(new Action(() =>
+                    {
+                        btn.Text = "Connected";
+                        btn.BackColor = Color.DodgerBlue;
+                        btn.ForeColor = Color.White;
+                        btn.Enabled = true;
+                    }));
+                }
+                else
+                {
+                    btn.Text = "Connected";
+                    btn.BackColor = Color.DodgerBlue;
+                    btn.ForeColor = Color.White;
+                    btn.Enabled = true;
+                }
+            }
+        }
         /// <summary>
         /// 重新連線
         /// </summary>
@@ -441,10 +469,11 @@ namespace FX5U_IOMonitor
         /// <returns></returns>
         private async Task ConnectAndStartSyncAsync(Button control)
         {
+            _statusBtnRef = new WeakReference<Button>(control); 
             try
             {
                 await StopAutoSyncAsync(); 
-
+               
                 DbConfig.LoadFromJson("DbConfig.json");
                 // 先把舊的 context 正確釋放
                 if (_SysCloud != null) { await _SysCloud.DisposeAsync(); _SysCloud = null; }
@@ -453,42 +482,55 @@ namespace FX5U_IOMonitor
                 _SysCloud = new CloudDbContext();
                 _SysLocal = new ApplicationDB();
 
-                control.Text = "Connecting";
-                control.BackColor = Color.LightBlue;
-                control.ForeColor = Color.Black;
-                control.Enabled = false;
+                SetToggleConnecting();
+
+                //control.Text = "Connecting";
+                //control.BackColor = Color.LightBlue;
+                //control.ForeColor = Color.Black;
+                //control.Enabled = false;
 
                 // 先檢查本地與雲端是否能連
-                var cloudOk = await _SysCloud.Database.CanConnectAsync();
+                var cloudOk = await _SysCloud.Database.CanConnectAsync(); 
 
                 if (!cloudOk)
                 {
-                    control.Text = "Disconnected";
-                    control.BackColor = Color.Gainsboro;
-                    control.ForeColor = Color.Black;
-                    btn_toggle.Enabled = true;         
+                    SetToggleDisconnected();
                     return;
+                    //control.Text = "Disconnected";
+                    //control.BackColor = Color.Gainsboro;
+                    //control.ForeColor = Color.Black;
+                    //btn_toggle.Enabled = true;         
+                    //return;
                 }
 
-                control.Text = "Syncing...";
-                control.BackColor = Color.DodgerBlue;
-                control.ForeColor = Color.Black;
+                //control.Text = "Syncing...";
+                //control.BackColor = Color.DodgerBlue;
+                //control.ForeColor = Color.Black;
+                SetToggleSyncing();
+
                 await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                Properties.Settings.Default.Save();
 
+                SetToggleSyncing();
                 await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
-                await StartAutoSyncAsync(TimeSpan.FromSeconds(30)); // ★ 改用 async 版
 
-                control.Text = "Connected";
-                control.BackColor = Color.DodgerBlue;
-                control.ForeColor = Color.White;
-                control.Enabled = true;
+                await StartAutoSyncAsync(TimeSpan.FromSeconds(30)); // ★ 改用 async 版
+                SetUiConnectedFromAnyThread();
+                SetToggleConnected();
+                //control.Text = "Connected";
+                //control.BackColor = Color.DodgerBlue;
+                //control.ForeColor = Color.White;
+                //control.Enabled = true;
 
             }
             catch (Exception ex)
             {
-                control.Text = "Disconnected";
-                control.BackColor = Color.Gainsboro;
-                control.ForeColor = Color.Black;
+                SetToggleDisconnected();
+
+                //control.Text = "Disconnected";
+                //control.BackColor = Color.Gainsboro;
+                //control.ForeColor = Color.Black;
                 //btn_toggle.Enabled = true;
             }
         }
@@ -508,25 +550,46 @@ namespace FX5U_IOMonitor
 
             _autoSyncTask = Task.Run(async () =>
             {
-                while (!token.IsCancellationRequested)
+                try
                 {
-                    try
+                    while (!token.IsCancellationRequested)
                     {
-                        // 開啟同步
-                        await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break; // 被取消就跳出
-                    }
-                    catch (Exception ex)
-                    {
-                        // 記一下錯誤，但不中斷整體 loop
-                        Message_Config.LogMessage($"AutoSync error: {ex.Message}");
-                    }
+                        bool stillConnected = true;
 
-                    try { await Task.Delay(gap, token); }
-                    catch (OperationCanceledException) { break; }
+                        try
+                        {
+                            stillConnected = await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud, token);
+
+                            // 開啟同步
+                            //await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            break; // 被取消就跳出
+                        }
+                        catch (Exception ex)
+                        {
+                            // 記一下錯誤，但不中斷整體 loop
+                            Message_Config.LogMessage($"AutoSync error: {ex.Message}");
+                            stillConnected = await TableSync.SafeCanConnectAsync(_SysCloud, token);
+
+                        }
+                        if (!stillConnected)
+                        {
+                            SetToggleDisconnected();
+                            break;
+                        }
+                        SetToggleConnected();
+
+                        try { await Task.Delay(gap, token); }
+                        catch (OperationCanceledException) { break; }
+                    }
+                }
+                finally
+                {
+                    _autoSyncRunning = false;
+                    _autoSyncCts?.Dispose();
+                    _autoSyncCts = null;
                 }
             }, token);
 
@@ -555,5 +618,58 @@ namespace FX5U_IOMonitor
             }
         }
 
+        private void WithToggle(Action<Button> action)
+        {
+            if (btn_toggle.IsDisposed) return;
+
+            if (btn_toggle.IsHandleCreated && btn_toggle.InvokeRequired)
+                btn_toggle.BeginInvoke(new Action(() => action(btn_toggle)));
+            else
+                action(btn_toggle);
+        }
+
+        private void SetToggleDisconnected()
+        {
+            WithToggle(b =>
+            {
+                b.Text = "Disconnected";
+                b.BackColor = Color.Gainsboro;
+                b.ForeColor = Color.Black;
+                b.Enabled = true;
+            });
+        }
+
+        private void SetToggleConnected()
+        {
+            WithToggle(b =>
+            {
+                b.Text = "Connected";
+                b.BackColor = Color.DodgerBlue;
+                b.ForeColor = Color.White;
+                b.Enabled = true;
+            });
+        }
+
+        private void SetToggleConnecting()
+        {
+            WithToggle(b =>
+            {
+                b.Text = "Connecting";
+                b.BackColor = Color.LightBlue;
+                b.ForeColor = Color.Black;
+                b.Enabled = false;
+            });
+        }
+
+        private void SetToggleSyncing()
+        {
+            WithToggle(b =>
+            {
+                b.Text = "Syncing...";
+                b.BackColor = Color.DodgerBlue;
+                b.ForeColor = Color.Black;
+                b.Enabled = false;
+            });
+        }
     }
 }

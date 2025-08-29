@@ -239,7 +239,7 @@ namespace FX5U_IOMonitor.Models
                                     Error = error ?? "",
                                     Possible = possible ?? "",
                                     Repair_steps = steps ?? "",
-                                    AlarmId= newAlarm.Id
+                                    AlarmId = newAlarm.Id
                                 });
                             }
                         }
@@ -454,7 +454,7 @@ namespace FX5U_IOMonitor.Models
                     break;
 
                 case "Blade_brand":
-                    importService.ImportCsvToTable<Blade_brand, Bladebrandcsv,int>(
+                    importService.ImportCsvToTable<Blade_brand, Bladebrandcsv, int>(
                           tableName: tableName,
                           dbSet: context.Blade_brand,
                           mapFunction: csvRecord => new Blade_brand
@@ -479,19 +479,42 @@ namespace FX5U_IOMonitor.Models
                     importService.ImportdynamicCsvToTable<Alarm>(
                                 tableName: tableName,
                                 dbSetQuery: context.alarm.Include(a => a.Translations),
-                                recordKeySelector: row =>(string)((IDictionary<string, object>)row)["IPC_table"],
+                                recordKeySelector: row => (string)((IDictionary<string, object>)row)["IPC_table"],
                                 entityKeySelector: entity => entity.IPC_table,
                                 mapFunction: (row, existing) => importService.MapAlarmWithTranslations(row, existing),
                                 enableSync: true
                     );
                     break;
-
+                case "MachineParameters":
+                    importService.ImportCsvToTable<MachineParameter, MachineParameter, int>(
+                           tableName: tableName,
+                           dbSet: context.MachineParameters,
+                           mapFunction: csvRecord => new MachineParameter
+                           {
+                               Id = csvRecord.Id,
+                               Calculate = csvRecord.Calculate,
+                               Calculate_type = csvRecord.Calculate_type,
+                               Unit_transfer = csvRecord.Unit_transfer,
+                               Read_type = csvRecord.Read_type,
+                               Read_view = csvRecord.Read_view,
+                               Read_address = csvRecord.Read_address,
+                               Read_address_index = csvRecord.Read_address_index,
+                               Read_addr = csvRecord.Read_addr,
+                               Imperial_transfer = csvRecord.Imperial_transfer,
+                               Write_address = csvRecord.Write_address,
+                               Write_address_index = csvRecord.Write_address_index,
+                           },
+                           entityKeySelector: entity => entity.Id,
+                           recordKeySelector: csv => csv.Id,
+                           enableSync: true
+                     );
+                    break;
                 default:
                     MessageBox.Show($"未支援的 tableName: {tableName}");
                     break;
             }
         }
-   
+
         /// <summary>
         /// 初始化監控參數資料
         /// </summary>
@@ -521,40 +544,61 @@ namespace FX5U_IOMonitor.Models
                     .Select(p => new { p.Machine_Name, p.Name })
                     .ToHashSet();
 
-                int addCount = 0;
+                int addCount = 0, updateCount = 0;
+
                 foreach (var row in records)
                 {
-                    var key = new { row.Machine_Name, row.Name };
-                    if (existingKeys.Contains(key))
-                        continue;
+                    var existing = context.MachineParameters
+                        .FirstOrDefault(p => p.Machine_Name == row.Machine_Name && p.Name == row.Name);
 
-                    var tpi = new MachineParameter
+                    if (existing != null)
                     {
-                        Machine_Name = row.Machine_Name,
-                        Name = row.Name,
-                        Calculate = row.Calculate,
-                        Calculate_type = row.Calculate_type,
-                        Unit_transfer = row.Unit_transfer,
-                        Read_type = row.Read_type,
-                        Read_view = row.Read_view,
-                        Read_address = row.Read_address,
-                        Read_address_index = row.Read_address_index,
-                        Read_addr = row.Read_addr,
-                        Imperial_transfer = row.Imperial_transfer,
-                        Write_address = row.Write_address,
-                        Write_address_index = row.Write_address_index,
-                        History_NumericValue = row.History_NumericValue
-                    };
+                        // 更新
+                        existing.Calculate = row.Calculate;
+                        existing.Calculate_type = row.Calculate_type;
+                        existing.Unit_transfer = row.Unit_transfer;
+                        existing.Read_type = row.Read_type;
+                        existing.Read_view = row.Read_view;
+                        existing.Read_address = row.Read_address;
+                        existing.Read_address_index = row.Read_address_index;
+                        existing.Read_addr = row.Read_addr;
+                        existing.Imperial_transfer = row.Imperial_transfer;
+                        existing.Write_address = row.Write_address;
+                        existing.Write_address_index = row.Write_address_index;
+                        existing.History_NumericValue = row.History_NumericValue;
 
-                    context.MachineParameters.Add(tpi);
-                    addCount++;
+                        updateCount++;
+                    }
+                    else
+                    {
+                        // 新增
+                        var tpi = new MachineParameter
+                        {
+                            Machine_Name = row.Machine_Name,
+                            Name = row.Name,
+                            Calculate = row.Calculate,
+                            Calculate_type = row.Calculate_type,
+                            Unit_transfer = row.Unit_transfer,
+                            Read_type = row.Read_type,
+                            Read_view = row.Read_view,
+                            Read_address = row.Read_address,
+                            Read_address_index = row.Read_address_index,
+                            Read_addr = row.Read_addr,
+                            Imperial_transfer = row.Imperial_transfer,
+                            Write_address = row.Write_address,
+                            Write_address_index = row.Write_address_index,
+                            History_NumericValue = row.History_NumericValue
+                        };
+
+                        context.MachineParameters.Add(tpi);
+                        addCount++;
+                    }
                 }
 
                 context.SaveChanges();
 
-                Console.WriteLine(addCount > 0
-                    ? $"✅ 新增 {addCount} 筆 MachineParameters 資料。"
-                    : "🟡 所有 MachineParameters 資料已存在，未新增任何資料。");
+                Console.WriteLine($"✅ 新增 {addCount} 筆，更新 {updateCount} 筆 MachineParameters。");
+
             }
             catch (HeaderValidationException ex)
             {
@@ -585,7 +629,7 @@ namespace FX5U_IOMonitor.Models
                 Machine_number? machine = context.Machine.FirstOrDefault(m => m.Name == targetMachine);
                 if (machine == null)
                 {
-                    machine = new() { Name = targetMachine ,IP_address = "", Port = 0,MC_Type="MC3E"};
+                    machine = new() { Name = targetMachine, IP_address = "", Port = 0, MC_Type = "MC3E" };
                     context.Machine.Add(machine);
                     context.SaveChanges();
                 }
@@ -699,7 +743,62 @@ namespace FX5U_IOMonitor.Models
             return "oct"; // 全部只含 0-7 的話視為八進位
         }
 
-       
+        public static void Initialization_FrequencyConverAlarmFromCSV(string csvPath)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Encoding = System.Text.Encoding.UTF8,
+                PrepareHeaderForMatch = args => args.Header.Trim(), // 🔥 去除首尾空白
+                MissingFieldFound = null,
+                HeaderValidated = null
+            };
+
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, config);
+            try
+            {
+                var records = csv.GetRecords<FrequencyConverAlarmcsv>().ToList();
+
+                using var context = new ApplicationDB();
+
+                // 防呆：先查出已存在的品牌 ID
+                var existingIds = context.FrequencyConverAlarm.Select(b => b.FrequencyAlarmID).ToHashSet();
+
+                int addCount = 0;
+                foreach (var row in records)
+                {
+                    if (!existingIds.Contains(row.FrequencyAlarmID))
+                    {
+                        var brand = new FrequencyConverAlarm
+                        {
+
+                            FrequencyAlarmID = row.FrequencyAlarmID,
+                            FrequencyAlarmInfo = row.FrequencyAlarmInfo
+                          
+                        };
+
+                        context.FrequencyConverAlarm.Add(brand);
+                        addCount++;
+                    }
+                }
+
+                context.SaveChanges();
+            }
+            catch (HeaderValidationException ex)
+            {
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+        }
+
+
+        private class FrequencyConverAlarmcsv
+        {
+            public int FrequencyAlarmID { get; set; }
+            public string FrequencyAlarmInfo { get; set; }
+        }
+
+
 
     }
 
