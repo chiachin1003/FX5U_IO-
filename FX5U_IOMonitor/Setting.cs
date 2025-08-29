@@ -288,6 +288,15 @@ namespace FX5U_IOMonitor
                 var result = form.ShowDialog(this);
             }
         }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            using (var form = new UtilizationRate())
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
+            }
+        }
     }
 
 

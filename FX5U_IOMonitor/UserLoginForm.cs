@@ -87,7 +87,7 @@ namespace FX5U_IOMonitor
         {
             //Main_form_test add_sawband_Form = new Main_form_test();
             //Machine_monitoring_interface_card add_saw_Form = new Machine_monitoring_interface_card(ScheduleFrequency.Weekly);
-            File_Settings add_saw_Form = new File_Settings();
+            UtilizationRate add_saw_Form = new UtilizationRate();
 
             add_saw_Form.Show();
 

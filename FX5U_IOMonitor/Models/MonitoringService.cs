@@ -817,7 +817,7 @@ namespace FX5U_IOMonitor.Models
                         await ProcessUnitValues(modeAddressMap_Metric, machine_name, "Metric", currentUnit);
 
                         // 處理英制數值
-                            await ProcessUnitValues(modeAddressMap_Imperial, machine_name, "Imperial", currentUnit);
+                        await ProcessUnitValues(modeAddressMap_Imperial, machine_name, "Imperial", currentUnit);
                       
                     }
                     catch (Exception ex)
@@ -1114,7 +1114,39 @@ namespace FX5U_IOMonitor.Models
                                                 break;
                                             }
                                         case 5:
-                                            Debug.WriteLine($"[{type}] 尚未實作 {name}");
+                                            if (address_index == 2)
+                                            {
+                                                string nextAddress = GenerateNextAddress(address);
+                                                var nextMatch = result.FirstOrDefault(r => r.address == nextAddress);
+                                                if (nextMatch != null)
+                                                {
+                                                    ushort[] values = { match.current_number, nextMatch.current_number };
+                                                    string formatted = MonitorFunction.FormatPlcTime(values);
+                                                    int currentvalue = (int)MonitorFunction.mergenumber(values);
+                                                    int currentrecordvalue = int.Parse(DBfunction.Get_Machine_now_string(machine_name, name).Trim());
+
+                                                    if (currentvalue >= currentrecordvalue)
+                                                    {
+                                                        DBfunction.Set_Machine_now_number(machine_name, name, currentvalue); // 當前該鋸帶壽命的紀錄值
+                                                        DBfunction.Set_Machine_now_string(machine_name, name, currentvalue.ToString()); //當前該鋸帶壽命的監控值
+
+                                                    }
+                                                    if ( currentvalue < currentrecordvalue ) 
+                                                    {
+                                                        int History_NumericValue = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
+                                                        int accumulationvalue = History_NumericValue + currentrecordvalue; 
+                                                        DBfunction.Set_Machine_History_NumericValue(machine_name, name, accumulationvalue);  //現在的總壽命值
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Debug.WriteLine($"❗ 時間格式地址錯誤：缺少 {nextAddress}");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Debug.WriteLine($"[1] {name} 超出範圍");
+                                            }
                                             break;
 
                                         default:

@@ -402,6 +402,176 @@ namespace FX5U_IOMonitor.Scheduling
             }
         }
 
+        public static async Task<TaskResult> RecordCurrentUtilizationRatedata(ScheduleFrequency config)
+        {
+            try
+            {
+                using var db = new ApplicationDB();
+                var now = DateTime.UtcNow;
+
+                DateTime roundedStartTime;
+                DateTime roundedEndTime;
+
+                bool useDefaultZero = false;
+
+                switch (config)
+                {
+                    case ScheduleFrequency.Minutely:
+                        var lastMinute = now.AddMinutes(-1);
+                        roundedStartTime = new DateTime(lastMinute.Year, lastMinute.Month, lastMinute.Day, lastMinute.Hour, lastMinute.Minute, 0, DateTimeKind.Utc);
+                        roundedEndTime = roundedStartTime.AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Hourly:
+                        var lastHour = now.AddHours(-1);
+                        roundedStartTime = new DateTime(lastHour.Year, lastHour.Month, lastHour.Day, lastHour.Hour, 0, 0, DateTimeKind.Utc);
+                        roundedEndTime = roundedStartTime.AddMinutes(59).AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Daily:
+                        var yesterday = now.Date.AddDays(-1);
+                        roundedStartTime = yesterday;
+                        roundedEndTime = yesterday.AddHours(23).AddMinutes(59).AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Weekly:
+                        int daysToLastMonday = ((int)now.DayOfWeek + 6) % 7 + 7; // 上週一
+                        roundedStartTime = now.Date.AddDays(-daysToLastMonday);
+                        roundedEndTime = roundedStartTime.AddDays(6).AddHours(23).AddMinutes(59).AddSeconds(59);
+                        break;
+                    case ScheduleFrequency.Monthly:
+                        var prevMonth = now.AddMonths(-1);
+                        var monthStart = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var lastDayPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+                        var monthEnd = new DateTime(prevMonth.Year, prevMonth.Month, lastDayPrevMonth, 23, 59, 59, DateTimeKind.Utc);
+
+                        // 查出最早參數建立時間
+                        DateTime earliestParamTime = db.MachineParameters.Min(p => p.CreatedAt).ToUniversalTime();
+
+                        if (monthEnd < earliestParamTime)
+                        {
+                            //  記錄值為 0 的初始化
+                            roundedStartTime = monthStart;
+                            roundedEndTime = monthEnd;
+                            useDefaultZero = true;
+                        }
+                        else
+                        {
+                            // 正常紀錄
+                            roundedStartTime = monthStart < earliestParamTime ? earliestParamTime : monthStart;
+                            roundedEndTime = monthEnd;
+                        }
+                        break;
+                    default:
+                        throw new NotSupportedException($"不支援的排程頻率：{config}");
+                }
+
+                string currentPeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric";
+
+                // 查詢最近的相同頻率紀錄（只看 Metric 的）
+                var latestRecord = db.MachineParameterHistoryRecodes
+                                     .Where(r => r.PeriodTag == currentPeriodTag)
+                                     .OrderByDescending(r => r.StartTime)
+                                     .FirstOrDefault();
+
+                if (latestRecord != null)
+                {
+                    if (latestRecord.PeriodTag == currentPeriodTag)
+                    {
+                        return new TaskResult
+                        {
+                            Success = true,
+                            Message = $"⏳ 已存在相同週期快照（{currentPeriodTag}），無需重複紀錄。",
+                            ExecutionTime = DateTime.UtcNow
+                        };
+                    }
+                    else if (latestRecord.StartTime >= roundedStartTime && DateTime.UtcNow <= roundedEndTime)
+                    {
+                        return new TaskResult
+                        {
+                            Success = true,
+                            Message = $"✅ 最近快照（{latestRecord.PeriodTag}）仍在週期內，略過紀錄。",
+                            ExecutionTime = DateTime.UtcNow
+                        };
+                    }
+                    // 否則落後、超時 ➜ 繼續紀錄
+                }
+
+              
+                var parameters = db.MachineParameters.ToList();
+
+                foreach (var param in parameters)
+                {
+                    bool alreadyExists = db.MachineParameterHistoryRecodes.Any(r =>
+                        r.MachineParameterId == param.Id &&
+                        r.StartTime == roundedStartTime &&
+                        r.PeriodTag.EndsWith("_Metric"));
+
+                    if (alreadyExists)
+                        continue;
+
+                    if (param.Read_type == "bit" && param.Name == "Drill_plc_usetime")
+                    {
+                        // 取得目前的值：
+                        int currentValue = useDefaultZero ? 0
+                            : DBfunction.
+                            Get_Machine_History_NumericValue(param.Machine_Name, param.Name) + DBfunction.Get_Machine_number(param.Machine_Name, param.Name);
+                        //寫入紀錄
+                        db.UtilizationRate.Add(new Utilization_Record
+                        {
+                            MachineParameterId = param.Id,
+                            Machine_Name = param.Machine_Name,
+                            StartTime = roundedStartTime,
+                            EndTime = roundedEndTime,
+                            History_NumericValue = currentValue,
+                            Unit = "Metric",
+                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}"
+                        });
+                    }
+
+                    if (param.Read_type == "word" && param.Read_view == 5)
+                    {
+
+                        // === 公制記錄（從 History_NumericValue 取得） ===
+                        int currentValue = useDefaultZero ? 0
+                            : DBfunction.Get_Machine_History_NumericValue(param.Machine_Name, param.Name);
+
+                        db.UtilizationRate.Add(new Utilization_Record
+                        {
+                            MachineParameterId = param.Id,
+                            Machine_Name = param.Machine_Name,
+                            StartTime = roundedStartTime,
+                            EndTime = roundedEndTime,
+                            History_NumericValue = currentValue,
+                            Unit = "Metric",
+                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}"
+                        });
+
+                    }
+                }
+
+                await db.SaveChangesAsync();
+
+                return new TaskResult
+                {
+                    Success = true,
+                    Message = $"{config} 快照完成，共處理 {parameters.Count} 筆參數",
+                    ExecutionTime = DateTime.UtcNow
+                };
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("失敗");
+                Message_Config.LogMessage($"紀錄失敗{ex.Message}");
+
+                return new TaskResult
+                {
+                    Success = false,
+                    Message = $"記錄參數快照失敗：{ex.Message}",
+                    ExecutionTime = DateTime.UtcNow
+                };
+
+            }
+        }
+
+
 
         public static (string Subject, string Body) BuildSingleAlarmMessage(
             string machineName,

@@ -35,6 +35,7 @@ namespace FX5U_IOMonitor
         public event EventHandler? LogoutSucceeded;
         public List<Button> machineButtons;
 
+
         private static Main _instance;
         public static Main Instance
         {
@@ -66,7 +67,6 @@ namespace FX5U_IOMonitor
         {
 
             InitializeComponent();
-
             // 檢查是否已初始化
             try
             {
@@ -144,7 +144,6 @@ namespace FX5U_IOMonitor
             main_Form.Show(); // 顯示子窗體
 
             this.Shown += Main_Shown;
-
         }
 
         private void btn_connect_Click(object sender, EventArgs e)
@@ -165,14 +164,17 @@ namespace FX5U_IOMonitor
         {
             MachineHub.UnregisterMachine(machineName);
 
-            await Task.Delay(1000);
-            int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
+            await Task.Delay(60000);
 
+            int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
+      
             // 2. 第一次嘗試失敗 → 通知一次
             if (repeat != 0)
             {
-                await Task.Delay(10000); // 等待 10 秒再跳通知
                 DBfunction.SetDisconnectStartTime(machineName);
+
+                await Task.Delay(60000); // 等待 10 秒
+
             }
             // 3. 持續重連，直到成功
             int i = 1;
@@ -182,6 +184,7 @@ namespace FX5U_IOMonitor
                 Debug.WriteLine($"第 {i} 次連線測試");
 
                 repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
+
                 DBfunction.SetDisconnectRecordNumb(machineName);
 
                 if (repeat == 0)

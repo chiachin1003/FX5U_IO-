@@ -45,7 +45,7 @@ namespace FX5U_IOMonitor
             button3 = new Button();
             btn_unit = new Button();
             flowLayoutPanel1 = new FlowLayoutPanel();
-            button4 = new Button();
+            btn_UtilizationRate = new Button();
             flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -204,21 +204,22 @@ namespace FX5U_IOMonitor
             flowLayoutPanel1.Controls.Add(btn_unit);
             flowLayoutPanel1.Controls.Add(btn_history);
             flowLayoutPanel1.Controls.Add(btn_checkpoint);
-            flowLayoutPanel1.Controls.Add(button4);
+            flowLayoutPanel1.Controls.Add(btn_UtilizationRate);
             flowLayoutPanel1.Location = new Point(47, 39);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Padding = new Padding(10);
             flowLayoutPanel1.Size = new Size(196, 467);
             flowLayoutPanel1.TabIndex = 21;
             // 
-            // button4
+            // btn_UtilizationRate
             // 
-            button4.Location = new Point(13, 388);
-            button4.Name = "button4";
-            button4.Size = new Size(124, 39);
-            button4.TabIndex = 21;
-            button4.Text = "稼動率對照圖";
-            button4.UseVisualStyleBackColor = true;
+            btn_UtilizationRate.Location = new Point(13, 388);
+            btn_UtilizationRate.Name = "btn_UtilizationRate";
+            btn_UtilizationRate.Size = new Size(124, 39);
+            btn_UtilizationRate.TabIndex = 21;
+            btn_UtilizationRate.Text = "稼動率對照圖";
+            btn_UtilizationRate.UseVisualStyleBackColor = true;
+            btn_UtilizationRate.Click += button4_Click;
             // 
             // Setting
             // 
@@ -257,6 +258,6 @@ namespace FX5U_IOMonitor
         private Button button3;
         private Button btn_unit;
         private FlowLayoutPanel flowLayoutPanel1;
-        private Button button4;
+        private Button btn_UtilizationRate;
     }
 }

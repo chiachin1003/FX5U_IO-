@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Utilities.Collections;
 using Org.BouncyCastle.Utilities.Net;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,9 @@ using System.Text;
 using System.Threading.Tasks;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Data.Recordmode;
+using static FX5U_IOMonitor.Models.Csv2Db;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using static FX5U_IOMonitor.Models.Csv2Db;
 
 
 namespace FX5U_IOMonitor.Models
@@ -1093,7 +1094,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        public static void Set_Alarm_Note_ByAddress(string address,string message)
+        public static void Set_Alarm_Note_ByAddress(string address,int FrequencyAlarmID,string? message)
         {
             using (var context = new ApplicationDB())
             {
@@ -1106,6 +1107,7 @@ namespace FX5U_IOMonitor.Models
                         AlarmId = alarm.Id,
                         StartTime = DateTime.UtcNow,
                         RecordTime = DateTime.UtcNow,
+                        Notenumber = FrequencyAlarmID,
                         Note = message,
                         Records = 1
                     };
@@ -1825,6 +1827,7 @@ namespace FX5U_IOMonitor.Models
             }
 
         }
+        
         public static int Get_Machine_History_NumericValue(string machine_name, string Machineprameter_name)
         {
             using (var context = new ApplicationDB())
@@ -2193,7 +2196,8 @@ namespace FX5U_IOMonitor.Models
                        classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
-                       Note = ah.Note,
+                       Note = ah.Notenumber,
+                       NoteMessage = ah.Note,
                        Duration = ah.Duration
                    }).ToList();
 
@@ -2234,16 +2238,71 @@ namespace FX5U_IOMonitor.Models
 
         public static void SetDisconnectStartTime(string originate)
         {
+            if (string.IsNullOrWhiteSpace(originate)) return;
+
             using var context = new ApplicationDB();
-            var machine = context.DisconnectRecords.FirstOrDefault(m => m.ConnectOriginate == originate);
-            DisconnectRecord start = new DisconnectRecord 
+            bool hasOpen = context.DisconnectRecords
+             .Any(r => r.ConnectOriginate == originate && r.EndTime == null);
+
+            if (hasOpen) return; 
+
+            var start = new DisconnectRecord
             {
-                ConnectOriginate = originate, 
+                ConnectOriginate = originate,
                 StartTime = DateTime.UtcNow,
                 Records = 0
-            }; 
+            };
+
+            context.DisconnectRecords.Add(start);
             context.SaveChanges();
+         
         }
+
+        public static string? Get_FrequencyConverAlarm(int frequencyAlarmId)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.FrequencyConverAlarm
+                    .FirstOrDefault(a => a.FrequencyAlarmID == frequencyAlarmId);
+
+                return alarm?.FrequencyAlarmInfo; // 找不到就回傳 null
+            }
+        }
+
+      
+
+        public static int Get_UtilizationRate(DateTime utcStart, DateTime utcEnd, string  Machinename )
+        {
+            if (utcEnd <= utcStart)
+                throw new ArgumentException("utcEnd 必須大於 utcStart");
+            if (string.IsNullOrWhiteSpace(Machinename))
+                return 0;
+
+            using var db = new ApplicationDB();
+
+            // 只抓到需要的欄位
+            var q = db.UtilizationRate
+                .AsNoTracking()
+                .Where(r => r.StartTime >= utcStart &&
+                            r.StartTime < utcEnd &&
+                            r.Machine_Name == Machinename);
+
+            // 先「同一時間點」聚合相加，再取首尾
+            var firstSum = q.GroupBy(r => r.StartTime)
+                 .Select(g => new { Time = g.Key, SumVal = g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
+                 .OrderBy(x => x.Time)
+                 .Select(x => x.SumVal)
+                 .FirstOrDefault();
+            var lastSum = q.GroupBy(r => r.StartTime)
+                .Select(g => new { Time = g.Key, SumVal = g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
+                .OrderByDescending(x => x.Time)
+                .Select(x => x.SumVal)
+                .FirstOrDefault();
+
+            return lastSum - firstSum;
+
+        }
+
     }
 
 

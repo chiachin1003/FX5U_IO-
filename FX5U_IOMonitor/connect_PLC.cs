@@ -64,6 +64,27 @@ namespace FX5U_IOMonitor
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
 
         }
+        public static async Task<int> AutoConnectAllMachinesAsync(
+            Connect_PLC plcForm, string? targetMachineName = null)
+        {
+            return await Task.Run(() =>
+            {
+                // ★ 在背景執行緒跑原本的邏輯
+                int repeat = 0;
+                using var context = new ApplicationDB();
+                var query = context.Machine.AsQueryable();
+                if (!string.IsNullOrWhiteSpace(targetMachineName))
+                {
+                    query = query.Where(m => m.Name == targetMachineName);
+                }
+                var machineList = query.ToList();
+
+                // TODO: 實作自動連線流程，最後算出 repeat
+                repeat = machineList.Count; // 假設是連線失敗數量
+
+                return repeat; // Task<int> 會帶回結果
+            });
+        }
         /// <summary>
         /// 自動連線當前機台
         /// </summary>
@@ -529,8 +550,9 @@ namespace FX5U_IOMonitor
                     // 根據是否有額外數值來決定呼叫哪個資料庫函數
                     if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.AdditionalAddress))
                     {
+                        string? FalarmMessage = DBfunction.Get_FrequencyConverAlarm(e.AdditionalValue.Value);
                         // 呼叫帶有額外數值的函數
-                        DBfunction.Set_Alarm_Note_ByAddress(e.Address, e.AdditionalValue.Value.ToString());
+                        DBfunction.Set_Alarm_Note_ByAddress(e.Address, e.AdditionalValue.Value, FalarmMessage);
                     }
                     else
                     {
