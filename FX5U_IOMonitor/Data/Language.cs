@@ -397,8 +397,19 @@ public class LanguageImportService
         }
         catch (DbUpdateException ex)
         {
-            var inner = ex.InnerException?.Message ?? ex.Message;
-            MessageBox.Show(LanguageManager.Translate("File_Settings_OutputFailed")+$"{inner}");
+            // EF Core 錯誤
+            Console.WriteLine($"DbUpdateException: {ex.Message}");
+
+            // 內層資料庫錯誤（最關鍵）
+            Console.WriteLine($"Inner: {ex.InnerException?.Message}");
+
+            // 哪些實體出錯
+            foreach (var entry in ex.Entries)
+            {
+                Console.WriteLine($"Entity={entry.Entity.GetType().Name}, State={entry.State}");
+            }
+            //var inner = ex.InnerException?.Message ?? ex.Message;
+            //MessageBox.Show(LanguageManager.Translate("File_Settings_OutputFailed")+$"{inner}");
             throw;
         }
         return result;
