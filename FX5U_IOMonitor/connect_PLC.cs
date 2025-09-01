@@ -316,7 +316,7 @@ namespace FX5U_IOMonitor
             _ = Task.Run(() => context.Monitor.Write_Word_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
 
             string? errorMessage;
-            bool result = DBfunction.SetMachineIP(connect_machine, txb_IP.Text.Trim(), txb_port.Text, out errorMessage);
+            bool result = DBfunction.SetMachineIP(connect_machine, txb_IP.Text.Trim(), txb_port.Text, frameText, out errorMessage);
 
             if (!result)
             {

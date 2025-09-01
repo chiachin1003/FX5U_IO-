@@ -1,21 +1,10 @@
 ﻿
-using FX5U_IOMonitor.Config;
-using FX5U_IOMonitor.Data;
+
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
-using FX5U_IOMonitor.Message;
-using FX5U_IOMonitor.MitsubishiPlc_Monior;
+
 using FX5U_IOMonitor.Models;
-using FX5U_IOMonitor.panel_control;
-using FX5U_IOMonitor.Resources;
-using FX5U_IO元件監控;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
-using System.Reflection.PortableExecutable;
-using System.Windows.Forms;
-using static FX5U_IOMonitor.Models.Test_;
-using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static FX5U_IOMonitor.Utilization.UtilizationRateCalculate;
 
 
 
@@ -95,9 +84,17 @@ namespace FX5U_IOMonitor
 
         private void UserLoginForm_Load(object sender, EventArgs e)
         {
-          
 
-        
+            string a = ShowUtilizationRate("Drill", RangeChoice.Today);
+            string b = ShowUtilizationRate("Drill", RangeChoice.Yesterday);
+            string c = ShowUtilizationRate("Drill", RangeChoice.LastWeek);
+            string d = ShowUtilizationRate("Drill", RangeChoice.ThisWeek);
+
+            ShowUtilizationRate("Sawing", RangeChoice.Today);
+            ShowUtilizationRate("Sawing", RangeChoice.Yesterday);
+            ShowUtilizationRate("Sawing", RangeChoice.LastWeek);
+            ShowUtilizationRate("Sawing", RangeChoice.ThisWeek);
+
         }
     }
 }

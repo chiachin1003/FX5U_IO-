@@ -128,6 +128,16 @@
             panel_Drill = new Panel();
             btn_toggle = new Button();
             lb_Last_cloudupdatetime = new Label();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            lab_lastweek = new Label();
+            lab_last_ratio = new Label();
+            lab_thisweek = new Label();
+            lab_this_ratio = new Label();
+            lab_yesterday = new Label();
+            lab_yesterday_ratio = new Label();
+            lab_today = new Label();
+            lab_today_ratio = new Label();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -146,6 +156,9 @@
             tbPanel_Drill_yellow.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
+            panel_Swing.SuspendLayout();
+            panel_Drill.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // panel12
@@ -861,6 +874,7 @@
             panel_Swing.BackgroundImage = Properties.Resources.Swaing;
             panel_Swing.BackgroundImageLayout = ImageLayout.Center;
             panel_Swing.BorderStyle = BorderStyle.FixedSingle;
+            panel_Swing.Controls.Add(tableLayoutPanel2);
             panel_Swing.Location = new Point(463, 12);
             panel_Swing.Name = "panel_Swing";
             panel_Swing.Size = new Size(385, 297);
@@ -873,6 +887,7 @@
             panel_Drill.BackgroundImage = Properties.Resources.Drill;
             panel_Drill.BackgroundImageLayout = ImageLayout.Zoom;
             panel_Drill.BorderStyle = BorderStyle.FixedSingle;
+            panel_Drill.Controls.Add(tableLayoutPanel1);
             panel_Drill.Location = new Point(47, 12);
             panel_Drill.Name = "panel_Drill";
             panel_Drill.Size = new Size(385, 297);
@@ -899,6 +914,146 @@
             lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
             lb_Last_cloudupdatetime.Size = new Size(0, 15);
             lb_Last_cloudupdatetime.TabIndex = 57;
+            // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43.670887F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56.329113F));
+            tableLayoutPanel1.Controls.Add(lab_today_ratio, 1, 3);
+            tableLayoutPanel1.Controls.Add(lab_today, 0, 3);
+            tableLayoutPanel1.Controls.Add(lab_yesterday_ratio, 1, 2);
+            tableLayoutPanel1.Controls.Add(lab_yesterday, 0, 2);
+            tableLayoutPanel1.Controls.Add(lab_this_ratio, 1, 1);
+            tableLayoutPanel1.Controls.Add(lab_thisweek, 0, 1);
+            tableLayoutPanel1.Controls.Add(lab_last_ratio, 1, 0);
+            tableLayoutPanel1.Controls.Add(lab_lastweek, 0, 0);
+            tableLayoutPanel1.Location = new Point(222, 209);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 4;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel1.Size = new Size(158, 83);
+            tableLayoutPanel1.TabIndex = 1;
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 39.2405052F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60.7594948F));
+            tableLayoutPanel2.Location = new Point(226, 213);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 4;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.Size = new Size(158, 83);
+            tableLayoutPanel2.TabIndex = 2;
+            // 
+            // lab_lastweek
+            // 
+            lab_lastweek.BackColor = Color.Transparent;
+            lab_lastweek.Dock = DockStyle.Fill;
+            lab_lastweek.Font = new Font("微軟正黑體", 9.75F);
+            lab_lastweek.ForeColor = SystemColors.ActiveCaptionText;
+            lab_lastweek.Location = new Point(3, 0);
+            lab_lastweek.Name = "lab_lastweek";
+            lab_lastweek.Size = new Size(63, 21);
+            lab_lastweek.TabIndex = 7;
+            lab_lastweek.Text = "上週:";
+            lab_lastweek.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_last_ratio
+            // 
+            lab_last_ratio.BackColor = Color.Transparent;
+            lab_last_ratio.Dock = DockStyle.Fill;
+            lab_last_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_last_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_last_ratio.Location = new Point(72, 0);
+            lab_last_ratio.Name = "lab_last_ratio";
+            lab_last_ratio.Size = new Size(83, 21);
+            lab_last_ratio.TabIndex = 8;
+            lab_last_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_thisweek
+            // 
+            lab_thisweek.BackColor = Color.Transparent;
+            lab_thisweek.Dock = DockStyle.Fill;
+            lab_thisweek.Font = new Font("微軟正黑體", 9.75F);
+            lab_thisweek.ForeColor = SystemColors.ActiveCaptionText;
+            lab_thisweek.Location = new Point(3, 21);
+            lab_thisweek.Name = "lab_thisweek";
+            lab_thisweek.Size = new Size(63, 21);
+            lab_thisweek.TabIndex = 9;
+            lab_thisweek.Text = "這週:";
+            lab_thisweek.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_this_ratio
+            // 
+            lab_this_ratio.BackColor = Color.Transparent;
+            lab_this_ratio.Dock = DockStyle.Fill;
+            lab_this_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_this_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_this_ratio.Location = new Point(72, 21);
+            lab_this_ratio.Name = "lab_this_ratio";
+            lab_this_ratio.Size = new Size(83, 21);
+            lab_this_ratio.TabIndex = 10;
+            lab_this_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_yesterday
+            // 
+            lab_yesterday.BackColor = Color.Transparent;
+            lab_yesterday.Dock = DockStyle.Fill;
+            lab_yesterday.Font = new Font("微軟正黑體", 9.75F);
+            lab_yesterday.ForeColor = SystemColors.ActiveCaptionText;
+            lab_yesterday.Location = new Point(3, 42);
+            lab_yesterday.Name = "lab_yesterday";
+            lab_yesterday.Size = new Size(63, 20);
+            lab_yesterday.TabIndex = 11;
+            lab_yesterday.Text = "昨日:";
+            lab_yesterday.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_yesterday_ratio
+            // 
+            lab_yesterday_ratio.BackColor = Color.Transparent;
+            lab_yesterday_ratio.Dock = DockStyle.Fill;
+            lab_yesterday_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_yesterday_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_yesterday_ratio.Location = new Point(72, 42);
+            lab_yesterday_ratio.Name = "lab_yesterday_ratio";
+            lab_yesterday_ratio.Size = new Size(83, 20);
+            lab_yesterday_ratio.TabIndex = 12;
+            lab_yesterday_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_today
+            // 
+            lab_today.BackColor = Color.Transparent;
+            lab_today.Dock = DockStyle.Fill;
+            lab_today.Font = new Font("微軟正黑體", 9.75F);
+            lab_today.ForeColor = SystemColors.ActiveCaptionText;
+            lab_today.Location = new Point(3, 62);
+            lab_today.Name = "lab_today";
+            lab_today.Size = new Size(63, 21);
+            lab_today.TabIndex = 13;
+            lab_today.Text = "今日";
+            lab_today.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_today_ratio
+            // 
+            lab_today_ratio.BackColor = Color.Transparent;
+            lab_today_ratio.Dock = DockStyle.Fill;
+            lab_today_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_today_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_today_ratio.Location = new Point(72, 62);
+            lab_today_ratio.Name = "lab_today_ratio";
+            lab_today_ratio.Size = new Size(83, 21);
+            lab_today_ratio.TabIndex = 14;
+            lab_today_ratio.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // Home_Page
             // 
@@ -950,6 +1105,9 @@
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
+            panel_Swing.ResumeLayout(false);
+            panel_Drill.ResumeLayout(false);
+            tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1009,6 +1167,16 @@
         private Button btn_Saw;
         private Button btn_toggle;
         private Label lb_Last_cloudupdatetime;
+        private TableLayoutPanel tableLayoutPanel2;
+        private TableLayoutPanel tableLayoutPanel1;
+        private Label lab_today_ratio;
+        private Label lab_today;
+        private Label lab_yesterday_ratio;
+        private Label lab_yesterday;
+        private Label lab_this_ratio;
+        private Label lab_thisweek;
+        private Label lab_last_ratio;
+        private Label lab_lastweek;
     }
 }
 

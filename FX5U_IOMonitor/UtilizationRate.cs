@@ -45,7 +45,13 @@ namespace FX5U_IOMonitor
         /* ---------- 語系切換 ---------- */
         private void SwitchLanguage()
         {
-             this.Text = LanguageManager.Translate("UtilizationRate_Main");
+            this.Text = LanguageManager.Translate("UtilizationRate_Main");
+            lab_start.Text = LanguageManager.Translate("UtilizationRate_StartTime");
+            lab_end.Text = LanguageManager.Translate("UtilizationRate_EndTime");
+            lab_Saw_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_DrillUtilization");
+            lab_Drill_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_SawingUtilization");
+            Text_design.SafeAdjustFont(lab_Drill_UtilizationRate, lab_Drill_UtilizationRate.Text,36);
+            Text_design.SafeAdjustFont(lab_Saw_UtilizationRate, lab_Saw_UtilizationRate.Text,36);
 
         }
 
@@ -66,13 +72,13 @@ namespace FX5U_IOMonitor
             var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, sp, ep,
                                                        allowOvernight: false, equalMeansOneHour: false);
 
-            var (utcStart, utcEnd) = ToUtcRange(startLocal, endLocal);
+            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
 
             //計算時間為:
-            lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") +":\n"+
+            lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + "：\n" +
                   $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
-            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom,ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom,ref _sawingPanel, this, "sawingPanel",new Point(300, 40), new Size(150, 150));
+            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
         }
 
@@ -104,7 +110,7 @@ namespace FX5U_IOMonitor
                                                        allowOvernight: false, equalMeansOneHour: false);
 
             // 再轉 UTC
-            var (utcStart, utcEnd) = ToUtcRange(startLocal, endLocal);
+            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
 
             RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
@@ -132,7 +138,7 @@ namespace FX5U_IOMonitor
                                                        allowOvernight: false, equalMeansOneHour: false);
 
             // 再轉 UTC
-            var (utcStart, utcEnd) = ToUtcRange(startLocal, endLocal);
+            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
 
             RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
@@ -160,7 +166,7 @@ namespace FX5U_IOMonitor
                                                        allowOvernight: false, equalMeansOneHour: false);
 
             // 再轉 UTC
-            var (utcStart, utcEnd) = ToUtcRange(startLocal, endLocal);
+            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
 
             RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
@@ -186,7 +192,7 @@ namespace FX5U_IOMonitor
                                                        allowOvernight: false, equalMeansOneHour: false);
 
             // 再轉 UTC
-            var (utcStart, utcEnd) = ToUtcRange(startLocal, endLocal);
+            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
 
             RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
@@ -195,12 +201,6 @@ namespace FX5U_IOMonitor
             Properties.Settings.Default.Save();
             SaveUtilizationPair(dateTimePicker_start4, dateTimePicker_end4,
                     "UtilizationStart4", "UtilizationEnd4");
-        }
-
-        private static TimeZoneInfo GetTaipeiTimeZone()
-        {
-            try { return TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time"); }  // Windows
-            catch { return TimeZoneInfo.FindSystemTimeZoneById("Asia/Taipei"); }         // Linux
         }
         /// <summary>
         /// 初始化
@@ -344,24 +344,6 @@ namespace FX5U_IOMonitor
             return (startLocal, endLocal);
         }
         /// <summary>
-        /// 本地時間轉資料庫的Utc時間
-        /// </summary>
-        /// <param name="startLocal"></param>
-        /// <param name="endLocal"></param>
-        /// <returns></returns>
-        private static (DateTime utcStart, DateTime utcEnd) ToUtcRange(DateTime startLocal, DateTime endLocal)
-        {
-            var tz = GetTaipeiTimeZone();
-
-            // DateTimePicker 組出來的是 Unspecified，這裡明確指定為「台北時區的本地時間」
-            var startUnspec = DateTime.SpecifyKind(startLocal, DateTimeKind.Unspecified);
-            var endUnspec = DateTime.SpecifyKind(endLocal, DateTimeKind.Unspecified);
-
-            var utcStart = TimeZoneInfo.ConvertTimeToUtc(startUnspec, tz);
-            var utcEnd = TimeZoneInfo.ConvertTimeToUtc(endUnspec, tz);
-            return (utcStart, utcEnd);
-        }
-        /// <summary>
         /// 建立頁面
         /// </summary>
         /// <param name="panel"></param>
@@ -454,6 +436,6 @@ namespace FX5U_IOMonitor
             s.Save();
         }
 
-      
+       
     }
 }

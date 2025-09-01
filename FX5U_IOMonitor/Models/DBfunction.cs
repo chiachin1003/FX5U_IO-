@@ -108,7 +108,7 @@ namespace FX5U_IOMonitor.Models
                               .FirstOrDefault() ?? defaultType;
             }
         }
-        public static bool SetMachineIP(string connect_machine, string ip, string port, out string? errorMessage)
+        public static bool SetMachineIP(string connect_machine, string ip, string port,string MCType, out string? errorMessage)
         {
             using (var context = new ApplicationDB())
             {
@@ -137,6 +137,8 @@ namespace FX5U_IOMonitor.Models
                 {
                     machine.IP_address = ip.Trim();
                     machine.Port = parsedPort;
+                    machine.MC_Type = MCType;
+
                     context.SaveChanges();
                     return true;
                 }

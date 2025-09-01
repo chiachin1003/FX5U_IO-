@@ -56,8 +56,8 @@
         private void InitializeComponent()
         {
             tableLayoutPanel1 = new TableLayoutPanel();
-            label3 = new Label();
-            label2 = new Label();
+            lab_end = new Label();
+            lab_start = new Label();
             btn_calculate4 = new Button();
             dateTimePicker_start4 = new DateTimePicker();
             dateTimePicker_end4 = new DateTimePicker();
@@ -83,8 +83,8 @@
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
-            tableLayoutPanel1.Controls.Add(label3, 2, 0);
-            tableLayoutPanel1.Controls.Add(label2, 1, 0);
+            tableLayoutPanel1.Controls.Add(lab_end, 2, 0);
+            tableLayoutPanel1.Controls.Add(lab_start, 1, 0);
             tableLayoutPanel1.Controls.Add(btn_calculate4, 0, 4);
             tableLayoutPanel1.Controls.Add(dateTimePicker_start4, 1, 4);
             tableLayoutPanel1.Controls.Add(dateTimePicker_end4, 2, 4);
@@ -108,31 +108,31 @@
             tableLayoutPanel1.Size = new Size(262, 248);
             tableLayoutPanel1.TabIndex = 0;
             // 
-            // label3
+            // lab_end
             // 
-            label3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            label3.AutoSize = true;
-            label3.BackColor = SystemColors.ButtonHighlight;
-            label3.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label3.Location = new Point(159, 0);
-            label3.Name = "label3";
-            label3.Size = new Size(100, 49);
-            label3.TabIndex = 58;
-            label3.Text = "結束時間";
-            label3.TextAlign = ContentAlignment.MiddleCenter;
+            lab_end.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_end.AutoSize = true;
+            lab_end.BackColor = SystemColors.ButtonHighlight;
+            lab_end.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_end.Location = new Point(159, 0);
+            lab_end.Name = "lab_end";
+            lab_end.Size = new Size(100, 49);
+            lab_end.TabIndex = 58;
+            lab_end.Text = "結束時間";
+            lab_end.TextAlign = ContentAlignment.MiddleCenter;
             // 
-            // label2
+            // lab_start
             // 
-            label2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            label2.AutoSize = true;
-            label2.BackColor = SystemColors.ButtonHighlight;
-            label2.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label2.Location = new Point(55, 0);
-            label2.Name = "label2";
-            label2.Size = new Size(98, 49);
-            label2.TabIndex = 57;
-            label2.Text = "開始時間";
-            label2.TextAlign = ContentAlignment.MiddleCenter;
+            lab_start.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_start.AutoSize = true;
+            lab_start.BackColor = SystemColors.ButtonHighlight;
+            lab_start.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_start.Location = new Point(55, 0);
+            lab_start.Name = "lab_start";
+            lab_start.Size = new Size(98, 49);
+            lab_start.TabIndex = 57;
+            lab_start.Text = "開始時間";
+            lab_start.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // btn_calculate4
             // 
@@ -277,12 +277,11 @@
             // lab_Drill_UtilizationRate
             // 
             lab_Drill_UtilizationRate.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Drill_UtilizationRate.AutoSize = true;
             lab_Drill_UtilizationRate.BackColor = SystemColors.ButtonHighlight;
             lab_Drill_UtilizationRate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_Drill_UtilizationRate.Location = new Point(70, 206);
             lab_Drill_UtilizationRate.Name = "lab_Drill_UtilizationRate";
-            lab_Drill_UtilizationRate.Size = new Size(117, 26);
+            lab_Drill_UtilizationRate.Size = new Size(120, 26);
             lab_Drill_UtilizationRate.TabIndex = 34;
             lab_Drill_UtilizationRate.Text = "鑽床稼動率";
             lab_Drill_UtilizationRate.TextAlign = ContentAlignment.MiddleCenter;
@@ -290,12 +289,11 @@
             // lab_Saw_UtilizationRate
             // 
             lab_Saw_UtilizationRate.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Saw_UtilizationRate.AutoSize = true;
             lab_Saw_UtilizationRate.BackColor = SystemColors.ButtonHighlight;
             lab_Saw_UtilizationRate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             lab_Saw_UtilizationRate.Location = new Point(313, 206);
             lab_Saw_UtilizationRate.Name = "lab_Saw_UtilizationRate";
-            lab_Saw_UtilizationRate.Size = new Size(117, 26);
+            lab_Saw_UtilizationRate.Size = new Size(120, 26);
             lab_Saw_UtilizationRate.TabIndex = 35;
             lab_Saw_UtilizationRate.Text = "鋸床稼動率";
             lab_Saw_UtilizationRate.TextAlign = ContentAlignment.MiddleCenter;
@@ -357,8 +355,8 @@
         private Button btn_calculate1;
         private DateTimePicker dateTimePicker_start1;
         private DateTimePicker dateTimePicker_end1;
-        private Label label3;
-        private Label label2;
+        private Label lab_end;
+        private Label lab_start;
         private Label lab_recordtime;
     }
 }

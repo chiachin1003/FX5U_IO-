@@ -408,8 +408,8 @@ public class LanguageImportService
             {
                 Console.WriteLine($"Entity={entry.Entity.GetType().Name}, State={entry.State}");
             }
-            //var inner = ex.InnerException?.Message ?? ex.Message;
-            //MessageBox.Show(LanguageManager.Translate("File_Settings_OutputFailed")+$"{inner}");
+            var inner = ex.InnerException?.Message ?? ex.Message;
+            MessageBox.Show(LanguageManager.Translate("File_Settings_OutputFailed") + $"{inner}");
             throw;
         }
         return result;
