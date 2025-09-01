@@ -33,6 +33,6 @@ namespace FX5U_IOMonitor.Data
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     }
-
+   
 
 }

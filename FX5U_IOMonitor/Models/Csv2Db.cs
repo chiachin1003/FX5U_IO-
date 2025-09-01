@@ -220,7 +220,7 @@ namespace FX5U_IOMonitor.Models
                             Possible = GetDynamicValue(row, "Possible") ?? "",
                             Repair_steps = GetDynamicValue(row, "Repair_steps") ?? "",
                             classTag = row.ClassTag,
-                            AlarmNotifyClass = 2,
+                            AlarmNotifyClass = 1,
                             AlarmNotifyuser = SD.Admin_Account
                         };
 

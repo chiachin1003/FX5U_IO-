@@ -31,14 +31,14 @@ namespace FX5U_IOMonitor.Models
         public ApplicationDB(DbContextOptions<ApplicationDB> options) : base(options){}
         public ApplicationDB() : base()
         {
-            _dbFullName = "elementTest";
+            _dbFullName = "elementTest2";
         }
         public DbSet<Machine_number> Machine { get; set; }
 
         public DbSet<MachineIO> Machine_IO { get; set; }
-        //public DbSet<MachineIOTranslation> MachineIOTranslations { get; set; }
         public DbSet<History> Histories { get; set; }
         public DbSet<Utilization_Record> UtilizationRate { get; set; }
+
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<AlarmHistory> AlarmHistories { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }

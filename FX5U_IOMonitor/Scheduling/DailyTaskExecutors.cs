@@ -525,21 +525,19 @@ namespace FX5U_IOMonitor.Scheduling
                             PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}"
                         });
                     }
-
                     if (param.Read_type == "word" && param.Read_view == 5)
                     {
-
-                        // === 公制記錄（從 History_NumericValue 取得） ===
                         int currentValue = useDefaultZero ? 0
+                            : DBfunction.Get_Machine_NowValue(param.Machine_Name, param.Name);
+                        int historyValue = useDefaultZero ? 0
                             : DBfunction.Get_Machine_History_NumericValue(param.Machine_Name, param.Name);
-
                         db.UtilizationRate.Add(new Utilization_Record
                         {
                             MachineParameterId = param.Id,
                             Machine_Name = param.Machine_Name,
                             StartTime = roundedStartTime,
                             EndTime = roundedEndTime,
-                            History_NumericValue = currentValue,
+                            History_NumericValue = ( currentValue + historyValue ),
                             Unit = "Metric",
                             PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}"
                         });
