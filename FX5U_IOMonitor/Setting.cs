@@ -158,68 +158,6 @@ namespace FX5U_IOMonitor
 
 
         }
-        //private FlexibleScheduler _scheduler;
-
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            //_scheduler = new FlexibleScheduler();
-
-            //const string taskName = "alarmTask";
-
-            //// 若任務已存在就不重複加
-            //if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
-            //{
-            //    MessageBox.Show("任務已經存在，將不重複啟動。");
-            //    return;
-            //}
-
-            //var config1 = new TaskConfiguration
-            //{
-            //    TaskName = taskName,
-            //    TaskType = ScheduleTaskType.CustomTask,
-            //    Frequency = ScheduleFrequency.Minutely, // 或其他
-            //    ExecutionTime = TimeSpan.Zero,
-            //    Parameters = new Dictionary<string, object>
-            //    {
-            //        ["CustomAction"] = new Func<Task<TaskResult>>(DailyTaskExecutors.SendDailyAlarmSummaryEmailAsync)
-            //    }
-            //};
-
-            //_scheduler.AddTask(config1);
-
-        }
-
-        private async void button2_Click(object sender, EventArgs e)
-        {
-            await DailyTaskExecutors.SendElementEmailAsync();
-
-
-
-            //const string taskName = "Email_Element_Task";
-            //_scheduler = new FlexibleScheduler();
-
-            //// 若任務已存在就不重複加
-            //if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
-            //{
-            //    MessageBox.Show("任務已經存在，將不重複啟動。");
-            //    return;
-            //}
-
-            //var config = new TaskConfiguration
-            //{
-            //    TaskName = taskName,
-            //    TaskType = ScheduleTaskType.CustomTask,
-            //    Frequency = ScheduleFrequency.Minutely, // 或其他
-            //    ExecutionTime = TimeSpan.Zero,
-            //    Parameters = new Dictionary<string, object>
-            //    {
-            //        ["CustomAction"] = new Func<Task<TaskResult>>(SendElementEmailAsync)
-            //    }
-            //};
-            //_scheduler.AddTask(config);
-
-        }
 
         private void btn_notify_Click(object sender, EventArgs e)
         {
@@ -237,34 +175,6 @@ namespace FX5U_IOMonitor
         private async void btn_alarm_Click(object sender, EventArgs e)
         {
             Csv2Db.Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
-
-        }
-
-        private void button3_Click(object sender, EventArgs e)
-        {
-            //_scheduler = new FlexibleScheduler();
-
-            //const string taskName = "Param_historyTask";
-
-            //if (_scheduler.GetAllTasks().Any(t => t.TaskName == taskName))
-            //{
-            //    MessageBox.Show("任務已經存在，將不重複啟動。");
-            //    return;
-            //}
-
-            //var config1 = new TaskConfiguration
-            //{
-            //    TaskName = taskName,
-            //    TaskType = ScheduleTaskType.CustomTask,
-            //    Frequency = ScheduleFrequency.Daily,
-            //    ExecutionTime = TimeSpan.Zero,
-            //    Parameters = new Dictionary<string, object>
-            //    {
-            //        ["CustomAction"] = new Func<Task<TaskResult>>(() => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily))
-            //    }
-            //};
-
-            //_scheduler.AddTask(config1);
 
         }
 

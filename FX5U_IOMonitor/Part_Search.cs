@@ -178,57 +178,6 @@ namespace FX5U_IO元件監控
 
         }
 
-        private void btn_add_element_Click(object sender, EventArgs e)
-        {
-            //string? addressValue = null;
-
-            //// ✅ 有選取列才進入編輯模式
-            //if (dataGridView1.SelectedRows.Count > 0)
-            //{
-            //    var selectedRow = dataGridView1.SelectedRows[0];
-            //    addressValue = selectedRow.Cells["地址"].Value?.ToString();
-            //}
-
-            //// 如果有選到資料，進入編輯或檢視模式
-            //if (!string.IsNullOrWhiteSpace(addressValue))
-            //{
-            //    using (var context = new ApplicationDB())
-            //    {
-                   
-            //        var item = context.Machine_IO.FirstOrDefault(d => d.address == addressValue && d.Machine_name == datatable);
-            //        if (item != null)
-            //        {
-            //            using (var form = new Element_Settings(ElementMode.ViewOnly, datatable, item.address))
-            //            {
-            //                form.StartPosition = FormStartPosition.CenterParent;
-
-            //                form.OnDataUpdated = () =>
-            //                {
-            //                    RefreshData();
-            //                };
-            //                form.ShowDialog(this);
-            //            }
-            //            return;
-            //        }
-                  
-            //        MessageBox.Show("⚠️ 找不到資料，無法開啟詳細資料。", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    }
-            //}
-            //else
-            //{
-            //    // ✅ 未選取任何資料，進入新增模式
-            //    using (var form = new Element_Settings(ElementMode.Add, datatable))
-            //    {
-            //        form.StartPosition = FormStartPosition.CenterParent;
-            //        form.OnDataUpdated = () =>
-            //        {
-            //            RefreshData();
-            //        };
-            //        form.ShowDialog(this);
-            //    }
-            //}
-        }
-
         private void btn_delete_Click(object sender, EventArgs e)
         {
             // 檢查有沒有選到列

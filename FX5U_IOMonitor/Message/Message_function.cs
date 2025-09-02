@@ -70,274 +70,275 @@ namespace FX5U_IOMonitor.Message
 
             return lines;
         }
-        /// <summary>
-        /// 非同步發送郵件
-        /// </summary>
-        /// <param name="receiver"></param>寄件人
-        /// <param name="subject"></param>主旨
-        /// <param name="body"></param>內容
-        /// <returns></returns>
-        public static async Task SendAsync(string receiver, string subject, string body)
-        {
-            using var client = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
-            {
-                Port = Properties.Settings.Default.TLS_port,
 
-                Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword),
+        ///// <summary>
+        ///// 非同步發送郵件
+        ///// </summary>
+        ///// <param name="receiver"></param>寄件人
+        ///// <param name="subject"></param>主旨
+        ///// <param name="body"></param>內容
+        ///// <returns></returns>
+        //public static async Task SendAsync(string receiver, string subject, string body)
+        //{
+        //    using var client = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
+        //    {
+        //        Port = Properties.Settings.Default.TLS_port,
 
-                EnableSsl = true
-            };
+        //        Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword),
 
-            var mail = new MailMessage
-            {
-                From = new MailAddress(Properties.Settings.Default.senderEmail),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = false // 如果是 HTML 郵件，請改為 true
-            };
+        //        EnableSsl = true
+        //    };
 
-            mail.To.Add(receiver);
+        //    var mail = new MailMessage
+        //    {
+        //        From = new MailAddress(Properties.Settings.Default.senderEmail),
+        //        Subject = subject,
+        //        Body = body,
+        //        IsBodyHtml = false // 如果是 HTML 郵件，請改為 true
+        //    };
 
-            await client.SendMailAsync(mail);
-        }
-        public static async Task SendAsync(List<string> receivers, string subject, string body)
-        {
-            foreach (var to in receivers)
-            {
-                await SendAsync(to, subject, body);
-            }
-        }
+        //    mail.To.Add(receiver);
 
-        /// <summary>
-        /// 故障訊息郵件發送
-        /// </summary>
-        /// <param name="receivers"></param>
-        /// <param name="machineName"></param>
-        /// <param name="partNumber"></param>
-        /// <param name="addressList"></param>
-        /// <param name="faultLocation"></param>
-        /// <param name="possibleReasons"></param>
-        /// <param name="suggestions"></param>
-        public static void SendFailureAlertMail(
-        List<string> receivers,
-        string machineName,             // 設備名稱
-        string partNumber,              // 更換料號名稱
-        List<string> addressList,       // 多個元件位置
-        string faultLocation,           // 故障發生位置
-        List<string> possibleReasons,   // 可能原因（可選）
-        List<string> suggestions        // 建議處理方式（可選）
-        )
-        {
-            try
-            {
+        //    await client.SendMailAsync(mail);
+        //}
+        //public static async Task SendAsync(List<string> receivers, string subject, string body)
+        //{
+        //    foreach (var to in receivers)
+        //    {
+        //        await SendAsync(to, subject, body);
+        //    }
+        //}
 
-                MailMessage mail = new MailMessage
-                {
-                    From = new MailAddress(Properties.Settings.Default.senderEmail),
-                    Subject = "【故障通報】元件無法正常運作"
-                };
+        ///// <summary>
+        ///// 故障訊息郵件發送
+        ///// </summary>
+        ///// <param name="receivers"></param>
+        ///// <param name="machineName"></param>
+        ///// <param name="partNumber"></param>
+        ///// <param name="addressList"></param>
+        ///// <param name="faultLocation"></param>
+        ///// <param name="possibleReasons"></param>
+        ///// <param name="suggestions"></param>
+        //public static void SendFailureAlertMail(
+        //List<string> receivers,
+        //string machineName,             // 設備名稱
+        //string partNumber,              // 更換料號名稱
+        //List<string> addressList,       // 多個元件位置
+        //string faultLocation,           // 故障發生位置
+        //List<string> possibleReasons,   // 可能原因（可選）
+        //List<string> suggestions        // 建議處理方式（可選）
+        //)
+        //{
+        //    try
+        //    {
 
-                foreach (string receiver in receivers)
-                {
-                    if (!string.IsNullOrWhiteSpace(receiver))
-                        mail.To.Add(receiver);
-                }
+        //        MailMessage mail = new MailMessage
+        //        {
+        //            From = new MailAddress(Properties.Settings.Default.senderEmail),
+        //            Subject = "【故障通報】元件無法正常運作"
+        //        };
 
-                // 格式化項目清單（列點）
-                string reasonText = possibleReasons != null && possibleReasons.Count > 0
-                    ? string.Join(Environment.NewLine, possibleReasons.Select(r => "- " + r))
-                    : "- （尚未提供）";
+        //        foreach (string receiver in receivers)
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(receiver))
+        //                mail.To.Add(receiver);
+        //        }
 
-                string suggestionText = suggestions != null && suggestions.Count > 0
-                    ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
-                    : "（尚未提供建議）";
+        //        // 格式化項目清單（列點）
+        //        string reasonText = possibleReasons != null && possibleReasons.Count > 0
+        //            ? string.Join(Environment.NewLine, possibleReasons.Select(r => "- " + r))
+        //            : "- （尚未提供）";
 
-                string body = $@"
-                    發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
-                    設備名稱：{machineName}
-                    更換料號名稱：{partNumber}
-                    元件儲存器位置：{string.Join("、", addressList)}
-                    故障信息為：{faultLocation}
+        //        string suggestionText = suggestions != null && suggestions.Count > 0
+        //            ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
+        //            : "（尚未提供建議）";
 
-                    系統判定此元件處於「故障狀態」。
-                    可能故障原因：
-                    {reasonText}
+        //        string body = $@"
+        //            發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
+        //            設備名稱：{machineName}
+        //            更換料號名稱：{partNumber}
+        //            元件儲存器位置：{string.Join("、", addressList)}
+        //            故障信息為：{faultLocation}
 
-                    建議處理方式：
-                    {suggestionText}
+        //            系統判定此元件處於「故障狀態」。
+        //            可能故障原因：
+        //            {reasonText}
 
-                    （自動通報信息）
-                    ";
+        //            建議處理方式：
+        //            {suggestionText}
 
-                mail.Body = body.Trim();
+        //            （自動通報信息）
+        //            ";
 
-                SmtpClient smtpClient = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
-                {
-                    Port = Properties.Settings.Default.TLS_port,
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword)
-                };
+        //        mail.Body = body.Trim();
 
-                smtpClient.Send(mail);
-                Console.WriteLine("✅ 故障通知郵件發送成功！");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("❌ 故障通知發送失敗：" + ex.Message);
-                if (ex.InnerException != null)
-                    Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
-            }
-        }
+        //        SmtpClient smtpClient = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
+        //        {
+        //            Port = Properties.Settings.Default.TLS_port,
+        //            EnableSsl = true,
+        //            Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword)
+        //        };
 
-        /// <summary>
-        /// 故障訊息郵件發送
-        /// </summary>
-        /// <param name="receivers"></param>
-        /// <param name="machineName"></param>
-        /// <param name="partNumber"></param>
-        /// <param name="addressList"></param>
-        /// <param name="faultLocation"></param>
-        /// <param name="possibleReasons"></param>
-        /// <param name="suggestions"></param>
-        public static async Task SendFailureAlarmMail(
-        List<string> receivers,
-        string machineName,             // 設備名稱
-        string partNumber,              // 更換料號名稱
-        List<string> addressList,       // 多個元件位置
-        string faultLocation,           // 故障發生位置
-        List<string> possibleReasons,   // 可能原因（可選）
-        List<string> suggestions        // 建議處理方式（可選）
-        )
-        {
-            try
-            {
-                //選擇發送郵件的主旨格式
+        //        smtpClient.Send(mail);
+        //        Console.WriteLine("✅ 故障通知郵件發送成功！");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("❌ 故障通知發送失敗：" + ex.Message);
+        //        if (ex.InnerException != null)
+        //            Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
+        //    }
+        //}
 
-                MessageSubjectType selectedType = MessageSubjectType.TriggeredAlarm;
+        ///// <summary>
+        ///// 故障訊息郵件發送
+        ///// </summary>
+        ///// <param name="receivers"></param>
+        ///// <param name="machineName"></param>
+        ///// <param name="partNumber"></param>
+        ///// <param name="addressList"></param>
+        ///// <param name="faultLocation"></param>
+        ///// <param name="possibleReasons"></param>
+        ///// <param name="suggestions"></param>
+        //public static async Task SendFailureAlarmMail(
+        //List<string> receivers,
+        //string machineName,             // 設備名稱
+        //string partNumber,              // 更換料號名稱
+        //List<string> addressList,       // 多個元件位置
+        //string faultLocation,           // 故障發生位置
+        //List<string> possibleReasons,   // 可能原因（可選）
+        //List<string> suggestions        // 建議處理方式（可選）
+        //)
+        //{
+        //    try
+        //    {
+        //        //選擇發送郵件的主旨格式
 
-                string subject = MessageSubjectHelper.GetSubject(selectedType);
+        //        MessageSubjectType selectedType = MessageSubjectType.TriggeredAlarm;
 
-                // 格式化項目清單（列點）
-                string reasonText = possibleReasons != null && possibleReasons.Count > 0
-                    ? string.Join(Environment.NewLine, possibleReasons.Select(r => "- " + r))
-                    : "- （尚未提供）";
+        //        string subject = MessageSubjectHelper.GetSubject(selectedType);
 
-                string suggestionText = suggestions != null && suggestions.Count > 0
-                    ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
-                    : "（尚未提供建議）";
+        //        // 格式化項目清單（列點）
+        //        string reasonText = possibleReasons != null && possibleReasons.Count > 0
+        //            ? string.Join(Environment.NewLine, possibleReasons.Select(r => "- " + r))
+        //            : "- （尚未提供）";
 
-                string body = $@"
-                    發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
-                    設備名稱：{machineName}
-                    更換料號名稱：{partNumber}
-                    元件儲存器位置：{string.Join("、", addressList)}
-                    故障信息為：{faultLocation}
+        //        string suggestionText = suggestions != null && suggestions.Count > 0
+        //            ? string.Join(Environment.NewLine, suggestions.Select((s, i) => $"{i + 1}. {s}"))
+        //            : "（尚未提供建議）";
 
-                    系統判定此元件處於「故障狀態」。
-                    可能故障原因：
-                    {reasonText}
+        //        string body = $@"
+        //            發送通知時間：{DateTime.Now:yyyy/MM/dd HH:mm:ss}
+        //            設備名稱：{machineName}
+        //            更換料號名稱：{partNumber}
+        //            元件儲存器位置：{string.Join("、", addressList)}
+        //            故障信息為：{faultLocation}
 
-                    建議處理方式：
-                    {suggestionText}
+        //            系統判定此元件處於「故障狀態」。
+        //            可能故障原因：
+        //            {reasonText}
 
-                    （自動通報信息）
-                    ";
-                // 統整要送出的收件人跟資訊
-                var mailInfo = new MessageInfo
-                {
-                    Receivers = receivers,
-                    Subject = subject,
-                    Body = body
-                };
-                int port = Properties.Settings.Default.TLS_port;
+        //            建議處理方式：
+        //            {suggestionText}
 
-                await(port switch
-                {
-                    587 => SendViaSmtp587Async(mailInfo),
-                    465 => SendViaSmtp465Async(mailInfo),
-                    _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
-                });
-                Console.WriteLine("✅ 故障通知郵件發送成功！");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("❌ 故障通知發送失敗：" + ex.Message);
-                if (ex.InnerException != null)
-                    Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
-            }
-        }
+        //            （自動通報信息）
+        //            ";
+        //        // 統整要送出的收件人跟資訊
+        //        var mailInfo = new MessageInfo
+        //        {
+        //            Receivers = receivers,
+        //            Subject = subject,
+        //            Body = body
+        //        };
+        //        int port = Properties.Settings.Default.TLS_port;
 
-        /// <summary>
-        /// 單一元件壽命即將到期警告郵件通知
-        /// </summary>
-        /// <param name="receivers"></param>
-        /// <param name="machineName"></param>
-        /// <param name="partNumber"></param>
-        /// <param name="address"></param>
-        /// <param name="lastInstallTime"></param>
-        /// <param name="maxUsage"></param>
-        /// <param name="currentUsage"></param>
-        public static void SendLifeWarningMail(
-        List<string> receivers,
-        string machineName,         // 設備名稱
-        string partNumber,          // 更換料號名稱
-        string address,             // 元件儲存器位置
-        DateTime lastInstallTime,   // 上次安裝時間
-        int maxUsage,               // 最大使用次數
-        int currentUsage            // 目前已使用次數
-        )
-        {
-            try
-            {
-                MailMessage mail = new MailMessage
-                {
-                    From = new MailAddress(Properties.Settings.Default.senderEmail),
-                    Subject = "【系統提醒】元件壽命即將耗盡"
-                };
+        //        await(port switch
+        //        {
+        //            587 => SendViaSmtp587Async(mailInfo),
+        //            465 => SendViaSmtp465Async(mailInfo),
+        //            _ => throw new NotSupportedException($"不支援的 SMTP Port：{port}")
+        //        });
+        //        Console.WriteLine("✅ 故障通知郵件發送成功！");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("❌ 故障通知發送失敗：" + ex.Message);
+        //        if (ex.InnerException != null)
+        //            Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
+        //    }
+        //}
 
-                // 加入收件人清單
-                foreach (string receiver in receivers)
-                {
-                    if (!string.IsNullOrWhiteSpace(receiver))
-                        mail.To.Add(receiver);
-                }
+        ///// <summary>
+        ///// 單一元件壽命即將到期警告郵件通知
+        ///// </summary>
+        ///// <param name="receivers"></param>
+        ///// <param name="machineName"></param>
+        ///// <param name="partNumber"></param>
+        ///// <param name="address"></param>
+        ///// <param name="lastInstallTime"></param>
+        ///// <param name="maxUsage"></param>
+        ///// <param name="currentUsage"></param>
+        //public static void SendLifeWarningMail(
+        //List<string> receivers,
+        //string machineName,         // 設備名稱
+        //string partNumber,          // 更換料號名稱
+        //string address,             // 元件儲存器位置
+        //DateTime lastInstallTime,   // 上次安裝時間
+        //int maxUsage,               // 最大使用次數
+        //int currentUsage            // 目前已使用次數
+        //)
+        //{
+        //    try
+        //    {
+        //        MailMessage mail = new MailMessage
+        //        {
+        //            From = new MailAddress(Properties.Settings.Default.senderEmail),
+        //            Subject = "【系統提醒】元件壽命即將耗盡"
+        //        };
 
-                double usagePercent = (double)currentUsage / maxUsage * 100;
+        //        // 加入收件人清單
+        //        foreach (string receiver in receivers)
+        //        {
+        //            if (!string.IsNullOrWhiteSpace(receiver))
+        //                mail.To.Add(receiver);
+        //        }
 
-                // 建立信件內容（可用 $ 字串內插）
-                string body = $@"
-                                發送通知時間：{DateTime.UtcNow:yyyy/MM/dd HH:mm:ss}
-                                設備名稱：{machineName}
-                                更換料號名稱：{partNumber}
-                                元件儲存器位置：{address}
-                                上一次安裝時間：{lastInstallTime:yyyy/MM/dd HH:mm:ss}
-                                最大使用次數：{maxUsage:N0}
-                                目前已使用：{currentUsage:N0} 次，當前壽命百分比：{usagePercent:F0} %
+        //        double usagePercent = (double)currentUsage / maxUsage * 100;
 
-                                該元件壽命即將耗盡，請預做更換準備。
+        //        // 建立信件內容（可用 $ 字串內插）
+        //        string body = $@"
+        //                        發送通知時間：{DateTime.UtcNow:yyyy/MM/dd HH:mm:ss}
+        //                        設備名稱：{machineName}
+        //                        更換料號名稱：{partNumber}
+        //                        元件儲存器位置：{address}
+        //                        上一次安裝時間：{lastInstallTime:yyyy/MM/dd HH:mm:ss}
+        //                        最大使用次數：{maxUsage:N0}
+        //                        目前已使用：{currentUsage:N0} 次，當前壽命百分比：{usagePercent:F0} %
 
-                                若已更換新元件，請更新系統壽命資訊以避免誤判通知。
-                                （本提醒由設備壽命監控模組自動發出）
-                                ";
+        //                        該元件壽命即將耗盡，請預做更換準備。
 
-                mail.Body = body.Trim(); // 清除前後空白
+        //                        若已更換新元件，請更新系統壽命資訊以避免誤判通知。
+        //                        （本提醒由設備壽命監控模組自動發出）
+        //                        ";
 
-                SmtpClient smtpClient = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
-                {
-                    Port = Properties.Settings.Default.TLS_port,
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword)
-                };
-                smtpClient.Send(mail);
-                Console.WriteLine("✅ 郵件已成功發送！");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("❌ 郵件發送失敗：" + ex.Message);
-                if (ex.InnerException != null)
-                    Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
-            }
-        }
+        //        mail.Body = body.Trim(); // 清除前後空白
+
+        //        SmtpClient smtpClient = new SmtpClient(Properties.Settings.Default.Gmail_SMTP_server)
+        //        {
+        //            Port = Properties.Settings.Default.TLS_port,
+        //            EnableSsl = true,
+        //            Credentials = new NetworkCredential(Properties.Settings.Default.senderEmail, Properties.Settings.Default.senderPassword)
+        //        };
+        //        smtpClient.Send(mail);
+        //        Console.WriteLine("✅ 郵件已成功發送！");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("❌ 郵件發送失敗：" + ex.Message);
+        //        if (ex.InnerException != null)
+        //            Console.WriteLine("🔍 內部錯誤：" + ex.InnerException.Message);
+        //    }
+        //}
 
 
 

@@ -180,46 +180,6 @@ namespace FX5U_IO元件監控
                     }
                 }
             }
-
-
-
-
-            //foreach (var className in classList)
-            //{
-            //    TreeNode classNode = new TreeNode(className)
-            //    {
-            //        Tag = className // ➤ 儲存 classTag 名稱
-            //    };
-
-            //    var alarms = allAlarms
-            //        .Where(a => NormalizeClassTag(a.classTag) == className)
-            //        .ToList();
-
-            //    foreach (var alarm in alarms)
-            //    {
-            //        string displayError = DBfunction.Get_Error_ByAddress(alarm.address);
-
-            //        TreeNode errorNode = new TreeNode(displayError)
-            //        {
-            //            Tag = alarm.Id // ➤ 子節點直接儲存 Alarm Id
-            //        };
-            //        classNode.Nodes.Add(errorNode);
-            //    }
-
-            //    treeView1.Nodes.Add(classNode);
-
-            //    // ✅ 根據資料庫資料自動判斷勾選狀態（如果任一子節點有設通知人）
-            //    bool anyChildHasUser = alarms.Any(a => !string.IsNullOrWhiteSpace(a.AlarmNotifyuser));
-            //    classNode.Checked = anyChildHasUser;
-            //    foreach (TreeNode child in classNode.Nodes)
-            //    {
-            //        if (child.Tag is int alarmId)
-            //        {
-            //            var alarm = alarms.FirstOrDefault(a => a.Id == alarmId);
-            //            child.Checked = alarm != null && !string.IsNullOrWhiteSpace(alarm.AlarmNotifyuser);
-            //        }
-            //    }
-            //}
         }
 
 

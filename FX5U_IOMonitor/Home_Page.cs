@@ -463,7 +463,7 @@ namespace FX5U_IOMonitor
             }
         }
         /// <summary>
-        /// 重新連線
+        /// 重新連線同步的功能
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -535,7 +535,7 @@ namespace FX5U_IOMonitor
             }
         }
         /// <summary>
-        /// 開啟同步
+        /// 開啟同步功能
         /// </summary>
         /// <param name="interval"></param>
         /// <returns></returns>
@@ -617,7 +617,10 @@ namespace FX5U_IOMonitor
                 _autoSyncRunning = false;
             }
         }
-
+        /// <summary>
+        /// 以下為同步的按鈕切換
+        /// </summary>
+        /// <param name="action"></param>
         private void WithToggle(Action<Button> action)
         {
             if (btn_toggle.IsDisposed) return;

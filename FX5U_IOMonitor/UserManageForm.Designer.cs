@@ -220,9 +220,9 @@
             lab_line.BackColor = SystemColors.ButtonHighlight;
             lab_line.Location = new Point(296, 171);
             lab_line.Name = "lab_line";
-            lab_line.Size = new Size(114, 15);
+            lab_line.Size = new Size(113, 15);
             lab_line.TabIndex = 15;
-            lab_line.Text = "LINE Access Token:";
+            lab_line.Text = "LINE UserId Token:";
             // 
             // _txt_Line
             // 

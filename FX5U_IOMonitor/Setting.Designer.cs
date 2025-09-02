@@ -138,7 +138,6 @@ namespace FX5U_IOMonitor
             button1.Text = "雲端下載檔案";
             button1.UseVisualStyleBackColor = true;
             button1.Visible = false;
-            button1.Click += button1_Click;
             // 
             // button2
             // 
@@ -149,7 +148,6 @@ namespace FX5U_IOMonitor
             button2.Text = "函數測試";
             button2.UseVisualStyleBackColor = true;
             button2.Visible = false;
-            button2.Click += button2_Click;
             // 
             // btn_notify
             // 
@@ -180,7 +178,6 @@ namespace FX5U_IOMonitor
             button3.Text = "設定排程";
             button3.UseVisualStyleBackColor = true;
             button3.Visible = false;
-            button3.Click += button3_Click;
             // 
             // btn_unit
             // 

@@ -147,7 +147,6 @@ namespace FX5U_IO元件監控
             btn_add_element.TabIndex = 7;
             btn_add_element.Text = "元件新增/更新";
             btn_add_element.UseVisualStyleBackColor = true;
-            btn_add_element.Click += btn_add_element_Click;
             // 
             // dataGridView1
             // 

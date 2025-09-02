@@ -585,6 +585,12 @@ namespace FX5U_IOMonitor
             }
 
         }
+        /// <summary>
+        /// 郵寄警告資訊
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        /// <exception cref="NotSupportedException"></exception>
         public async Task HandleAlarmAndSendEmailAsync(IOUpdateEventArgs e)
         {
             try

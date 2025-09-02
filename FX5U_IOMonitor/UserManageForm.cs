@@ -19,12 +19,7 @@ namespace FX5U_IOMonitor
             this.Shown += UserManageForm_Shown;
             UpdateLanguage();
         }
-        public class UserDisplay
-        {
-            public string UserName { get; set; }
-            public string Email { get; set; }
-            public string Token { get; set; }
-        }
+      
         private void UpdateLanguage()
         {
             this.Text = LanguageManager.Translate("UserManageForm_Title");

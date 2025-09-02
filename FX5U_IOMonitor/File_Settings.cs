@@ -30,32 +30,6 @@ namespace FX5U_IOMonitor.Resources
             LanguageManager.LanguageChanged += OnLanguageChanged;
             SwitchLanguage();
 
-            //var TableList = new List<DisplayValuePair<string>>
-            //{
-            //    new DisplayValuePair<string>("警告資料表", "alarm"),
-            //    new DisplayValuePair<string>("鋸帶材質資料表", "Blade_brand"),
-            //    new DisplayValuePair<string>("鋸帶尺數資料表", "Blade_brand_TPI"),
-            //    new DisplayValuePair<string>("語系資料表", "Language")
-
-            //};
-            //foreach (var item in TableList)
-            //{
-            //    comb_datatable.Items.Add(item);  // item.ToString() 會顯示 Display 值
-            //}
-
-            //var SaveList = new List<DisplayValuePair<string>>
-            //{
-            //    new DisplayValuePair<string>("自動儲存至下載", "auto"),
-            //    new DisplayValuePair<string>("使用者自選", "manual"),
-            //};
-            //foreach (var item in SaveList)
-            //{
-            //    comb_select.Items.Add(item);  // item.ToString() 會顯示 Display 值
-            //}
-
-
-
-
         }
         private void OnLanguageChanged(string cultureName)
         {
