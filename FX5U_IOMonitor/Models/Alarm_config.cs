@@ -28,10 +28,10 @@ namespace FX5U_IOMonitor.Models
             var allUsers = userService.GetAllUser();
 
             var emails = allUsers
-                .Where(u => userNames.Contains(u.UserName))
+                .Where(u => userNames.Contains(u.UserName) && u.NotifyByEmail == true)
                 .Select(u => u.Email ?? "")
                 .ToList();
-
+            
             return emails;
         }
     }

@@ -31,7 +31,7 @@ namespace FX5U_IOMonitor.Models
         public ApplicationDB(DbContextOptions<ApplicationDB> options) : base(options){}
         public ApplicationDB() : base()
         {
-            _dbFullName = "elementTest2";
+            _dbFullName = "element";
         }
         public DbSet<Machine_number> Machine { get; set; }
 

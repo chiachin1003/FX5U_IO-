@@ -63,6 +63,7 @@ namespace FX5U_IOMonitor.Message
                 message.To.Add(new MailboxAddress("", receiver));
             }
             message.Subject = mailInfo.Subject;
+            
             message.Body = new TextPart("plain") { Text = mailInfo.Body };
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
