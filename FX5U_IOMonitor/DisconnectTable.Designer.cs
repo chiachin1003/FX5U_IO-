@@ -2,7 +2,7 @@
 
 namespace FX5U_IOMonitor
 {
-    partial class Search_main
+    partial class DisconnectTable
     {
         /// <summary>
         /// Required designer variable.
@@ -36,25 +36,26 @@ namespace FX5U_IOMonitor
             // 
             // dataGridView1
             // 
+            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.DisplayedCells;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Dock = DockStyle.Fill;
-            dataGridView1.Location = new Point(0, 0);
+            dataGridView1.Location = new Point(13, 13);
             dataGridView1.Margin = new Padding(4);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowTemplate.Height = 24;
-            dataGridView1.Size = new Size(936, 664);
+            dataGridView1.Size = new Size(264, 367);
             dataGridView1.TabIndex = 8;
-            dataGridView1.CellClick += dataGridView1_CellClick;
             // 
-            // Search_main
+            // DisconnectTable
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(936, 664);
+            ClientSize = new Size(290, 393);
             Controls.Add(dataGridView1);
-            FormBorderStyle = FormBorderStyle.None;
+            FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Margin = new Padding(4);
-            Name = "Search_main";
+            Name = "DisconnectTable";
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
         }

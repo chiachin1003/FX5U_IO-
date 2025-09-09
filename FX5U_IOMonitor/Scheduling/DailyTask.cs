@@ -30,9 +30,7 @@ namespace FX5U_IOMonitor.Scheduling
             //    () => DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Minutely));
             //_ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Daily);
 
-
             AddTaskOnce("UtilizationRate", ScheduleFrequency.Hourly, TimeSpan.Zero,() => DailyTaskExecutors.RecordCurrentUtilizationRatedata(ScheduleFrequency.Hourly));
-
 
             _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Weekly);
             _ = DailyTaskExecutors.RecordCurrentParameterSnapshotAsync(ScheduleFrequency.Monthly);

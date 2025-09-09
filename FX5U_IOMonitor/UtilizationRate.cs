@@ -23,7 +23,8 @@ namespace FX5U_IOMonitor
         private FX5U_IOMonitor.panel_control.UtilizationPanel _drillPanel;
         private FX5U_IOMonitor.panel_control.UtilizationPanel _sawingPanel;
         private bool _suppressAutoSave = false;
-
+        private float Drill_UtilizationRate;
+        private float Sawing_UtilizationRate;
         // 依序加入所需欄位(靜態)
 
         public UtilizationRate()
@@ -48,8 +49,8 @@ namespace FX5U_IOMonitor
             this.Text = LanguageManager.Translate("UtilizationRate_Main");
             lab_start.Text = LanguageManager.Translate("UtilizationRate_StartTime");
             lab_end.Text = LanguageManager.Translate("UtilizationRate_EndTime");
-            lab_Saw_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_DrillUtilization");
-            lab_Drill_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_SawingUtilization");
+            lab_Saw_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_SawingUtilization");
+            lab_Drill_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_DrillUtilization");
             Text_design.SafeAdjustFont(lab_Drill_UtilizationRate, lab_Drill_UtilizationRate.Text,36);
             Text_design.SafeAdjustFont(lab_Saw_UtilizationRate, lab_Saw_UtilizationRate.Text,36);
 
@@ -77,8 +78,22 @@ namespace FX5U_IOMonitor
             //計算時間為:
             lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + "：\n" +
                   $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
-            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
+
+            int last = UtilizationRateCalculate.GetLastWeekLastValue("Drill");
+            int current = UtilizationRateCalculate.GetCurrentUtilization("Drill");
+
+            //上周運行
+            float Drill_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - last));
+            last = UtilizationRateCalculate.GetLastWeekLastValue("Sawing");
+            current = UtilizationRateCalculate.GetCurrentUtilization("Sawing");
+
+            float Sawing_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetLastWeekLastValue("Sawing")));
+            //當前運行狀態
+            Drill_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - UtilizationRateCalculate.GetYesterdayLastValue("Drill")));
+            Sawing_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetYesterdayLastValue("Sawing")));
+
+            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
         }
 
@@ -111,9 +126,10 @@ namespace FX5U_IOMonitor
 
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-
-            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
+            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
+            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
+            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
             Properties.Settings.Default.DefaultUtilizationRate = 1;
             SaveUtilizationPair(dateTimePicker_start1, dateTimePicker_end1,
@@ -136,12 +152,13 @@ namespace FX5U_IOMonitor
 
             var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start2, dateTimePicker_end2,
                                                        allowOvernight: false, equalMeansOneHour: false);
-
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
+            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
+            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
 
-            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
+            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
             Properties.Settings.Default.DefaultUtilizationRate = 2;
             SaveUtilizationPair(dateTimePicker_start2, dateTimePicker_end2,
@@ -167,9 +184,10 @@ namespace FX5U_IOMonitor
 
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-
-            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
+            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
+            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
+            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
             Properties.Settings.Default.DefaultUtilizationRate = 3;
             Properties.Settings.Default.Save();
             SaveUtilizationPair(dateTimePicker_start3, dateTimePicker_end3,
@@ -193,9 +211,10 @@ namespace FX5U_IOMonitor
 
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-
-            RenderUtilizationGauge("Drill", utcStart, utcEnd, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge("Sawing", utcStart, utcEnd, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
+            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
+            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
+            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
             Properties.Settings.Default.DefaultUtilizationRate = 4;
             Properties.Settings.Default.Save();
@@ -388,8 +407,7 @@ namespace FX5U_IOMonitor
         /// <param name="holeRatio"></param>
         /// <param name="centerTextFontSize"></param>
         private void RenderUtilizationGauge(
-            string machineName,
-            DateTime utcStart, DateTime utcEnd,
+            float numerator,
             float denom,
             ref UtilizationPanel panel,
             Control parent, string panelName, Point location, Size size,
@@ -397,7 +415,6 @@ namespace FX5U_IOMonitor
             float middleRingRatio = 0.2f, float holeRatio = 0.12f, float centerTextFontSize = 20f)
         {
             // 分子
-            float numerator = DBfunction.Get_UtilizationRate(utcStart, utcEnd, machineName);
 
             // 百分比（保護 denom）
             double pct = denom <= 0 ? 0 : (numerator / denom) * 100.0;
@@ -435,7 +452,7 @@ namespace FX5U_IOMonitor
             s[endKey] = end;
             s.Save();
         }
+      
 
-       
     }
 }

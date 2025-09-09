@@ -105,7 +105,6 @@
             btn_search.Text = "故障\r\n排除表";
             btn_search.UseVisualStyleBackColor = false;
             btn_search.Visible = false;
-            btn_search.Click += btn_search_Click;
             // 
             // btn_Main
             // 

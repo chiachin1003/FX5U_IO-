@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static FX5U_IOMonitor.Data.Recordmode;
 using static FX5U_IOMonitor.Message.Notify_Message;
 using static FX5U_IOMonitor.Models.Csv2Db;
@@ -29,7 +30,6 @@ namespace FX5U_IOMonitor
     public partial class Main : Form
     {
         private Connect_PLC plcForm; // 連接介面
-        private Search_main search_main;
         private Home_Page main_Form;
         public event EventHandler? LoginSucceeded;
         public event EventHandler? LogoutSucceeded;
@@ -124,12 +124,9 @@ namespace FX5U_IOMonitor
             plcForm = new Connect_PLC(this);
             DisconnectEvents.FailureConnect += OnFailureConnect;
 
-            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+            //_ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
 
 
-
-
-            search_main = new Search_main();
 
             this.Shown += MainForm_Shown;
 
@@ -162,42 +159,38 @@ namespace FX5U_IOMonitor
 
         private async void OnFailureConnect(string machineName)
         {
-            MachineHub.UnregisterMachine(machineName);
+            DBfunction.SetDisconnectStartTime(machineName);
 
-            await Task.Delay(60000);
+            MachineHub.UnregisterMachine(machineName);
+            await Task.Delay(10000);
 
             int repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName); //自動連線
-      
-            // 2. 第一次嘗試失敗 → 通知一次
-            if (repeat != 0)
-            {
-                DBfunction.SetDisconnectStartTime(machineName);
 
-                await Task.Delay(60000); // 等待 10 秒
+            await Task.Delay(10000);
 
-            }
-            // 3. 持續重連，直到成功
+            //  持續重連，直到成功
             int i = 1;
             while (repeat != 0)
             {
-                await Task.Delay(10000); // 每 10 秒重試
                 Debug.WriteLine($"第 {i} 次連線測試");
 
                 repeat = Connect_PLC.AutoConnectAllMachines(plcForm, machineName);
 
-                DBfunction.SetDisconnectRecordNumb(machineName);
+                //DBfunction.SetDisconnectRecordNumb(machineName);
 
                 if (repeat == 0)
                 {
                     Debug.WriteLine("連線成功");
-                    DBfunction.SetDisconnectEndTime(machineName);
+                    //DBfunction.SetDisconnectEndTime(machineName);
                     break;
                 }
-
+                else 
+                {
+                    await Task.Delay(10000);
+                }
                 i++;
             }
 
-           
         }
       
     
@@ -227,23 +220,6 @@ namespace FX5U_IOMonitor
             panel_language.Controls.Add(btn_language);
 
             panel_language.Visible = true;
-        }
-
-
-
-
-        private void btn_search_Click(object sender, EventArgs e)
-        {
-            panel_select.Controls.Clear(); // 清空 Panel
-                                           // 設置子窗體屬性以嵌入 Panel
-            search_main.TopLevel = false; // 禁止作為獨立窗口
-            search_main.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            search_main.Dock = DockStyle.Fill; // 填滿 Panel
-
-            // 將子窗體添加到 Panel 並顯示
-            panel_main.Controls.Clear(); // 清空 Panel
-            panel_main.Controls.Add(search_main); // 添加子窗體
-            search_main.Show(); // 顯示子窗體
         }
 
 

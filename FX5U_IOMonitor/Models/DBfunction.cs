@@ -2,6 +2,7 @@
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
+using FX5U_IOMonitor.Utilization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -387,6 +388,8 @@ namespace FX5U_IOMonitor.Models
                 return new List<History>();
             }
         }
+
+     
 
 
         public static List<string> GetMachineClassTags(string tableName)
@@ -2228,6 +2231,8 @@ namespace FX5U_IOMonitor.Models
 
             return;
         }
+       
+
         public static void SetDisconnectEndTime(string originate)
         {
             using var context = new ApplicationDB();
@@ -2257,7 +2262,65 @@ namespace FX5U_IOMonitor.Models
 
             context.DisconnectRecords.Add(start);
             context.SaveChanges();
-         
+        }
+
+        public static bool GetMachineConnectState(string machine)
+        {
+            try
+            {
+                using (var context = new ApplicationDB())
+                {
+                    // 檢查是否有任何 EndTime 為 null 的紀錄
+                    bool hasUnfinished = context.DisconnectRecords
+                        .Any(h => h.ConnectOriginate == machine && h.EndTime == null);
+
+                    // 有未完成紀錄就傳 false，否則 true
+                    return !hasUnfinished;
+
+                }
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"❗ 錯誤：{ex.Message}");
+                return false; // 發生例外時，視情況回傳 false
+            }
+        }
+        //取斷線中的最後一筆紀錄時間
+        public static DateTime? GetLastDisconnectStartTime(string originate)
+        {
+            using var context = new ApplicationDB();
+
+            var record = context.DisconnectRecords
+                .Where(r => r.ConnectOriginate == originate && r.EndTime == null)
+                .OrderByDescending(r => r.StartTime)
+                .FirstOrDefault();
+
+            return record?.StartTime;
+        }
+        public static int GetLastDisconnectNumber(string originate)
+        {
+            using var context = new ApplicationDB();
+
+            var record = context.DisconnectRecords
+                .Where(r => r.ConnectOriginate == originate && r.EndTime == null)
+                .OrderByDescending(r => r.StartTime)
+                .FirstOrDefault();
+
+            return record ?.Records ?? 0;
+        }
+        //取已連線中後的最後一筆紀錄時間
+        public static DateTime? GetLastDisconnectEndTime(string originate)
+        {
+            using var context = new ApplicationDB();
+
+            var record = context.DisconnectRecords
+                .Where(r => r.ConnectOriginate == originate && r.EndTime != null)
+                .OrderByDescending(r => r.StartTime)
+                .FirstOrDefault();
+            if (record == null)
+                throw new InvalidOperationException("找不到任何已結束的斷線紀錄");
+
+            return record?.EndTime;
         }
 
         public static string? Get_FrequencyConverAlarm(int frequencyAlarmId)
@@ -2273,37 +2336,7 @@ namespace FX5U_IOMonitor.Models
 
       
 
-        public static int Get_UtilizationRate(DateTime utcStart, DateTime utcEnd, string  Machinename )
-        {
-            if (utcEnd <= utcStart)
-                throw new ArgumentException("utcEnd 必須大於 utcStart");
-            if (string.IsNullOrWhiteSpace(Machinename))
-                return 0;
-
-            using var db = new ApplicationDB();
-
-            // 只抓到需要的欄位
-            var q = db.UtilizationRate
-                .AsNoTracking()
-                .Where(r => r.StartTime >= utcStart &&
-                            r.StartTime < utcEnd &&
-                            r.Machine_Name == Machinename);
-
-            // 先「同一時間點」聚合相加，再取首尾
-            var firstSum = q.GroupBy(r => r.StartTime)
-                 .Select(g => new { Time = g.Key, SumVal = g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
-                 .OrderBy(x => x.Time)
-                 .Select(x => x.SumVal)
-                 .FirstOrDefault();
-            var lastSum = q.GroupBy(r => r.StartTime)
-                .Select(g => new { Time = g.Key, SumVal = g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
-                .OrderByDescending(x => x.Time)
-                .Select(x => x.SumVal)
-                .FirstOrDefault();
-
-            return lastSum - firstSum;
-
-        }
+    
 
     }
 

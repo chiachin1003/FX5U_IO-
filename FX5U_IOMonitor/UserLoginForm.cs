@@ -76,24 +76,24 @@ namespace FX5U_IOMonitor
         {
             //Main_form_test add_sawband_Form = new Main_form_test();
             //Machine_monitoring_interface_card add_saw_Form = new Machine_monitoring_interface_card(ScheduleFrequency.Weekly);
-            UtilizationRate add_saw_Form = new UtilizationRate();
-
-            add_saw_Form.Show();
+            using (var form = new UtilizationRate())
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
+            }
 
         }
 
         private void UserLoginForm_Load(object sender, EventArgs e)
         {
-
-            string a = ShowUtilizationRate("Drill", RangeChoice.Today);
-            string b = ShowUtilizationRate("Drill", RangeChoice.Yesterday);
-            string c = ShowUtilizationRate("Drill", RangeChoice.LastWeek);
-            string d = ShowUtilizationRate("Drill", RangeChoice.ThisWeek);
+           
 
             ShowUtilizationRate("Sawing", RangeChoice.Today);
             ShowUtilizationRate("Sawing", RangeChoice.Yesterday);
             ShowUtilizationRate("Sawing", RangeChoice.LastWeek);
             ShowUtilizationRate("Sawing", RangeChoice.ThisWeek);
+
+
 
         }
     }

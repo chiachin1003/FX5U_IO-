@@ -101,7 +101,7 @@ namespace FX5U_IO元件監控
             .ToList();
             return data;
         }
-        
+
 
 
         private void comb_class_SelectedIndexChanged(object sender, EventArgs e)
@@ -231,8 +231,11 @@ namespace FX5U_IO元件監控
             dataGridView1.Refresh();          // ✅ 強制刷新顯示
             dataGridView1.ClearSelection();   // ✅ 清除舊選擇（避免看起來沒變）
         }
-      
 
+        private void btn_add_element_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

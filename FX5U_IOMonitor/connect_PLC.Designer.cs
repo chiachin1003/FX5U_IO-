@@ -140,7 +140,7 @@ namespace FX5U_IOMonitor
             btn_connect_ethernet.BackColor = SystemColors.ButtonHighlight;
             btn_connect_ethernet.FlatStyle = FlatStyle.Flat;
             btn_connect_ethernet.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold);
-            btn_connect_ethernet.Location = new Point(302, 272);
+            btn_connect_ethernet.Location = new Point(302, 280);
             btn_connect_ethernet.Name = "btn_connect_ethernet";
             btn_connect_ethernet.Size = new Size(94, 43);
             btn_connect_ethernet.TabIndex = 5;

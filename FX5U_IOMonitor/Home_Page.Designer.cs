@@ -76,6 +76,8 @@
         {
             panel12 = new Panel();
             panel3 = new Panel();
+            panel6 = new Panel();
+            lab_connectrecord1 = new Label();
             lab_IP_Port2 = new Label();
             lab_connect_2 = new Label();
             tbPanel_Swing_sum = new TableLayoutPanel();
@@ -119,25 +121,35 @@
             lab_yD = new Label();
             lab_yellow = new Label();
             panel1 = new Panel();
+            panel5 = new Panel();
+            lab_connectrecord = new Label();
             lab_IP_Port1 = new Label();
             lab_connect_1 = new Label();
             panel2 = new Panel();
             btn_Drill_Info = new Button();
             btn_machInfo = new Button();
             panel_Swing = new Panel();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            lab_today_ratio1 = new Label();
+            lab_today1 = new Label();
+            lab_yesterday_ratio1 = new Label();
+            lab_yesterday1 = new Label();
+            lab_this_ratio1 = new Label();
+            lab_thisweek1 = new Label();
+            lab_last_ratio1 = new Label();
+            lab_lastweek1 = new Label();
             panel_Drill = new Panel();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            lab_today_ratio = new Label();
+            lab_today = new Label();
+            lab_yesterday_ratio = new Label();
+            lab_yesterday = new Label();
+            lab_this_ratio = new Label();
+            lab_thisweek = new Label();
+            lab_last_ratio = new Label();
+            lab_lastweek = new Label();
             btn_toggle = new Button();
             lb_Last_cloudupdatetime = new Label();
-            tableLayoutPanel1 = new TableLayoutPanel();
-            tableLayoutPanel2 = new TableLayoutPanel();
-            lab_lastweek = new Label();
-            lab_last_ratio = new Label();
-            lab_thisweek = new Label();
-            lab_this_ratio = new Label();
-            lab_yesterday = new Label();
-            lab_yesterday_ratio = new Label();
-            lab_today = new Label();
-            lab_today_ratio = new Label();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -157,6 +169,7 @@
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             panel_Swing.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
             panel_Drill.SuspendLayout();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -183,12 +196,38 @@
             // 
             panel3.BackColor = SystemColors.ButtonHighlight;
             panel3.BorderStyle = BorderStyle.FixedSingle;
+            panel3.Controls.Add(panel6);
+            panel3.Controls.Add(lab_connectrecord1);
             panel3.Controls.Add(lab_IP_Port2);
             panel3.Controls.Add(lab_connect_2);
             panel3.Location = new Point(21, 218);
             panel3.Name = "panel3";
-            panel3.Size = new Size(216, 63);
+            panel3.Size = new Size(216, 73);
             panel3.TabIndex = 57;
+            // 
+            // panel6
+            // 
+            panel6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            panel6.BackgroundImage = Properties.Resources.圖片2;
+            panel6.BackgroundImageLayout = ImageLayout.Stretch;
+            panel6.Location = new Point(185, 3);
+            panel6.Name = "panel6";
+            panel6.Size = new Size(26, 33);
+            panel6.TabIndex = 46;
+            panel6.Click += panel6_Click;
+            // 
+            // lab_connectrecord1
+            // 
+            lab_connectrecord1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_connectrecord1.AutoSize = true;
+            lab_connectrecord1.BackColor = SystemColors.ButtonHighlight;
+            lab_connectrecord1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connectrecord1.Location = new Point(3, 41);
+            lab_connectrecord1.Name = "lab_connectrecord1";
+            lab_connectrecord1.Size = new Size(128, 14);
+            lab_connectrecord1.TabIndex = 45;
+            lab_connectrecord1.Text = "斷線時間or重新連線時間";
+            lab_connectrecord1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lab_IP_Port2
             // 
@@ -196,7 +235,7 @@
             lab_IP_Port2.AutoSize = true;
             lab_IP_Port2.BackColor = SystemColors.ButtonHighlight;
             lab_IP_Port2.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_IP_Port2.Location = new Point(9, 12);
+            lab_IP_Port2.Location = new Point(4, 4);
             lab_IP_Port2.Name = "lab_IP_Port2";
             lab_IP_Port2.Size = new Size(192, 14);
             lab_IP_Port2.TabIndex = 44;
@@ -209,7 +248,7 @@
             lab_connect_2.AutoSize = true;
             lab_connect_2.BackColor = SystemColors.ButtonHighlight;
             lab_connect_2.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_connect_2.Location = new Point(7, 33);
+            lab_connect_2.Location = new Point(2, 20);
             lab_connect_2.Name = "lab_connect_2";
             lab_connect_2.Size = new Size(144, 19);
             lab_connect_2.TabIndex = 43;
@@ -335,7 +374,7 @@
             btn_Sawband.Location = new Point(2, 3);
             btn_Sawband.Margin = new Padding(4);
             btn_Sawband.Name = "btn_Sawband";
-            btn_Sawband.Size = new Size(53, 59);
+            btn_Sawband.Size = new Size(51, 59);
             btn_Sawband.TabIndex = 54;
             btn_Sawband.Text = "鋸帶";
             btn_Sawband.UseVisualStyleBackColor = false;
@@ -797,12 +836,38 @@
             // 
             panel1.BackColor = SystemColors.ButtonHighlight;
             panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Controls.Add(panel5);
+            panel1.Controls.Add(lab_connectrecord);
             panel1.Controls.Add(lab_IP_Port1);
             panel1.Controls.Add(lab_connect_1);
-            panel1.Location = new Point(17, 230);
+            panel1.Location = new Point(21, 219);
             panel1.Name = "panel1";
-            panel1.Size = new Size(220, 56);
+            panel1.Size = new Size(216, 73);
             panel1.TabIndex = 41;
+            // 
+            // panel5
+            // 
+            panel5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            panel5.BackgroundImage = Properties.Resources.圖片2;
+            panel5.BackgroundImageLayout = ImageLayout.Stretch;
+            panel5.Location = new Point(184, 4);
+            panel5.Name = "panel5";
+            panel5.Size = new Size(26, 33);
+            panel5.TabIndex = 2;
+            panel5.Click += panel5_Click;
+            // 
+            // lab_connectrecord
+            // 
+            lab_connectrecord.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_connectrecord.AutoSize = true;
+            lab_connectrecord.BackColor = SystemColors.ButtonHighlight;
+            lab_connectrecord.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connectrecord.Location = new Point(2, 40);
+            lab_connectrecord.Name = "lab_connectrecord";
+            lab_connectrecord.Size = new Size(128, 14);
+            lab_connectrecord.TabIndex = 46;
+            lab_connectrecord.Text = "斷線時間or重新連線時間";
+            lab_connectrecord.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lab_IP_Port1
             // 
@@ -810,7 +875,7 @@
             lab_IP_Port1.AutoSize = true;
             lab_IP_Port1.BackColor = SystemColors.ButtonHighlight;
             lab_IP_Port1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_IP_Port1.Location = new Point(13, 9);
+            lab_IP_Port1.Location = new Point(3, 3);
             lab_IP_Port1.Name = "lab_IP_Port1";
             lab_IP_Port1.Size = new Size(95, 14);
             lab_IP_Port1.TabIndex = 45;
@@ -823,7 +888,7 @@
             lab_connect_1.AutoSize = true;
             lab_connect_1.BackColor = SystemColors.ButtonHighlight;
             lab_connect_1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_connect_1.Location = new Point(10, 28);
+            lab_connect_1.Location = new Point(1, 19);
             lab_connect_1.Name = "lab_connect_1";
             lab_connect_1.Size = new Size(144, 19);
             lab_connect_1.TabIndex = 43;
@@ -880,6 +945,126 @@
             panel_Swing.Size = new Size(385, 297);
             panel_Swing.TabIndex = 51;
             // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            tableLayoutPanel2.ColumnCount = 2;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.36709F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.63291F));
+            tableLayoutPanel2.Controls.Add(lab_today_ratio1, 1, 3);
+            tableLayoutPanel2.Controls.Add(lab_today1, 0, 3);
+            tableLayoutPanel2.Controls.Add(lab_yesterday_ratio1, 1, 2);
+            tableLayoutPanel2.Controls.Add(lab_yesterday1, 0, 2);
+            tableLayoutPanel2.Controls.Add(lab_this_ratio1, 1, 1);
+            tableLayoutPanel2.Controls.Add(lab_thisweek1, 0, 1);
+            tableLayoutPanel2.Controls.Add(lab_last_ratio1, 1, 0);
+            tableLayoutPanel2.Controls.Add(lab_lastweek1, 0, 0);
+            tableLayoutPanel2.Location = new Point(226, 213);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 4;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.Size = new Size(158, 83);
+            tableLayoutPanel2.TabIndex = 2;
+            // 
+            // lab_today_ratio1
+            // 
+            lab_today_ratio1.BackColor = Color.Transparent;
+            lab_today_ratio1.Dock = DockStyle.Fill;
+            lab_today_ratio1.Font = new Font("微軟正黑體", 9.75F);
+            lab_today_ratio1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_today_ratio1.Location = new Point(81, 62);
+            lab_today_ratio1.Name = "lab_today_ratio1";
+            lab_today_ratio1.Size = new Size(74, 21);
+            lab_today_ratio1.TabIndex = 15;
+            lab_today_ratio1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_today1
+            // 
+            lab_today1.BackColor = Color.Transparent;
+            lab_today1.Dock = DockStyle.Fill;
+            lab_today1.Font = new Font("微軟正黑體", 9.75F);
+            lab_today1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_today1.Location = new Point(3, 62);
+            lab_today1.Name = "lab_today1";
+            lab_today1.Size = new Size(72, 21);
+            lab_today1.TabIndex = 14;
+            lab_today1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_yesterday_ratio1
+            // 
+            lab_yesterday_ratio1.BackColor = Color.Transparent;
+            lab_yesterday_ratio1.Dock = DockStyle.Fill;
+            lab_yesterday_ratio1.Font = new Font("微軟正黑體", 9.75F);
+            lab_yesterday_ratio1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_yesterday_ratio1.Location = new Point(81, 42);
+            lab_yesterday_ratio1.Name = "lab_yesterday_ratio1";
+            lab_yesterday_ratio1.Size = new Size(74, 20);
+            lab_yesterday_ratio1.TabIndex = 13;
+            lab_yesterday_ratio1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_yesterday1
+            // 
+            lab_yesterday1.BackColor = Color.Transparent;
+            lab_yesterday1.Dock = DockStyle.Fill;
+            lab_yesterday1.Font = new Font("微軟正黑體", 9.75F);
+            lab_yesterday1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_yesterday1.Location = new Point(3, 42);
+            lab_yesterday1.Name = "lab_yesterday1";
+            lab_yesterday1.Size = new Size(72, 20);
+            lab_yesterday1.TabIndex = 12;
+            lab_yesterday1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_this_ratio1
+            // 
+            lab_this_ratio1.BackColor = Color.Transparent;
+            lab_this_ratio1.Dock = DockStyle.Fill;
+            lab_this_ratio1.Font = new Font("微軟正黑體", 9.75F);
+            lab_this_ratio1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_this_ratio1.Location = new Point(81, 21);
+            lab_this_ratio1.Name = "lab_this_ratio1";
+            lab_this_ratio1.Size = new Size(74, 21);
+            lab_this_ratio1.TabIndex = 11;
+            lab_this_ratio1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_thisweek1
+            // 
+            lab_thisweek1.BackColor = Color.Transparent;
+            lab_thisweek1.Dock = DockStyle.Fill;
+            lab_thisweek1.Font = new Font("微軟正黑體", 9.75F);
+            lab_thisweek1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_thisweek1.Location = new Point(3, 21);
+            lab_thisweek1.Name = "lab_thisweek1";
+            lab_thisweek1.Size = new Size(72, 21);
+            lab_thisweek1.TabIndex = 10;
+            lab_thisweek1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_last_ratio1
+            // 
+            lab_last_ratio1.BackColor = Color.Transparent;
+            lab_last_ratio1.Dock = DockStyle.Fill;
+            lab_last_ratio1.Font = new Font("微軟正黑體", 9.75F);
+            lab_last_ratio1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_last_ratio1.Location = new Point(81, 0);
+            lab_last_ratio1.Name = "lab_last_ratio1";
+            lab_last_ratio1.Size = new Size(74, 21);
+            lab_last_ratio1.TabIndex = 9;
+            lab_last_ratio1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_lastweek1
+            // 
+            lab_lastweek1.BackColor = Color.Transparent;
+            lab_lastweek1.Dock = DockStyle.Fill;
+            lab_lastweek1.Font = new Font("微軟正黑體", 9.75F);
+            lab_lastweek1.ForeColor = SystemColors.ActiveCaptionText;
+            lab_lastweek1.Location = new Point(3, 0);
+            lab_lastweek1.Name = "lab_lastweek1";
+            lab_lastweek1.Size = new Size(72, 21);
+            lab_lastweek1.TabIndex = 8;
+            lab_lastweek1.TextAlign = ContentAlignment.MiddleLeft;
+            // 
             // panel_Drill
             // 
             panel_Drill.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -893,34 +1078,12 @@
             panel_Drill.Size = new Size(385, 297);
             panel_Drill.TabIndex = 47;
             // 
-            // btn_toggle
-            // 
-            btn_toggle.BackColor = SystemColors.ButtonHighlight;
-            btn_toggle.FlatAppearance.BorderSize = 0;
-            btn_toggle.FlatStyle = FlatStyle.Flat;
-            btn_toggle.Location = new Point(854, 587);
-            btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(98, 31);
-            btn_toggle.TabIndex = 56;
-            btn_toggle.UseVisualStyleBackColor = false;
-            btn_toggle.Click += btn_toggle_Click;
-            // 
-            // lb_Last_cloudupdatetime
-            // 
-            lb_Last_cloudupdatetime.AutoSize = true;
-            lb_Last_cloudupdatetime.Font = new Font("Microsoft JhengHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            lb_Last_cloudupdatetime.Location = new Point(854, 519);
-            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
-            lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
-            lb_Last_cloudupdatetime.Size = new Size(0, 15);
-            lb_Last_cloudupdatetime.TabIndex = 57;
-            // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             tableLayoutPanel1.ColumnCount = 2;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 43.670887F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 56.329113F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 53.16456F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46.83544F));
             tableLayoutPanel1.Controls.Add(lab_today_ratio, 1, 3);
             tableLayoutPanel1.Controls.Add(lab_today, 0, 3);
             tableLayoutPanel1.Controls.Add(lab_yesterday_ratio, 1, 2);
@@ -939,96 +1102,17 @@
             tableLayoutPanel1.Size = new Size(158, 83);
             tableLayoutPanel1.TabIndex = 1;
             // 
-            // tableLayoutPanel2
+            // lab_today_ratio
             // 
-            tableLayoutPanel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            tableLayoutPanel2.ColumnCount = 2;
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 39.2405052F));
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60.7594948F));
-            tableLayoutPanel2.Location = new Point(226, 213);
-            tableLayoutPanel2.Name = "tableLayoutPanel2";
-            tableLayoutPanel2.RowCount = 4;
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-            tableLayoutPanel2.Size = new Size(158, 83);
-            tableLayoutPanel2.TabIndex = 2;
-            // 
-            // lab_lastweek
-            // 
-            lab_lastweek.BackColor = Color.Transparent;
-            lab_lastweek.Dock = DockStyle.Fill;
-            lab_lastweek.Font = new Font("微軟正黑體", 9.75F);
-            lab_lastweek.ForeColor = SystemColors.ActiveCaptionText;
-            lab_lastweek.Location = new Point(3, 0);
-            lab_lastweek.Name = "lab_lastweek";
-            lab_lastweek.Size = new Size(63, 21);
-            lab_lastweek.TabIndex = 7;
-            lab_lastweek.Text = "上週:";
-            lab_lastweek.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lab_last_ratio
-            // 
-            lab_last_ratio.BackColor = Color.Transparent;
-            lab_last_ratio.Dock = DockStyle.Fill;
-            lab_last_ratio.Font = new Font("微軟正黑體", 9.75F);
-            lab_last_ratio.ForeColor = SystemColors.ActiveCaptionText;
-            lab_last_ratio.Location = new Point(72, 0);
-            lab_last_ratio.Name = "lab_last_ratio";
-            lab_last_ratio.Size = new Size(83, 21);
-            lab_last_ratio.TabIndex = 8;
-            lab_last_ratio.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lab_thisweek
-            // 
-            lab_thisweek.BackColor = Color.Transparent;
-            lab_thisweek.Dock = DockStyle.Fill;
-            lab_thisweek.Font = new Font("微軟正黑體", 9.75F);
-            lab_thisweek.ForeColor = SystemColors.ActiveCaptionText;
-            lab_thisweek.Location = new Point(3, 21);
-            lab_thisweek.Name = "lab_thisweek";
-            lab_thisweek.Size = new Size(63, 21);
-            lab_thisweek.TabIndex = 9;
-            lab_thisweek.Text = "這週:";
-            lab_thisweek.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lab_this_ratio
-            // 
-            lab_this_ratio.BackColor = Color.Transparent;
-            lab_this_ratio.Dock = DockStyle.Fill;
-            lab_this_ratio.Font = new Font("微軟正黑體", 9.75F);
-            lab_this_ratio.ForeColor = SystemColors.ActiveCaptionText;
-            lab_this_ratio.Location = new Point(72, 21);
-            lab_this_ratio.Name = "lab_this_ratio";
-            lab_this_ratio.Size = new Size(83, 21);
-            lab_this_ratio.TabIndex = 10;
-            lab_this_ratio.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lab_yesterday
-            // 
-            lab_yesterday.BackColor = Color.Transparent;
-            lab_yesterday.Dock = DockStyle.Fill;
-            lab_yesterday.Font = new Font("微軟正黑體", 9.75F);
-            lab_yesterday.ForeColor = SystemColors.ActiveCaptionText;
-            lab_yesterday.Location = new Point(3, 42);
-            lab_yesterday.Name = "lab_yesterday";
-            lab_yesterday.Size = new Size(63, 20);
-            lab_yesterday.TabIndex = 11;
-            lab_yesterday.Text = "昨日:";
-            lab_yesterday.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // lab_yesterday_ratio
-            // 
-            lab_yesterday_ratio.BackColor = Color.Transparent;
-            lab_yesterday_ratio.Dock = DockStyle.Fill;
-            lab_yesterday_ratio.Font = new Font("微軟正黑體", 9.75F);
-            lab_yesterday_ratio.ForeColor = SystemColors.ActiveCaptionText;
-            lab_yesterday_ratio.Location = new Point(72, 42);
-            lab_yesterday_ratio.Name = "lab_yesterday_ratio";
-            lab_yesterday_ratio.Size = new Size(83, 20);
-            lab_yesterday_ratio.TabIndex = 12;
-            lab_yesterday_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            lab_today_ratio.BackColor = Color.Transparent;
+            lab_today_ratio.Dock = DockStyle.Fill;
+            lab_today_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_today_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_today_ratio.Location = new Point(87, 62);
+            lab_today_ratio.Name = "lab_today_ratio";
+            lab_today_ratio.Size = new Size(68, 21);
+            lab_today_ratio.TabIndex = 14;
+            lab_today_ratio.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // lab_today
             // 
@@ -1038,22 +1122,107 @@
             lab_today.ForeColor = SystemColors.ActiveCaptionText;
             lab_today.Location = new Point(3, 62);
             lab_today.Name = "lab_today";
-            lab_today.Size = new Size(63, 21);
+            lab_today.Size = new Size(78, 21);
             lab_today.TabIndex = 13;
             lab_today.Text = "今日";
             lab_today.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // lab_today_ratio
+            // lab_yesterday_ratio
             // 
-            lab_today_ratio.BackColor = Color.Transparent;
-            lab_today_ratio.Dock = DockStyle.Fill;
-            lab_today_ratio.Font = new Font("微軟正黑體", 9.75F);
-            lab_today_ratio.ForeColor = SystemColors.ActiveCaptionText;
-            lab_today_ratio.Location = new Point(72, 62);
-            lab_today_ratio.Name = "lab_today_ratio";
-            lab_today_ratio.Size = new Size(83, 21);
-            lab_today_ratio.TabIndex = 14;
-            lab_today_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            lab_yesterday_ratio.BackColor = Color.Transparent;
+            lab_yesterday_ratio.Dock = DockStyle.Fill;
+            lab_yesterday_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_yesterday_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_yesterday_ratio.Location = new Point(87, 42);
+            lab_yesterday_ratio.Name = "lab_yesterday_ratio";
+            lab_yesterday_ratio.Size = new Size(68, 20);
+            lab_yesterday_ratio.TabIndex = 12;
+            lab_yesterday_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_yesterday
+            // 
+            lab_yesterday.BackColor = Color.Transparent;
+            lab_yesterday.Dock = DockStyle.Fill;
+            lab_yesterday.Font = new Font("微軟正黑體", 9.75F);
+            lab_yesterday.ForeColor = SystemColors.ActiveCaptionText;
+            lab_yesterday.Location = new Point(3, 42);
+            lab_yesterday.Name = "lab_yesterday";
+            lab_yesterday.Size = new Size(78, 20);
+            lab_yesterday.TabIndex = 11;
+            lab_yesterday.Text = "昨日:";
+            lab_yesterday.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_this_ratio
+            // 
+            lab_this_ratio.BackColor = Color.Transparent;
+            lab_this_ratio.Dock = DockStyle.Fill;
+            lab_this_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_this_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_this_ratio.Location = new Point(87, 21);
+            lab_this_ratio.Name = "lab_this_ratio";
+            lab_this_ratio.Size = new Size(68, 21);
+            lab_this_ratio.TabIndex = 10;
+            lab_this_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_thisweek
+            // 
+            lab_thisweek.BackColor = Color.Transparent;
+            lab_thisweek.Dock = DockStyle.Fill;
+            lab_thisweek.Font = new Font("微軟正黑體", 9.75F);
+            lab_thisweek.ForeColor = SystemColors.ActiveCaptionText;
+            lab_thisweek.Location = new Point(3, 21);
+            lab_thisweek.Name = "lab_thisweek";
+            lab_thisweek.Size = new Size(78, 21);
+            lab_thisweek.TabIndex = 9;
+            lab_thisweek.Text = "這週:";
+            lab_thisweek.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_last_ratio
+            // 
+            lab_last_ratio.BackColor = Color.Transparent;
+            lab_last_ratio.Dock = DockStyle.Fill;
+            lab_last_ratio.Font = new Font("微軟正黑體", 9.75F);
+            lab_last_ratio.ForeColor = SystemColors.ActiveCaptionText;
+            lab_last_ratio.Location = new Point(87, 0);
+            lab_last_ratio.Name = "lab_last_ratio";
+            lab_last_ratio.Size = new Size(68, 21);
+            lab_last_ratio.TabIndex = 8;
+            lab_last_ratio.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // lab_lastweek
+            // 
+            lab_lastweek.BackColor = Color.Transparent;
+            lab_lastweek.Dock = DockStyle.Fill;
+            lab_lastweek.Font = new Font("微軟正黑體", 9.75F);
+            lab_lastweek.ForeColor = SystemColors.ActiveCaptionText;
+            lab_lastweek.Location = new Point(3, 0);
+            lab_lastweek.Name = "lab_lastweek";
+            lab_lastweek.Size = new Size(78, 21);
+            lab_lastweek.TabIndex = 7;
+            lab_lastweek.Text = "上週:";
+            lab_lastweek.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // btn_toggle
+            // 
+            btn_toggle.BackColor = SystemColors.ButtonHighlight;
+            btn_toggle.FlatAppearance.BorderSize = 0;
+            btn_toggle.FlatStyle = FlatStyle.Flat;
+            btn_toggle.Location = new Point(854, 587);
+            btn_toggle.Name = "btn_toggle";
+            btn_toggle.Size = new Size(98, 31);
+            btn_toggle.TabIndex = 56;
+            btn_toggle.UseVisualStyleBackColor = false;
+            btn_toggle.Click += btn_toggle_Click;
+            // 
+            // lb_Last_cloudupdatetime
+            // 
+            lb_Last_cloudupdatetime.AutoSize = true;
+            lb_Last_cloudupdatetime.Font = new Font("Microsoft JhengHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
+            lb_Last_cloudupdatetime.Location = new Point(854, 552);
+            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
+            lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
+            lb_Last_cloudupdatetime.Size = new Size(0, 15);
+            lb_Last_cloudupdatetime.TabIndex = 57;
             // 
             // Home_Page
             // 
@@ -1061,7 +1230,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
-            ClientSize = new Size(956, 625);
+            ClientSize = new Size(956, 639);
             Controls.Add(lb_Last_cloudupdatetime);
             Controls.Add(btn_toggle);
             Controls.Add(panel12);
@@ -1106,6 +1275,7 @@
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
             panel_Swing.ResumeLayout(false);
+            tableLayoutPanel2.ResumeLayout(false);
             panel_Drill.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
@@ -1161,7 +1331,6 @@
         private Panel panel_Drill;
         private Button btn_Drill_Info;
         private Panel panel3;
-        private Label lab_connect_2;
         private Label lab_IP_Port2;
         private Label lab_IP_Port1;
         private Button btn_Saw;
@@ -1177,6 +1346,19 @@
         private Label lab_thisweek;
         private Label lab_last_ratio;
         private Label lab_lastweek;
+        private Label lab_today_ratio1;
+        private Label lab_today1;
+        private Label lab_yesterday_ratio1;
+        private Label lab_yesterday1;
+        private Label lab_this_ratio1;
+        private Label lab_thisweek1;
+        private Label lab_last_ratio1;
+        private Label lab_lastweek1;
+        private Label lab_connectrecord1;
+        private Label lab_connectrecord;
+        private Label lab_connect_2;
+        private Panel panel5;
+        private Panel panel6;
     }
 }
 
