@@ -552,23 +552,23 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
                 // 執行同步
                 var Machine = await TableSync.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
-                var MachineParameters = await TableSync.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
-                var Machine_IO = await TableSync.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
-                var MachineIOTranslations = await TableSync.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
-                var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
-                var Histories = await TableSync.SyncFromLocalToCloud_AddOnly<History>(local, cloud, "Histories");
-                var MachineParameterHistoryRecode = await TableSync.SyncFromLocalToCloud_AddOnly<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
-                var AlarmHistories = await TableSync.SyncFromLocalToCloud_AddOnly<AlarmHistory>(local, cloud, "AlarmHistories");
+                //var MachineParameters = await TableSync.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
+                //var Machine_IO = await TableSync.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
+                //var MachineIOTranslations = await TableSync.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
+                //var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");
+                //var Histories = await TableSync.SyncFromLocalToCloud_AddOnly<History>(local, cloud, "Histories");
+                //var MachineParameterHistoryRecode = await TableSync.SyncFromLocalToCloud_AddOnly<MachineParameterHistoryRecode>(local, cloud, "MachineParameterHistoryRecodes");
+                //var AlarmHistories = await TableSync.SyncFromLocalToCloud_AddOnly<AlarmHistory>(local, cloud, "AlarmHistories");
 
                 // 記錄 log
                 TableSync.LogSyncResult("",Machine);
-                TableSync.LogSyncResult("", Histories);
-                TableSync.LogSyncResult("", MachineParameters);
-                TableSync.LogSyncResult("", AlarmHistories);
-                TableSync.LogSyncResult("", Machine_IO);
-                TableSync.LogSyncResult("", MachineParameterHistoryRecode);
-                TableSync.LogSyncResult("", MachineIOTranslations);
-                TableSync.LogSyncResult("", alarm);
+                //TableSync.LogSyncResult("", Histories);
+                //TableSync.LogSyncResult("", MachineParameters);
+                //TableSync.LogSyncResult("", AlarmHistories);
+                //TableSync.LogSyncResult("", Machine_IO);
+                //TableSync.LogSyncResult("", MachineParameterHistoryRecode);
+                //TableSync.LogSyncResult("", MachineIOTranslations);
+                //TableSync.LogSyncResult("", alarm);
 
                 return true;
                 //var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(local, cloud, "alarm", "IPC_table");

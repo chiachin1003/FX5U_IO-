@@ -152,7 +152,7 @@ namespace FX5U_IOMonitor.Login
                 bool isInRole = await _userManager.IsInRoleAsync(user, role);
                 if (isInRole)
                 {
-                    result.Add(new ApplicationUser { UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken });
+                    result.Add(new ApplicationUser {Id = user.Id, UserName = user.UserName, Email = user.Email, LineNotifyToken = user.LineNotifyToken });
                 }
             }
             return result;
@@ -167,6 +167,7 @@ namespace FX5U_IOMonitor.Login
             {
                 result.Add(new ApplicationUser
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
                     LineNotifyToken = user.LineNotifyToken,

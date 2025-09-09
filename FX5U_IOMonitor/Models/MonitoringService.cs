@@ -429,6 +429,9 @@ namespace FX5U_IOMonitor.Models
 
                 }
             }
+            /// <summary>
+            /// 對應指定地址空間去查詢變頻器異常資料
+            /// </summary>
             private readonly Dictionary<string, string> _alarmToDataMapping = new Dictionary<string, string>
             {
                 { "L8030", "ZR40400" },
@@ -491,7 +494,6 @@ namespace FX5U_IOMonitor.Models
                                     {
                                         //readResults = plc.ReadWordDevice(device, 256);
                                         readResults = plc.ReadWords(device, 256);
-
                                     }
 
                                     List<now_number> result = Calculate.Convert_wordsingle(readResults, prefix, block.Start);
@@ -704,6 +706,7 @@ namespace FX5U_IOMonitor.Models
                                                 };
 
                                             }
+                                           
 
                                             var timer = timer_bit[name];
 
@@ -718,23 +721,17 @@ namespace FX5U_IOMonitor.Models
                                                     timer.NowValue += (int)elapsed.TotalSeconds;
                                                     timer.LastUpdateTime = DateTime.UtcNow;
                                                     //Debug.WriteLine($"{timer.LastUpdateTime}、{timer.NowValue}");
-                                                    ushort now_total = (ushort)(DBfunction.Get_Machine_NowValue(machine_name, name)+ (ushort)elapsed.TotalSeconds);
+                                                    int now_total = (int)(DBfunction.Get_Machine_NowValue(machine_name, name)+ (int)elapsed.TotalSeconds);
                                                     DBfunction.Set_Machine_now_number(machine_name, name, now_total);
-
-                                                    //Debug.WriteLine($"⏱ {name} 累加中：{timer.NowValue}");
-                                                    
-                                                    //Debug.WriteLine($"⏱ {name} 當前歷史資料：{DBfunction.Get_Machine_History_NumericValue(name)}");
-
                                                 }
 
                                                 if (timer.NowValue>= 30)
                                                 {
 
-                                                    ushort HistoryValue = (ushort)(DBfunction.Get_Machine_History_NumericValue(machine_name, name) + timer.NowValue);//確定經過的時間為30s
+                                                    int HistoryValue = (int)(DBfunction.Get_Machine_History_NumericValue(machine_name, name) + timer.NowValue);//確定經過的時間為30s
                                                     DBfunction.Set_Machine_History_NumericValue(machine_name,name, HistoryValue);
                                                     timer.NowValue = 0;
                                                     DBfunction.Set_Machine_now_number(machine_name, name, 0);
-                                                    //Debug.WriteLine($"📥 {name} 滿 30 秒：累積為 {timer.HistoryValue}");
 
                                                 }
 
@@ -777,6 +774,19 @@ namespace FX5U_IOMonitor.Models
                     await Task.Delay(100, token ?? CancellationToken.None); // 輪詢節流
                 }
             }
+            // 工具：把時間截到「該分鐘起點」
+            static DateTime TruncateToMinuteUtc(DateTime utc)
+            {
+                return new DateTime(utc.Year, utc.Month, utc.Day, utc.Hour, utc.Minute, 0, DateTimeKind.Utc);
+            }
+            // 狀態物件
+            class BitTimer
+            {
+                public bool IsCounting;
+                public bool Last;                 // 上一次位元值
+                public DateTime LastUpdateUtc;    // 上次結算時間（UTC）
+            }
+
 
             /// <summary>
             /// 讀取字串格式的變數
@@ -1121,7 +1131,6 @@ namespace FX5U_IOMonitor.Models
                                                 if (nextMatch != null)
                                                 {
                                                     ushort[] values = { match.current_number, nextMatch.current_number };
-                                                    string formatted = MonitorFunction.FormatPlcTime(values);
                                                     int currentvalue = (int)MonitorFunction.mergenumber(values);
                                                     int currentrecordvalue = int.Parse(DBfunction.Get_Machine_now_string(machine_name, name).Trim());
 

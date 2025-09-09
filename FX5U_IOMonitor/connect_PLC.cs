@@ -11,6 +11,7 @@ using SLMP;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Reflection.PortableExecutable;
+using System.Xml.Linq;
 using static FX5U_IOMonitor.Message.Send_mode;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
@@ -112,6 +113,7 @@ namespace FX5U_IOMonitor
 
             foreach (var machine in machineList)
             {
+
                 //if (string.IsNullOrWhiteSpace(machine.IP_address) || machine.Port == 0)
                 //    continue;
                 if (string.IsNullOrWhiteSpace(machine.IP_address) || string.IsNullOrWhiteSpace(machine.MC_Type) || machine.Port == 0||
@@ -176,7 +178,10 @@ namespace FX5U_IOMonitor
                 _ = Task.Run(() => contextItem.Monitor.Write_Word_Monitor_AllModesAsync(contextItem.MachineName, writemodes, contextItem.TokenSource.Token));
 
                 contextItem.Monitor.IOUpdated += DB_update_change;
-
+                if (DBfunction.GetMachineConnectState(contextItem.MachineName) == false)
+                {
+                    DBfunction.SetDisconnectEndTime(contextItem.MachineName);
+                }
                 Debug.WriteLine($"✅ 自動連線 {machine.Name} 成功");
                 
             }
@@ -187,23 +192,32 @@ namespace FX5U_IOMonitor
             }
             else if (!string.IsNullOrWhiteSpace(targetMachineName))
             {
-                //string summary  = "重新連線：\n" + string.Join("\n", failedMachines) + "失敗";
-                //MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (DBfunction.GetMachineConnectState(targetMachineName) == false)
+                {
+                    DBfunction.SetDisconnectRecordNumb(targetMachineName);
+                }
+                else
+                {
+                    DBfunction.SetDisconnectStartTime(targetMachineName);
+                }
                 return failedMachines.Count;
             }
             else
             {
                 string summary = $"開機後連線失敗機台數量：{failedMachines.Count}";
                
-                //if (failedMachines.Count > 0)
-                //{
-                //    summary += "\n" + string.Join("\n", failedMachines);
-                //    MessageBox.Show(summary, "請確認連線", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                //}
+               
                 foreach (var name in failedMachines)
                 {
                     DisconnectEvents.RaiseFailureConnect(name);
+                    if (DBfunction.GetMachineConnectState(name) == false)
+                    {
+                        DBfunction.SetDisconnectRecordNumb(name);
+                    }
+                    else 
+                    {
+                        DBfunction.SetDisconnectStartTime(name);
+                    }
                 }
 
                 return failedMachines.Count;

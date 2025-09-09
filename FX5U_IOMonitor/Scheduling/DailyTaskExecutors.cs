@@ -465,36 +465,7 @@ namespace FX5U_IOMonitor.Scheduling
 
                 string currentPeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}_{config}_Metric";
 
-                // 查詢最近的相同頻率紀錄（只看 Metric 的）
-                var latestRecord = db.MachineParameterHistoryRecodes
-                                     .Where(r => r.PeriodTag == currentPeriodTag)
-                                     .OrderByDescending(r => r.StartTime)
-                                     .FirstOrDefault();
-
-                if (latestRecord != null)
-                {
-                    if (latestRecord.PeriodTag == currentPeriodTag)
-                    {
-                        return new TaskResult
-                        {
-                            Success = true,
-                            Message = $"⏳ 已存在相同週期快照（{currentPeriodTag}），無需重複紀錄。",
-                            ExecutionTime = DateTime.UtcNow
-                        };
-                    }
-                    else if (latestRecord.StartTime >= roundedStartTime && DateTime.UtcNow <= roundedEndTime)
-                    {
-                        return new TaskResult
-                        {
-                            Success = true,
-                            Message = $"✅ 最近快照（{latestRecord.PeriodTag}）仍在週期內，略過紀錄。",
-                            ExecutionTime = DateTime.UtcNow
-                        };
-                    }
-                    // 否則落後、超時 ➜ 繼續紀錄
-                }
-
-              
+               
                 var parameters = db.MachineParameters.ToList();
 
                 foreach (var param in parameters)

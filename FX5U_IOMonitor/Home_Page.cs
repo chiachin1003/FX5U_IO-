@@ -7,13 +7,16 @@ using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Resources;
 using FX5U_IO元件監控;
+using Org.BouncyCastle.Ocsp;
 using SLMP;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Windows.Forms;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Data.GlobalMachineHub;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static FX5U_IOMonitor.Utilization.UtilizationRateCalculate;
 using static FX5U_IO元件監控.Part_Search;
 
 
@@ -62,8 +65,8 @@ namespace FX5U_IOMonitor
 
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
-            _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務
-            _ = ConnectAndStartSyncAsync(btn_toggle);
+            _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務 
+            //_ = ConnectAndStartSyncAsync(btn_toggle);  
             //_ = Task.Run(async () =>
             //{
             //    await ParameterHistoryScheduler.InitializeMonthlySchedule();
@@ -104,9 +107,17 @@ namespace FX5U_IOMonitor
 
             }
         }
+        private static string ToTaipeiString(DateTime utcTime)
+        {
+            var taipeiZone = TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time");
+            var taipeiTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime, taipeiZone);
+            return taipeiTime.ToString("MM/dd HH:mm:ss");
+        }
 
         private void reset_lab_connectText()//更新主頁面連接狀況
         {
+            var tz = GetTaipeiTimeZone();
+
             DateTime last = Properties.Settings.Default.Last_cloudupdatetime;
             lb_Last_cloudupdatetime.Text = LanguageManager.Translate("Mainform_Database_update") + "\n"
                 + last.ToString("yyyy/MM/dd") + "\n" + last.ToString("HH:mm:ss");
@@ -116,12 +127,21 @@ namespace FX5U_IOMonitor
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
 
-            
+            lab_today_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Today) + "%";
+            lab_yesterday_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Yesterday) + "%";
+            lab_this_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.ThisWeek) + "%";
+            lab_last_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.LastWeek) + "%";
+
+            lab_today_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Today) + "%";
+            lab_yesterday_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Yesterday) + "%";
+            lab_this_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.ThisWeek) + "%";
+            lab_last_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.LastWeek) + "%";
 
             lab_sum_swing.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();
             lab_yellow_swing.Text = DBfunction.Get_Yellow_number("Sawing").ToString();
             lab_green_swing.Text = DBfunction.Get_Green_number("Sawing").ToString();
+
             var machineList = DBfunction.GetMachineIP("Drill");
             if (machineList.IP_address == null || machineList.Port == null)
             {
@@ -155,6 +175,9 @@ namespace FX5U_IOMonitor
                 lab_disconnect_sawing.Text = DBfunction.Get_address_ByBreakdownParts("Sawing", sawingbreakdowm_part).Count.ToString();
                 lab_connect_1.Text = LanguageManager.Translate("Mainform_connect");
                 lab_connect_1.ForeColor = Color.Green;
+                lab_connectrecord.ForeColor = Color.Green;
+                lab_connectrecord.Text = ToTaipeiString(DBfunction.GetLastDisconnectEndTime("Drill")) + "  " + LanguageManager.Translate("Mainform_lab_connectrecordSuccess");
+
             }
             else
             {
@@ -162,7 +185,9 @@ namespace FX5U_IOMonitor
                 lab_connect_1.ForeColor = Color.Red;
                 lab_connect.Text = "0";
                 lab_disconnect.Text = "0";
-
+                lab_connectrecord.ForeColor = Color.Red;
+                lab_connectrecord.Text = ToTaipeiString(DBfunction.GetLastDisconnectStartTime("Drill")) + "  " + LanguageManager.Translate("Mainform_lab_connectrecordFailed") + "\n"
+                    + LanguageManager.Translate("Mainform_lab_connectrecordFailedRecord") + DBfunction.GetLastDisconnectNumber("Drill");
             }
 
             existingContext = GetContext("Sawing") as IMachineContext;
@@ -171,6 +196,8 @@ namespace FX5U_IOMonitor
                 lab_connect_2.Text = LanguageManager.Translate("Mainform_connect");
                 lab_connect_2.ForeColor = Color.Green;
                 lab_connect_swing.Text = existingContext.ConnectSummary.connect.ToString();
+                lab_connectrecord1.ForeColor = Color.Green;
+                lab_connectrecord1.Text = ToTaipeiString(DBfunction.GetLastDisconnectEndTime("Sawing")) + LanguageManager.Translate("Mainform_lab_connectrecordSuccess");
 
             }
             else
@@ -179,6 +206,10 @@ namespace FX5U_IOMonitor
                 lab_connect_2.ForeColor = Color.Red;
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
+                lab_connectrecord1.ForeColor = Color.Red;
+                lab_connectrecord1.Text = ToTaipeiString(DBfunction.GetLastDisconnectStartTime("Sawing")) + "  " + LanguageManager.Translate("Mainform_lab_connectrecordFailed") + "\n" +
+                    LanguageManager.Translate("Mainform_lab_connectrecordFailedRecord") + DBfunction.GetLastDisconnectNumber("Sawing");
+
             }
 
 
@@ -326,6 +357,14 @@ namespace FX5U_IOMonitor
 
             btn_Sawband.Text = LanguageManager.Translate("Mainform_SawBladeInfo");
             btn_Saw.Text = LanguageManager.Translate("Mainform_Sawing");
+            lab_lastweek.Text = LanguageManager.Translate("Mainform_lab_lastweek");
+            lab_thisweek.Text = LanguageManager.Translate("Mainform_lab_thisweek");
+            lab_yesterday.Text = LanguageManager.Translate("Mainform_lab_yesterday");
+            lab_today.Text = LanguageManager.Translate("Mainform_lab_today");
+            lab_lastweek1.Text = LanguageManager.Translate("Mainform_lab_lastweek");
+            lab_thisweek1.Text = LanguageManager.Translate("Mainform_lab_thisweek");
+            lab_yesterday1.Text = LanguageManager.Translate("Mainform_lab_yesterday");
+            lab_today1.Text = LanguageManager.Translate("Mainform_lab_today");
 
         }
 
@@ -376,7 +415,7 @@ namespace FX5U_IOMonitor
                 MessageBox.Show("請輸入有效的數字格式！");
             }
         }
-        private WeakReference<Button>? _statusBtnRef; 
+        private WeakReference<Button>? _statusBtnRef;
         private async void btn_toggle_Click(object sender, EventArgs e)
         {
 
@@ -388,7 +427,7 @@ namespace FX5U_IOMonitor
                 var connected = _SysCloud != null && await _SysCloud.Database.CanConnectAsync();
                 if (!connected)
                 {
-                    await ConnectAndStartSyncAsync(btn_toggle);   
+                    await ConnectAndStartSyncAsync(btn_toggle);
                     connected = _SysCloud != null && await _SysCloud.Database.CanConnectAsync();
                     if (!connected)
                     {
@@ -438,7 +477,7 @@ namespace FX5U_IOMonitor
         private CancellationTokenSource? _autoSyncCts;
         private Task? _autoSyncTask;
         private volatile bool _autoSyncRunning;   // 方便判斷目前是否在自動同步
-       
+
         private void SetUiConnectedFromAnyThread()
         {
             if (_statusBtnRef != null && _statusBtnRef.TryGetTarget(out var btn))
@@ -469,11 +508,12 @@ namespace FX5U_IOMonitor
         /// <returns></returns>
         private async Task ConnectAndStartSyncAsync(Button control)
         {
-            _statusBtnRef = new WeakReference<Button>(control); 
+
+            _statusBtnRef = new WeakReference<Button>(control);
             try
             {
-                await StopAutoSyncAsync(); 
-               
+                await StopAutoSyncAsync();
+
                 DbConfig.LoadFromJson("DbConfig.json");
                 // 先把舊的 context 正確釋放
                 if (_SysCloud != null) { await _SysCloud.DisposeAsync(); _SysCloud = null; }
@@ -490,7 +530,7 @@ namespace FX5U_IOMonitor
                 //control.Enabled = false;
 
                 // 先檢查本地與雲端是否能連
-                var cloudOk = await _SysCloud.Database.CanConnectAsync(); 
+                var cloudOk = await _SysCloud.Database.CanConnectAsync();
 
                 if (!cloudOk)
                 {
@@ -676,7 +716,23 @@ namespace FX5U_IOMonitor
         }
 
 
+        private void panel5_Click(object sender, EventArgs e)
+        {
+            using (var form = new DisconnectTable("Drill"))
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.ShowDialog(this);
+            }
+        }
 
 
+        private void panel6_Click(object sender, EventArgs e)
+        {
+            using (var form = new DisconnectTable("Sawing"))
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                form.ShowDialog(this);
+            }
+        }
     }
 }
