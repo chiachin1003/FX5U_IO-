@@ -76,8 +76,6 @@
         {
             panel12 = new Panel();
             panel3 = new Panel();
-            panel6 = new Panel();
-            lab_connectrecord1 = new Label();
             lab_IP_Port2 = new Label();
             lab_connect_2 = new Label();
             tbPanel_Swing_sum = new TableLayoutPanel();
@@ -150,6 +148,8 @@
             lab_lastweek = new Label();
             btn_toggle = new Button();
             lb_Last_cloudupdatetime = new Label();
+            lab_connectrecord1 = new Label();
+            panel6 = new Panel();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -1212,13 +1212,15 @@
             // 
             btn_toggle.Location = new Point(854, 581);
             btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(75, 23);
-            btn_toggle.TabIndex = 1;
-            btn_toggle.Visible = false;
-            // 
-            // lb_Last_cloudupdatetime
+            btn_toggle.Size = new Size(98, 31);
+            btn_toggle.TabIndex = 56;
+            btn_toggle.UseVisualStyleBackColor = false;
+            btn_toggle.Click += btn_toggle_Click;
+            btn_toggle.Click += btn_toggle_Click;
             // 
             lb_Last_cloudupdatetime.Location = new Point(47, 621);
+>>>>>>>>> Temporary merge branch 2
+            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
             lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
             lb_Last_cloudupdatetime.Size = new Size(385, 23);
             lb_Last_cloudupdatetime.TabIndex = 0;
