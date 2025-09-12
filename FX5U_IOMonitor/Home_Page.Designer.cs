@@ -213,7 +213,7 @@
             panel6.Location = new Point(185, 3);
             panel6.Name = "panel6";
             panel6.Size = new Size(26, 33);
-            panel6.TabIndex = 46;
+            panel6.TabIndex = 48;
             panel6.Click += panel6_Click;
             // 
             // lab_connectrecord1
@@ -222,10 +222,10 @@
             lab_connectrecord1.AutoSize = true;
             lab_connectrecord1.BackColor = SystemColors.ButtonHighlight;
             lab_connectrecord1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_connectrecord1.Location = new Point(3, 41);
+            lab_connectrecord1.Location = new Point(4, 37);
             lab_connectrecord1.Name = "lab_connectrecord1";
             lab_connectrecord1.Size = new Size(128, 14);
-            lab_connectrecord1.TabIndex = 45;
+            lab_connectrecord1.TabIndex = 47;
             lab_connectrecord1.Text = "斷線時間or重新連線時間";
             lab_connectrecord1.TextAlign = ContentAlignment.MiddleCenter;
             // 
@@ -248,7 +248,7 @@
             lab_connect_2.AutoSize = true;
             lab_connect_2.BackColor = SystemColors.ButtonHighlight;
             lab_connect_2.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_connect_2.Location = new Point(2, 20);
+            lab_connect_2.Location = new Point(2, 18);
             lab_connect_2.Name = "lab_connect_2";
             lab_connect_2.Size = new Size(144, 19);
             lab_connect_2.TabIndex = 43;
@@ -862,7 +862,7 @@
             lab_connectrecord.AutoSize = true;
             lab_connectrecord.BackColor = SystemColors.ButtonHighlight;
             lab_connectrecord.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_connectrecord.Location = new Point(2, 40);
+            lab_connectrecord.Location = new Point(4, 40);
             lab_connectrecord.Name = "lab_connectrecord";
             lab_connectrecord.Size = new Size(128, 14);
             lab_connectrecord.TabIndex = 46;
@@ -875,7 +875,7 @@
             lab_IP_Port1.AutoSize = true;
             lab_IP_Port1.BackColor = SystemColors.ButtonHighlight;
             lab_IP_Port1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_IP_Port1.Location = new Point(3, 3);
+            lab_IP_Port1.Location = new Point(5, 4);
             lab_IP_Port1.Name = "lab_IP_Port1";
             lab_IP_Port1.Size = new Size(95, 14);
             lab_IP_Port1.TabIndex = 45;
@@ -888,7 +888,7 @@
             lab_connect_1.AutoSize = true;
             lab_connect_1.BackColor = SystemColors.ButtonHighlight;
             lab_connect_1.Font = new Font("Microsoft JhengHei UI", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
-            lab_connect_1.Location = new Point(1, 19);
+            lab_connect_1.Location = new Point(2, 18);
             lab_connect_1.Name = "lab_connect_1";
             lab_connect_1.Size = new Size(144, 19);
             lab_connect_1.TabIndex = 43;
@@ -951,6 +951,8 @@
             tableLayoutPanel2.ColumnCount = 2;
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.36709F));
             tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.63291F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 39.2405052F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60.7594948F));
             tableLayoutPanel2.Controls.Add(lab_today_ratio1, 1, 3);
             tableLayoutPanel2.Controls.Add(lab_today1, 0, 3);
             tableLayoutPanel2.Controls.Add(lab_yesterday_ratio1, 1, 2);
@@ -962,6 +964,10 @@
             tableLayoutPanel2.Location = new Point(226, 213);
             tableLayoutPanel2.Name = "tableLayoutPanel2";
             tableLayoutPanel2.RowCount = 4;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
             tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
@@ -1204,25 +1210,18 @@
             // 
             // btn_toggle
             // 
-            btn_toggle.BackColor = SystemColors.ButtonHighlight;
-            btn_toggle.FlatAppearance.BorderSize = 0;
-            btn_toggle.FlatStyle = FlatStyle.Flat;
-            btn_toggle.Location = new Point(854, 587);
+            btn_toggle.Location = new Point(854, 581);
             btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(98, 31);
-            btn_toggle.TabIndex = 56;
-            btn_toggle.UseVisualStyleBackColor = false;
-            btn_toggle.Click += btn_toggle_Click;
+            btn_toggle.Size = new Size(75, 23);
+            btn_toggle.TabIndex = 1;
+            btn_toggle.Visible = false;
             // 
             // lb_Last_cloudupdatetime
             // 
-            lb_Last_cloudupdatetime.AutoSize = true;
-            lb_Last_cloudupdatetime.Font = new Font("Microsoft JhengHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 136);
-            lb_Last_cloudupdatetime.Location = new Point(854, 552);
-            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
+            lb_Last_cloudupdatetime.Location = new Point(47, 621);
             lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
-            lb_Last_cloudupdatetime.Size = new Size(0, 15);
-            lb_Last_cloudupdatetime.TabIndex = 57;
+            lb_Last_cloudupdatetime.Size = new Size(385, 23);
+            lb_Last_cloudupdatetime.TabIndex = 0;
             // 
             // Home_Page
             // 
@@ -1279,7 +1278,6 @@
             panel_Drill.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -1354,11 +1352,11 @@
         private Label lab_thisweek1;
         private Label lab_last_ratio1;
         private Label lab_lastweek1;
-        private Label lab_connectrecord1;
         private Label lab_connectrecord;
         private Label lab_connect_2;
         private Panel panel5;
         private Panel panel6;
+        private Label lab_connectrecord1;
     }
 }
 
