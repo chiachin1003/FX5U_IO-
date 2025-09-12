@@ -134,7 +134,7 @@ namespace FX5U_IOMonitor
             var tz = GetTaipeiTimeZone();
 
             DateTime last = Properties.Settings.Default.Last_cloudupdatetime;
-            lb_Last_cloudupdatetime.Text = LanguageManager.Translate("Mainform_Database_update") + last.ToString("yyyy/MM/dd")  +"\n"+ last.ToString("HH:mm:ss");
+            lb_Last_cloudupdatetime.Text = LanguageManager.Translate("Mainform_Database_update") + last.ToString("yyyy/MM/dd") + "\n" + last.ToString("HH:mm:ss");
 
             lab_green.Text = DBfunction.Get_Green_number("Drill").ToString();
             lab_yellow.Text = DBfunction.Get_Yellow_number("Drill").ToString();
@@ -200,7 +200,7 @@ namespace FX5U_IOMonitor
                 lab_connect.Text = "0";
                 lab_disconnect.Text = "0";
                 lab_connectrecord.ForeColor = Color.Red;
-                lab_connectrecord.Text = LanguageManager.Translate("Mainform_lab_connectrecordFailedRecord") + DBfunction.GetLastDisconnectNumber("Drill")  + "\n"
+                lab_connectrecord.Text = LanguageManager.Translate("Mainform_lab_connectrecordFailedRecord") + DBfunction.GetLastDisconnectNumber("Drill") + "\n"
                     + ToTaipeiString(DBfunction.GetLastDisconnectStartTime("Drill")) + "  ";
             }
 
@@ -221,8 +221,8 @@ namespace FX5U_IOMonitor
                 lab_connect_swing.Text = "0";
                 lab_disconnect_sawing.Text = "0";
                 lab_connectrecord1.ForeColor = Color.Red;
-                lab_connectrecord1.Text = LanguageManager.Translate("Mainform_lab_connectrecordFailedRecord") + DBfunction.GetLastDisconnectNumber("Sawing")+ "\n" 
-                    + ToTaipeiString(DBfunction.GetLastDisconnectStartTime("Sawing")) + "  " ;
+                lab_connectrecord1.Text = LanguageManager.Translate("Mainform_lab_connectrecordFailedRecord") + DBfunction.GetLastDisconnectNumber("Sawing") + "\n"
+                    + ToTaipeiString(DBfunction.GetLastDisconnectStartTime("Sawing")) + "  ";
             }
 
 

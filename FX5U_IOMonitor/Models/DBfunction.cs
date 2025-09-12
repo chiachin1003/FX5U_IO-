@@ -2286,6 +2286,17 @@ namespace FX5U_IOMonitor.Models
             }
         }
         //取斷線中的最後一筆紀錄時間
+        public static int GetLastDisconnectNumber(string originate)
+        {
+            using var context = new ApplicationDB();
+
+            var record = context.DisconnectRecords
+                .Where(r => r.ConnectOriginate == originate && r.EndTime == null)
+                .OrderByDescending(r => r.StartTime)
+                .FirstOrDefault();
+
+            return record?.Records ?? 0;
+        }
         public static DateTime? GetLastDisconnectStartTime(string originate)
         {
             using var context = new ApplicationDB();
@@ -2296,31 +2307,6 @@ namespace FX5U_IOMonitor.Models
                 .FirstOrDefault();
 
             return record?.StartTime;
-        }
-        public static int GetLastDisconnectNumber(string originate)
-        {
-            using var context = new ApplicationDB();
-
-            var record = context.DisconnectRecords
-                .Where(r => r.ConnectOriginate == originate && r.EndTime == null)
-                .OrderByDescending(r => r.StartTime)
-                .FirstOrDefault();
-
-            return record ?.Records ?? 0;
-        }
-        //取已連線中後的最後一筆紀錄時間
-        public static DateTime? GetLastDisconnectEndTime(string originate)
-        {
-            using var context = new ApplicationDB();
-
-            var record = context.DisconnectRecords
-                .Where(r => r.ConnectOriginate == originate && r.EndTime != null)
-                .OrderByDescending(r => r.StartTime)
-                .FirstOrDefault();
-            if (record == null)
-                throw new InvalidOperationException("找不到任何已結束的斷線紀錄");
-
-            return record?.EndTime;
         }
 
         public static string? Get_FrequencyConverAlarm(int frequencyAlarmId)
@@ -2334,9 +2320,19 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-      
+        public static DateTime GetLastDisconnectEndTime(string originate)
+        {
+            using var context = new ApplicationDB();
 
-    
+            var record = context.DisconnectRecords
+                .Where(r => r.ConnectOriginate == originate && r.EndTime != null)
+                .OrderByDescending(r => r.StartTime)
+                .FirstOrDefault();
+
+            return record != null ? record.EndTime.Value : DateTime.MinValue;
+        }
+
+
 
     }
 
