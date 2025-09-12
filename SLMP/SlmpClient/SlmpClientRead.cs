@@ -37,7 +37,8 @@ namespace SLMP {
         /// <param name="device">The bit device.</param>
         /// <param name="addr">Start address.</param>
         /// <param name="count">Number of registers to read.</param>
-        public bool[] ReadBitDevice(Device device, ushort addr, ushort count) {
+        public bool[] ReadBitDevice(Device device, int addr, ushort count)
+        {
             if (DeviceMethods.GetDeviceType(device) != DeviceType.Bit)
                 throw new ArgumentException("provided device is not a bit device");
 
@@ -89,7 +90,8 @@ namespace SLMP {
         /// <param name="device">The word device.</param>
         /// <param name="addr">Start address.</param>
         /// <param name="count">Number of registers to read.</param>
-        public ushort[] ReadWordDevice(Device device, ushort addr, ushort count) {
+        public ushort[] ReadWordDevice(Device device, int addr, ushort count)
+        {
             if (DeviceMethods.GetDeviceType(device) != DeviceType.Word)
                 throw new ArgumentException("provided device is not a word device");
 
@@ -173,5 +175,38 @@ namespace SLMP {
 
             return SlmpStruct.FromWords(structType, words) as T?;
         }
+
+        /// 
+        /// Int Âà´« (·s¼W)
+        ///
+      
+        public bool ReadBitDevice_Int(string addr)
+        {
+            Tuple<Device, int> data = DeviceMethods.ParseDeviceAddress_Int(addr);
+            return ReadBitDevice_Int(data.Item1, data.Item2);
+        }
+        public bool ReadBitDevice_Int(Device device, int addr)
+        {
+            return ReadBitDevice(device, addr, 1)[0];
+        }
+
+        public ushort ReadWordDevice_int(Device device, int addr)
+        {
+            return ReadWordDevice(device, addr, 1)[0];
+        }
+        public ushort ReadWordDevice_int(string addr)
+        {
+            Tuple<Device, int> data = DeviceMethods.ParseDeviceAddress_Int(addr);
+            return ReadWordDevice_int(data.Item1, data.Item2);
+        }
+
+        public ushort[] ReadWordDevice_int(string addr, ushort count)
+        {
+            Tuple<Device, int> data = DeviceMethods.ParseDeviceAddress_Int(addr);
+            return ReadWordDevice(data.Item1, data.Item2, count);
+        }
+
+       
+       
     }
 }

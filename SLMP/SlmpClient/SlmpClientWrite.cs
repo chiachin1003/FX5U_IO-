@@ -145,5 +145,82 @@ namespace SLMP {
 
             WriteWordDevice(device, addr, result.ToArray());
         }
+
+        /// 
+        /// Int ·s¼W
+        /// 
+
+        public void WriteBitDevice_Int(string addr, bool data)
+        {
+            Tuple<Device, int> tdata = DeviceMethods.ParseDeviceAddress_Int(addr);
+            WriteBitDevice_Int(tdata.Item1, tdata.Item2, data);
+        }
+        public void WriteBitDevice_Int(string addr, bool[] data)
+        {
+            Tuple<Device, int> tdata = DeviceMethods.ParseDeviceAddress_Int(addr);
+            WriteBitDevice_Int(tdata.Item1, tdata.Item2, data);
+        }
+        public void WriteBitDevice_Int(Device device, int addr, bool data)
+        {
+            WriteBitDevice_Int(device, addr, new bool[] { data });
+        }
+        public void WriteBitDevice_Int(Device device, int addr, bool[] data)
+        {
+            if (DeviceMethods.GetDeviceType(device) != DeviceType.Bit)
+                throw new ArgumentException("provided device is not a bit device");
+
+            ushort count = (ushort)data.Length;
+            List<bool> listData = data.ToList();
+            List<byte> encodedData = new();
+
+            // If the length of `data` isn't even, add a dummy
+            // `false` to make the encoding easier. It gets ignored on the station side.
+            if (count % 2 != 0)
+                listData.Add(false);
+
+            listData
+                .Chunk(2)
+                .ToList()
+                .ForEach(a => encodedData.Add(
+                    (byte)(Convert.ToByte(a[0]) << 4 | Convert.ToByte(a[1]))));
+
+            SendWriteDeviceCommand(device, addr, count, encodedData.ToArray());
+            ReceiveResponse();
+        }
+
+        public void WriteWordDevice_Int(string addr, ushort data)
+        {
+            Tuple<Device, int> tdata = DeviceMethods.ParseDeviceAddress_Int(addr);
+            WriteWordDevice_Int(tdata.Item1, tdata.Item2, data);
+        }
+
+        public void WriteWordDevice_Int(string addr, ushort[] data)
+        {
+            Tuple<Device, int> tdata = DeviceMethods.ParseDeviceAddress_Int(addr);
+            WriteWordDevice_Int(tdata.Item1, tdata.Item2, data);
+        }
+
+        public void WriteWordDevice_Int(Device device, int addr, ushort data)
+        {
+            WriteWordDevice_Int(device, addr, new ushort[] { data });
+        }
+
+        public void WriteWordDevice_Int(Device device, int addr, ushort[] data)
+        {
+            if (DeviceMethods.GetDeviceType(device) != DeviceType.Word)
+                throw new ArgumentException("provided device is not a word device");
+
+            ushort count = (ushort)data.Length;
+            List<byte> encodedData = new();
+
+            foreach (ushort word in data)
+            {
+                encodedData.Add((byte)(word & 0xff));
+                encodedData.Add((byte)(word >> 0x8));
+            }
+
+            SendWriteDeviceCommand(device, addr, count, encodedData.ToArray());
+            ReceiveResponse();
+        }
     }
 }

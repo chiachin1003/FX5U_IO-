@@ -100,5 +100,25 @@ namespace SLMP {
 
             return Tuple.Create((Device)device, uaddr);
         }
+
+        /// 
+        /// Int(·s¼W)
+        ///
+        public static Tuple<Device, int> ParseDeviceAddress_Int(string address)
+        {
+            Regex rx = new(@"([a-zA-Z]+)(\d+)");
+            Match match = rx.Match(address);
+
+            if (match.Groups.Count < 3)
+                throw new ArgumentException($"couldn't parse device address: {address}");
+
+            string sdevice = match.Groups[1].Value;
+            string saddr = match.Groups[2].Value;
+
+            if (!FromString(sdevice, out Device device)) throw new ArgumentException($"invalid device provided: {sdevice}");
+            if (!int.TryParse(saddr, out int uaddr)) throw new ArgumentException($"invalid address provided: {saddr}");
+
+            return Tuple.Create((Device)device, uaddr);
+        }
     }
 }

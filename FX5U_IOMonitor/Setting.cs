@@ -174,7 +174,15 @@ namespace FX5U_IOMonitor
 
         private async void btn_alarm_Click(object sender, EventArgs e)
         {
-            Csv2Db.Initialization_MachineprameterFromCSV("Machine_monction_data.csv");
+            try
+            {
+                Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
         }
 

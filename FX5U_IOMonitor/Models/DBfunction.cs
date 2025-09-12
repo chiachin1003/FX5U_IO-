@@ -86,7 +86,16 @@ namespace FX5U_IOMonitor.Models
                         MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                    
+
+                    try
+                    {
+                        Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
 
             }

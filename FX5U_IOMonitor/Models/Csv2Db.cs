@@ -798,7 +798,61 @@ namespace FX5U_IOMonitor.Models
             public string FrequencyAlarmInfo { get; set; }
         }
 
+        public static void Initialization_ServoDriveAlarmFromCSV(string csvPath)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Encoding = System.Text.Encoding.UTF8,
+                PrepareHeaderForMatch = args => args.Header.Trim(),
+                MissingFieldFound = null,
+                HeaderValidated = null
+            };
 
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, config);
+            try
+            {
+                var records = csv.GetRecords<ServoDriveAlarmcsv>().ToList();
+
+                using var context = new ApplicationDB();
+
+                // 防呆：先查出已存在的品牌 ID
+                var existingIds = context.ServoDriveAlarm.Select(b => b.Id).ToHashSet();
+
+                int addCount = 0;
+                foreach (var row in records)
+                {
+                    if (!existingIds.Contains(row.Id))
+                    {
+                        var Servoalarm = new ServoDriveAlarm
+                        {
+                            Id = row.Id,
+                            ServoDriveAlarmId = row.ServoDriveAlarmId,
+                            ServoDriveAlarmInfo = row.ServoDriveAlarmInfo
+
+                        };
+
+                        context.ServoDriveAlarm.Add(Servoalarm);
+                        addCount++;
+                    }
+                }
+
+                context.SaveChanges();
+            }
+            catch (HeaderValidationException ex)
+            {
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+        }
+
+
+        private class ServoDriveAlarmcsv
+        {
+            public int Id { get; set; }
+            public required string ServoDriveAlarmId { get; set; }
+            public required string ServoDriveAlarmInfo { get; set; }
+        }
 
     }
 

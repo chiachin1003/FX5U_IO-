@@ -49,6 +49,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="SsioAPILib">
+      <HintPath>..\..\..\SSIO API\SSIO API\SsioAPILib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Alarm_Notify.cs">
       <SubType>Form</SubType>
     </Compile>

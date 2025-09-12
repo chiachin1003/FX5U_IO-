@@ -247,6 +247,8 @@ namespace FX5U_IOMonitor.Models
             };
            
         }
+
+       
         /// <summary>
         /// 地址數值轉換及切割
         /// </summary>

@@ -57,21 +57,21 @@ namespace FX5U_IOMonitor.MitsubishiPlc_Monior
         public ushort[] ReadWords(string address, int wordCount) 
         {
             
-            return _plc.ReadWordDevice(address, (ushort)wordCount);
+            return _plc.ReadWordDevice_int(address, (ushort)wordCount);
         }
         public ushort ReadWords(string address)
         {
 
-            return _plc.ReadWordDevice(address);
+            return _plc.ReadWordDevice_int(address);
         }
         public void WriteWord(string address, ushort value) 
         {
 
-            _plc.WriteWordDevice(address, value);
+            _plc.WriteWordDevice_Int(address, value);
         }
         public void WriteWords(string address, ushort[] values)
         {
-            _plc.WriteWordDevice(address, values);
+            _plc.WriteWordDevice_Int(address, values);
         }
 
         public void Dispose() { try { _plc?.Disconnect(); } catch { } }

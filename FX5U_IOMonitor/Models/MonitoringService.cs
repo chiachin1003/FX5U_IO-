@@ -428,9 +428,24 @@ namespace FX5U_IOMonitor.Models
             /// </summary>
             private readonly Dictionary<string, string> _alarmToDataMapping = new Dictionary<string, string>
             {
-                { "L8030", "ZR670400" },
-                { "L8160", "ZR670410" },
-                { "L8190", "ZR670420" },
+                { "L8030", "ZR610540" },
+                { "L8160", "ZR610542" },
+                { "L8190", "ZR610544" },
+            };
+
+            /// <summary>
+            /// 對應指定地址空間去查詢異常資料
+            /// </summary>
+            private readonly Dictionary<string, string> _alarmServoDriveToDataMapping = new Dictionary<string, string>
+            {
+                {"L8150","ZR610546"},
+                {"L8154","ZR610548"},
+                {"L8180","ZR610550"},
+                {"L8184","ZR610552"},
+                {"L8210","ZR610554"},
+                {"L8214","ZR610556"},
+                {"L8220","ZR610558"},
+                {"L8224","ZR610560"},
             };
 
 

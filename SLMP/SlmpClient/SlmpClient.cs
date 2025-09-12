@@ -167,7 +167,8 @@ namespace SLMP {
         /// <param name="device">The target device.</param>
         /// <param name="adr">The address</param>
         /// <param name="cnt">The count.</param>
-        private void SendReadDeviceCommand(dynamic device, ushort adr, ushort cnt) {
+        private void SendReadDeviceCommand(dynamic device, int adr, ushort cnt)
+        {
             if (!InternalIsConnected())
                 throw new NotConnectedException();
 
@@ -184,7 +185,7 @@ namespace SLMP {
                 (byte)(cmd & 0xff), (byte)(cmd >> 0x8),
                 (byte)(sub & 0xff), (byte)(sub >> 0x8),
                 (byte)(adr & 0xff), (byte)(adr >> 0x8),
-                0x00,
+                (byte)((adr >> 16) & 0xFF),
                 (byte)device,
                 (byte)(cnt & 0xff), (byte)(cnt >> 0x8),
             });
@@ -199,7 +200,8 @@ namespace SLMP {
         /// <param name="adr">The address.</param>
         /// <param name="cnt">Number of data points.</param>
         /// <param name="data">Data itself.</param>
-        private void SendWriteDeviceCommand(dynamic device, ushort adr, ushort cnt, byte[] data) {
+        private void SendWriteDeviceCommand(dynamic device, int adr, ushort cnt, byte[] data)
+        {
             if (!InternalIsConnected())
                 throw new NotConnectedException();
 
@@ -217,7 +219,7 @@ namespace SLMP {
                 (byte)(cmd & 0xff), (byte)(cmd >> 0x8),
                 (byte)(sub & 0xff), (byte)(sub >> 0x8),
                 (byte)(adr & 0xff), (byte)(adr >> 0x8),
-                0x00,
+                (byte)((adr >> 16) & 0xFF),
                 (byte)device,
                 (byte)(cnt & 0xff), (byte)(cnt >> 0x8),
             });
