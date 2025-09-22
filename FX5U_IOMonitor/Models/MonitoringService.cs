@@ -85,7 +85,7 @@ namespace FX5U_IOMonitor.Models
                 if (!string.IsNullOrWhiteSpace(reason))
                     DisconnectEvents.RaiseCommunicationFailureOnce(MachineName, reason);
 
-                if (current >= 3 && Interlocked.Exchange(ref _triggerGate, 1) == 0)
+                if (current >= 5 && Interlocked.Exchange(ref _triggerGate, 1) == 0)
                 {
                     DisconnectEvents.RaiseFailureConnect(MachineName);
                 }
@@ -198,7 +198,7 @@ namespace FX5U_IOMonitor.Models
                         }
                         catch
                         {
-                            ReportOneFailure();
+                            //ReportOneFailure();
                             isFirstRead = true; // 斷線時設定下次重新初始化
                             break;
                             //return; // 中止此次讀取
@@ -312,6 +312,15 @@ namespace FX5U_IOMonitor.Models
                     await Task.Delay(50); // 每 500 毫秒執行一次
                 }
             }
+            public async Task alarm_MonitoringLoop(CancellationToken token, string machine)
+            {
+
+                while (!token.IsCancellationRequested)
+                {
+                    Alarm_Monitoring(machine);
+                    await Task.Delay(50); // 每 500 毫秒執行一次
+                }
+            }
             /// <summary>
             /// 負責 PLC 警告讀取 + 轉換
             /// </summary>
@@ -369,12 +378,57 @@ namespace FX5U_IOMonitor.Models
 
                 return;
             }
+          
+            public void Alarm_Monitoring(string machine)
+            {
+                List<now_single> old_single = DBfunction.Get_alarm_current_single_all(machine);
 
-            /// <summary>
-            /// 狀態比較與事件觸發
-            /// </summary>
-            /// <param name="now_single"></param>
-            /// <param name="old_single"></param>
+                var alarm = Calculate.Alarm_trans(machine);
+
+                var sectionGroups = alarm
+                    .GroupBy(s => s.Prefix)
+                    .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
+                foreach (var prefix in sectionGroups.Keys)
+                {
+                    var blocks = sectionGroups[prefix];
+
+                    foreach (var block in blocks)
+                    {
+                        string device = prefix + block.Start;
+                        bool[] plc_result;
+                        try
+                        {
+                            lock (_lockRef)
+                            {
+                                //bool[] plc_result = plc.ReadBitDevice(device, 256);
+                                plc_result = plc.ReadBits(device, 256); //256為SLMP_一次讀取的bit的最大值
+                            }
+                            var result = Calculate.Convert_Single(plc_result, prefix, block.Start);
+                            if (isFirstRead)
+                            {
+                                Calculate.UpdatealarmCurrentSingleToDB(result, machine);
+                            }
+                            else
+                            {
+
+                                alarm_NowSingle(result, old_single, machine);
+                            }
+
+                        }
+                        catch
+                        {
+                            alarmFirstRead = true; // 斷線時設定下次重新初始化
+                            return; // 中止此次讀取
+
+                        }
+                    }
+
+
+                }
+                alarmFirstRead = false; // ✅ 完成第一次後設定為 false
+
+                return;
+            }
             private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single)
             {
                 if (now_single == null || now_single.Count == 0 || old_single == null || old_single.Count == 0)
@@ -408,6 +462,59 @@ namespace FX5U_IOMonitor.Models
                                     // 讀取對應的數值
                                 }
 
+                                alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                {
+                                    Address = now.address,
+                                    OldValue = oldVal,
+                                    NewValue = newVal,
+                                    AdditionalValue = additionalValue,
+                                    AdditionalAddress = additionalAddress
+                                });
+
+                            }
+                        }
+                    }
+
+                }
+            }
+            /// <summary>
+            /// 狀態比較與事件觸發
+            /// </summary>
+            /// <param name="now_single"></param>
+            /// <param name="old_single"></param>
+            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single,string machine)
+            {
+                if (now_single == null || now_single.Count == 0 || old_single == null || old_single.Count == 0)
+                {
+                    Console.WriteLine("Error: nowList 或 ioList 為空.");
+                }
+
+                foreach (var now in now_single)
+                {
+                    var ioMatch = old_single.FirstOrDefault(io => io.address == now.address && io.machine == machine);
+                    if (ioMatch != null)
+                    {
+
+                        if (ioMatch.current_single is bool oldVal)
+                        {
+                            bool newVal = now.current_single;
+
+                            if (oldVal != newVal)
+                            {
+                                ioMatch.current_single = newVal;
+                                // 檢查是否需要讀取對應的數值
+                                int? additionalValue = null;
+                                string additionalAddress = null;
+                                if (_alarmToDataMapping.TryGetValue(now.address, out additionalAddress) || _alarmServoDriveToDataMapping.TryGetValue(now.address, out additionalAddress))
+                                {
+                                    lock (_lockRef)
+                                    {
+                                        ushort[] result = plc.ReadWords(additionalAddress, 1);
+                                        additionalValue = result[0];
+                                    }
+                                    // 讀取對應的數值
+                                }
+                               
                                 alarm_event?.Invoke(this, new IOUpdateEventArgs
                                 {
                                     Address = now.address,
@@ -572,7 +679,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ 全域寫入例外（{machine_name}）：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
 
@@ -770,7 +877,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
                   
 
@@ -834,7 +941,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Word 監控錯誤：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
 
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流

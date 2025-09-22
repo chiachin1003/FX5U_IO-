@@ -162,12 +162,16 @@ namespace FX5U_IOMonitor
                     notifier.Enqueue(e); // 加入通知佇列，5秒內會發送
                 };
 
-                if (contextItem.IsMaster)
-                {
-                    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
-                    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
-                    contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
-                }
+                //if (contextItem.IsMaster)
+                //{
+                //    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+                //    _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token));
+                //    contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
+                //}
+
+                DBfunction.Fix_UnclosedAlarms_ByCurrentState(contextItem.MachineName);
+                _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
+                contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
 
                 int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
                 int[] read_modes = DBfunction.Get_Machine_Readview_type(contextItem.MachineName);
@@ -307,22 +311,27 @@ namespace FX5U_IOMonitor
             // 啟動監控任務
             _ = Task.Run(() => context.Monitor.MonitoringLoop(context.TokenSource.Token, context.MachineName));
 
-            if (context.IsMaster) // 只針對主機執行 alarm 監控
-            {
-                //補上若是程式關閉時解除警報的話則寫入解除時間
-                DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+            //if (context.IsMaster) // 只針對主機執行 alarm 監控
+            //{
+            //    //補上若是程式關閉時解除警報的話則寫入解除時間
 
-                //開始進行警告監控
-                _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(
-                    context.TokenSource.Token));
-                //發送警告訊息等功用
-                context.Monitor.alarm_event += FailureAlertMail;
-            }
+            //    DBfunction.Fix_UnclosedAlarms_ByCurrentState();
+
+            //    //開始進行警告監控
+            //    _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(
+            //        context.TokenSource.Token));
+            //    //發送警告訊息等功用
+            //    context.Monitor.alarm_event += FailureAlertMail;
+            //}
+
+            //補上若是程式關閉時解除警報的話則寫入解除時間
+            DBfunction.Fix_UnclosedAlarms_ByCurrentState(context.MachineName);
+            //開始進行警告監控
+            _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(context.TokenSource.Token, context.MachineName));
+            context.Monitor.alarm_event += FailureAlertMail;
 
             int[] writemodes = DBfunction.Get_Machine_Calculate_type(context.MachineName);
             int[] read_modes = DBfunction.Get_Machine_Readview_type(context.MachineName);
-
-
 
             _ = Task.Run(() => context.Monitor.Read_Bit_Monitor_AllModesAsync(context.MachineName, writemodes, context.TokenSource.Token));
             _ = Task.Run(() => context.Monitor.Read_Word_Monitor_AllModesAsync(context.MachineName, read_modes, context.TokenSource.Token));
@@ -339,7 +348,7 @@ namespace FX5U_IOMonitor
 
             // 註冊變更事件
             context.Monitor.IOUpdated += DB_update_change;
-
+            //發送警告訊息等功用
         }
         /// <summary>
         /// 監控及記錄當前實體元件的使用次數
@@ -505,7 +514,7 @@ namespace FX5U_IOMonitor
             }
            
             Csv2Db.Initialization_MachineElementFromCSV(txb_machine.Text, openFileDialog.FileName);
-            DBfunction.AddMachineKeyIfNotExist($"Mainform_{txb_machine.Text}", txb_machine.Text);
+            //DBfunction.AddMachineKeyIfNotExist($"Mainform_{txb_machine.Text}", txb_machine.Text);
             MachineButton.UpdateMachineButtons(main_control.panel_choose, main_control.btn_Main, main_control.panel_main);
             UpdateConnectmachinComboBox();
 

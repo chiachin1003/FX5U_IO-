@@ -58,6 +58,8 @@ namespace FX5U_IOMonitor.Data
     {
         public string address { get; set; }
         public bool current_single { get; set; }
+        public string machine { get; set; }
+
 
     }
     public class now_number // 當前連接總數

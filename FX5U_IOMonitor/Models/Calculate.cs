@@ -132,6 +132,30 @@ namespace FX5U_IOMonitor.Models
             context.SaveChanges(); // ✅ 寫入資料庫
 
         }
+        public static void UpdatealarmCurrentSingleToDB(List<now_single> nowList, string machine)
+        {
+            if (nowList == null || nowList.Count == 0)
+            {
+                Console.WriteLine("⚠️ nowList 為空，未更新資料庫。");
+            }
+
+            using var context = new ApplicationDB();
+
+            var ioList = context.alarm
+                .Where(a =>a.SourceMachine == machine)
+                .ToList();
+            foreach (var now in nowList)
+            {
+                var io = ioList.FirstOrDefault(d => d.address == now.address);
+                if (io != null)
+                {
+                    io.current_single = now.current_single;
+                }
+            }
+
+            context.SaveChanges(); // ✅ 寫入資料庫
+
+        }
 
         public static void Update_alarm_Single(List<now_single> now_single, List<now_single> old_single)
         {
@@ -247,8 +271,33 @@ namespace FX5U_IOMonitor.Models
             };
            
         }
+        public static List<IOSectionInfo> Alarm_trans(string machineName)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarmList = context.alarm.ToList();
 
-       
+                var result = new List<IOSectionInfo>();
+
+                // 判斷要處理的前綴
+                string targetPrefix = machineName == "Drill" ? "L" : "M";
+
+                var addrList = alarmList
+                    .Where(d => d.address.StartsWith(targetPrefix))
+                    .Select(d => Convert.ToInt32(d.address.Substring(targetPrefix.Length)))
+                    .OrderBy(a => a)
+                    .ToList();
+
+                if (addrList.Any())
+                {
+                    result.Add(BuildSectionFormatted(targetPrefix, addrList, "dec"));
+                }
+
+                return result;
+            }
+        }
+
+
         /// <summary>
         /// 地址數值轉換及切割
         /// </summary>

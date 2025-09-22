@@ -1199,6 +1199,19 @@ namespace FX5U_IOMonitor.Models
                 })
                 .ToList();
         }
+        public static List<now_single> Get_alarm_current_single_all(string machine)
+        {
+            using var context = new ApplicationDB();
+            return context.alarm
+                .Where(a => a.SourceMachine == machine)
+                .Select(a => new now_single
+                {
+                    address = a.address,
+                    current_single = a.current_single,
+                    machine = a.SourceMachine
+                })
+                .ToList();
+        }
 
         public static void Set_alarm_current_single_ByAddress(string address, bool current_single)
         {
@@ -1247,7 +1260,34 @@ namespace FX5U_IOMonitor.Models
                 context.SaveChanges();
             }
         }
+        public static void Fix_UnclosedAlarms_ByCurrentState(string machine)
+        {
+            // 1. 取得目前 current_single 為 false 的警報 address
+            var currentlyInactiveAddresses = DBfunction.Get_alarm_current_single_all(machine)
+                .Where(x => x.current_single == false)
+                .Select(x => x.address)
+                .ToHashSet();
 
+            using (var context = new ApplicationDB())
+            {
+                // 2. 查詢所有還沒 EndTime 的歷史記錄
+                var unclosedAlarms = context.AlarmHistories
+                    .Include(h => h.Alarm)
+                    .Where(h => h.EndTime == null)
+                    .ToList();
+
+                foreach (var history in unclosedAlarms)
+                {
+                    if (currentlyInactiveAddresses.Contains(history.Alarm.address))
+                    {
+                        history.EndTime = DateTime.UtcNow;
+                        Console.WriteLine($"⏱ 補寫解除時間：{history.Alarm.address}");
+                    }
+                }
+
+                context.SaveChanges();
+            }
+        }
         /// <summary>
         /// 獲得對應警告的通知人員
         /// </summary>
