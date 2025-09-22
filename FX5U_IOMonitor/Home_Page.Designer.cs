@@ -1218,8 +1218,73 @@
             btn_toggle.Click += btn_toggle_Click;
             btn_toggle.Click += btn_toggle_Click;
             // 
+            lb_Last_cloudupdatetime.Location = new Point(854, 536);
+            lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
+            lb_Last_cloudupdatetime.Size = new Size(100, 23);
+            lb_Last_cloudupdatetime.TabIndex = 0;
+            // 
+            // lab_connectrecord1
+            // 
+            lab_connectrecord1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_connectrecord1.AutoSize = true;
+            lab_connectrecord1.BackColor = SystemColors.ButtonHighlight;
+            lab_connectrecord1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connectrecord1.Location = new Point(4, 37);
+            lab_connectrecord1.Name = "lab_connectrecord1";
+            lab_connectrecord1.Size = new Size(128, 14);
+            lab_connectrecord1.TabIndex = 47;
+            lab_connectrecord1.Text = "斷線時間or重新連線時間";
+            lab_connectrecord1.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // panel6
+            // 
+            panel6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            panel6.BackgroundImage = Properties.Resources.圖片2;
+            panel6.BackgroundImageLayout = ImageLayout.Stretch;
+            panel6.Location = new Point(185, 3);
+            panel6.Name = "panel6";
+            panel6.Size = new Size(26, 33);
+            panel6.TabIndex = 48;
+            panel6.Click += panel6_Click;
+=========
+            btn_toggle.Visible = false;
+            // 
+            // lb_Last_cloudupdatetime
+            // 
+            lb_Last_cloudupdatetime.Location = new Point(854, 536);
+            lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
+            lb_Last_cloudupdatetime.Size = new Size(100, 23);
+            lb_Last_cloudupdatetime.TabIndex = 0;
+            // 
+            // lab_connectrecord1
+            // 
+            lab_connectrecord1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_connectrecord1.AutoSize = true;
+            lab_connectrecord1.BackColor = SystemColors.ButtonHighlight;
+            lab_connectrecord1.Font = new Font("Microsoft JhengHei UI", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
+            lab_connectrecord1.Location = new Point(4, 37);
+            lab_connectrecord1.Name = "lab_connectrecord1";
+            lab_connectrecord1.Size = new Size(128, 14);
+            lab_connectrecord1.TabIndex = 47;
+            lab_connectrecord1.Text = "斷線時間or重新連線時間";
+            lab_connectrecord1.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // panel6
+            // 
+            panel6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            panel6.BackgroundImage = Properties.Resources.圖片2;
+            panel6.BackgroundImageLayout = ImageLayout.Stretch;
+            panel6.Location = new Point(185, 3);
+            panel6.Name = "panel6";
+            panel6.Size = new Size(26, 33);
+            panel6.TabIndex = 48;
+            panel6.Click += panel6_Click;
+=========
+            btn_toggle.Visible = false;
+            // 
+            // lb_Last_cloudupdatetime
+            // 
             lb_Last_cloudupdatetime.Location = new Point(47, 621);
-            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
             lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
             lb_Last_cloudupdatetime.Size = new Size(385, 23);
             lb_Last_cloudupdatetime.TabIndex = 0;
