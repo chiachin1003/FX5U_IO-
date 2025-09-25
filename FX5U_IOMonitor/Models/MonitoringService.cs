@@ -1253,6 +1253,8 @@ namespace FX5U_IOMonitor.Models
                                                         int History_NumericValue = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
                                                         int accumulationvalue = History_NumericValue + currentrecordvalue; 
                                                         DBfunction.Set_Machine_History_NumericValue(machine_name, name, accumulationvalue);  //現在的總壽命值
+                                                        DBfunction.Set_Machine_now_string(machine_name, name, "0"); //當前該鋸帶壽命的監控值
+
                                                     }
                                                 }
                                                 else
