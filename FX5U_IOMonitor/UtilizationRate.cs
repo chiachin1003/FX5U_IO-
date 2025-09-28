@@ -5,6 +5,7 @@ using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Utilization;
 using SLMP;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Threading;
 using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
@@ -25,13 +26,16 @@ namespace FX5U_IOMonitor
         private bool _suppressAutoSave = false;
         private float Drill_UtilizationRate;
         private float Sawing_UtilizationRate;
+        private string Utilization_Shift;
+
         // 依序加入所需欄位(靜態)
 
         public UtilizationRate()
         {
             InitializeComponent();
             InitUtilizationPickers();
-
+            Utilization_Shift = "UtilizationShiftConfig.json";
+            var ShiftsFile = UtilizationConfigLoader.LoadShifts(Utilization_Shift);     
 
             this.FormClosing += (_, __) => _cts?.Cancel();
 
@@ -62,7 +66,7 @@ namespace FX5U_IOMonitor
             // 讀取預設模式（1~4）
             int mode = Properties.Settings.Default.DefaultUtilizationRate;
             if (mode < 1 || mode > 4) mode = 1; // 防呆
-            var (sp, ep) = ResolvePickersByMode(mode);
+            var (sp, ep, button) = ResolvePickersByMode(mode);
             float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(sp, ep);
             // 避免除以 0
             if (denom <= 0)
@@ -126,14 +130,13 @@ namespace FX5U_IOMonitor
 
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
+            SaveUtilizationPair(dateTimePicker_start1, dateTimePicker_end1, 1);
+
             Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
             Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
             RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
-            Properties.Settings.Default.DefaultUtilizationRate = 1;
-            SaveUtilizationPair(dateTimePicker_start1, dateTimePicker_end1,
-                    "UtilizationStart1", "UtilizationEnd1");
             Properties.Settings.Default.Save();
             lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + ":\n" +
                 $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
@@ -154,15 +157,15 @@ namespace FX5U_IOMonitor
                                                        allowOvernight: false, equalMeansOneHour: false);
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
+            SaveUtilizationPair(dateTimePicker_start2, dateTimePicker_end2, 2);
+
             Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
             Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
 
             RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
-            Properties.Settings.Default.DefaultUtilizationRate = 2;
-            SaveUtilizationPair(dateTimePicker_start2, dateTimePicker_end2,
-                    "UtilizationStart2", "UtilizationEnd2");
+
             Properties.Settings.Default.Save();
             lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + ":\n" +
                 $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
@@ -184,14 +187,15 @@ namespace FX5U_IOMonitor
 
             // 再轉 UTC
             var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
+            SaveUtilizationPair(dateTimePicker_start3, dateTimePicker_end3, 3);
+
             Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
             Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
             RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
             Properties.Settings.Default.DefaultUtilizationRate = 3;
             Properties.Settings.Default.Save();
-            SaveUtilizationPair(dateTimePicker_start3, dateTimePicker_end3,
-                    "UtilizationStart3", "UtilizationEnd3");
+
             lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + ":\n" +
                 $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
         }
@@ -216,10 +220,6 @@ namespace FX5U_IOMonitor
             RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
-            Properties.Settings.Default.DefaultUtilizationRate = 4;
-            Properties.Settings.Default.Save();
-            SaveUtilizationPair(dateTimePicker_start4, dateTimePicker_end4,
-                    "UtilizationStart4", "UtilizationEnd4");
         }
         /// <summary>
         /// 初始化
@@ -228,103 +228,55 @@ namespace FX5U_IOMonitor
         {
             _suppressAutoSave = true;
 
-            ConfigurePicker(dateTimePicker_start1, Properties.Settings.Default.UtilizationStart1);
-            ConfigurePicker(dateTimePicker_end1, Properties.Settings.Default.UtilizationEnd1);
+            var shifts = UtilizationConfigLoader.LoadShifts();
 
-            ConfigurePicker(dateTimePicker_start2, Properties.Settings.Default.UtilizationStart2);
-            ConfigurePicker(dateTimePicker_end2, Properties.Settings.Default.UtilizationEnd2);
+            foreach (var shift in shifts.Shifts)
+            {
+                var (startPicker, endPicker, button) = ResolvePickersByMode(shift.ShiftNo);
 
-            ConfigurePicker(dateTimePicker_start3, Properties.Settings.Default.UtilizationStart3);
-            ConfigurePicker(dateTimePicker_end3, Properties.Settings.Default.UtilizationEnd3);
+                ConfigurePicker(startPicker, shift.Start);
+                ConfigurePicker(endPicker, shift.End);
 
-            ConfigurePicker(dateTimePicker_start4, Properties.Settings.Default.UtilizationStart4);
-            ConfigurePicker(dateTimePicker_end4, Properties.Settings.Default.UtilizationEnd4);
+                // 你也可以加上 Enabled 判斷 → 比如禁用 Picker
+                if (!shift.Enabled)
+                {
+                    startPicker.Enabled = false;
+                    endPicker.Enabled = false;
+                    button.Enabled = false;
+                }
+            }
+
             _suppressAutoSave = false;
 
         }
-        private (DateTimePicker start, DateTimePicker end) ResolvePickersByMode(int mode)
+        private (DateTimePicker start, DateTimePicker end, System.Windows.Forms.Button button) ResolvePickersByMode(int mode)
         {
             switch (mode)
             {
-                case 1: return (dateTimePicker_start1, dateTimePicker_end1);
-                case 2: return (dateTimePicker_start2, dateTimePicker_end2);
-                case 3: return (dateTimePicker_start3, dateTimePicker_end3);
-                case 4: return (dateTimePicker_start4, dateTimePicker_end4);
-                default: return (dateTimePicker_start1, dateTimePicker_end1); // fallback
+                case 1: return (dateTimePicker_start1, dateTimePicker_end1,btn_calculate1);
+                case 2: return (dateTimePicker_start2, dateTimePicker_end2, btn_calculate2);
+                case 3: return (dateTimePicker_start3, dateTimePicker_end3, btn_calculate3);
+                case 4: return (dateTimePicker_start4, dateTimePicker_end4, btn_calculate4);
+                default: return (dateTimePicker_start1, dateTimePicker_end1, btn_calculate1); // fallback
             }
         }
-        private static void ConfigurePicker(DateTimePicker picker, TimeSpan timeOfDay)
+        private static void ConfigurePicker(DateTimePicker picker, string timeText)
         {
             picker.Format = DateTimePickerFormat.Custom;
-            picker.CustomFormat = "HH:mm";   // 24 小時制只顯示時分
-            picker.ShowUpDown = true;        // 不跳出月曆、改用微調
-            picker.Value = DateTime.Today.Add(
-                new TimeSpan(timeOfDay.Hours, timeOfDay.Minutes, 0)); // 秒歸零
-        }
+            picker.CustomFormat = "HH:mm";
+            picker.ShowUpDown = true;
 
-        /// <summary>
-        /// 確保 end 不早於 start。
-        /// timeOnly=true 時只比對時:分；false 則比完整日期時間。
-        /// allowEqual=true 允許相等；false 則強制 end > start。
-        /// </summary>
-        private static void SyncEndNotEarlier(
-            DateTimePicker start,
-            DateTimePicker end,
-            bool timeOnly = true,
-            bool allowEqual = true)
-        {
-            if (start == null || end == null || start.IsDisposed || end.IsDisposed) return;
-
-            var s = start.Value;
-            var e = end.Value;
-
-            // 只取時分比較（避免不同日期影響）
-            var sKey = timeOnly
-                ? new DateTime(1, 1, 1, s.Hour, s.Minute, 0)
-                : new DateTime(s.Year, s.Month, s.Day, s.Hour, s.Minute, 0);
-
-            var eKey = timeOnly
-                ? new DateTime(1, 1, 1, e.Hour, e.Minute, 0)
-                : new DateTime(e.Year, e.Month, e.Day, e.Hour, e.Minute, 0);
-
-            bool needFix = eKey < sKey || (!allowEqual && eKey == sKey);
-            if (needFix)
+            if (TimeSpan.TryParse(timeText, out var ts))
             {
-                // 調整 end 的時分（保留 end 原本的日期）
-                end.Value = new DateTime(e.Year, e.Month, e.Day, s.Hour, s.Minute, 0);
+                picker.Value = DateTime.Today.Add(ts); // 轉成今天的時間顯示
+            }
+            else
+            {
+                picker.Value = DateTime.Today; // 失敗就給個預設值
             }
         }
-        /// <summary>
-        /// 幫一組 start/end 綁定 ValueChanged 事件，任何一邊改動都會自動校正 end。
-        /// </summary>
-        private static void WireTimePair(
-            DateTimePicker start,
-            DateTimePicker end,
-            bool timeOnly = true,
-            bool allowEqual = true)
-        {
-            bool updating = false; // 防止事件互相觸發造成遞迴
 
-            void handler(object _, EventArgs __)
-            {
-                if (updating) return;
-                updating = true;
-                try
-                {
-                    SyncEndNotEarlier(start, end, timeOnly, allowEqual);
-                }
-                finally
-                {
-                    updating = false;
-                }
-            }
-
-            start.ValueChanged += handler;
-            end.ValueChanged += handler;
-
-            // 先跑一次，確保初始狀態正確
-            handler(null, EventArgs.Empty);
-        }
+       
         /// <summary>
         /// 組合當天的稼動率顯示
         /// </summary>
@@ -436,23 +388,93 @@ namespace FX5U_IOMonitor
                 centerTextFontSize: centerTextFontSize
             );
         }
-        private void SaveUtilizationPair(DateTimePicker startPicker, DateTimePicker endPicker,
-                                  string startKey, string endKey, bool endInclusive = true)
+        private void SaveUtilizationPair( DateTimePicker startPicker, DateTimePicker endPicker,int shiftNo,string jsonPath = "UtilizationShiftConfig.json")
         {
-            var start = new TimeSpan(startPicker.Value.Hour, startPicker.Value.Minute, 0);
-            var end = new TimeSpan(endPicker.Value.Hour, endPicker.Value.Minute, endInclusive ? 59 : 0);
+            var json = File.ReadAllText(jsonPath);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                WriteIndented = true
+            };
 
-            var s = Properties.Settings.Default;
+            var shiftsFile = JsonSerializer.Deserialize<ShiftsFile>(json, options)
+                             ?? new ShiftsFile();
 
-            // （可選）做個簡單檢查，確保這兩個設定存在而且型別正確
-            if (s.Properties[startKey] == null || s.Properties[endKey] == null)
-                throw new ArgumentException("設定鍵名不存在。");
-            // 寫入
-            s[startKey] = start;
-            s[endKey] = end;
-            s.Save();
+            // 找對應班別
+            var shift = shiftsFile.Shifts.FirstOrDefault(s => s.ShiftNo == shiftNo);
+            if (shift == null)
+                throw new ArgumentException($"ShiftNo={shiftNo} 在 shifts.json 中不存在");
+
+            // 更新時間（格式化成 "HH:mm"）
+            shift.Start = startPicker.Value.ToString("HH:mm");
+            shift.End = endPicker.Value.ToString("HH:mm");
+
+            // 存回 JSON
+            File.WriteAllText(jsonPath, JsonSerializer.Serialize(shiftsFile, options));
         }
-      
+        /// <summary>
+        /// 確保 end 不早於 start。
+        /// timeOnly=true 時只比對時:分；false 則比完整日期時間。
+        /// allowEqual=true 允許相等；false 則強制 end > start。
+        /// </summary>
+        private static void SyncEndNotEarlier(
+            DateTimePicker start,
+            DateTimePicker end,
+            bool timeOnly = true,
+            bool allowEqual = true)
+        {
+            if (start == null || end == null || start.IsDisposed || end.IsDisposed) return;
+
+            var s = start.Value;
+            var e = end.Value;
+
+            // 只取時分比較（避免不同日期影響）
+            var sKey = timeOnly
+                ? new DateTime(1, 1, 1, s.Hour, s.Minute, 0)
+                : new DateTime(s.Year, s.Month, s.Day, s.Hour, s.Minute, 0);
+
+            var eKey = timeOnly
+                ? new DateTime(1, 1, 1, e.Hour, e.Minute, 0)
+                : new DateTime(e.Year, e.Month, e.Day, e.Hour, e.Minute, 0);
+
+            bool needFix = eKey < sKey || (!allowEqual && eKey == sKey);
+            if (needFix)
+            {
+                // 調整 end 的時分（保留 end 原本的日期）
+                end.Value = new DateTime(e.Year, e.Month, e.Day, s.Hour, s.Minute, 0);
+            }
+        }
+        /// <summary>
+        /// 幫一組 start/end 綁定 ValueChanged 事件，任何一邊改動都會自動校正 end。
+        /// </summary>
+        private static void WireTimePair(
+            DateTimePicker start,
+            DateTimePicker end,
+            bool timeOnly = true,
+            bool allowEqual = true)
+        {
+            bool updating = false; // 防止事件互相觸發造成遞迴
+
+            void handler(object _, EventArgs __)
+            {
+                if (updating) return;
+                updating = true;
+                try
+                {
+                    SyncEndNotEarlier(start, end, timeOnly, allowEqual);
+                }
+                finally
+                {
+                    updating = false;
+                }
+            }
+
+            start.ValueChanged += handler;
+            end.ValueChanged += handler;
+
+            // 先跑一次，確保初始狀態正確
+            handler(null, EventArgs.Empty);
+        }
 
     }
 }

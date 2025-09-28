@@ -1,11 +1,13 @@
-﻿using System;
+﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Models;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using FX5U_IOMonitor.Models;
 
 namespace FX5U_IOMonitor.Data
 {
@@ -81,10 +83,10 @@ namespace FX5U_IOMonitor.Data
         public DateTime? EndTime { get; set; }     // 故障排除時間
         public TimeSpan? Duration { get; set; }    // 故障持續時間
         public DateTime RecordTime { get; set; }   // 記錄時間
-        public string? Note { get; set; }   // 備註
-
-        public int? Notenumber { get; set; }   // 備註
-
+        public int? Notenumber { get; set; }   // 監控ZR值所讀到的數值備註
+        public string? Note { get; set; }   // 出錯名稱備註
+        public string? ErrorDetail { get; set; } // 異常內容及原因
+        public string? Solution { get; set; }    // 處理方法
 
         public int Records { get; set; }   // 記錄警告發送次數
 
@@ -102,6 +104,52 @@ namespace FX5U_IOMonitor.Data
         public int? Note { get; set; }
 
         public TimeSpan? Duration { get; set; }    // 故障持續時間
+
+    }
+    public class Warning_components
+    {
+        public int Notenumber { get; set; }   // 監控ZR值所讀到的數值備註
+        public string Note { get; set; }   // 出錯名稱備註
+        public string ErrorDetail { get; set; } // 異常內容及原因
+        public string Solution { get; set; }    // 處理方法
+    }
+
+    public class AlarmMapping
+    {
+        public string? Type { get; set; }
+        public string? Key { get; set; }         // L開頭的
+        public string? ReadAddress { get; set; } // ZR開頭的
+    }
+    public class AlarmMappingConfig
+    {
+        public List<AlarmMapping>? FrequencyConverToDataMapping { get; set; }
+        public List<AlarmMapping>? ControlToDataMapping { get; set; }
+        public List<AlarmMapping>? ServoDriveToDataMapping { get; set; }
+
+        // 初始化後的快取字典 (Key -> AlarmMapping)
+        [JsonIgnore]
+        public Dictionary<string, AlarmMapping> AlarmLookMapping { get; private set; } = new();
+
+        // 取得全部 Mapping (非靜態方法)
+        public IEnumerable<AlarmMapping> GetAllMappings()
+        {
+            if (FrequencyConverToDataMapping != null) foreach (var m in FrequencyConverToDataMapping) yield return m;
+            if (ControlToDataMapping != null) foreach (var m in ControlToDataMapping) yield return m;
+            if (ServoDriveToDataMapping != null) foreach (var m in ServoDriveToDataMapping) yield return m;
+        }
+
+        // 讀取 JSON 並建立快取
+        public static AlarmMappingConfig LoadFromJson(string filePath)
+        {
+            var json = File.ReadAllText(filePath);
+            var config = JsonConvert.DeserializeObject<AlarmMappingConfig>(json)!;
+
+            config.AlarmLookMapping = config.GetAllMappings()
+                .ToDictionary(m => m.Key!, m => m); // 直接快取 Key->AlarmMapping
+
+            return config;
+        }
+
 
     }
 }

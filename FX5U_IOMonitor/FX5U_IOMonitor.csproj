@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Utilization\UtilizationShiftConfig.json" />
+    <None Remove="Utilization\Utilization_machine.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <COMReference Include="EZNCAUTLib">
       <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>0</VersionMinor>
@@ -68,9 +73,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="History_record.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Sawing_Page~.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Home_Page.cs">

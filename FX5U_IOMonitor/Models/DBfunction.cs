@@ -1108,7 +1108,7 @@ namespace FX5U_IOMonitor.Models
             }
         }
 
-        public static void Set_Alarm_Note_ByAddress(string address,int FrequencyAlarmID,string? message)
+        public static void Set_Alarm_Note_ByAddress(string address,int FrequencyAlarmID, string? message)
         {
             using (var context = new ApplicationDB())
             {
@@ -1135,7 +1135,35 @@ namespace FX5U_IOMonitor.Models
             }
 
         }
+        public static void Set_Alarm_Note_ByAddress(string address, int FrequencyAlarmID, Warning_components? message)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var alarm = context.alarm.FirstOrDefault(a => a.address == address);
 
+                if (alarm != null)
+                {
+                    var history = new AlarmHistory
+                    {
+                        AlarmId = alarm.Id,
+                        StartTime = DateTime.UtcNow,
+                        RecordTime = DateTime.UtcNow,
+                        Notenumber = FrequencyAlarmID,
+                        Note = message.Note,
+                        ErrorDetail = message.ErrorDetail,
+                        Solution = message.Solution,
+                        Records = 1
+                    };
+                    context.AlarmHistories.Add(history);
+                    context.SaveChanges();
+                }
+                else
+                {
+                    Console.WriteLine($"找不到 address 為 {address} 的警告");
+                }
+            }
+
+        }
         /// <summary>
         /// 查詢警告對應指定的維修步驟
         /// </summary>
@@ -2240,7 +2268,7 @@ namespace FX5U_IOMonitor.Models
                 var result = context.AlarmHistories
                    .Include(ah => ah.Alarm)
                    .Include(a => a.Alarm.Translations)
-                   .Where(ah => ah.EndTime >= startDate && ah.StartTime <= endDate)
+                   .Where(ah => (ah.EndTime == null && ah.StartTime <= endDate) || (ah.EndTime >= startDate && ah.StartTime <= endDate))
                    .OrderByDescending(ah => ah.StartTime)
                    .AsEnumerable()
                    .Select(ah => new AlarmHistoryViewModel
@@ -2368,7 +2396,58 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.FrequencyAlarmInfo; // 找不到就回傳 null
             }
         }
+        public static Warning_components? Get_FrequencyAlarm(int frequencyAlarmId)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var Frequencyalarm = context.FrequencyConverAlarm
+                    .FirstOrDefault(a => a.FrequencyAlarmID == frequencyAlarmId);
+                if (Frequencyalarm == null) return null;
 
+                // 映射成 Warning_components
+                return new Warning_components
+                {
+                    Notenumber = Frequencyalarm.FrequencyAlarmID,
+                    Note = Frequencyalarm.FrequencyAlarmInfo,
+                    ErrorDetail = Frequencyalarm.FrequencyErrorDetail,
+                    Solution = Frequencyalarm.FrequencySolution
+                };
+            }
+        }
+        public static Warning_components? Get_ServoDriveAlarm(int ServoDriveId)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var ServoDrivealarm = context.ServoDriveAlarm
+                    .FirstOrDefault(a => a.ServoDriveAlarmId == ServoDriveId);
+                if (ServoDrivealarm == null) return null;
+
+                return new Warning_components
+                {
+                    Notenumber = ServoDrivealarm.ServoDriveAlarmId,
+                    Note = ServoDrivealarm.ServoDriveAlarmInfo,
+                    ErrorDetail = ServoDrivealarm.ServoDriveErrorDetail,
+                    Solution = ServoDrivealarm.ServoDriveSolution
+                };
+            }
+        }
+        public static Warning_components? Get_ControlAlarm(int ControlId)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var Controlalarm = context.ControlAlarm
+                    .FirstOrDefault(a => a.ControlAlarmId == ControlId);
+                if (Controlalarm == null) return null;
+
+                return new Warning_components
+                {
+                    Notenumber = Controlalarm.ControlAlarmId,
+                    Note = Controlalarm.ControlAlarmInfo,
+                    ErrorDetail = Controlalarm.ControlErrorDetail,
+                    Solution = Controlalarm.ControlSolution
+                };
+            }
+        }
         public static DateTime GetLastDisconnectEndTime(string originate)
         {
             using var context = new ApplicationDB();
@@ -2381,8 +2460,70 @@ namespace FX5U_IOMonitor.Models
             return record != null ? record.EndTime.Value : DateTime.MinValue;
         }
 
+        public static void SaveStatusRecordAsync( string machineId,string address,int status,DateTime startTime,DateTime endTime)
+        {
+            using var context = new ApplicationDB();
 
+            var entity = new UtilizationStatusRecord
+            {
+                Machinename = machineId,
+                ReadBitAddress = address,
+                Status = status,
+                StartTime = startTime,
+                EndTime = endTime,
+                DurationSeconds = (int)(endTime - startTime).TotalSeconds,
+            };
 
+            context.UtilizationStatusRecord.Add(entity);
+            context.SaveChanges();
+        }
+        public static DateTime GetLastStatusEndTime(string machine)
+        {
+            using var context = new ApplicationDB();
+
+            var record = context.UtilizationStatusRecord
+             .Where(r => r.Machinename == machine)
+             .OrderBy(r => r.StartTime) // 要先排序
+             .LastOrDefault();
+
+            return record?.EndTime ?? DateTime.MinValue;
+        }
+        public static void CloseLastOpenRecordAsync(string machineId, string address)
+        {
+            using var context = new ApplicationDB();
+
+            var lastRecord = context.UtilizationStatusRecord
+                .Where(r => r.Machinename == machineId && r.ReadBitAddress == address)
+                .OrderByDescending(r => r.EndTime)
+                .FirstOrDefault();
+
+            if (lastRecord != null
+                && lastRecord.Status == 1                // ✅ 只補 Cutting
+                && lastRecord.EndTime < DateTime.Now)    // 避免補未來時間
+            {
+                lastRecord.EndTime = DateTime.Now;
+                lastRecord.DurationSeconds = (int)(lastRecord.EndTime - lastRecord.StartTime).TotalSeconds;
+                context.SaveChanges();
+
+                Console.WriteLine(
+                    $"⚡ 啟動補齊 Cutting 狀態: {machineId} " +
+                    $"{lastRecord.StartTime:HH:mm:ss} ~ {lastRecord.EndTime:HH:mm:ss}");
+            }
+            else
+            {
+                Console.WriteLine($"ℹ️ 不需要補齊: {machineId} (最後狀態={lastRecord?.Status})");
+            }
+        }
+
+        public static UtilizationStatusRecord? GetLastRecord(string machineId, string address)
+        {
+            using var context = new ApplicationDB();
+
+            return context.UtilizationStatusRecord
+                .Where(r => r.Machinename == machineId && r.ReadBitAddress == address)
+                .OrderByDescending(r => r.EndTime)
+                .FirstOrDefault(); // 找不到就回傳 null
+        }
     }
 
 

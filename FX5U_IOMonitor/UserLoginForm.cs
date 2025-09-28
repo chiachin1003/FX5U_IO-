@@ -88,10 +88,10 @@ namespace FX5U_IOMonitor
         {
            
 
-            ShowUtilizationRate("Sawing", RangeChoice.Today);
-            ShowUtilizationRate("Sawing", RangeChoice.Yesterday);
-            ShowUtilizationRate("Sawing", RangeChoice.LastWeek);
-            ShowUtilizationRate("Sawing", RangeChoice.ThisWeek);
+            //ShowUtilizationRate("Sawing", RangeChoice.Today);
+            //ShowUtilizationRate("Sawing", RangeChoice.Yesterday);
+            //ShowUtilizationRate("Sawing", RangeChoice.LastWeek);
+            //ShowUtilizationRate("Sawing", RangeChoice.ThisWeek);
 
 
 

@@ -167,6 +167,7 @@ namespace FX5U_IOMonitor
             btn_alarm.TabIndex = 17;
             btn_alarm.Text = "更新參數表";
             btn_alarm.UseVisualStyleBackColor = true;
+            btn_alarm.Visible = false;
             btn_alarm.Click += btn_alarm_Click;
             // 
             // button3

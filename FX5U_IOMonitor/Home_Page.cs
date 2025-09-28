@@ -141,15 +141,15 @@ namespace FX5U_IOMonitor
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
 
-            lab_today_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Today) + "%";
-            lab_yesterday_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Yesterday) + "%";
-            lab_this_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.ThisWeek) + "%";
-            lab_last_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.LastWeek) + "%";
+            //lab_today_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Today) + "%";
+            //lab_yesterday_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Yesterday) + "%";
+            //lab_this_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.ThisWeek) + "%";
+            //lab_last_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.LastWeek) + "%";
 
-            lab_today_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Today) + "%";
-            lab_yesterday_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Yesterday) + "%";
-            lab_this_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.ThisWeek) + "%";
-            lab_last_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.LastWeek) + "%";
+            //lab_today_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Today) + "%";
+            //lab_yesterday_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Yesterday) + "%";
+            //lab_this_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.ThisWeek) + "%";
+            //lab_last_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.LastWeek) + "%";
 
             lab_sum_swing.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();

@@ -1,6 +1,7 @@
 ﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Message;
 using FX5U_IOMonitor.MitsubishiPlc_Monior;
+using FX5U_IOMonitor.Utilization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,6 +18,7 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Net;
 using System.Reflection.Emit;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,7 +26,9 @@ using System.Xml.Linq;
 using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitorFunction;
+using static MCProtocol.Mitsubishi;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Collections.Specialized.BitVector32;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static System.Windows.Forms.DataFormats;
@@ -44,8 +48,9 @@ namespace FX5U_IOMonitor.Models
             public bool OldValue { get; set; }
             public int? AdditionalValue { get; set; } // 新增：對應的字串
             public string? AdditionalAddress { get; set; } // 新增：對應的地址
+            public string? AlarmType { get; set; } // Frequency / Control / ServoDrive
         }
-      
+
         public class MonitorService
         {
 
@@ -56,9 +61,10 @@ namespace FX5U_IOMonitor.Models
             public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed;
 
             private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
+            private readonly AlarmMappingConfig _alarmconfig;
             private Dictionary<string, RULThresholdInfo> _rulCache = new();
 
-           
+
             public string MachineName { get; }
 
             public event EventHandler<MachineParameterChangedEventArgs>? MachineParameterChanged;
@@ -74,6 +80,7 @@ namespace FX5U_IOMonitor.Models
             private int _failureCount = 0;      // 累計失敗次數
             private int _triggerGate = 0;       // 0=未觸發；1=已觸發（防止重複）
             private DateTime _firstFailureTime = DateTime.MinValue;
+            private List<UtilizationShiftConfig> _enabledShifts;
 
             /// <summary>
             /// 任一來源報告「一次失敗」時呼叫（可被多個 Timer/執行緒呼叫）
@@ -85,7 +92,7 @@ namespace FX5U_IOMonitor.Models
                 if (!string.IsNullOrWhiteSpace(reason))
                     DisconnectEvents.RaiseCommunicationFailureOnce(MachineName, reason);
 
-                if (current >= 5 && Interlocked.Exchange(ref _triggerGate, 1) == 0)
+                if (current >= 3 && Interlocked.Exchange(ref _triggerGate, 1) == 0)
                 {
                     DisconnectEvents.RaiseFailureConnect(MachineName);
                 }
@@ -113,6 +120,10 @@ namespace FX5U_IOMonitor.Models
                 this.isFirstRead = true; 
                 this.alarmFirstRead = true;
                 _lockRef = _ioLock;   // 先用保底鎖
+                var shiftsFile = UtilizationConfigLoader.LoadShifts();
+                _enabledShifts = shiftsFile.Shifts
+                    .Where(s => s.Enabled)
+                    .ToList();
 
             }
             /// <summary>
@@ -198,7 +209,7 @@ namespace FX5U_IOMonitor.Models
                         }
                         catch
                         {
-                            //ReportOneFailure();
+                            
                             isFirstRead = true; // 斷線時設定下次重新初始化
                             break;
                             //return; // 中止此次讀取
@@ -297,27 +308,18 @@ namespace FX5U_IOMonitor.Models
                 return "green";
             }
 
+          
 
             /// <summary>
             /// 警告監控輪詢與延遲
             /// </summary>
             /// <param name="token"></param>
             /// <returns></returns>
-            public async Task alarm_MonitoringLoop(CancellationToken token)
+            public async Task alarm_MonitoringLoop(CancellationToken token, string machine, AlarmMappingConfig config)
             {
-
                 while (!token.IsCancellationRequested)
                 {
-                    Alarm_Monitoring();
-                    await Task.Delay(50); // 每 500 毫秒執行一次
-                }
-            }
-            public async Task alarm_MonitoringLoop(CancellationToken token, string machine)
-            {
-
-                while (!token.IsCancellationRequested)
-                {
-                    Alarm_Monitoring(machine);
+                    Alarm_Monitoring(machine, config);
                     await Task.Delay(50); // 每 500 毫秒執行一次
                 }
             }
@@ -325,61 +327,7 @@ namespace FX5U_IOMonitor.Models
             /// 負責 PLC 警告讀取 + 轉換
             /// </summary>
             /// <param name="old_single"></param>
-            public void Alarm_Monitoring()
-            {
-                List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
-
-                var alarm = Calculate.Alarm_trans();
-
-                var sectionGroups = alarm
-                    .GroupBy(s => s.Prefix)
-                    .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-
-
-               
-                    foreach (var prefix in sectionGroups.Keys)
-                    {
-                        var blocks = sectionGroups[prefix];
-
-                        foreach (var block in blocks)
-                        {
-                            string device = prefix + block.Start;
-                            bool[] plc_result;
-                            try
-                            {
-                                lock (_lockRef)
-                                {
-                                    //bool[] plc_result = plc.ReadBitDevice(device, 256);
-                                    plc_result = plc.ReadBits(device, 256); //256為SLMP_一次讀取的bit的最大值
-                                }
-                                var result = Calculate.Convert_Single(plc_result, prefix, block.Start);
-                                if (isFirstRead)
-                                {
-                                    Calculate.UpdatealarmCurrentSingleToDB(result);
-                                }
-                                else
-                                {
-
-                                    alarm_NowSingle(result, old_single);
-                                }
-
-                            }
-                            catch
-                            {
-                                alarmFirstRead = true; // 斷線時設定下次重新初始化
-                                return; // 中止此次讀取
-
-                            }
-                        }
-                   
-
-                }
-                alarmFirstRead = false; // ✅ 完成第一次後設定為 false
-
-                return;
-            }
-          
-            public void Alarm_Monitoring(string machine)
+            public void Alarm_Monitoring(string machine, AlarmMappingConfig config)
             {
                 List<now_single> old_single = DBfunction.Get_alarm_current_single_all(machine);
 
@@ -411,7 +359,7 @@ namespace FX5U_IOMonitor.Models
                             else
                             {
 
-                                alarm_NowSingle(result, old_single, machine);
+                                alarm_NowSingle(result, old_single, machine, config);
                             }
 
                         }
@@ -429,60 +377,13 @@ namespace FX5U_IOMonitor.Models
 
                 return;
             }
-            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single)
-            {
-                if (now_single == null || now_single.Count == 0 || old_single == null || old_single.Count == 0)
-                {
-                    Console.WriteLine("Error: nowList 或 ioList 為空.");
-                }
-
-                foreach (var now in now_single)
-                {
-                    var ioMatch = old_single.FirstOrDefault(io => io.address == now.address);
-                    if (ioMatch != null)
-                    {
-
-                        if (ioMatch.current_single is bool oldVal)
-                        {
-                            bool newVal = now.current_single;
-
-                            if (oldVal != newVal)
-                            {
-                                ioMatch.current_single = newVal;
-                                // 檢查是否需要讀取對應的數值
-                                int? additionalValue = null;
-                                string additionalAddress = null;
-                                if (_alarmToDataMapping.TryGetValue(now.address, out additionalAddress))
-                                {
-                                    lock (_lockRef)
-                                    {
-                                        ushort[] result = plc.ReadWords(additionalAddress, 1);
-                                        additionalValue = result[0];
-                                    }
-                                    // 讀取對應的數值
-                                }
-
-                                alarm_event?.Invoke(this, new IOUpdateEventArgs
-                                {
-                                    Address = now.address,
-                                    OldValue = oldVal,
-                                    NewValue = newVal,
-                                    AdditionalValue = additionalValue,
-                                    AdditionalAddress = additionalAddress
-                                });
-
-                            }
-                        }
-                    }
-
-                }
-            }
+          
             /// <summary>
             /// 狀態比較與事件觸發
             /// </summary>
             /// <param name="now_single"></param>
             /// <param name="old_single"></param>
-            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single,string machine)
+            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single,string machine, AlarmMappingConfig config)
             {
                 if (now_single == null || now_single.Count == 0 || old_single == null || old_single.Count == 0)
                 {
@@ -505,7 +406,8 @@ namespace FX5U_IOMonitor.Models
                                 // 檢查是否需要讀取對應的數值
                                 int? additionalValue = null;
                                 string additionalAddress = null;
-                                if (_alarmToDataMapping.TryGetValue(now.address, out additionalAddress) || _alarmServoDriveToDataMapping.TryGetValue(now.address, out additionalAddress))
+
+                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping))
                                 {
                                     lock (_lockRef)
                                     {
@@ -514,14 +416,16 @@ namespace FX5U_IOMonitor.Models
                                     }
                                     // 讀取對應的數值
                                 }
-                               
+
+
                                 alarm_event?.Invoke(this, new IOUpdateEventArgs
                                 {
                                     Address = now.address,
                                     OldValue = oldVal,
                                     NewValue = newVal,
+                                    AdditionalAddress = additionalAddress,
                                     AdditionalValue = additionalValue,
-                                    AdditionalAddress = additionalAddress
+                                    AlarmType = mapping.Type
                                 });
 
                             }
@@ -530,31 +434,7 @@ namespace FX5U_IOMonitor.Models
 
                 }
             }
-            /// <summary>
-            /// 對應指定地址空間去查詢變頻器異常資料
-            /// </summary>
-            private readonly Dictionary<string, string> _alarmToDataMapping = new Dictionary<string, string>
-            {
-                { "L8030", "ZR610540" },
-                { "L8160", "ZR610542" },
-                { "L8190", "ZR610544" },
-            };
-
-            /// <summary>
-            /// 對應指定地址空間去查詢異常資料
-            /// </summary>
-            private readonly Dictionary<string, string> _alarmServoDriveToDataMapping = new Dictionary<string, string>
-            {
-                {"L8150","ZR610546"},
-                {"L8154","ZR610548"},
-                {"L8180","ZR610550"},
-                {"L8184","ZR610552"},
-                {"L8210","ZR610554"},
-                {"L8214","ZR610556"},
-                {"L8220","ZR610558"},
-                {"L8224","ZR610560"},
-            };
-
+           
 
             private readonly Dictionary<string, bool> lastStates = new();
             private readonly Dictionary<string, RuntimebitTimer> timer_bit = new();
@@ -679,7 +559,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ 全域寫入例外（{machine_name}）：{ex.Message}");
-                        //ReportOneFailure();
+                        ReportOneFailure();
                     }
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
 
@@ -777,7 +657,7 @@ namespace FX5U_IOMonitor.Models
                                         {
                                             int now_time = DBfunction.Get_Machine_NowValue(machine_name, name);
                                             int history_time = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
-                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, (ushort)(now_time+ history_time));
+                                            DBfunction.Set_Machine_History_NumericValue(machine_name, name, now_time+ history_time);
                                             DBfunction.Set_Machine_now_number(machine_name, name, 0);
 
                                             continue;
@@ -877,7 +757,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
-                        //ReportOneFailure();
+                        ReportOneFailure();
                     }
                   
 
@@ -887,15 +767,6 @@ namespace FX5U_IOMonitor.Models
                 }
             }
           
-            // 狀態物件
-            class BitTimer
-            {
-                public bool IsCounting;
-                public bool Last;                 // 上一次位元值
-                public DateTime LastUpdateUtc;    // 上次結算時間（UTC）
-            }
-
-
             /// <summary>
             /// 讀取字串格式的變數
             /// </summary>
@@ -941,7 +812,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Word 監控錯誤：{ex.Message}");
-                        //ReportOneFailure();
+                        ReportOneFailure();
                     }
 
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
@@ -1344,7 +1215,132 @@ namespace FX5U_IOMonitor.Models
 
             }
 
-                   
+
+
+            private readonly HashSet<string> _processedShiftPoints = new HashSet<string>();
+
+            /// <summary>
+            /// 稼動率狀態監控
+            /// </summary>
+            /// <param name="address"></param>
+            /// <param name="token"></param>
+            /// <returns></returns>
+            public async Task Read_Utilization(string address, CancellationToken? token = null)
+            {
+
+                int? lastStatus = null;
+                DateTime lastStartUtc;
+
+                // 先從 DB 讀最後一筆（若有），只用來初始化，不要在 while 內每圈查
+                var lastRecord = DBfunction.GetLastRecord(MachineName, address);
+                if (lastRecord != null)
+                {
+                    lastStatus = lastRecord.Status;
+                    // 保持一致用 UTC
+                    lastStartUtc = lastRecord.EndTime.Kind == DateTimeKind.Utc
+                        ? lastRecord.EndTime
+                        : lastRecord.EndTime.ToUniversalTime();
+                }
+                else
+                {
+                    // 第一次啟動：讀當下狀態，但「不要」寫任何 0 秒紀錄
+                    int initStatus;
+                    lock (_lockRef)
+                    {
+                        var read = plc.ReadBits(address, 1);
+                        initStatus = read[0] ? 1 : 0;
+                    }
+                    lastStatus = initStatus;
+                    lastStartUtc = DateTime.UtcNow;
+                }
+
+                while (token == null || !token.Value.IsCancellationRequested)
+                {
+                    int currentStatus;
+                    lock (_lockRef)
+                    {
+                        var read = plc.ReadBits(address, 1);
+                        currentStatus = read[0] ? 1 : 0;
+                    }
+
+                    if (currentStatus != lastStatus.Value)
+                    {
+                        var nowUtc = DateTime.UtcNow;
+                        DBfunction.SaveStatusRecordAsync(
+                            MachineName,
+                            address,
+                            lastStatus.Value,
+                            lastStartUtc,
+                            nowUtc
+                        );
+
+                        // 更新當前段的起點
+                        lastStatus = currentStatus;
+                        lastStartUtc = nowUtc;
+                    }
+                    // === 判斷班別開頭/結尾 ===
+                    var now = DateTime.UtcNow;
+                    foreach (var shift in _enabledShifts.Where(s => s.Enabled))
+                    {
+                        var (startUtc, endUtc) = ResolveShiftRange(shift);
+
+                        // 生成唯一 key，避免重複補
+                        var startKey = $"{shift.ShiftNo}:{startUtc:O}:start";
+                        var endKey = $"{shift.ShiftNo}:{endUtc:O}:end";
+
+                        // ① 班別開頭：若已跨過 startUtc，且上一段起點在 startUtc 之前，且沒補過，就補一筆到 startUtc
+                        if (now >= startUtc && lastStartUtc < startUtc && _processedShiftPoints.Add(startKey))
+                        {
+                            DBfunction.SaveStatusRecordAsync(
+                                MachineName, address,
+                                lastStatus!.Value,          // 補「目前持續的上一段狀態」
+                                lastStartUtc, startUtc
+                            );
+                            lastStartUtc = startUtc;       // 下一段從班別起點開始
+                                                           // Console.WriteLine($"Start fixed: Shift {shift.ShiftNo} {startUtc:O}");
+                        }
+
+                        // ② 班別結尾：若已跨過 endUtc，且上一段起點在 endUtc 之前，且沒補過，就補一筆到 endUtc
+                        if (now >= endUtc && lastStartUtc < endUtc && _processedShiftPoints.Add(endKey))
+                        {
+                            DBfunction.SaveStatusRecordAsync(
+                                MachineName, address,
+                                lastStatus!.Value,
+                                lastStartUtc, endUtc
+                            );
+                            lastStartUtc = endUtc;         // 下一段從班別終點開始
+                                                           // Console.WriteLine($"End fixed: Shift {shift.ShiftNo} {endUtc:O}");
+                        }
+                    }
+                    await Task.Delay(100, token ?? CancellationToken.None);
+                }
+
+                // 程式被取消/結束時，把最後一段補上
+                if (lastStatus.HasValue)
+                {
+                    DBfunction.SaveStatusRecordAsync(
+                        MachineName,
+                        address,
+                        lastStatus.Value,
+                        lastStartUtc,
+                        DateTime.UtcNow
+                    );
+                }
+
+
+            }
+
+        }
+        private static (DateTime shiftStart, DateTime shiftEnd) ResolveShiftRange(UtilizationShiftConfig shift)
+        {
+            var today = DateTime.Today;
+            var start = today + TimeSpan.Parse(shift.Start);
+            var end = today + TimeSpan.Parse(shift.End);
+
+            if (end <= start)
+                end = end.AddDays(1); // 跨日補一天
+
+            return (start, end);
         }
         private static string GenerateNextAddress(string address)
         {
@@ -1352,6 +1348,8 @@ namespace FX5U_IOMonitor.Models
             string number = new string(address.SkipWhile(char.IsLetter).ToArray());
             return prefix + (int.Parse(number) + 1);
         }
+      
+
 
     }
 }

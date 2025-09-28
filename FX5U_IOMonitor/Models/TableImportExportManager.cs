@@ -152,7 +152,7 @@ namespace FX5U_IOMonitor.Models
                 ["Blade_brand_TPI"] = new[] { "blade_TPI_id", "blade_TPI_name" },
                 ["Blade_brand"] = new[] {"Id","blade_brand_id", "blade_brand_name","blade_material_id", "blade_material_name","blade_Type_id", "blade_Type_name"},
                 ["alarm"] = new[] {"SourceMachine", "address","IPC_table", "Description","Error", "Possible", "Repair_steps","classTag"},
-                ["MachineParameters"] = new[] { "Machine_Name", "Name", "Calculate", "Calculate_type", "Read_type",
+                ["MachineParameters"] = new[] {"Id", "Machine_Name", "Name", "Calculate", "Calculate_type", "Read_type",
                     "Read_view", "Read_address", "Read_address_index", "Unit_transfer", "Read_addr",
                     "Imperial_transfer", "Write_address", "Write_address_index" },
             };
@@ -189,8 +189,13 @@ namespace FX5U_IOMonitor.Models
             }
 
             string selectFields = string.Join(", ", columns.Select(QuotePostgresIdentifier));
-            string sql = hasId
-                ? $"SELECT {selectFields} FROM {quotedTable} ORDER BY {QuotePostgresIdentifier("Id")}"
+            // 只要欄位清單含 Id，就排序（不再查 information_schema）
+            var idCol = columns.FirstOrDefault(c =>
+                c.Equals("Id", StringComparison.OrdinalIgnoreCase) ||
+                c.Equals("id", StringComparison.OrdinalIgnoreCase));
+
+            string sql = idCol != null
+                ? $"SELECT {selectFields} FROM {quotedTable} ORDER BY {QuotePostgresIdentifier(idCol)} ASC"
                 : $"SELECT {selectFields} FROM {quotedTable}";
 
             using var cmd = new NpgsqlCommand(sql, conn);

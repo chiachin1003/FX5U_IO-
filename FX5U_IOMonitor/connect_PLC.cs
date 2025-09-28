@@ -1,10 +1,12 @@
 ﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Message;
 using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Scheduling;
+using FX5U_IOMonitor.Utilization;
 using MCProtocol;
 using Modbus.Device; // 來自 NModbus4
 using SLMP;
@@ -27,6 +29,8 @@ namespace FX5U_IOMonitor
 
 
         Main main_control;
+        private readonly AlarmMappingConfig _alarmconfig;
+        private static List<UtilizationConfig> _machinesUtilization;  // 稼動率監控
 
         public Connect_PLC(Main main)
         {
@@ -48,7 +52,8 @@ namespace FX5U_IOMonitor
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel3);
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
 
-
+            _alarmconfig = AlarmMappingConfig.LoadFromJson("AlarmConfig.json");
+            _machinesUtilization = UtilizationConfigLoader.LoadMachines();
 
             LanguageManager.LanguageChanged += OnLanguageChanged;
 
@@ -65,27 +70,7 @@ namespace FX5U_IOMonitor
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel1);
 
         }
-        public static async Task<int> AutoConnectAllMachinesAsync(
-            Connect_PLC plcForm, string? targetMachineName = null)
-        {
-            return await Task.Run(() =>
-            {
-                // ★ 在背景執行緒跑原本的邏輯
-                int repeat = 0;
-                using var context = new ApplicationDB();
-                var query = context.Machine.AsQueryable();
-                if (!string.IsNullOrWhiteSpace(targetMachineName))
-                {
-                    query = query.Where(m => m.Name == targetMachineName);
-                }
-                var machineList = query.ToList();
-
-                // TODO: 實作自動連線流程，最後算出 repeat
-                repeat = machineList.Count; // 假設是連線失敗數量
-
-                return repeat; // Task<int> 會帶回結果
-            });
-        }
+       
         /// <summary>
         /// 自動連線當前機台
         /// </summary>
@@ -154,7 +139,13 @@ namespace FX5U_IOMonitor
                 }
                 //設定每一台PLC自己對應的監控鎖
                 contextItem.Monitor.SetExternalLock(contextItem.LockObject);
+                var util = _machinesUtilization.FirstOrDefault(u => u.Machine == machine.Name);
+                if (util != null)
+                {
+                    _ = Task.Run(() => contextItem.Monitor.Read_Utilization(util.ReadBitAddress, contextItem.TokenSource.Token));                    
+                }
 
+                //實體元件監控
                 _ = Task.Run(() => contextItem.Monitor.MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
                 var notifier = new RULNotifier();
                 contextItem.Monitor.RULThresholdCrossed += (s, e) =>
@@ -170,7 +161,7 @@ namespace FX5U_IOMonitor
                 //}
 
                 DBfunction.Fix_UnclosedAlarms_ByCurrentState(contextItem.MachineName);
-                _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName));
+                _ = Task.Run(() => contextItem.Monitor.alarm_MonitoringLoop(contextItem.TokenSource.Token, contextItem.MachineName, plcForm._alarmconfig));
                 contextItem.Monitor.alarm_event += plcForm.FailureAlertMail;
 
                 int[] writemodes = DBfunction.Get_Machine_Calculate_type(contextItem.MachineName);
@@ -310,7 +301,11 @@ namespace FX5U_IOMonitor
             };
             // 啟動監控任務
             _ = Task.Run(() => context.Monitor.MonitoringLoop(context.TokenSource.Token, context.MachineName));
-
+            var util = _machinesUtilization.FirstOrDefault(u => u.Machine == context.MachineName);
+            if (util != null)
+            {
+                _ = Task.Run(() => context.Monitor.Read_Utilization(util.ReadBitAddress, context.TokenSource.Token));
+            }
             //if (context.IsMaster) // 只針對主機執行 alarm 監控
             //{
             //    //補上若是程式關閉時解除警報的話則寫入解除時間
@@ -327,7 +322,7 @@ namespace FX5U_IOMonitor
             //補上若是程式關閉時解除警報的話則寫入解除時間
             DBfunction.Fix_UnclosedAlarms_ByCurrentState(context.MachineName);
             //開始進行警告監控
-            _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(context.TokenSource.Token, context.MachineName));
+            _ = Task.Run(() => context.Monitor.alarm_MonitoringLoop(context.TokenSource.Token, context.MachineName, _alarmconfig));
             context.Monitor.alarm_event += FailureAlertMail;
 
             int[] writemodes = DBfunction.Get_Machine_Calculate_type(context.MachineName);
@@ -573,15 +568,26 @@ namespace FX5U_IOMonitor
                     // 根據是否有額外數值來決定呼叫哪個資料庫函數
                     if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.AdditionalAddress))
                     {
-                        string? FalarmMessage = DBfunction.Get_FrequencyConverAlarm(e.AdditionalValue.Value);
-                        // 呼叫帶有額外數值的函數
-                        DBfunction.Set_Alarm_Note_ByAddress(e.Address, e.AdditionalValue.Value, FalarmMessage);
+                        Warning_components? alarmMessage = e.AlarmType switch
+                        {
+                            "Frequency" => DBfunction.Get_FrequencyAlarm(e.AdditionalValue.Value),
+                            "Control" => DBfunction.Get_ControlAlarm(e.AdditionalValue.Value),
+                            "ServoDrive" => DBfunction.Get_ServoDriveAlarm(e.AdditionalValue.Value),
+                            _ => null
+                        };
+
+                        //string? FalarmMessage = DBfunction.Get_FrequencyConverAlarm(e.AdditionalValue.Value);
+                        //// 呼叫帶有額外數值的函數
+                        DBfunction.Set_Alarm_Note_ByAddress(e.Address, e.AdditionalValue.Value, alarmMessage);
+
+                        
                     }
                     else
                     {
                         // 原本的函數
                         DBfunction.Set_Alarm_StartTimeByAddress(e.Address);
                     }
+
                     _ = Task.Run(async () =>
                     {
                         try
