@@ -775,6 +775,7 @@ namespace FX5U_IOMonitor.Models
 
                             FrequencyAlarmID = row.FrequencyAlarmID,
                             FrequencyAlarmInfo = row.FrequencyAlarmInfo
+
                           
                         };
 
@@ -796,6 +797,7 @@ namespace FX5U_IOMonitor.Models
         {
             public int FrequencyAlarmID { get; set; }
             public string FrequencyAlarmInfo { get; set; }
+
         }
 
         public static void Initialization_ServoDriveAlarmFromCSV(string csvPath)
@@ -828,9 +830,10 @@ namespace FX5U_IOMonitor.Models
                         var Servoalarm = new ServoDriveAlarm
                         {
                             Id = row.Id,
-                            ServoDriveAlarmId = row.ServoDriveAlarmId,
-                            ServoDriveAlarmInfo = row.ServoDriveAlarmInfo
-
+                            ServoDriveAlarmId = Convert.ToInt32(row.ServoDriveAlarmId, 16),
+                            ServoDriveAlarmInfo = row.ServoDriveAlarmInfo,
+                            ServoDriveErrorDetail = row.ServoDriveErrorDetail,
+                            ServoDriveSolution = row.ServoDriveSolution
                         };
 
                         context.ServoDriveAlarm.Add(Servoalarm);
@@ -852,6 +855,9 @@ namespace FX5U_IOMonitor.Models
             public int Id { get; set; }
             public required string ServoDriveAlarmId { get; set; }
             public required string ServoDriveAlarmInfo { get; set; }
+            public required string ServoDriveErrorDetail { get; set; }
+            public required string ServoDriveSolution { get; set; }
+
         }
 
     }

@@ -40,6 +40,7 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Utilization_Record> UtilizationRate { get; set; }
 
         public DbSet<ServoDriveAlarm> ServoDriveAlarm { get; set; }
+        public DbSet<ControlAlarm> ControlAlarm { get; set; }
 
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<AlarmHistory> AlarmHistories { get; set; }

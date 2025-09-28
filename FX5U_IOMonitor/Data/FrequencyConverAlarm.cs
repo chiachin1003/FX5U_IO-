@@ -17,6 +17,9 @@ namespace FX5U_IOMonitor.Data
 
         public int FrequencyAlarmID { get; set; }
         public string FrequencyAlarmInfo { get; set; }
+        public string FrequencyErrorDetail { get; set; }
+        public string FrequencySolution { get; set; }
+
 
     }
     public class ServoDriveAlarm : SyncableEntity
@@ -24,9 +27,20 @@ namespace FX5U_IOMonitor.Data
         [Key]
         public int Id { get; set; }
 
-        public required string ServoDriveAlarmId { get; set; }
+        public required int ServoDriveAlarmId { get; set; }
         public required string ServoDriveAlarmInfo { get; set; }
-
+        public required string ServoDriveErrorDetail { get; set; }
+        public required string ServoDriveSolution { get; set; }
     }
 
+    public class ControlAlarm : SyncableEntity
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public required int ControlAlarmId { get; set; }
+        public required string ControlAlarmInfo { get; set; }
+        public required string ControlErrorDetail { get; set; }
+        public required string ControlSolution { get; set; }
+    }
 }

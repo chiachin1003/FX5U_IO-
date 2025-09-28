@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Utilities.Collections;
 using static FX5U_IOMonitor.Message.Message_function;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 
 
@@ -58,6 +59,8 @@ namespace FX5U_IOMonitor
                 return;
 
             }
+
+
             // 啟動每日各項排程
             Scheduling.DailyTask.StartAllSchedulers();
           

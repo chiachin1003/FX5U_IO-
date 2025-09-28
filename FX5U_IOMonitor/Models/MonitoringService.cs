@@ -25,6 +25,7 @@ using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitorFunction;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 using static System.Collections.Specialized.BitVector32;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static System.Windows.Forms.DataFormats;
@@ -44,8 +45,9 @@ namespace FX5U_IOMonitor.Models
             public bool OldValue { get; set; }
             public int? AdditionalValue { get; set; } // 新增：對應的字串
             public string? AdditionalAddress { get; set; } // 新增：對應的地址
+            public string? AlarmType { get; set; } // Frequency / Control / ServoDrive
         }
-      
+
         public class MonitorService
         {
 
@@ -56,6 +58,7 @@ namespace FX5U_IOMonitor.Models
             public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed;
 
             private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
+            private readonly AlarmMappingConfig _alarmconfig;
             private Dictionary<string, RULThresholdInfo> _rulCache = new();
 
            
@@ -297,27 +300,18 @@ namespace FX5U_IOMonitor.Models
                 return "green";
             }
 
+          
 
             /// <summary>
             /// 警告監控輪詢與延遲
             /// </summary>
             /// <param name="token"></param>
             /// <returns></returns>
-            public async Task alarm_MonitoringLoop(CancellationToken token)
+            public async Task alarm_MonitoringLoop(CancellationToken token, string machine, AlarmMappingConfig config)
             {
-
                 while (!token.IsCancellationRequested)
                 {
-                    Alarm_Monitoring();
-                    await Task.Delay(50); // 每 500 毫秒執行一次
-                }
-            }
-            public async Task alarm_MonitoringLoop(CancellationToken token, string machine)
-            {
-
-                while (!token.IsCancellationRequested)
-                {
-                    Alarm_Monitoring(machine);
+                    Alarm_Monitoring(machine, config);
                     await Task.Delay(50); // 每 500 毫秒執行一次
                 }
             }
@@ -325,61 +319,7 @@ namespace FX5U_IOMonitor.Models
             /// 負責 PLC 警告讀取 + 轉換
             /// </summary>
             /// <param name="old_single"></param>
-            public void Alarm_Monitoring()
-            {
-                List<now_single> old_single = DBfunction.Get_alarm_current_single_all();
-
-                var alarm = Calculate.Alarm_trans();
-
-                var sectionGroups = alarm
-                    .GroupBy(s => s.Prefix)
-                    .ToDictionary(g => g.Key, g => Calculate.IOBlockUtils.ExpandToBlockRanges(g.First()));
-
-
-               
-                    foreach (var prefix in sectionGroups.Keys)
-                    {
-                        var blocks = sectionGroups[prefix];
-
-                        foreach (var block in blocks)
-                        {
-                            string device = prefix + block.Start;
-                            bool[] plc_result;
-                            try
-                            {
-                                lock (_lockRef)
-                                {
-                                    //bool[] plc_result = plc.ReadBitDevice(device, 256);
-                                    plc_result = plc.ReadBits(device, 256); //256為SLMP_一次讀取的bit的最大值
-                                }
-                                var result = Calculate.Convert_Single(plc_result, prefix, block.Start);
-                                if (isFirstRead)
-                                {
-                                    Calculate.UpdatealarmCurrentSingleToDB(result);
-                                }
-                                else
-                                {
-
-                                    alarm_NowSingle(result, old_single);
-                                }
-
-                            }
-                            catch
-                            {
-                                alarmFirstRead = true; // 斷線時設定下次重新初始化
-                                return; // 中止此次讀取
-
-                            }
-                        }
-                   
-
-                }
-                alarmFirstRead = false; // ✅ 完成第一次後設定為 false
-
-                return;
-            }
-          
-            public void Alarm_Monitoring(string machine)
+            public void Alarm_Monitoring(string machine, AlarmMappingConfig config)
             {
                 List<now_single> old_single = DBfunction.Get_alarm_current_single_all(machine);
 
@@ -411,7 +351,7 @@ namespace FX5U_IOMonitor.Models
                             else
                             {
 
-                                alarm_NowSingle(result, old_single, machine);
+                                alarm_NowSingle(result, old_single, machine, config);
                             }
 
                         }
@@ -429,60 +369,13 @@ namespace FX5U_IOMonitor.Models
 
                 return;
             }
-            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single)
-            {
-                if (now_single == null || now_single.Count == 0 || old_single == null || old_single.Count == 0)
-                {
-                    Console.WriteLine("Error: nowList 或 ioList 為空.");
-                }
-
-                foreach (var now in now_single)
-                {
-                    var ioMatch = old_single.FirstOrDefault(io => io.address == now.address);
-                    if (ioMatch != null)
-                    {
-
-                        if (ioMatch.current_single is bool oldVal)
-                        {
-                            bool newVal = now.current_single;
-
-                            if (oldVal != newVal)
-                            {
-                                ioMatch.current_single = newVal;
-                                // 檢查是否需要讀取對應的數值
-                                int? additionalValue = null;
-                                string additionalAddress = null;
-                                if (_alarmToDataMapping.TryGetValue(now.address, out additionalAddress))
-                                {
-                                    lock (_lockRef)
-                                    {
-                                        ushort[] result = plc.ReadWords(additionalAddress, 1);
-                                        additionalValue = result[0];
-                                    }
-                                    // 讀取對應的數值
-                                }
-
-                                alarm_event?.Invoke(this, new IOUpdateEventArgs
-                                {
-                                    Address = now.address,
-                                    OldValue = oldVal,
-                                    NewValue = newVal,
-                                    AdditionalValue = additionalValue,
-                                    AdditionalAddress = additionalAddress
-                                });
-
-                            }
-                        }
-                    }
-
-                }
-            }
+          
             /// <summary>
             /// 狀態比較與事件觸發
             /// </summary>
             /// <param name="now_single"></param>
             /// <param name="old_single"></param>
-            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single,string machine)
+            private void alarm_NowSingle(List<now_single> now_single, List<now_single> old_single,string machine, AlarmMappingConfig config)
             {
                 if (now_single == null || now_single.Count == 0 || old_single == null || old_single.Count == 0)
                 {
@@ -505,7 +398,8 @@ namespace FX5U_IOMonitor.Models
                                 // 檢查是否需要讀取對應的數值
                                 int? additionalValue = null;
                                 string additionalAddress = null;
-                                if (_alarmToDataMapping.TryGetValue(now.address, out additionalAddress) || _alarmServoDriveToDataMapping.TryGetValue(now.address, out additionalAddress))
+
+                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping))
                                 {
                                     lock (_lockRef)
                                     {
@@ -514,14 +408,16 @@ namespace FX5U_IOMonitor.Models
                                     }
                                     // 讀取對應的數值
                                 }
-                               
+
+
                                 alarm_event?.Invoke(this, new IOUpdateEventArgs
                                 {
                                     Address = now.address,
                                     OldValue = oldVal,
                                     NewValue = newVal,
+                                    AdditionalAddress = additionalAddress,
                                     AdditionalValue = additionalValue,
-                                    AdditionalAddress = additionalAddress
+                                    AlarmType = mapping.Type
                                 });
 
                             }
@@ -530,31 +426,7 @@ namespace FX5U_IOMonitor.Models
 
                 }
             }
-            /// <summary>
-            /// 對應指定地址空間去查詢變頻器異常資料
-            /// </summary>
-            private readonly Dictionary<string, string> _alarmToDataMapping = new Dictionary<string, string>
-            {
-                { "L8030", "ZR610540" },
-                { "L8160", "ZR610542" },
-                { "L8190", "ZR610544" },
-            };
-
-            /// <summary>
-            /// 對應指定地址空間去查詢異常資料
-            /// </summary>
-            private readonly Dictionary<string, string> _alarmServoDriveToDataMapping = new Dictionary<string, string>
-            {
-                {"L8150","ZR610546"},
-                {"L8154","ZR610548"},
-                {"L8180","ZR610550"},
-                {"L8184","ZR610552"},
-                {"L8210","ZR610554"},
-                {"L8214","ZR610556"},
-                {"L8220","ZR610558"},
-                {"L8224","ZR610560"},
-            };
-
+           
 
             private readonly Dictionary<string, bool> lastStates = new();
             private readonly Dictionary<string, RuntimebitTimer> timer_bit = new();
