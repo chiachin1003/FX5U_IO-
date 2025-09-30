@@ -84,8 +84,14 @@ namespace FX5U_IOMonitor.panel_control
         private List<(string ParamName, string LangKey)> countCardSourceList = new()
         {
             ("Drill_origin","DrillInfo_DrilloriginText"),
-            ("Drill_loose_tools","DrillInfo_DrillloosetoolsText"),
-            ("Drill_measurement","DrillInfo_DrillmeasurementText"),
+            ("Drill_loose_tools_1","DrillInfo_DrillloosetoolsText"),
+            ("Drill_loose_tools_2","DrillInfo_DrillloosetoolsText_2"),
+            ("Drill_loose_tools_3","DrillInfo_DrillloosetoolsText_3"),
+
+            ("Drill_measurement_1","DrillInfo_DrillmeasurementText"),
+            ("Drill_measurement_2","DrillInfo_DrillmeasurementText_2"),
+            ("Drill_measurement_3","DrillInfo_DrillmeasurementText_3"),
+
             ("Drill_clamping","DrillInfo_DrillclampingText")
 
         };

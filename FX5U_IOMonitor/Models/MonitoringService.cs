@@ -406,13 +406,23 @@ namespace FX5U_IOMonitor.Models
                                 // 檢查是否需要讀取對應的數值
                                 int? additionalValue = null;
                                 string additionalAddress = null;
-
-                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping))
+                                
+                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping) )
                                 {
+                                    ushort[] result;
                                     lock (_lockRef)
                                     {
-                                        ushort[] result = plc.ReadWords(additionalAddress, 1);
-                                        additionalValue = result[0];
+                                        if (mapping.Type == "ServoDrive")
+                                        {
+                                            result = plc.ReadWords(additionalAddress, 2);
+                                            // 例如你需要組合成一個 int
+                                            additionalValue = (result[1] << 16) | result[0];
+                                        }
+                                        else
+                                        {
+                                            result = plc.ReadWords(additionalAddress, 1);
+                                            additionalValue = result[0];
+                                        }
                                     }
                                     // 讀取對應的數值
                                 }
