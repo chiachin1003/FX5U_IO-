@@ -185,7 +185,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
             }
         }
 
-        public static void LogSyncResult(SyncResult? result = null, int direction = 0)
+        public static void LogSyncResult(SyncResult? result = null, string Table ="" , int direction = 0)
         {
             string message;
 
@@ -199,7 +199,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
             }
             else if (direction == 2)
             {
-                message = $"地端資料表上傳雲端失敗";
+                message = Table + ": " +$"地端資料表上傳雲端失敗" ;
             }
             else
             {
@@ -324,14 +324,14 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
 
                 // 記錄 log
-                // TableSyncAPI.LogSyncResult(Machine);
-                // TableSyncAPI.LogSyncResult(Histories);
-                // TableSyncAPI.LogSyncResult(MachineParameters);
-                // TableSyncAPI.LogSyncResult(AlarmHistories);
-                // TableSyncAPI.LogSyncResult(Machine_IO);
-                // TableSyncAPI.LogSyncResult(MachineParameterHistoryRecode);
+                TableSyncAPI.LogSyncResult(Machine, "Machine");
+                TableSyncAPI.LogSyncResult(Histories, "Histories");
+                TableSyncAPI.LogSyncResult(MachineParameters, "MachineParameters");
+                TableSyncAPI.LogSyncResult(AlarmHistories, "AlarmHistories");
+                TableSyncAPI.LogSyncResult(Machine_IO, "Machine_IO");
+                TableSyncAPI.LogSyncResult(MachineParameterHistoryRecode, "MachineParameterHistoryRecode");
                 // TableSyncAPI.LogSyncResult(MachineIOTranslations);
-                // TableSyncAPI.LogSyncResult(alarm);
+                TableSyncAPI.LogSyncResult(alarm, "alarm");
 
                 //TableSyncAPI.LogSyncResult(Blade_brand);
                 //TableSyncAPI.LogSyncResult(Blade_brand_TPI);

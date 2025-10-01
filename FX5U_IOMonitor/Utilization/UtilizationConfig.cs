@@ -39,4 +39,11 @@ namespace FX5U_IOMonitor.Utilization
         public int DenominatorSeconds { get; set; }
         public double UtilizationRate { get; set; }
     }
+    public class ShiftResult
+    {
+        public string Machinename { get; set; }
+        public int ShiftNo { get; set; }
+        public float CuttingSeconds { get; set; }
+    }
+
 }

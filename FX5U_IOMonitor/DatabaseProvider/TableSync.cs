@@ -551,7 +551,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 }
 
                 // 執行同步
-                var Machine = await TableSync.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
+                //var Machine = await TableSync.SyncFromLocalToCloud<Machine_number>(local, cloud, "Machine");
                 //var MachineParameters = await TableSync.SyncFromLocalToCloud<MachineParameter>(local, cloud, "MachineParameters");
                 //var Machine_IO = await TableSync.SyncFromLocalToCloud<MachineIO>(local, cloud, "Machine_IO");
                 //var MachineIOTranslations = await TableSync.SyncFromLocalToCloud<MachineIOTranslation>(local, cloud, "MachineIOTranslation");
@@ -561,7 +561,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 //var AlarmHistories = await TableSync.SyncFromLocalToCloud_AddOnly<AlarmHistory>(local, cloud, "AlarmHistories");
 
                 // 記錄 log
-                TableSync.LogSyncResult("",Machine);
+                //TableSync.LogSyncResult("",Machine);
                 //TableSync.LogSyncResult("", Histories);
                 //TableSync.LogSyncResult("", MachineParameters);
                 //TableSync.LogSyncResult("", AlarmHistories);
