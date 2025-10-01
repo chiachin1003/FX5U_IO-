@@ -102,7 +102,8 @@ namespace FX5U_IOMonitor.Data
         public DateTime? EndTime { get; set; }
         public string? NoteMessage { get; set; }
         public int? Note { get; set; }
-
+        public string? ErrorDetail { get; set; } // 異常內容及原因
+        public string? Solution { get; set; }    // 處理方法
         public TimeSpan? Duration { get; set; }    // 故障持續時間
 
     }

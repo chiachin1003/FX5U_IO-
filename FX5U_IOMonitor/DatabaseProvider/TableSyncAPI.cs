@@ -86,8 +86,8 @@ namespace FX5U_IOMonitor.DatabaseProvider
             // 執行所有SQL的API請求
             foreach (var sql in sqlList.Where(s => !string.IsNullOrWhiteSpace(s)))
             {
-                //AjaxResult? apiResult = await ApiService.SendPostRequest(sql);
-                MessageBox.Show("[" + tableName + "]\r\n " + sql);
+                 apiResult = await ApiService.SendPostRequest(sql); //新增+
+                //MessageBox.Show("[" + tableName + "]\r\n " + sql); //檢查語法有沒有正確
                 // 根據apiResult處理錯誤（例如記錄到result）
                 //if (apiResult?.Success != true)
                 //{
@@ -225,28 +225,28 @@ namespace FX5U_IOMonitor.DatabaseProvider
                     return;
                 }
 
-                var Machine = await TableSyncAPI.SyncFromLocalToCloudNew<Machine_number>(
-                    local,
-                    "Machine",
-                    keySelector: m => m.Id,
-                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                    ignoreProperties: new[] { "mcFrame" }
-                );
+                //var Machine = await TableSyncAPI.SyncFromLocalToCloudNew<Machine_number>(
+                //    local,
+                //    "Machine",
+                //    keySelector: m => m.Id,
+                //    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                //    ignoreProperties: new[] { "mcFrame" }
+                //);
 
-                var MachineParameters = await TableSyncAPI.SyncFromLocalToCloudNew<MachineParameter>(
-                    local,
-                    "MachineParameters",
-                    keySelector: m => m.Id,
-                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                    ignoreProperties: new[] { "HistoryRecodes" }
-                );
+                //var MachineParameters = await TableSyncAPI.SyncFromLocalToCloudNew<MachineParameter>(
+                //    local,
+                //    "MachineParameters",
+                //    keySelector: m => m.Id,
+                //    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                //    ignoreProperties: new[] { "HistoryRecodes" }
+                //);
 
                 var Machine_IO = await TableSyncAPI.SyncFromLocalToCloudNew<MachineIO>(
                     local,
                     "Machine_IO",
                     keySelector: m => m.Id,
                     changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                    ignoreProperties: new[] { "" }
+                    ignoreProperties: new[] { "Translations", "Histories" }
                 );
 
                 // 下列 Code 執行會報錯，因為雲端 DB 的同步欄位為 NULL 從 1111 筆後資料開始看
@@ -324,9 +324,9 @@ namespace FX5U_IOMonitor.DatabaseProvider
 
 
                 // 記錄 log
-                TableSyncAPI.LogSyncResult(Machine, "Machine");
+                //TableSyncAPI.LogSyncResult(Machine, "Machine");
                 TableSyncAPI.LogSyncResult(Histories, "Histories");
-                TableSyncAPI.LogSyncResult(MachineParameters, "MachineParameters");
+                //TableSyncAPI.LogSyncResult(MachineParameters, "MachineParameters");
                 TableSyncAPI.LogSyncResult(AlarmHistories, "AlarmHistories");
                 TableSyncAPI.LogSyncResult(Machine_IO, "Machine_IO");
                 TableSyncAPI.LogSyncResult(MachineParameterHistoryRecode, "MachineParameterHistoryRecode");

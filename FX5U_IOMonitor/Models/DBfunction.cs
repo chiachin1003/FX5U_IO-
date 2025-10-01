@@ -2275,11 +2275,13 @@ namespace FX5U_IOMonitor.Models
                    {
                        IPC_table =ah.Alarm.IPC_table,
                        Error = ah.Alarm.GetError(),
-                       classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
-                       Note = ah.Notenumber,
                        NoteMessage = ah.Note,
+                       ErrorDetail = ah.ErrorDetail,
+                       Solution = ah.Solution,
+                       classTag = ah.Alarm.classTag,
+                       Note = ah.Notenumber,
                        Duration = ah.Duration
                    }).ToList();
 

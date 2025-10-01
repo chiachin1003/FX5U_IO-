@@ -566,7 +566,7 @@ namespace FX5U_IOMonitor
                 if (e.NewValue == true)
                 {
                     // 根據是否有額外數值來決定呼叫哪個資料庫函數
-                    if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.AdditionalAddress))
+                    if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.Address))
                     {
                         Warning_components? alarmMessage = e.AlarmType switch
                         {

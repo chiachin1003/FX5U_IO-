@@ -469,7 +469,7 @@ namespace FX5U_IOMonitor
                 {
                     // 開始同步
                     btn_toggle.Text = "Starting...";
-                    //await StartAutoSyncAsync(TimeSpan.FromMinutes(0.5)); // 自訂間隔
+                    await StartAutoSyncAsync(TimeSpan.FromMinutes(1)); // 自訂間隔
 
                     btn_toggle.Text = "Stop Sync";
                     btn_toggle.BackColor = Color.DodgerBlue;
@@ -615,7 +615,7 @@ namespace FX5U_IOMonitor
                             //stillConnected = await TableSyncAPI.SyncLocalToCloudAllTables(_SysLocal, _SysCloud, token);
 
                             // 開啟同步
-                            //await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
+                            await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
                         }
                         catch (OperationCanceledException)
                         {
