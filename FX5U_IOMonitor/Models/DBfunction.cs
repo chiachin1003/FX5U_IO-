@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration;
+using FX5U_IOMonitor.Config;
 using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.DatabaseProvider;
 using FX5U_IOMonitor.Login;
@@ -96,6 +97,16 @@ namespace FX5U_IOMonitor.Models
                         MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    //J4的資料格式，未新增
+                    //try
+                    //{
+                    //    Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //    return;
+                    //}
                 }
 
             }
@@ -1808,11 +1819,11 @@ namespace FX5U_IOMonitor.Models
                 return machine?.now_NumericValue ?? 0;
             }
         }
-        public static string Get_Machine_text(string name)
+        public static string Get_Machine_text(string machineName, string name)
         {
             using (var context = new ApplicationDB())
             {
-                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name);
+                var machine = context.MachineParameters.FirstOrDefault(a => a.Name == name && a.Machine_Name == machineName);
                 return machine?.now_TextValue ?? "";
             }
         }
@@ -2275,11 +2286,13 @@ namespace FX5U_IOMonitor.Models
                    {
                        IPC_table =ah.Alarm.IPC_table,
                        Error = ah.Alarm.GetError(),
-                       classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
-                       Note = ah.Notenumber,
                        NoteMessage = ah.Note,
+                       ErrorDetail = ah.ErrorDetail,
+                       Solution = ah.Solution,
+                       classTag = ah.Alarm.classTag,
+                       Note = ah.Notenumber,
                        Duration = ah.Duration
                    }).ToList();
 
@@ -2396,11 +2409,12 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.FrequencyAlarmInfo; // 找不到就回傳 null
             }
         }
-        public static Warning_components? Get_FrequencyAlarm(int frequencyAlarmId)
+        public static Warning_components? Get_FrequencyAlarm(int frequencyAlarmId,string status)
         {
             using (var context = new ApplicationDB())
             {
                 var Frequencyalarm = context.FrequencyConverAlarm
+                    .Where(a => a.FrequencyStatus == status)
                     .FirstOrDefault(a => a.FrequencyAlarmID == frequencyAlarmId);
                 if (Frequencyalarm == null) return null;
 
@@ -2460,22 +2474,57 @@ namespace FX5U_IOMonitor.Models
             return record != null ? record.EndTime.Value : DateTime.MinValue;
         }
 
-        public static void SaveStatusRecordAsync( string machineId,string address,int status,DateTime startTime,DateTime endTime)
+
+        public static async Task SaveStatusRecordAsync(string machineId, string address, int status, DateTime startTime, DateTime endTime)
+        {
+            try
+            {
+                using var context = new ApplicationDB();
+
+                var entity = new UtilizationStatusRecord
+                {
+                    Machinename = machineId,
+                    ReadBitAddress = address,
+                    Status = status,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    DurationSeconds = (int)(endTime - startTime).TotalSeconds,
+                };
+
+                await context.UtilizationStatusRecord.AddAsync(entity);
+                await context.SaveChangesAsync(); // ✅ 非同步確保提交完成
+            }
+            catch (Exception ex)
+            {
+                Message_Config.LogMessage($"❌ SaveStatusRecordAsync 失敗：{ex.Message}");
+            }
+        }
+        public static async Task<long> InsertNewStatusAsync(string machineName, string address, int status, DateTime startTimeUtc)
         {
             using var context = new ApplicationDB();
-
-            var entity = new UtilizationStatusRecord
+            var record = new UtilizationStatusRecord
             {
-                Machinename = machineId,
+                Machinename = machineName,
                 ReadBitAddress = address,
                 Status = status,
-                StartTime = startTime,
-                EndTime = endTime,
-                DurationSeconds = (int)(endTime - startTime).TotalSeconds,
+                StartTime = startTimeUtc,
+                EndTime = startTimeUtc,
+                DurationSeconds = (int)(startTimeUtc - startTimeUtc).TotalSeconds,
             };
+            context.UtilizationStatusRecord.Add(record);
+            await context.SaveChangesAsync();
+            return record.Id;
+        }
 
-            context.UtilizationStatusRecord.Add(entity);
-            context.SaveChanges();
+        public static async Task UpdateEndTimeAsync(long id, DateTime endTimeUtc)
+        {
+            using var context = new ApplicationDB();
+            var record = await context.UtilizationStatusRecord.FindAsync(id);
+            if (record != null)
+            {
+                record.EndTime = endTimeUtc;
+                await context.SaveChangesAsync();
+            }
         }
         public static DateTime GetLastStatusEndTime(string machine)
         {

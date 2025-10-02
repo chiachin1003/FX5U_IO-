@@ -152,7 +152,7 @@ namespace FX5U_IOMonitor
             foreach (var (param, key, unit) in infoCardList)
             {
                 if (!infoCardMap.TryGetValue(param, out var card)) continue;
-                string val = DBfunction.Get_Machine_text(param);
+                string val = DBfunction.Get_Machine_text("Sawing",param);
                 card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
             }
         }
@@ -200,7 +200,7 @@ namespace FX5U_IOMonitor
         {
             // 當前累積秒數（歷史 + 即時）
             int totalSec = DBfunction.Get_Machine_History_NumericValue("Sawing",paramName) +
-                           DBfunction.Get_Machine_number(paramName);
+                           DBfunction.Get_Machine_number("Sawing", paramName);
 
             string nowTime = MonitorFunction.ConvertSecondsToDHMS(totalSec);
 

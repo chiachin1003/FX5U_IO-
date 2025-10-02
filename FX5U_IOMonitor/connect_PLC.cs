@@ -142,7 +142,7 @@ namespace FX5U_IOMonitor
                 var util = _machinesUtilization.FirstOrDefault(u => u.Machine == machine.Name);
                 if (util != null)
                 {
-                    _ = Task.Run(() => contextItem.Monitor.Read_Utilization(util.ReadBitAddress, contextItem.TokenSource.Token));                    
+                    var utilizationTask = Task.Run(() => contextItem.Monitor.Read_Utilization(util.ReadBitAddress, contextItem.TokenSource.Token));                    
                 }
 
                 //實體元件監控
@@ -566,12 +566,13 @@ namespace FX5U_IOMonitor
                 if (e.NewValue == true)
                 {
                     // 根據是否有額外數值來決定呼叫哪個資料庫函數
-                    if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.AdditionalAddress))
+                    if (e.AdditionalValue.HasValue && !string.IsNullOrEmpty(e.Address))
                     {
                         Warning_components? alarmMessage = e.AlarmType switch
                         {
-                            "Frequency" => DBfunction.Get_FrequencyAlarm(e.AdditionalValue.Value),
-                            "Control" => DBfunction.Get_ControlAlarm(e.AdditionalValue.Value),
+                            "InverterError" => DBfunction.Get_FrequencyAlarm(e.AdditionalValue.Value, e.AlarmType),
+                            "InverterWarning" => DBfunction.Get_FrequencyAlarm(e.AdditionalValue.Value, e.AlarmType),
+                            "Control" => DBfunction.Get_ControlAlarm(e.AdditionalValue.Value), //尚未建立
                             "ServoDrive" => DBfunction.Get_ServoDriveAlarm(e.AdditionalValue.Value),
                             _ => null
                         };

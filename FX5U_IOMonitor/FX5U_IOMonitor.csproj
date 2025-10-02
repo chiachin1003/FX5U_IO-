@@ -55,7 +55,8 @@
 
   <ItemGroup>
     <Reference Include="SsioAPILib">
-      <HintPath>..\..\..\SSIO API\SSIO API\SsioAPILib.dll</HintPath>
+      <HintPath>bin\Debug\net8.0-windows\SsioAPILib.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
 

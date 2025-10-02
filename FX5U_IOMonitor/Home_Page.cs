@@ -67,7 +67,8 @@ namespace FX5U_IOMonitor
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務 
-            //_ = ConnectAndStartSyncAsync(btn_toggle);  
+
+            _ = ConnectAndStartSyncAsync(btn_toggle);  
             //_ = Task.Run(async () =>
             //{
             //    await ParameterHistoryScheduler.InitializeMonthlySchedule();
@@ -468,7 +469,7 @@ namespace FX5U_IOMonitor
                 {
                     // 開始同步
                     btn_toggle.Text = "Starting...";
-                    await StartAutoSyncAsync(TimeSpan.FromMinutes(0.5)); // 自訂間隔
+                    await StartAutoSyncAsync(TimeSpan.FromMinutes(1)); // 自訂間隔
 
                     btn_toggle.Text = "Stop Sync";
                     btn_toggle.BackColor = Color.DodgerBlue;
@@ -561,14 +562,14 @@ namespace FX5U_IOMonitor
                 //control.ForeColor = Color.Black;
                 SetToggleSyncing();
 
-                await TableSync.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
-                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
-                Properties.Settings.Default.Save();
+                //await TableSyncAPI.SyncCloudToLocalAllTables(_SysLocal, _SysCloud);
+                //Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                //Properties.Settings.Default.Save();
 
                 SetToggleSyncing();
-                await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                await TableSyncAPI.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
 
-                await StartAutoSyncAsync(TimeSpan.FromSeconds(30)); // ★ 改用 async 版
+                //await StartAutoSyncAsync(TimeSpan.FromSeconds(30)); // ★ 改用 async 版
                 SetUiConnectedFromAnyThread();
                 SetToggleConnected();
                 //control.Text = "Connected";
@@ -611,10 +612,10 @@ namespace FX5U_IOMonitor
 
                         try
                         {
-                            stillConnected = await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud, token);
+                            //stillConnected = await TableSyncAPI.SyncLocalToCloudAllTables(_SysLocal, _SysCloud, token);
 
                             // 開啟同步
-                            //await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
+                            await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
                         }
                         catch (OperationCanceledException)
                         {

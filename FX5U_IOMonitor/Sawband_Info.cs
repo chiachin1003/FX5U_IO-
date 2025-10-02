@@ -91,7 +91,7 @@ namespace FX5U_IOMonitor
             foreach (var (param, key, unit) in infoCardList)
             {
                 var card = new MachineInfoCard();
-                string val = DBfunction.Get_Machine_text(param);
+                string val = DBfunction.Get_Machine_text("Sawing", param);
                 card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
 
                 infoCardMap[param] = card;
@@ -129,7 +129,7 @@ namespace FX5U_IOMonitor
             foreach (var (param, key, unit) in infoCardList)
             {
                 if (!infoCardMap.TryGetValue(param, out var card)) continue;
-                string val = DBfunction.Get_Machine_text(param);
+                string val = DBfunction.Get_Machine_text("Sawing", param);
                 card.SetData(LanguageManager.Translate(key), val, Text_design.ConvertUnitLabel(unit));
             }
         }

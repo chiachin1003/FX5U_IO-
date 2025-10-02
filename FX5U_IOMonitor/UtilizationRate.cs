@@ -5,6 +5,7 @@ using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Utilization;
 using Org.BouncyCastle.Utilities;
 using SLMP;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Threading;
@@ -12,6 +13,7 @@ using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -22,22 +24,23 @@ namespace FX5U_IOMonitor
     public partial class UtilizationRate : Form
     {
         private CancellationTokenSource? _cts;
-        private FX5U_IOMonitor.panel_control.UtilizationPanel _drillPanel;
-        private FX5U_IOMonitor.panel_control.UtilizationPanel _sawingPanel;
-        private bool _suppressAutoSave = false;
-        private float Drill_UtilizationRate;
-        private float Sawing_UtilizationRate;
-        private ShiftsFile Utilization_Shift;
 
-        // 依序加入所需欄位(靜態)
+        private bool _suppressAutoSave = false;
+
+        private List<UtilizationShiftConfig> Workshift;
+
+        // 放在 class UtilizationRate 內
+        private readonly Dictionary<string, UtilizationPanel> _machinePanels = new();
+        private List<Machine_number> _machineList;
+        private int _currentShiftNo = 1;   // 由你的班別按鈕切換
+        private TimeScope _currentScope = TimeScope.Today;  // 由四個時間範圍按鈕切換
+        private enum TimeScope { Today, Yesterday, ThisWeek, LastWeek }
 
         public UtilizationRate()
         {
             InitializeComponent();
             InitUtilizationPickers();
-           
-            Utilization_Shift = UtilizationConfigLoader.LoadShifts();
-            
+
             this.FormClosing += (_, __) => _cts?.Cancel();
 
             string lang = Properties.Settings.Default.LanguageSetting;
@@ -45,19 +48,17 @@ namespace FX5U_IOMonitor
             SwitchLanguage();
             LanguageManager.LanguageChanged += _ => SwitchLanguage();
         }
-
-
-
-        /* ---------- 語系切換 ---------- */
+        /// <summary>
+        /// 語系切換
+        /// </summary>
         private void SwitchLanguage()
         {
             this.Text = LanguageManager.Translate("UtilizationRate_Main");
             lab_start.Text = LanguageManager.Translate("UtilizationRate_StartTime");
             lab_end.Text = LanguageManager.Translate("UtilizationRate_EndTime");
-            lab_Saw_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_SawingUtilization");
-            lab_Drill_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_DrillUtilization");
-            Text_design.SafeAdjustFont(lab_Drill_UtilizationRate, lab_Drill_UtilizationRate.Text,36);
-            Text_design.SafeAdjustFont(lab_Saw_UtilizationRate, lab_Saw_UtilizationRate.Text,36);
+            lab_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_DrillUtilization");
+            Text_design.SafeAdjustFont(lab_UtilizationRate, lab_UtilizationRate.Text, 36);
+
 
         }
 
@@ -66,49 +67,18 @@ namespace FX5U_IOMonitor
             UtilizationRate_Inital();
             // 讀取預設模式（1~4）
             int mode = Properties.Settings.Default.DefaultUtilizationRate;
-            if (mode < 1 || mode > 4) mode = 1; // 防呆
-            mode = 1;
-            var (sp, ep, button) = ResolvePickersByMode(mode);
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(sp, ep); //分母
-            // 避免除以 0
-            if (denom <= 0)
-            {
-                lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");//不可計算<0的數值
-                return;
-            }
-            var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, sp, ep,
-                                                       allowOvernight: false, equalMeansOneHour: false);
+            _machineList = DBfunction.GetMachineIndexes();
 
-            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
+            comb_class.DataSource = Workshift
+               .Where(s => s.Enabled)
+               .Select(s => new { s.ShiftNo, Display = $"第{s.ShiftNo}班 ({s.Start}-{s.End})" })
+               .ToList();
 
-            //計算時間為:
-            lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + "：\n" +
-                  $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
+            comb_class.DisplayMember = "Display";
+            comb_class.ValueMember = "ShiftNo";
+            comb_class.SelectedValue = 1; // 預設第一班
 
-            //int last = UtilizationRateCalculate.GetLastWeekLastValue("Drill");
-            //int current = UtilizationRateCalculate.GetCurrentUtilization("Drill");
-
-            ////上周運行
-            //float Drill_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - last));
-            //last = UtilizationRateCalculate.GetLastWeekLastValue("Sawing");
-            //current = UtilizationRateCalculate.GetCurrentUtilization("Sawing");
-
-            //float Sawing_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetLastWeekLastValue("Sawing")));
-            ////當前運行狀態
-            //Drill_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - UtilizationRateCalculate.GetYesterdayLastValue("Drill")));
-            //Sawing_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetYesterdayLastValue("Sawing")));
-
-            var results = UtilizationRateCalculate.GetYesterdayCutting("Drill", Utilization_Shift.Shifts);
-            results = UtilizationRateCalculate.GetLastWeekCutting("Drill", Utilization_Shift.Shifts);
-
-            results = UtilizationRateCalculate.GetTodayCutting("Drill", Utilization_Shift.Shifts);
-            results = UtilizationRateCalculate.GetThisWeekCutting("Drill", Utilization_Shift.Shifts);
-
-            float cutting = results.FirstOrDefault(r => r.ShiftNo == mode)?.CuttingSeconds ?? 0;
-
-            RenderUtilizationGauge(cutting, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
-
+            RenderAllMachines(TimeScope.Today);
         }
 
 
@@ -125,110 +95,44 @@ namespace FX5U_IOMonitor
 
         private void btn_calculate1_Click(object sender, EventArgs e)
         {
-
-            //分母 allowOvernight 不允許跨日
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(dateTimePicker_start1, dateTimePicker_end1);
-
-            // 避免除以 0
-            if (denom <= 0)
-            {
-                lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");
-                return;
-            }
-            var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start1, dateTimePicker_end1,
-                                                       allowOvernight: false, equalMeansOneHour: false);
-
-            // 再轉 UTC
-            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-            SaveUtilizationPair(dateTimePicker_start1, dateTimePicker_end1, 1);
-
-            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
-            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
-            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
-
+            Properties.Settings.Default.DefaultUtilizationRate = 1;
             Properties.Settings.Default.Save();
-            lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + ":\n" +
-                $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
 
         }
         private void btn_calculate2_Click(object sender, EventArgs e)
         {
-            //分母 allowOvernight 不允許跨日
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(dateTimePicker_start2, dateTimePicker_end2);
-            // 避免除以 0
-            if (denom <= 0)
-            {
-                lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");
-                return;
-            }
-
-            var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start2, dateTimePicker_end2,
-                                                       allowOvernight: false, equalMeansOneHour: false);
-            // 再轉 UTC
-            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-            SaveUtilizationPair(dateTimePicker_start2, dateTimePicker_end2, 2);
-
-            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
-            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
-
-            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
-
-
+            Properties.Settings.Default.DefaultUtilizationRate = 2;
             Properties.Settings.Default.Save();
-            lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + ":\n" +
-                $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
         }
 
         private void btn_calculate3_Click(object sender, EventArgs e)
         {
-            //分母 allowOvernight 不允許跨日
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(dateTimePicker_start3, dateTimePicker_end3);
-            // 避免除以 0
-            if (denom <= 0)
-            {
-                lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");
-                return;
-            }
-
-            var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start3, dateTimePicker_end3,
-                                                       allowOvernight: false, equalMeansOneHour: false);
-
-            // 再轉 UTC
-            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-            SaveUtilizationPair(dateTimePicker_start3, dateTimePicker_end3, 3);
-
-            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
-            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
-            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
             Properties.Settings.Default.DefaultUtilizationRate = 3;
             Properties.Settings.Default.Save();
-
-            lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + ":\n" +
-                $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
         }
 
         private void btn_calculate4_Click(object sender, EventArgs e)
         {
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(dateTimePicker_start4, dateTimePicker_end4);
-            // 避免除以 0
-            if (denom <= 0)
-            {
-                lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");
-                return;
-            }
+            SaveUtilizationPair(dateTimePicker_start4, dateTimePicker_end4, 4);
+            Properties.Settings.Default.DefaultUtilizationRate = 4;
+            Properties.Settings.Default.Save();
+            //    float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(dateTimePicker_start4, dateTimePicker_end4);
+            //    // 避免除以 0
+            //    if (denom <= 0)
+            //    {
+            //        lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");
+            //        return;
+            //    }
 
-            var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start4, dateTimePicker_end4,
-                                                       allowOvernight: false, equalMeansOneHour: false);
+            //var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start4, dateTimePicker_end4,
+            //                                               allowOvernight: false, equalMeansOneHour: false);
 
-            // 再轉 UTC
-            var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-            Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
-            Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
-            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
+            //    // 再轉 UTC
+            //    var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
+            //    Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
+            //    Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
+            //    RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            //    RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
         }
         /// <summary>
@@ -239,7 +143,7 @@ namespace FX5U_IOMonitor
             _suppressAutoSave = true;
 
             var shifts = UtilizationConfigLoader.LoadShifts();
-
+            Workshift = shifts.Shifts;
             foreach (var shift in shifts.Shifts)
             {
                 var (startPicker, endPicker, button) = ResolvePickersByMode(shift.ShiftNo);
@@ -263,7 +167,7 @@ namespace FX5U_IOMonitor
         {
             switch (mode)
             {
-                case 1: return (dateTimePicker_start1, dateTimePicker_end1,btn_calculate1);
+                case 1: return (dateTimePicker_start1, dateTimePicker_end1, btn_calculate1);
                 case 2: return (dateTimePicker_start2, dateTimePicker_end2, btn_calculate2);
                 case 3: return (dateTimePicker_start3, dateTimePicker_end3, btn_calculate3);
                 case 4: return (dateTimePicker_start4, dateTimePicker_end4, btn_calculate4);
@@ -286,7 +190,7 @@ namespace FX5U_IOMonitor
             }
         }
 
-       
+
         /// <summary>
         /// 組合當天的稼動率顯示
         /// </summary>
@@ -324,81 +228,16 @@ namespace FX5U_IOMonitor
 
             return (startLocal, endLocal);
         }
+    
         /// <summary>
-        /// 建立頁面
+        /// 設定json檔裡面的數值
         /// </summary>
-        /// <param name="panel"></param>
-        /// <param name="parent"></param>
-        /// <param name="name"></param>
-        /// <param name="location"></param>
-        /// <param name="size"></param>
-        /// <returns></returns>
-        // 建立或取回面板（不存在就 new 並加入到表單）
-        private UtilizationPanel EnsurePanel(
-            ref UtilizationPanel panel, Control parent, string name, Point location, Size size)
-        {
-            if (panel == null || panel.IsDisposed)
-            {
-                panel = new UtilizationPanel
-                {
-                    Name = name,
-                    Location = location,
-                    Size = size,
-                };
-                parent.Controls.Add(panel);
-            }
-            return panel;
-        }
-
-        /// <summary>
-        /// 計算並更新單一機台的稼動率圓環圖
-        /// </summary>
-        /// <param name="machineName"></param>
-        /// <param name="utcStart"></param>
-        /// <param name="utcEnd"></param>
-        /// <param name="denom"></param>
-        /// <param name="panel"></param>
-        /// <param name="parent"></param>
-        /// <param name="panelName"></param>
-        /// <param name="location"></param>
-        /// <param name="size"></param>
-        /// <param name="usedColor"></param>
-        /// <param name="remainingColor"></param>
-        /// <param name="middleRingColor"></param>
-        /// <param name="middleRingRatio"></param>
-        /// <param name="holeRatio"></param>
-        /// <param name="centerTextFontSize"></param>
-        private void RenderUtilizationGauge(
-            float numerator,
-            float denom,
-            ref UtilizationPanel panel,
-            Control parent, string panelName, Point location, Size size,
-            Color? usedColor = null, Color? remainingColor = null, Color? middleRingColor = null,
-            float middleRingRatio = 0.2f, float holeRatio = 0.12f, float centerTextFontSize = 20f)
-        {
-            // 分子
-
-            // 百分比（保護 denom）
-            double pct = denom <= 0 ? 0 : (numerator / denom) * 100.0;
-            string percentage = pct.ToString("0");
-
-            // 確保面板存在
-            var p = EnsurePanel(ref panel, parent, panelName, location, size);
-
-            // 套值
-            p.SetValues(
-                used: numerator,
-                total: denom,
-                centerText: percentage + "%",
-                usedColor: usedColor ?? Color.ForestGreen,
-                remainingColor: remainingColor ?? Color.Gainsboro,
-                middleRingColor: middleRingColor ?? Color.White,
-                middleRingRatio: middleRingRatio,
-                holeRatio: holeRatio,
-                centerTextFontSize: centerTextFontSize
-            );
-        }
-        private void SaveUtilizationPair( DateTimePicker startPicker, DateTimePicker endPicker,int shiftNo,string jsonPath = "UtilizationShiftConfig.json")
+        /// <param name="startPicker"></param>
+        /// <param name="endPicker"></param>
+        /// <param name="shiftNo"></param>
+        /// <param name="jsonPath"></param>
+        /// <exception cref="ArgumentException"></exception>
+        private void SaveUtilizationPair(DateTimePicker startPicker, DateTimePicker endPicker, int shiftNo, string jsonPath = "UtilizationShiftConfig.json")
         {
             var json = File.ReadAllText(jsonPath);
             var options = new JsonSerializerOptions
@@ -427,11 +266,7 @@ namespace FX5U_IOMonitor
         /// timeOnly=true 時只比對時:分；false 則比完整日期時間。
         /// allowEqual=true 允許相等；false 則強制 end > start。
         /// </summary>
-        private static void SyncEndNotEarlier(
-            DateTimePicker start,
-            DateTimePicker end,
-            bool timeOnly = true,
-            bool allowEqual = true)
+        private static void SyncEndNotEarlier(DateTimePicker start, DateTimePicker end, bool timeOnly = true, bool allowEqual = true)
         {
             if (start == null || end == null || start.IsDisposed || end.IsDisposed) return;
 
@@ -457,11 +292,7 @@ namespace FX5U_IOMonitor
         /// <summary>
         /// 幫一組 start/end 綁定 ValueChanged 事件，任何一邊改動都會自動校正 end。
         /// </summary>
-        private static void WireTimePair(
-            DateTimePicker start,
-            DateTimePicker end,
-            bool timeOnly = true,
-            bool allowEqual = true)
+        private static void WireTimePair(DateTimePicker start, DateTimePicker end, bool timeOnly = true, bool allowEqual = true)
         {
             bool updating = false; // 防止事件互相觸發造成遞迴
 
@@ -486,5 +317,139 @@ namespace FX5U_IOMonitor
             handler(null, EventArgs.Empty);
         }
 
+        private void btn_today_Click(object sender, EventArgs e)
+        {
+            RenderAllMachines(TimeScope.Today);
+        }
+        /// <summary>
+        /// 繪製所有機台的稼動率圖形
+        /// </summary>
+        private void RenderAllMachines(TimeScope _currentScope)
+        {
+            if (_machineList == null || !_machineList.Any()) return;
+            if (Workshift == null) return;
+            
+            int shiftNo = Convert.ToInt32(comb_class.SelectedValue); //選定當前班別
+            var shift = Workshift.FirstOrDefault(s => s.ShiftNo == shiftNo);
+            if (shift == null) return;
+
+            DateTime selectedDate = dateTime_start.Value.Date;
+          
+
+            // 計算分母（該班別時間長度）
+            var (sp, ep, button) = ResolvePickersByMode(shiftNo);
+            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(sp, ep); //分母
+            // 避免除以 0
+            if (denom <= 0)
+            {
+                return;
+            }
+            denom = _currentScope switch
+            {
+                TimeScope.Today => denom,
+                TimeScope.Yesterday => denom,
+                TimeScope.ThisWeek => denom * 7,
+                TimeScope.LastWeek => denom * 7,
+                _ => denom // 預設情況不變
+            };
+
+            // 排版
+            int x = 60, y = 70;
+            int spacingX = 220, spacingY = 220;
+            int perRow = Math.Max(1, (this.Width - 120) / spacingX);
+            int i = 0;
+            List<ShiftResult> results = new();
+
+            foreach (var machine in _machineList)
+            {
+                string machineName = machine.Name;
+
+                results = _currentScope switch
+                {
+                    TimeScope.Today => UtilizationRateCalculate.GetTodayCutting(machineName, Workshift),
+                    TimeScope.Yesterday => UtilizationRateCalculate.GetYesterdayCutting(machineName, Workshift, selectedDate),
+                    TimeScope.ThisWeek => UtilizationRateCalculate.GetThisWeekCutting(machineName, Workshift),
+                    TimeScope.LastWeek => UtilizationRateCalculate.GetLastWeekCutting(machineName, Workshift, selectedDate),
+                    _ => new List<ShiftResult>() // 預設值，避免 null
+                };
+
+
+                float cutting = results.FirstOrDefault(r => r.ShiftNo == shiftNo)?.CuttingSeconds ?? 0;
+
+                int col = i % perRow;
+                int row = i / perRow;
+                var location = new Point(x + col * spacingX, y + row * spacingY);
+
+                RenderOrUpdatePanel(machineName, cutting, denom, location, new Size(150, 150));
+                i++;
+            }
+        }
+        /// <summary>
+        /// 更新稼動率圖表內容
+        /// </summary>
+        /// <param name="machineName"></param>
+        /// <param name="numerator"></param>
+        /// <param name="denom"></param>
+        /// <param name="location"></param>
+        /// <param name="size"></param>
+        private void RenderOrUpdatePanel(string machineName, float numerator, float denom, Point location, Size size)
+        {
+            if (!_machinePanels.TryGetValue(machineName, out var panel) || panel == null || panel.IsDisposed)
+            {
+                panel = new UtilizationPanel
+                {
+                    Name = $"{machineName}_Panel",
+                    Location = location,
+                    Size = size
+                };
+                _machinePanels[machineName] = panel;
+                this.Controls.Add(panel);
+            }
+            else
+            {
+                panel.Location = location;
+                panel.Size = size;
+            }
+
+            double pct = denom <= 0 ? 0 : (numerator / denom) * 100.0;
+
+            panel.SetValues(
+                used: numerator,
+                total: denom,
+                centerText: $"{machineName}\n{pct:0.0}%",
+                usedColor: Color.ForestGreen,
+                remainingColor: Color.Gainsboro,
+                middleRingColor: Color.White,
+                middleRingRatio: 0.2f,
+                holeRatio: 0.12f,
+                centerTextFontSize: 16f
+            );
+        }
+
+        private void btn_yesterday_Click(object sender, EventArgs e)
+        {
+            RenderAllMachines(TimeScope.Yesterday);
+
+        }
+
+        private void btn_thisweek_Click(object sender, EventArgs e)
+        {
+            RenderAllMachines(TimeScope.ThisWeek);
+
+        }
+
+        private void btn_lastweek_Click(object sender, EventArgs e)
+        {
+            RenderAllMachines(TimeScope.LastWeek);
+        }
+
+        private void btn_setting_Click(object sender, EventArgs e)
+        {
+            SaveUtilizationPair(dateTimePicker_start1, dateTimePicker_end1, 1);
+            SaveUtilizationPair(dateTimePicker_start2, dateTimePicker_end2, 2);
+            SaveUtilizationPair(dateTimePicker_start3, dateTimePicker_end3, 3);
+            SaveUtilizationPair(dateTimePicker_start4, dateTimePicker_end4, 4);
+
+        }
     }
 }

@@ -249,33 +249,27 @@ namespace FX5U_IOMonitor.Scheduling
                         roundedEndTime = yesterday.AddHours(23).AddMinutes(59).AddSeconds(59);
                         break;
                     case ScheduleFrequency.Weekly:
-                        int daysToLastMonday = ((int)now.DayOfWeek + 6) % 7 + 7; // 上週一
-                        roundedStartTime = now.Date.AddDays(-daysToLastMonday);
-                        roundedEndTime = roundedStartTime.AddDays(6).AddHours(23).AddMinutes(59).AddSeconds(59);
+                        var localNow = DateTime.Now; // 本地時間
+                        int daysSinceMonday = ((int)localNow.DayOfWeek + 6) % 7;
+                        var thisMondayLocal = localNow.Date.AddDays(-daysSinceMonday);
+                        var lastMondayLocal = thisMondayLocal.AddDays(-7);
+                        var lastSundayLocal = thisMondayLocal.AddSeconds(-1);
+                        roundedStartTime = lastMondayLocal.ToUniversalTime();
+                        roundedEndTime = lastSundayLocal.ToUniversalTime();
                         break;
                     case ScheduleFrequency.Monthly:
                         var prevMonth = now.AddMonths(-1);
-                        var monthStart = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-                        var lastDayPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-                        var monthEnd = new DateTime(prevMonth.Year, prevMonth.Month, lastDayPrevMonth, 23, 59, 59, DateTimeKind.Utc);
+                        roundedStartTime = new DateTime(prevMonth.Year, prevMonth.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var lastDay = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+                        roundedEndTime = new DateTime(prevMonth.Year, prevMonth.Month, lastDay, 23, 59, 59, DateTimeKind.Utc);
 
-                        // 查出最早參數建立時間
-                        DateTime earliestParamTime = db.MachineParameters.Min(p => p.CreatedAt).ToUniversalTime();
-
-                        if (monthEnd < earliestParamTime)
-                        {
-                            //  記錄值為 0 的初始化
-                            roundedStartTime = monthStart;
-                            roundedEndTime = monthEnd;
+                        // 如果系統最早參數時間比這個月還晚，才初始化
+                        DateTime earliestParam = db.MachineParameters.Min(p => p.CreatedAt).ToUniversalTime();
+                        if (roundedEndTime < earliestParam)
                             useDefaultZero = true;
-                        }
-                        else
-                        {
-                            // 正常紀錄
-                            roundedStartTime = monthStart < earliestParamTime ? earliestParamTime : monthStart;
-                            roundedEndTime = monthEnd;
-                        }
-                        break; 
+
+                        break;
+
                     default:
                         throw new NotSupportedException($"不支援的排程頻率：{config}");
                 }

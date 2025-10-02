@@ -213,7 +213,8 @@ namespace FX5U_IOMonitor.Utilization
 
             }
         }
-
+        //要加入防呆
+       
         public static List<ShiftResult> GetCuttingByRange(string machineName,List<UtilizationShiftConfig> shifts, DateTime startLocal,DateTime endLocal)
         {
             if (string.IsNullOrWhiteSpace(machineName)) return new List<ShiftResult>();
@@ -223,13 +224,12 @@ namespace FX5U_IOMonitor.Utilization
             var endUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal, tz);
 
             using var db = new ApplicationDB();
-            var nowUtc = DateTime.UtcNow;
 
             var query = db.UtilizationStatusRecord
                 .AsNoTracking()
-                .Where(r => r.Machinename == machineName &&
-                            (r.EndTime ) > startUtc &&
-                            r.StartTime < endUtc)
+               .Where(r => r.Machinename == machineName &&
+                r.StartTime >= startUtc &&
+                r.EndTime <= endUtc)
                 .ToList();
 
             var results = new List<ShiftResult>();
@@ -268,6 +268,7 @@ namespace FX5U_IOMonitor.Utilization
 
             return results;
         }
+
         public static List<ShiftResult> GetTodayCutting(string machineName, List<UtilizationShiftConfig> shifts)
         {
             var tz = GetTaipeiTimeZone();
@@ -280,16 +281,16 @@ namespace FX5U_IOMonitor.Utilization
         }
 
         // 昨天
-        public static List<ShiftResult> GetYesterdayCutting(string machineName, List<UtilizationShiftConfig> shifts)
-        {
-            var tz = GetTaipeiTimeZone();
-            var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+        //public static List<ShiftResult> GetYesterdayCutting(string machineName, List<UtilizationShiftConfig> shifts)
+        //{
+        //    var tz = GetTaipeiTimeZone();
+        //    var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
 
-            var startLocal = nowTpe.Date.AddDays(-1); // 昨天 00:00
-            var endLocal = nowTpe.Date;               // 今天 00:00
+        //    var startLocal = nowTpe.Date.AddDays(-1); // 昨天 00:00
+        //    var endLocal = nowTpe.Date;               // 今天 00:00
 
-            return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
-        }
+        //    return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
+        //}
 
         // 本週（週一 00:00 ~ 今天現在）
         public static List<ShiftResult> GetThisWeekCutting(string machineName, List<UtilizationShiftConfig> shifts)
@@ -304,16 +305,61 @@ namespace FX5U_IOMonitor.Utilization
             return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
         }
 
+        //// 上週（週一 00:00 ~ 週日 23:59:59）
+        //public static List<ShiftResult> GetLastWeekCutting(string machineName, List<UtilizationShiftConfig> shifts)
+        //{
+        //    var tz = GetTaipeiTimeZone();
+        //    var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+
+        //    int diff = (int)nowTpe.DayOfWeek == 0 ? 6 : (int)nowTpe.DayOfWeek - 1;
+        //    var thisMonday = nowTpe.Date.AddDays(-diff);   // 本週一 00:00
+        //    var lastMonday = thisMonday.AddDays(-7);       // 上週一 00:00
+        //    var lastSundayEnd = thisMonday;                // 本週一 (上週的結束)
+
+        //    return GetCuttingByRange(machineName, shifts, lastMonday, lastSundayEnd);
+        //}
+
+
+
+        // 昨天
+        public static List<ShiftResult> GetYesterdayCutting(string machineName, List<UtilizationShiftConfig> shifts, DateTime selectedDate)
+        {
+            
+            var tz = GetTaipeiTimeZone();
+            var nowTpe = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz); // ✅ 明確從 UTC 轉為台北時間
+            
+            var targetDate = DateTime.SpecifyKind(selectedDate, DateTimeKind.Unspecified);
+
+            // 起始時間：指定日期的 00:00
+            var startLocal = targetDate.AddDays(-1); ;
+
+            // 結束時間：指定日期的隔天 00:00（完整一天）
+            var endLocal = targetDate;
+
+            return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
+
+        }
+       
+
         // 上週（週一 00:00 ~ 週日 23:59:59）
-        public static List<ShiftResult> GetLastWeekCutting(string machineName, List<UtilizationShiftConfig> shifts)
+        public static List<ShiftResult> GetLastWeekCutting(string machineName, List<UtilizationShiftConfig> shifts, DateTime selectedDate)
         {
             var tz = GetTaipeiTimeZone();
             var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+            // 若未指定日期，預設為今天
+            var targetDate = DateTime.SpecifyKind(selectedDate, DateTimeKind.Unspecified);
 
-            int diff = (int)nowTpe.DayOfWeek == 0 ? 6 : (int)nowTpe.DayOfWeek - 1;
-            var thisMonday = nowTpe.Date.AddDays(-diff);   // 本週一 00:00
-            var lastMonday = thisMonday.AddDays(-7);       // 上週一 00:00
-            var lastSundayEnd = thisMonday;                // 本週一 (上週的結束)
+            // 將星期日視為第 7 天
+            int dayOfWeek = (int)targetDate.DayOfWeek;
+            if (dayOfWeek == 0) dayOfWeek = 7; // 星期日=7
+
+            // 計算該日期所在週的星期一
+            var thisMonday = targetDate.AddDays(-(dayOfWeek - 1));
+
+            // 取得上週的起訖時間
+            var lastMonday = thisMonday.AddDays(-7);   // 上週一 00:00
+            var lastSundayEnd = thisMonday;            // 本週一 (上週結束)
+
 
             return GetCuttingByRange(machineName, shifts, lastMonday, lastSundayEnd);
         }

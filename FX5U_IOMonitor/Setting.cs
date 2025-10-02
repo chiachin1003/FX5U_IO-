@@ -174,16 +174,24 @@ namespace FX5U_IOMonitor
 
         private async void btn_alarm_Click(object sender, EventArgs e)
         {
+            //try
+            //{
+            //    Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    return;
+            //}
             try
             {
-                Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+                Csv2Db.Initialization_FrequencyConverAlarmFromCSV("FrequenceAlarm.csv");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
         }
 
         private void SwitchLanguage()

@@ -308,8 +308,8 @@ namespace FX5U_IOMonitor.Models
                 return "green";
             }
 
-          
 
+            private AlarmMappingConfig alarmMapping;
             /// <summary>
             /// 警告監控輪詢與延遲
             /// </summary>
@@ -317,9 +317,10 @@ namespace FX5U_IOMonitor.Models
             /// <returns></returns>
             public async Task alarm_MonitoringLoop(CancellationToken token, string machine, AlarmMappingConfig config)
             {
+                alarmMapping = config;
                 while (!token.IsCancellationRequested)
                 {
-                    Alarm_Monitoring(machine, config);
+                    Alarm_Monitoring(machine, alarmMapping);
                     await Task.Delay(50); // 每 500 毫秒執行一次
                 }
             }
@@ -406,39 +407,39 @@ namespace FX5U_IOMonitor.Models
                                 // 檢查是否需要讀取對應的數值
                                 int? additionalValue = null;
                                 string additionalAddress = null;
-                                
-                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping) )
+
+                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping))
                                 {
                                     ushort[] result;
                                     lock (_lockRef)
                                     {
-                                        if (mapping.Type == "ServoDrive")
-                                        {
-                                            result = plc.ReadWords(additionalAddress, 2);
-                                            // 例如你需要組合成一個 int
-                                            additionalValue = (result[1] << 16) | result[0];
-                                        }
-                                        else
-                                        {
-                                            result = plc.ReadWords(additionalAddress, 1);
-                                            additionalValue = result[0];
-                                        }
+                                        result = plc.ReadWords(mapping.ReadAddress, 1);
+                                        additionalValue = result[0];
                                     }
                                     // 讀取對應的數值
+                                    alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                    {
+                                        Address = now.address,
+                                        OldValue = oldVal,
+                                        NewValue = newVal,
+                                        AdditionalAddress = additionalAddress,
+                                        AdditionalValue = additionalValue,
+                                        AlarmType = mapping.Type
+                                    });
                                 }
-
-
-                                alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                else
                                 {
-                                    Address = now.address,
-                                    OldValue = oldVal,
-                                    NewValue = newVal,
-                                    AdditionalAddress = additionalAddress,
-                                    AdditionalValue = additionalValue,
-                                    AlarmType = mapping.Type
-                                });
-
+                                    alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                    {
+                                        Address = now.address,
+                                        OldValue = oldVal,
+                                        NewValue = newVal,
+                                        AdditionalAddress = additionalAddress,
+                                        AdditionalValue = additionalValue,
+                                    });
+                                }
                             }
+                            
                         }
                     }
 
@@ -1240,6 +1241,8 @@ namespace FX5U_IOMonitor.Models
 
                 int? lastStatus = null;
                 DateTime lastStartUtc;
+                long? lastRecordId = null;
+                DateTime lastWriteTimeUtc = DateTime.UtcNow;  // 記錄上次更新時間
 
                 // 先從 DB 讀最後一筆（若有），只用來初始化，不要在 while 內每圈查
                 var lastRecord = DBfunction.GetLastRecord(MachineName, address);
@@ -1250,6 +1253,8 @@ namespace FX5U_IOMonitor.Models
                     lastStartUtc = lastRecord.EndTime.Kind == DateTimeKind.Utc
                         ? lastRecord.EndTime
                         : lastRecord.EndTime.ToUniversalTime();
+
+                    lastRecordId = lastRecord.Id;
                 }
                 else
                 {
@@ -1272,11 +1277,12 @@ namespace FX5U_IOMonitor.Models
                         var read = plc.ReadBits(address, 1);
                         currentStatus = read[0] ? 1 : 0;
                     }
+                    var nowUtc = DateTime.UtcNow;
 
                     if (currentStatus != lastStatus.Value)
                     {
-                        var nowUtc = DateTime.UtcNow;
-                        DBfunction.SaveStatusRecordAsync(
+                        nowUtc = DateTime.UtcNow;
+                        _ = DBfunction.SaveStatusRecordAsync(
                             MachineName,
                             address,
                             lastStatus.Value,
@@ -1287,7 +1293,28 @@ namespace FX5U_IOMonitor.Models
                         // 更新當前段的起點
                         lastStatus = currentStatus;
                         lastStartUtc = nowUtc;
+                        lastRecordId = null;
+                        lastWriteTimeUtc = nowUtc;
                     }
+                    else
+                    {
+                        // 狀態沒變 → 檢查是否需要建立新紀錄或更新現有紀錄
+                        if (!lastRecordId.HasValue)
+                        {
+                            // 第一次進入持續段 → 新建紀錄
+                            lastRecordId = await DBfunction.InsertNewStatusAsync(
+                                MachineName, address, currentStatus, lastStartUtc);
+                            lastWriteTimeUtc = nowUtc;
+                        }
+                        else if ((nowUtc - lastWriteTimeUtc).TotalSeconds >= 60)
+                        {
+                            // ✅ 每分鐘更新 EndTime
+                            await DBfunction.UpdateEndTimeAsync(lastRecordId.Value, nowUtc);
+                            lastWriteTimeUtc = nowUtc;
+                        }
+                    }
+
+
                     // === 判斷班別開頭/結尾 ===
                     var now = DateTime.UtcNow;
                     foreach (var shift in _enabledShifts.Where(s => s.Enabled))
@@ -1301,7 +1328,7 @@ namespace FX5U_IOMonitor.Models
                         // ① 班別開頭：若已跨過 startUtc，且上一段起點在 startUtc 之前，且沒補過，就補一筆到 startUtc
                         if (now >= startUtc && lastStartUtc < startUtc && _processedShiftPoints.Add(startKey))
                         {
-                            DBfunction.SaveStatusRecordAsync(
+                            _ = DBfunction.SaveStatusRecordAsync(
                                 MachineName, address,
                                 lastStatus!.Value,          // 補「目前持續的上一段狀態」
                                 lastStartUtc, startUtc
@@ -1313,7 +1340,7 @@ namespace FX5U_IOMonitor.Models
                         // ② 班別結尾：若已跨過 endUtc，且上一段起點在 endUtc 之前，且沒補過，就補一筆到 endUtc
                         if (now >= endUtc && lastStartUtc < endUtc && _processedShiftPoints.Add(endKey))
                         {
-                            DBfunction.SaveStatusRecordAsync(
+                            _ = DBfunction.SaveStatusRecordAsync(
                                 MachineName, address,
                                 lastStatus!.Value,
                                 lastStartUtc, endUtc
@@ -1328,13 +1355,8 @@ namespace FX5U_IOMonitor.Models
                 // 程式被取消/結束時，把最後一段補上
                 if (lastStatus.HasValue)
                 {
-                    DBfunction.SaveStatusRecordAsync(
-                        MachineName,
-                        address,
-                        lastStatus.Value,
-                        lastStartUtc,
-                        DateTime.UtcNow
-                    );
+                    
+                    await DBfunction.SaveStatusRecordAsync(MachineName, address, lastStatus.Value, lastStartUtc, DateTime.UtcNow);
                 }
 
 

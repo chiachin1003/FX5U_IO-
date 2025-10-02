@@ -262,7 +262,7 @@ namespace FX5U_IOMonitor.panel_control
             {
                 if (!cardMap.ContainsKey(paramName)) continue;
 
-                int seconds = DBfunction.Get_Machine_History_NumericValue(paramName) + DBfunction.Get_Machine_number(paramName);
+                int seconds = DBfunction.Get_Machine_History_NumericValue("Drill",paramName) + DBfunction.Get_Machine_number("Drill",paramName);
                 string time = MonitorFunction.ConvertSecondsToDHMS(seconds);
                 var record_late = DBfunction.GetLatestHistoryRecordByName("Drill",paramName, history_Frequency);
                 var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", paramName, history_Frequency);
