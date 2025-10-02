@@ -96,6 +96,16 @@ namespace FX5U_IOMonitor.Models
                         MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                    //J4的資料格式，未新增
+                    //try
+                    //{
+                    //    Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //    return;
+                    //}
                 }
 
             }
@@ -2275,11 +2285,13 @@ namespace FX5U_IOMonitor.Models
                    {
                        IPC_table =ah.Alarm.IPC_table,
                        Error = ah.Alarm.GetError(),
-                       classTag = ah.Alarm.classTag,
                        StartTime = ah.StartTime.ToLocalTime(),
                        EndTime = ah.EndTime?.ToLocalTime(),
-                       Note = ah.Notenumber,
                        NoteMessage = ah.Note,
+                       ErrorDetail = ah.ErrorDetail,
+                       Solution = ah.Solution,
+                       classTag = ah.Alarm.classTag,
+                       Note = ah.Notenumber,
                        Duration = ah.Duration
                    }).ToList();
 
@@ -2396,11 +2408,12 @@ namespace FX5U_IOMonitor.Models
                 return alarm?.FrequencyAlarmInfo; // 找不到就回傳 null
             }
         }
-        public static Warning_components? Get_FrequencyAlarm(int frequencyAlarmId)
+        public static Warning_components? Get_FrequencyAlarm(int frequencyAlarmId,string status)
         {
             using (var context = new ApplicationDB())
             {
                 var Frequencyalarm = context.FrequencyConverAlarm
+                    .Where(a => a.FrequencyStatus == status)
                     .FirstOrDefault(a => a.FrequencyAlarmID == frequencyAlarmId);
                 if (Frequencyalarm == null) return null;
 

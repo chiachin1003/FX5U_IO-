@@ -308,8 +308,8 @@ namespace FX5U_IOMonitor.Models
                 return "green";
             }
 
-          
 
+            private AlarmMappingConfig alarmMapping;
             /// <summary>
             /// 警告監控輪詢與延遲
             /// </summary>
@@ -317,9 +317,10 @@ namespace FX5U_IOMonitor.Models
             /// <returns></returns>
             public async Task alarm_MonitoringLoop(CancellationToken token, string machine, AlarmMappingConfig config)
             {
+                alarmMapping = config;
                 while (!token.IsCancellationRequested)
                 {
-                    Alarm_Monitoring(machine, config);
+                    Alarm_Monitoring(machine, alarmMapping);
                     await Task.Delay(50); // 每 500 毫秒執行一次
                 }
             }
@@ -406,39 +407,39 @@ namespace FX5U_IOMonitor.Models
                                 // 檢查是否需要讀取對應的數值
                                 int? additionalValue = null;
                                 string additionalAddress = null;
-                                
-                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping) )
+
+                                if (config.AlarmLookMapping.TryGetValue(now.address, out var mapping))
                                 {
                                     ushort[] result;
                                     lock (_lockRef)
                                     {
-                                        if (mapping.Type == "ServoDrive")
-                                        {
-                                            result = plc.ReadWords(additionalAddress, 2);
-                                            // 例如你需要組合成一個 int
-                                            additionalValue = (result[1] << 16) | result[0];
-                                        }
-                                        else
-                                        {
-                                            result = plc.ReadWords(additionalAddress, 1);
-                                            additionalValue = result[0];
-                                        }
+                                        result = plc.ReadWords(mapping.ReadAddress, 1);
+                                        additionalValue = result[0];
                                     }
                                     // 讀取對應的數值
+                                    alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                    {
+                                        Address = now.address,
+                                        OldValue = oldVal,
+                                        NewValue = newVal,
+                                        AdditionalAddress = additionalAddress,
+                                        AdditionalValue = additionalValue,
+                                        AlarmType = mapping.Type
+                                    });
                                 }
-
-
-                                alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                else
                                 {
-                                    Address = now.address,
-                                    OldValue = oldVal,
-                                    NewValue = newVal,
-                                    AdditionalAddress = additionalAddress,
-                                    AdditionalValue = additionalValue,
-                                    AlarmType = mapping.Type
-                                });
-
+                                    alarm_event?.Invoke(this, new IOUpdateEventArgs
+                                    {
+                                        Address = now.address,
+                                        OldValue = oldVal,
+                                        NewValue = newVal,
+                                        AdditionalAddress = additionalAddress,
+                                        AdditionalValue = additionalValue,
+                                    });
+                                }
                             }
+                            
                         }
                     }
 

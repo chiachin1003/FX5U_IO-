@@ -213,7 +213,8 @@ namespace FX5U_IOMonitor.Utilization
 
             }
         }
-
+        //要加入防呆
+       
         public static List<ShiftResult> GetCuttingByRange(string machineName,List<UtilizationShiftConfig> shifts, DateTime startLocal,DateTime endLocal)
         {
             if (string.IsNullOrWhiteSpace(machineName)) return new List<ShiftResult>();

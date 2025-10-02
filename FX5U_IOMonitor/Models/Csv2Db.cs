@@ -763,7 +763,7 @@ namespace FX5U_IOMonitor.Models
                 using var context = new ApplicationDB();
 
                 // 防呆：先查出已存在的品牌 ID
-                var existingIds = context.FrequencyConverAlarm.Select(b => b.FrequencyAlarmID).ToHashSet();
+                var existingIds = context.FrequencyConverAlarm.Select(b => b.Id).ToHashSet();
 
                 int addCount = 0;
                 foreach (var row in records)
@@ -772,11 +772,13 @@ namespace FX5U_IOMonitor.Models
                     {
                         var brand = new FrequencyConverAlarm
                         {
-
+                            Id = row.Id,
+                            FrequencyErrorDetail = row.FrequencyErrorDetail,
                             FrequencyAlarmID = row.FrequencyAlarmID,
-                            FrequencyAlarmInfo = row.FrequencyAlarmInfo
+                            FrequencyAlarmInfo = row.FrequencyAlarmInfo,
+                            FrequencyStatus = row.FrequencyStatus,
+                            FrequencySolution = row.FrequencySolution
 
-                          
                         };
 
                         context.FrequencyConverAlarm.Add(brand);
@@ -795,8 +797,12 @@ namespace FX5U_IOMonitor.Models
 
         private class FrequencyConverAlarmcsv
         {
+            public int Id { get; set; }
+            public string FrequencyStatus { get; set; }
             public int FrequencyAlarmID { get; set; }
             public string FrequencyAlarmInfo { get; set; }
+            public string FrequencyErrorDetail { get; set; }
+            public string FrequencySolution { get; set; }
 
         }
 

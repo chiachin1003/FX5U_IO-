@@ -19,7 +19,7 @@ namespace FX5U_IOMonitor.Data
         public string FrequencyAlarmInfo { get; set; }
         public string FrequencyErrorDetail { get; set; }
         public string FrequencySolution { get; set; }
-
+        public string FrequencyStatus { get; set; }
 
     }
     public class ServoDriveAlarm : SyncableEntity

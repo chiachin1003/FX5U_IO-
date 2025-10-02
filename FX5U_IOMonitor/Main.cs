@@ -30,7 +30,8 @@ namespace FX5U_IOMonitor
     public partial class Main : Form
     {
         private Connect_PLC plcForm; // 連接介面
-        private Home_Page main_Form;
+       
+        private Form selectedForm;
         public event EventHandler? LoginSucceeded;
         public event EventHandler? LogoutSucceeded;
         public List<Button> machineButtons;
@@ -96,7 +97,11 @@ namespace FX5U_IOMonitor
                 //MessageBox.Show($"Machine_IO 初始化或檢查失敗：{ex.Message}", "初始化錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
-
+            int machineCount;
+            using (var context = new ApplicationDB())
+            {
+                machineCount = context.Machine.Count();
+            }
 
             // 從資料庫取得當前機台數量（index_name + display_name）
             List<Machine_number> machineList = DBfunction.GetMachineIndexes();
@@ -128,15 +133,38 @@ namespace FX5U_IOMonitor
 
             this.Shown += MainForm_Shown;
 
-            main_Form = new Home_Page();
-            main_Form.TopLevel = false; // 禁止作為獨立窗口
-            main_Form.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            main_Form.Dock = DockStyle.Fill; // 填滿 Panel
 
-            // 將子窗體添加到 Panel 並顯示
-            panel_main.Controls.Clear(); // 清空 Panel
-            panel_main.Controls.Add(main_Form); // 添加子窗體
-            main_Form.Show(); // 顯示子窗體
+            if (machineCount == 2)
+            {
+                selectedForm = new Home_Page();
+            }
+            else if (machineCount == 3)
+            {
+                selectedForm = new Home_Page2();
+            }
+            else
+            {
+                selectedForm = new Home_Page();
+            }
+
+            // 統一處理子窗體內嵌到 panel
+            selectedForm.TopLevel = false;
+            selectedForm.FormBorderStyle = FormBorderStyle.None;
+            selectedForm.Dock = DockStyle.Fill;
+
+            panel_main.Controls.Clear();
+            panel_main.Controls.Add(selectedForm);
+            selectedForm.Show();
+
+            //main_Form = new Home_Page();
+            //main_Form.TopLevel = false; // 禁止作為獨立窗口
+            //main_Form.FormBorderStyle = FormBorderStyle.None; // 移除邊框
+            //main_Form.Dock = DockStyle.Fill; // 填滿 Panel
+
+            //// 將子窗體添加到 Panel 並顯示
+            //panel_main.Controls.Clear(); // 清空 Panel
+            //panel_main.Controls.Add(main_Form); // 添加子窗體
+            //main_Form.Show(); // 顯示子窗體
 
             this.Shown += Main_Shown;
         }
@@ -196,14 +224,14 @@ namespace FX5U_IOMonitor
         private void btn_Main_Click(object sender, EventArgs e)
         { // 清空 Panel 的內容
             panel_main.Controls.Clear();
-            main_Form.TopLevel = false; // 禁止作為獨立窗口
-            main_Form.FormBorderStyle = FormBorderStyle.None; // 移除邊框
-            main_Form.Dock = DockStyle.Fill; // 填滿 Panel
+            selectedForm.TopLevel = false; // 禁止作為獨立窗口
+            selectedForm.FormBorderStyle = FormBorderStyle.None; // 移除邊框
+            selectedForm.Dock = DockStyle.Fill; // 填滿 Panel
 
             // 將子窗體添加到 Panel 並顯示
             panel_main.Controls.Clear(); // 清空 Panel
-            panel_main.Controls.Add(main_Form); // 添加子窗體
-            main_Form.Show(); // 顯示子窗體
+            panel_main.Controls.Add(selectedForm); // 添加子窗體
+            selectedForm.Show(); // 顯示子窗體
             DisplayLanguage();
         }
 
