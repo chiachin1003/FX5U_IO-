@@ -3,6 +3,7 @@ using FX5U_IOMonitor.MitsubishiPlc_Monior;
 using FX5U_IOMonitor.Models;
 using FX5U_IOMonitor.panel_control;
 using FX5U_IOMonitor.Utilization;
+using Org.BouncyCastle.Utilities;
 using SLMP;
 using System.Diagnostics;
 using System.Text.Json;
@@ -26,7 +27,7 @@ namespace FX5U_IOMonitor
         private bool _suppressAutoSave = false;
         private float Drill_UtilizationRate;
         private float Sawing_UtilizationRate;
-        private string Utilization_Shift;
+        private ShiftsFile Utilization_Shift;
 
         // 依序加入所需欄位(靜態)
 
@@ -34,9 +35,9 @@ namespace FX5U_IOMonitor
         {
             InitializeComponent();
             InitUtilizationPickers();
-            Utilization_Shift = "UtilizationShiftConfig.json";
-            var ShiftsFile = UtilizationConfigLoader.LoadShifts(Utilization_Shift);     
-
+           
+            Utilization_Shift = UtilizationConfigLoader.LoadShifts();
+            
             this.FormClosing += (_, __) => _cts?.Cancel();
 
             string lang = Properties.Settings.Default.LanguageSetting;
@@ -66,8 +67,9 @@ namespace FX5U_IOMonitor
             // 讀取預設模式（1~4）
             int mode = Properties.Settings.Default.DefaultUtilizationRate;
             if (mode < 1 || mode > 4) mode = 1; // 防呆
+            mode = 1;
             var (sp, ep, button) = ResolvePickersByMode(mode);
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(sp, ep);
+            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(sp, ep); //分母
             // 避免除以 0
             if (denom <= 0)
             {
@@ -83,20 +85,28 @@ namespace FX5U_IOMonitor
             lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_short") + "：\n" +
                   $"{startLocal:yyyy/MM/dd}{Environment.NewLine}{startLocal:HH:mm}-{endLocal:HH:mm}";
 
-            int last = UtilizationRateCalculate.GetLastWeekLastValue("Drill");
-            int current = UtilizationRateCalculate.GetCurrentUtilization("Drill");
+            //int last = UtilizationRateCalculate.GetLastWeekLastValue("Drill");
+            //int current = UtilizationRateCalculate.GetCurrentUtilization("Drill");
 
-            //上周運行
-            float Drill_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - last));
-            last = UtilizationRateCalculate.GetLastWeekLastValue("Sawing");
-            current = UtilizationRateCalculate.GetCurrentUtilization("Sawing");
+            ////上周運行
+            //float Drill_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - last));
+            //last = UtilizationRateCalculate.GetLastWeekLastValue("Sawing");
+            //current = UtilizationRateCalculate.GetCurrentUtilization("Sawing");
 
-            float Sawing_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetLastWeekLastValue("Sawing")));
-            //當前運行狀態
-            Drill_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - UtilizationRateCalculate.GetYesterdayLastValue("Drill")));
-            Sawing_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetYesterdayLastValue("Sawing")));
+            //float Sawing_LastUtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetLastWeekLastValue("Sawing")));
+            ////當前運行狀態
+            //Drill_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Drill") - UtilizationRateCalculate.GetYesterdayLastValue("Drill")));
+            //Sawing_UtilizationRate = (float)(Convert.ToInt32(UtilizationRateCalculate.GetCurrentUtilization("Sawing") - UtilizationRateCalculate.GetYesterdayLastValue("Sawing")));
 
-            RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
+            var results = UtilizationRateCalculate.GetYesterdayCutting("Drill", Utilization_Shift.Shifts);
+            results = UtilizationRateCalculate.GetLastWeekCutting("Drill", Utilization_Shift.Shifts);
+
+            results = UtilizationRateCalculate.GetTodayCutting("Drill", Utilization_Shift.Shifts);
+            results = UtilizationRateCalculate.GetThisWeekCutting("Drill", Utilization_Shift.Shifts);
+
+            float cutting = results.FirstOrDefault(r => r.ShiftNo == mode)?.CuttingSeconds ?? 0;
+
+            RenderUtilizationGauge(cutting, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
             RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
         }
