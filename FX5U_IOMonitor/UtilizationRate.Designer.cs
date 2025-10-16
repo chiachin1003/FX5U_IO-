@@ -56,7 +56,6 @@
         private void InitializeComponent()
         {
             dateTime_start = new DateTimePicker();
-            lab_UtilizationRate = new Label();
             label1 = new Label();
             comb_class = new ComboBox();
             label2 = new Label();
@@ -80,6 +79,7 @@
             dateTimePicker_start1 = new DateTimePicker();
             dateTimePicker_end1 = new DateTimePicker();
             btn_setting = new Button();
+            lab_UtilizationRate = new Label();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -90,18 +90,6 @@
             dateTime_start.Name = "dateTime_start";
             dateTime_start.Size = new Size(179, 27);
             dateTime_start.TabIndex = 11;
-            // 
-            // lab_UtilizationRate
-            // 
-            lab_UtilizationRate.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_UtilizationRate.BackColor = SystemColors.ButtonHighlight;
-            lab_UtilizationRate.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            lab_UtilizationRate.Location = new Point(34, 22);
-            lab_UtilizationRate.Name = "lab_UtilizationRate";
-            lab_UtilizationRate.Size = new Size(120, 26);
-            lab_UtilizationRate.TabIndex = 34;
-            lab_UtilizationRate.Text = "稼動率";
-            lab_UtilizationRate.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // label1
             // 
@@ -394,6 +382,15 @@
             btn_setting.UseVisualStyleBackColor = true;
             btn_setting.Click += btn_setting_Click;
             // 
+            // lab_UtilizationRate
+            // 
+            lab_UtilizationRate.AutoSize = true;
+            lab_UtilizationRate.Location = new Point(67, 25);
+            lab_UtilizationRate.Name = "lab_UtilizationRate";
+            lab_UtilizationRate.Size = new Size(43, 15);
+            lab_UtilizationRate.TabIndex = 69;
+            lab_UtilizationRate.Text = "稼動率";
+            // 
             // UtilizationRate
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -401,6 +398,7 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(800, 477);
+            Controls.Add(lab_UtilizationRate);
             Controls.Add(btn_lastweek);
             Controls.Add(btn_thisweek);
             Controls.Add(btn_yesterday);
@@ -408,7 +406,6 @@
             Controls.Add(label2);
             Controls.Add(comb_class);
             Controls.Add(label1);
-            Controls.Add(lab_UtilizationRate);
             Controls.Add(dateTime_start);
             Controls.Add(tableLayoutPanel1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -417,7 +414,7 @@
             MinimizeBox = false;
             Name = "UtilizationRate";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "鋸帶資料";
+            Text = "稼動率";
             Load += UtilizationRate_Load;
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
@@ -427,7 +424,6 @@
 
         #endregion
         private DateTimePicker dateTime_start;
-        private Label lab_UtilizationRate;
         private Label label1;
         private ComboBox comb_class;
         private Label label2;
@@ -451,6 +447,7 @@
         private Button btn_calculate2;
         private Button btn_calculate1;
         private Button btn_setting;
+        private Label lab_UtilizationRate;
     }
 }
 

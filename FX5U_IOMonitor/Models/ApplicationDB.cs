@@ -34,6 +34,8 @@ namespace FX5U_IOMonitor.Models
             _dbFullName = "element";
         }
         public DbSet<Machine_number> Machine { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<Order> Order { get; set; }
 
         public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<History> Histories { get; set; }

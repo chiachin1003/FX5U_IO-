@@ -2573,6 +2573,58 @@ namespace FX5U_IOMonitor.Models
                 .OrderByDescending(r => r.EndTime)
                 .FirstOrDefault(); // 找不到就回傳 null
         }
+
+        public static ProjectSummary GetProjectSummary()
+        {
+            using var context = new ApplicationDB();
+
+            // 1️⃣ 取出所有 projecttitle
+            var titles = context.Order
+                .Where(o => o.projecttitle != null && o.projecttitle != "")
+                .Select(o => o.projecttitle)
+                .Distinct()
+                .ToList();
+
+            // 2️⃣ 取得最新一筆的 projecttitle（依 orderid 或 createdat 決定排序依據）
+            var latest = context.Order
+                .OrderByDescending(o => o.orderid)
+                .Select(o => o.projecttitle)
+                .FirstOrDefault();
+
+            // 3️⃣ 組成結果物件
+            return new ProjectSummary
+            {
+                LatestProject = latest,
+                DistinctCount = titles.Count,
+                ProjectList = titles
+            };
+        }
+        public static List<OrderDetailDisplay> GetOrderDetailsByProject(string projecttitle)
+        {
+            using var context = new ApplicationDB();
+
+            var data = context.OrderDetails
+                .Where(d => d.projecttitle == projecttitle)
+                .OrderBy(d => d.orderdetailid)
+                .Select((d) => new OrderDetailDisplay
+                {
+                    Piecename = d.piecename,
+                    Piececount = d.piececount,
+                    Estimatedtime = d.estimatedtime,
+                    Actualtime = d.actualtime,
+                    Processingstarttime = d.processingstarttime,
+                    Processingendtime = d.processingendtime
+                })
+                .ToList();
+
+            // 加上編號
+            for (int i = 0; i < data.Count; i++)
+                data[i].No = i + 1;
+
+            return data;
+        }
+
+
     }
 
 

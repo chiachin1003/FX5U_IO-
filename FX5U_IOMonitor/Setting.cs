@@ -224,6 +224,15 @@ namespace FX5U_IOMonitor
                 var result = form.ShowDialog(this);
             }
         }
+
+        private void btn_WorkEstimate_Click(object sender, EventArgs e)
+        {
+            using (var form = new WorkEstimate())
+            {
+                form.StartPosition = FormStartPosition.CenterParent;
+                var result = form.ShowDialog(this);
+            }
+        }
     }
 
 

@@ -1,14 +1,15 @@
 ﻿using FX5U_IOMonitor.Data;
 using FX5U_IOMonitor.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using System.Text;
-using System.Reflection;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;     // 如果你要用 AjaxResult 物件也要引入
 using SsioAPILib; // 假設 DLL 裡的 namespace 叫這個
-using SsioAPILib.Services;
 using SsioAPILib.Dto;
+using SsioAPILib.Services;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;     // 如果你要用 AjaxResult 物件也要引入
+using System.Text.RegularExpressions;
 
 
 namespace FX5U_IOMonitor.DatabaseProvider
@@ -86,13 +87,14 @@ namespace FX5U_IOMonitor.DatabaseProvider
             // 執行所有SQL的API請求
             foreach (var sql in sqlList.Where(s => !string.IsNullOrWhiteSpace(s)))
             {
-                 apiResult = await ApiService.SendPostRequest(sql); //新增+
+                 
                 //MessageBox.Show("[" + tableName + "]\r\n " + sql); //檢查語法有沒有正確
-                // 根據apiResult處理錯誤（例如記錄到result）
-                //if (apiResult?.Success != true)
-                //{
-                //    apiResult.Message = ($"SQL執行失敗: {sql}");
-                //}
+                apiResult = await ApiService.SendPostRequest(sql); //新增+
+                //根據apiResult處理錯誤（例如記錄到result）
+                if (apiResult?.Success != true)
+                {
+                    apiResult.Message = ($"SQL執行失敗: {sql}");
+                }
             }
 
             return result;
@@ -153,15 +155,20 @@ namespace FX5U_IOMonitor.DatabaseProvider
             // sqlList.Add(SqlSyncGenerator.GenerateBatchUpdateSQLMerged(compareResult.ToUpdate, tableName, ignoreProperties));
 
             // 執行所有SQL的API請求
-            foreach (var sql in sqlList.Where(s => !string.IsNullOrWhiteSpace(s)))
+            foreach (var sqlRaw in sqlList.Where(s => !string.IsNullOrWhiteSpace(s)))
             {
-                //AjaxResult? apiResult = await ApiService.SendPostRequest(sql);
-                MessageBox.Show("[" + tableName + "]\r\n " + sql);
-                // 根據apiResult處理錯誤（例如記錄到result）
-                //if (apiResult?.Success != true)
-                //{
-                //    apiResult.Message = ($"SQL執行失敗: {sql}");
-                //}
+                string sql = sqlRaw;
+                try
+                {
+                    sql = Regex.Replace(sql, @"(?<=\s|,)(\d{1,2}:\d{2}:\d{2})(?=[,\s\)])", "INTERVAL '$1'");
+                    MessageBox.Show($"[{tableName}]\r\n{sql}");
+
+                    await local.Database.ExecuteSqlRawAsync(sql);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"❌ SQL執行錯誤：{ex.Message}\r\nSQL：{sql}");
+                }
             }
 
             return result;

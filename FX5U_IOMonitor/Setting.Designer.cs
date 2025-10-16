@@ -46,6 +46,7 @@ namespace FX5U_IOMonitor
             btn_unit = new Button();
             flowLayoutPanel1 = new FlowLayoutPanel();
             btn_UtilizationRate = new Button();
+            btn_WorkEstimate = new Button();
             flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -202,10 +203,11 @@ namespace FX5U_IOMonitor
             flowLayoutPanel1.Controls.Add(btn_history);
             flowLayoutPanel1.Controls.Add(btn_checkpoint);
             flowLayoutPanel1.Controls.Add(btn_UtilizationRate);
+            flowLayoutPanel1.Controls.Add(btn_WorkEstimate);
             flowLayoutPanel1.Location = new Point(47, 39);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Padding = new Padding(10);
-            flowLayoutPanel1.Size = new Size(196, 467);
+            flowLayoutPanel1.Size = new Size(196, 506);
             flowLayoutPanel1.TabIndex = 21;
             // 
             // btn_UtilizationRate
@@ -217,6 +219,16 @@ namespace FX5U_IOMonitor
             btn_UtilizationRate.Text = "稼動率對照圖";
             btn_UtilizationRate.UseVisualStyleBackColor = true;
             btn_UtilizationRate.Click += button4_Click;
+            // 
+            // btn_WorkEstimate
+            // 
+            btn_WorkEstimate.Location = new Point(13, 433);
+            btn_WorkEstimate.Name = "btn_WorkEstimate";
+            btn_WorkEstimate.Size = new Size(124, 39);
+            btn_WorkEstimate.TabIndex = 22;
+            btn_WorkEstimate.Text = "工時預估";
+            btn_WorkEstimate.UseVisualStyleBackColor = true;
+            btn_WorkEstimate.Click += btn_WorkEstimate_Click;
             // 
             // Setting
             // 
@@ -256,5 +268,6 @@ namespace FX5U_IOMonitor
         private Button btn_unit;
         private FlowLayoutPanel flowLayoutPanel1;
         private Button btn_UtilizationRate;
+        private Button btn_WorkEstimate;
     }
 }

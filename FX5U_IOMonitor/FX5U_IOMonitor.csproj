@@ -90,6 +90,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="WorkEstimate.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="UtilizationRate.cs">
       <SubType>Form</SubType>
     </Compile>

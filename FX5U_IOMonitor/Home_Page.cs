@@ -68,7 +68,7 @@ namespace FX5U_IOMonitor
             _cts = new CancellationTokenSource();
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務 
 
-            _ = ConnectAndStartSyncAsync(btn_toggle);  
+            //_ = ConnectAndStartSyncAsync(btn_toggle);  
             //_ = Task.Run(async () =>
             //{
             //    await ParameterHistoryScheduler.InitializeMonthlySchedule();
