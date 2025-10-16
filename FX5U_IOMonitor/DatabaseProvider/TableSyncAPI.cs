@@ -161,7 +161,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 try
                 {
                     sql = Regex.Replace(sql, @"(?<=\s|,)(\d{1,2}:\d{2}:\d{2})(?=[,\s\)])", "INTERVAL '$1'");
-                    MessageBox.Show($"[{tableName}]\r\n{sql}");
+                    //MessageBox.Show($"[{tableName}]\r\n{sql}");
 
                     await local.Database.ExecuteSqlRawAsync(sql);
                 }

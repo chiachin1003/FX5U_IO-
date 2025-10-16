@@ -363,5 +363,112 @@ namespace FX5U_IOMonitor.Utilization
 
             return GetCuttingByRange(machineName, shifts, lastMonday, lastSundayEnd);
         }
+
+        public class DailyUtilizationResult
+        {
+            public string MachineName { get; set; } = "";
+            public float RunSeconds { get; set; }
+            public float IdleSeconds { get; set; }
+            public float UtilizationPercent { get; set; }
+        }
+        public class WeeklyUtilizationResult
+        {
+            public string MachineName { get; set; } = "";
+            public DateTime WeekStart { get; set; }
+            public DateTime WeekEnd { get; set; }
+            public float RunSeconds { get; set; }
+            public float IdleSeconds { get; set; }
+            public float UtilizationPercent { get; set; }
+        }
+        public static class UtilizationCalculator
+        {
+            /// <summary>
+            /// 取得指定機台、指定日期的稼動率資訊（含運轉、閒置、百分比）
+            /// </summary>
+            public static DailyUtilizationResult GetDailyUtilization(string machineName, DateTime selectedDate)
+            {
+                const float SecondsPerDay = 3600 * 24f;
+
+                var tz = GetTaipeiTimeZone();
+                var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+                var Selectdate = DateTime.SpecifyKind(selectedDate, DateTimeKind.Unspecified);
+
+                var startUtc = TimeZoneInfo.ConvertTimeToUtc(Selectdate);
+                DateTime endUtc = startUtc.AddDays(1);
+                using var db = new ApplicationDB();
+                
+                // 取出該機台在指定日期的所有紀錄
+                var records = db.UtilizationStatusRecord
+                     .Where(r => r.Machinename == machineName &&
+                r.StartTime >= startUtc &&
+                r.StartTime < endUtc).ToList();
+
+                float runSeconds = records.Where(x => x.Status == 1).Sum(x => x.DurationSeconds);
+                float idleSeconds = records.Where(x => x.Status == 0).Sum(x => x.DurationSeconds);
+
+
+                // 分母固定 24 小時 = 86400 秒
+                float utilization = (runSeconds / SecondsPerDay) * 100f;
+
+                return new DailyUtilizationResult
+                {
+                    MachineName = machineName,
+                    RunSeconds = runSeconds,
+                    IdleSeconds = idleSeconds,
+                    UtilizationPercent = (float)Math.Round(utilization, 2)
+                };
+
+            }
+            public static WeeklyUtilizationResult GetWeeklyUtilization(string machineName, bool isThisWeek)
+            {
+                const float SecondsPerWeek = 3600 * 24f * 7f;  // 分母固定 7 天
+
+                // 取得台北時區
+                var tz = GetTaipeiTimeZone();
+                var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+
+                // 找出本週週日
+                int diff = DayOfWeek.Sunday - nowTpe.DayOfWeek;
+                if (diff > 0) diff -= 7; // 若今天是星期一～六，要往前推到上個週日
+                DateTime thisWeekStartTpe = nowTpe.Date.AddDays(diff);
+                DateTime thisWeekEndTpe = thisWeekStartTpe.AddDays(7);
+
+                // 計算上週的週日～週六
+                DateTime lastWeekStartTpe = thisWeekStartTpe.AddDays(-7);
+                DateTime lastWeekEndTpe = thisWeekStartTpe;
+
+                // 決定要查哪一週
+                DateTime startTpe = isThisWeek ? thisWeekStartTpe : lastWeekStartTpe;
+                DateTime endTpe = isThisWeek ? thisWeekEndTpe : lastWeekEndTpe;
+
+                // 轉成 UTC 方便與資料庫比對
+                DateTime startUtc = TimeZoneInfo.ConvertTimeToUtc(startTpe, tz);
+                DateTime endUtc = TimeZoneInfo.ConvertTimeToUtc(endTpe, tz);
+
+                using var db = new ApplicationDB();
+
+                // 查詢該週的紀錄
+                var records = db.UtilizationStatusRecord
+                    .Where(r => r.Machinename == machineName &&
+                                r.StartTime >= startUtc &&
+                                r.StartTime < endUtc)
+                    .ToList();
+
+                float runSeconds = records.Where(x => x.Status == 1).Sum(x => x.DurationSeconds);
+                float idleSeconds = records.Where(x => x.Status == 0).Sum(x => x.DurationSeconds);
+                float utilization = (runSeconds / SecondsPerWeek) * 100f;
+
+                return new WeeklyUtilizationResult
+                {
+                    MachineName = machineName,
+                    WeekStart = startTpe,
+                    WeekEnd = endTpe,
+                    RunSeconds = runSeconds,
+                    IdleSeconds = idleSeconds,
+                    UtilizationPercent = (float)Math.Round(utilization, 2)
+                };
+            }
+        }
+
     }
 }

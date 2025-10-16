@@ -35,7 +35,10 @@ namespace FX5U_IOMonitor
         {
             ("cuttingspeed",  "SawInfo_CuttingSpeed", "(mm/min)"),
             ("remain_tools",    "SawInfo_RemainingTools",   ""),
-            ("oil_pressure",      "SawInfo_HydraulicTensionStatus",     "")
+            ("oil_pressure",      "SawInfo_HydraulicTensionStatus",     ""),
+            ("BladeSpeed" ,  "SawInfo_BladeSpeed", "(m/min)"),
+            ("FeedRate" ,  "SawInfo_FeedRate", "(mm/min)"),
+
         };
         private readonly List<(string Param, string LangKey, string Unit)> PowerCardList = new()
         {

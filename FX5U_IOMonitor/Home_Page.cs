@@ -19,6 +19,7 @@ using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
 using static FX5U_IOMonitor.Utilization.UtilizationRateCalculate;
 using static FX5U_IO元件監控.Part_Search;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 
 
@@ -37,16 +38,38 @@ namespace FX5U_IOMonitor
         private static ApplicationDB? _SysLocal;
         private static CloudDbContext? _SysCloud;
 
+        private bool _utilizationMonitorStarted = false; // 防止重複啟動
+        private System.Threading.Timer? _utilizationTimer;
+        private UtilizationSummary Drillutilization;
+        private UtilizationSummary Sawingutilization;
+
+        public void StartUtilizationMonitor()
+        {
+            // 立即執行一次
+            CalculateAndDisplayUtilization();
+
+            // 建立新 Timer
+            var timer = new System.Threading.Timer(async _ =>
+            {
+                await Task.Run(() => CalculateAndDisplayUtilization());
+            },
+            null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+
+            _utilizationTimer = timer; // 記錄 Timer
+        }
         public Home_Page()
         {
             InitializeComponent();
             this.Load += Main_Load;
             this.FormClosing += Info_FormClosing;
+            StartUtilizationMonitor();
+
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
             SwitchLanguage();
             LanguageManager.LanguageChanged -= OnLanguageChanged;
             LanguageManager.LanguageChanged += OnLanguageChanged;
+
         }
         private void OnLanguageChanged(string cultureName)
         {
@@ -58,6 +81,9 @@ namespace FX5U_IOMonitor
         private void Info_FormClosing(object? sender, FormClosingEventArgs e)
         {
             _cts?.Cancel(); // 關閉時自動取消背景任務
+            _cts?.Dispose();
+            _machineTimers.Clear();
+            _utilizationMonitorStarted = false;
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -66,6 +92,8 @@ namespace FX5U_IOMonitor
 
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
+
+            // ✅ 啟動每分鐘稼動率更新
             _ = Task.Run(() => AutoUpdateAsync(_cts.Token)); // 啟動背景更新任務 
 
             //_ = ConnectAndStartSyncAsync(btn_toggle);  
@@ -90,6 +118,7 @@ namespace FX5U_IOMonitor
                     {
                         this.Invoke(() =>
                         {
+
                             reset_lab_connectText(); // 每次自動更新畫面數值
                         });
                     }
@@ -135,22 +164,20 @@ namespace FX5U_IOMonitor
             var tz = GetTaipeiTimeZone();
 
             DateTime last = Properties.Settings.Default.Last_cloudupdatetime;
-            lb_Last_cloudupdatetime.Text = LanguageManager.Translate("Mainform_Database_update") +"：" +last.ToString("yyyy/MM/dd")  + "   " +last.ToString("HH:mm:ss");
 
             lab_green.Text = DBfunction.Get_Green_number("Drill").ToString();
             lab_yellow.Text = DBfunction.Get_Yellow_number("Drill").ToString();
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
+            lab_today_ratio.Text = Drillutilization.Today.ToString("F2") + "%";
+            lab_yesterday_ratio.Text = Drillutilization.Yesterday.ToString("F2") + "%";
+            lab_this_ratio.Text = Drillutilization.ThisWeek.ToString("F2") + "%";
+            lab_last_ratio.Text = Drillutilization.LastWeek.ToString("F2") + "%";
 
-            //lab_today_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Today) + "%";
-            //lab_yesterday_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.Yesterday) + "%";
-            //lab_this_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.ThisWeek) + "%";
-            //lab_last_ratio.Text = ShowUtilizationRate("Drill", RangeChoice.LastWeek) + "%";
-
-            //lab_today_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Today) + "%";
-            //lab_yesterday_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.Yesterday) + "%";
-            //lab_this_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.ThisWeek) + "%";
-            //lab_last_ratio1.Text = ShowUtilizationRate("Sawing", RangeChoice.LastWeek) + "%";
+            lab_today_ratio1.Text = Sawingutilization.Today.ToString("F2") + "%";
+            lab_yesterday_ratio1.Text = Sawingutilization.Yesterday.ToString("F2") + "%";
+            lab_this_ratio1.Text = Sawingutilization.ThisWeek.ToString("F2") + "%";
+            lab_last_ratio1.Text = Sawingutilization.LastWeek.ToString("F2") + "%";
 
             lab_sum_swing.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();
@@ -615,7 +642,7 @@ namespace FX5U_IOMonitor
                             //stillConnected = await TableSyncAPI.SyncLocalToCloudAllTables(_SysLocal, _SysCloud, token);
 
                             // 開啟同步
-                            await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);   
+                            await TableSync.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
                         }
                         catch (OperationCanceledException)
                         {
@@ -748,5 +775,49 @@ namespace FX5U_IOMonitor
                 form.ShowDialog(this);
             }
         }
+
+        private UtilizationSummary ShowUtilizationRate(string machine)
+         {
+            DateTime selectedDate = DateTime.Today; // 自動取今天日期
+            var Today = UtilizationCalculator.GetDailyUtilization(machine, selectedDate);
+
+            var yesterday = UtilizationCalculator.GetDailyUtilization(machine, (selectedDate.AddDays(-1)));
+
+            var thisWeek = UtilizationCalculator.GetWeeklyUtilization(machine, true);
+            var lastWeek = UtilizationCalculator.GetWeeklyUtilization(machine, false);
+
+            var summary = new UtilizationSummary
+            {
+                Today = Today?.UtilizationPercent ?? 0,
+                Yesterday = yesterday?.UtilizationPercent ?? 0,
+                ThisWeek = thisWeek?.UtilizationPercent ?? 0,
+                LastWeek = lastWeek?.UtilizationPercent ?? 0
+            };
+            return summary;
+        }
+        public class UtilizationSummary
+        {
+            public float Today { get; set; }
+            public float Yesterday { get; set; }
+            public float ThisWeek { get; set; }
+            public float LastWeek { get; set; }
+        }
+        private void CalculateAndDisplayUtilization()
+        {
+            try
+            {
+                
+                Drillutilization = ShowUtilizationRate("Drill");
+                Sawingutilization = ShowUtilizationRate("Sawing");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"更新稼動率發生錯誤：{ex.Message}");
+            }
+        }
+        private readonly Dictionary<string, System.Threading.Timer> _machineTimers = new();
+
+       
     }
 }

@@ -70,6 +70,7 @@
             lab_Total = new Label();
             lab_Completed = new Label();
             lab_Uncompleted = new Label();
+            npgsqlCommandBuilder1 = new Npgsql.NpgsqlCommandBuilder();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -253,6 +254,11 @@
             lab_Uncompleted.Text = "未完成支數：";
             lab_Uncompleted.TextAlign = ContentAlignment.MiddleCenter;
             // 
+            // npgsqlCommandBuilder1
+            // 
+            npgsqlCommandBuilder1.QuotePrefix = "\"";
+            npgsqlCommandBuilder1.QuoteSuffix = "\"";
+            // 
             // WorkEstimate
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -304,6 +310,7 @@
         private Label lab_Total;
         private Label lab_Completed;
         private Label lab_Uncompleted;
+        private Npgsql.NpgsqlCommandBuilder npgsqlCommandBuilder1;
     }
 }
 

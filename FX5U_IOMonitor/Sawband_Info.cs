@@ -157,8 +157,8 @@ namespace FX5U_IOMonitor
         private void FillTimeCard(MachineActiveCard card, string paramName, string langKey)
         {
             // 當前累積秒數（歷史 + 即時）
-            int totalSec = DBfunction.Get_Machine_History_NumericValue(paramName) +
-                           DBfunction.Get_Machine_number(paramName);
+            int totalSec = DBfunction.Get_Machine_History_NumericValue("Sawing", paramName);
+                          
 
             string nowTime = MonitorFunction.ConvertSecondsToDHMS(totalSec);
 

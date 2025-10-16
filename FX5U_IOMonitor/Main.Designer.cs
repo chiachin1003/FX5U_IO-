@@ -217,11 +217,12 @@
             Controls.Add(panel_main);
             Controls.Add(panel_select);
             Controls.Add(panel_choose);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
+            FormBorderStyle = FormBorderStyle.None;
             Margin = new Padding(4);
             Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "視覺化元件監控";
+            WindowState = FormWindowState.Maximized;
             Shown += Main_Shown;
             panel_choose.ResumeLayout(false);
             panel_select.ResumeLayout(false);

@@ -127,7 +127,7 @@ namespace FX5U_IOMonitor
             plcForm = new Connect_PLC(this);
             DisconnectEvents.FailureConnect += OnFailureConnect;
 
-            //_ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
 
             this.Shown += MainForm_Shown;
 
@@ -331,7 +331,7 @@ namespace FX5U_IOMonitor
             btn_log_out.Text = LanguageManager.Translate("Mainform_Logout");
             btn_language.Text = LanguageManager.Translate("Mainform_language");
             btn_setting.Text = LanguageManager.Translate("Mainform_Settings");
-            this.Text = LanguageManager.Translate("Mainform_title");
+            this.Text = "Visual Component Monitoring";
             for (int i = 0; i < machineButtons.Count && i < machineButtons.Count; i++)
             {
                 string displayName = LanguageManager.Translate(machineButtons[i].Name);

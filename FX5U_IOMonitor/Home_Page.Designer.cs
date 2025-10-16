@@ -149,7 +149,6 @@
             lab_last_ratio = new Label();
             lab_lastweek = new Label();
             btn_toggle = new Button();
-            lb_Last_cloudupdatetime = new Label();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -1210,20 +1209,12 @@
             // 
             // btn_toggle
             // 
-            btn_toggle.Location = new Point(854, 605);
+            btn_toggle.Location = new Point(854, 583);
             btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(98, 31);
+            btn_toggle.Size = new Size(34, 31);
             btn_toggle.TabIndex = 56;
             btn_toggle.UseVisualStyleBackColor = false;
-            btn_toggle.Click += btn_toggle_Click;
-            // 
-            // lb_Last_cloudupdatetime
-            // 
-            lb_Last_cloudupdatetime.Location = new Point(854, 505);
-            lb_Last_cloudupdatetime.MaximumSize = new Size(90, 0);
-            lb_Last_cloudupdatetime.Name = "lb_Last_cloudupdatetime";
-            lb_Last_cloudupdatetime.Size = new Size(90, 23);
-            lb_Last_cloudupdatetime.TabIndex = 0;
+            //btn_toggle.Click += btn_toggle_Click;
             // 
             // Home_Page
             // 
@@ -1232,7 +1223,6 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(956, 639);
-            Controls.Add(lb_Last_cloudupdatetime);
             Controls.Add(btn_toggle);
             Controls.Add(panel12);
             Controls.Add(panel11);
@@ -1335,7 +1325,6 @@
         private Label lab_IP_Port1;
         private Button btn_Saw;
         private Button btn_toggle;
-        private Label lb_Last_cloudupdatetime;
         private TableLayoutPanel tableLayoutPanel2;
         private TableLayoutPanel tableLayoutPanel1;
         private Label lab_today_ratio;
