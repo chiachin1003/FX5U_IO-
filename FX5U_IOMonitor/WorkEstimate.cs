@@ -29,6 +29,7 @@ namespace FX5U_IOMonitor
         private System.Windows.Forms.Timer syncTimer;
         private bool isSyncing = false;
         private ProjectSummary projectSummary;
+        private string selectedProject;
 
         public WorkEstimate()
         {
@@ -39,24 +40,37 @@ namespace FX5U_IOMonitor
 
             combo_project.SelectedIndexChanged += async (s, e) =>
             {
-                string selectedProject = combo_project.SelectedItem?.ToString() ?? "";
+                selectedProject = combo_project.SelectedItem?.ToString() ?? "";
                 LoadProjectDetails(selectedProject);
-                
+                SwitchLanguage();
+
             };
             string lang = Properties.Settings.Default.LanguageSetting;
             LanguageManager.LoadLanguageFromDatabase(lang);
-            SwitchLanguage();
             LanguageManager.LanguageChanged += _ => SwitchLanguage();
+            SwitchLanguage();
+
         }
         /// <summary>
         /// 語系切換
         /// </summary>
         private void SwitchLanguage()
         {
-            //this.Text = LanguageManager.Translate("UtilizationRate_Main");
-            //lab_Total.Text = LanguageManager.Translate("UtilizationRate_StartTime");
-            //lab_Completed.Text = LanguageManager.Translate("UtilizationRate_EndTime");
+           
+            this.Text = LanguageManager.Translate("WorkEstimate_Mainform");
+            lab_Total.Text = LanguageManager.Translate("WorkEstimate_lab_Total");
+            lab_Completed.Text = LanguageManager.Translate("WorkEstimate_lab_Completed");
+            lab_Uncompleted.Text = LanguageManager.Translate("WorkEstimate_lab_Uncompleted");
+            lab_TotalEstimated.Text = LanguageManager.Translate("WorkEstimate_lab_TotalEstimated");
+            lab_TotalActual.Text = LanguageManager.Translate("WorkEstimate_lb_lab_TotalActual");
+            lab_CompletionRate.Text = LanguageManager.Translate("WorkEstimate_lab_CompletionRate");
 
+            Text_design.SafeAdjustFont(lab_Total, lab_Total.Text);
+            Text_design.SafeAdjustFont(lab_Completed, lab_Completed.Text);
+            Text_design.SafeAdjustFont(lab_Uncompleted, lab_Uncompleted.Text);
+            Text_design.SafeAdjustFont(lab_TotalEstimated, lab_TotalEstimated.Text);
+            Text_design.SafeAdjustFont(lab_TotalActual, lab_TotalActual.Text);
+            Text_design.SafeAdjustFont(lab_CompletionRate, lab_CompletionRate.Text);
 
         }
         private void LoadProjectDetails(string projecttitle)
@@ -67,16 +81,17 @@ namespace FX5U_IOMonitor
 
             // 美化欄位名稱
             dataGridView1.Columns[nameof(OrderDetailDisplay.No)].HeaderText = "No.";
-            dataGridView1.Columns[nameof(OrderDetailDisplay.Piecename)].HeaderText = "加工支號";
-            dataGridView1.Columns[nameof(OrderDetailDisplay.Piececount)].HeaderText = "支數";
-            dataGridView1.Columns[nameof(OrderDetailDisplay.Estimatedtime)].HeaderText = "預計時間";
-            dataGridView1.Columns[nameof(OrderDetailDisplay.Actualtime)].HeaderText = "實際時間";
-            dataGridView1.Columns[nameof(OrderDetailDisplay.Processingstarttime)].HeaderText = "加工開始時間";
-            dataGridView1.Columns[nameof(OrderDetailDisplay.Processingendtime)].HeaderText = "加工截止時間";
+            dataGridView1.Columns[nameof(OrderDetailDisplay.Piecename)].HeaderText = LanguageManager.Translate("WorkEstimate_lb_Piecename");
+            dataGridView1.Columns[nameof(OrderDetailDisplay.Piececount)].HeaderText = LanguageManager.Translate("WorkEstimate_lb_Piececount");
+            dataGridView1.Columns[nameof(OrderDetailDisplay.Estimatedtime)].HeaderText = LanguageManager.Translate("WorkEstimate_lb_Estimatedtime");
+            dataGridView1.Columns[nameof(OrderDetailDisplay.Actualtime)].HeaderText = LanguageManager.Translate("WorkEstimate_lb_Actualtime");
+            dataGridView1.Columns[nameof(OrderDetailDisplay.Processingstarttime)].HeaderText = LanguageManager.Translate("WorkEstimate_lb_Processingstarttime");
+            dataGridView1.Columns[nameof(OrderDetailDisplay.Processingendtime)].HeaderText = LanguageManager.Translate("WorkEstimate_lb_Processingendtime");
+
 
             dataGridView1.Columns["No"].Width = 60;
             dataGridView1.Columns["Piecename"].Width = 150;
-            dataGridView1.Columns["Piececount"].Width = 60;
+            dataGridView1.Columns["Piececount"].Width = 70;
             dataGridView1.Columns["Estimatedtime"].Width = 100;
             dataGridView1.Columns["Actualtime"].Width = 100;
             dataGridView1.Columns["Processingstarttime"].Width = 160;
@@ -132,7 +147,7 @@ namespace FX5U_IOMonitor
             {
                 using var local = new ApplicationDB();
                 await SyncCloudToLocal(local);
-                Console.WriteLine("預估工時資料已同步");
+                LoadProjectDetails(selectedProject);
             }
             finally
             {
@@ -189,7 +204,9 @@ namespace FX5U_IOMonitor
                 if (!string.IsNullOrEmpty(summary.LatestProject))
                 {
                     combo_project.SelectedItem = summary.LatestProject;
-                    LoadProjectDetails(summary.LatestProject);
+                    selectedProject = summary.LatestProject;
+                    LoadProjectDetails(selectedProject);
+                    SwitchLanguage();
                 }
 
 

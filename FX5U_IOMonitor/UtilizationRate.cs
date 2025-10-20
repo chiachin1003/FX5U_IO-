@@ -32,8 +32,6 @@ namespace FX5U_IOMonitor
         // 放在 class UtilizationRate 內
         private readonly Dictionary<string, UtilizationPanel> _machinePanels = new();
         private List<Machine_number> _machineList;
-        private int _currentShiftNo = 1;   // 由你的班別按鈕切換
-        private TimeScope _currentScope = TimeScope.Today;  // 由四個時間範圍按鈕切換
         private enum TimeScope { Today, Yesterday, ThisWeek, LastWeek }
 
         public UtilizationRate()
@@ -56,9 +54,7 @@ namespace FX5U_IOMonitor
             this.Text = LanguageManager.Translate("UtilizationRate_Main");
             lab_start.Text = LanguageManager.Translate("UtilizationRate_StartTime");
             lab_end.Text = LanguageManager.Translate("UtilizationRate_EndTime");
-            lab_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_DrillUtilization");
-            Text_design.SafeAdjustFont(lab_UtilizationRate, lab_UtilizationRate.Text, 36);
-
+           
 
         }
 
@@ -192,44 +188,6 @@ namespace FX5U_IOMonitor
 
 
         /// <summary>
-        /// 組合當天的稼動率顯示
-        /// </summary>
-        /// <param name="dpDate"></param>
-        /// <param name="tpStart"></param>
-        /// <param name="tpEnd"></param>
-        /// <param name="allowOvernight"></param>
-        /// <param name="equalMeansOneHour"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="InvalidOperationException"></exception>
-        private static (DateTime startLocal, DateTime endLocal) BuildStartEndLocal(
-            DateTimePicker dpDate, DateTimePicker tpStart, DateTimePicker tpEnd,
-            bool allowOvernight = false, bool equalMeansOneHour = false)
-        {
-            if (dpDate == null || tpStart == null || tpEnd == null
-                || dpDate.IsDisposed || tpStart.IsDisposed || tpEnd.IsDisposed)
-                throw new ArgumentNullException("Date/Time picker 不可為 null 或已釋放");
-
-            var date = dpDate.Value.Date;                // 只取年月日
-            var startLocal = date + new TimeSpan(tpStart.Value.Hour, tpStart.Value.Minute, 0);
-            var endLocal = date + new TimeSpan(tpEnd.Value.Hour, tpEnd.Value.Minute, 59);
-
-            // 不允許跨日：End < Start 視為錯誤
-            if (!allowOvernight && endLocal < startLocal)
-                throw new InvalidOperationException("End 不得小於 Start（不允許跨日）。");
-
-            // 允許跨日：End < Start 就+1天
-            if (allowOvernight && endLocal < startLocal)
-                endLocal = endLocal.AddDays(1);
-
-            // Start == End 的處理（若你想視為 1 小時）
-            if (equalMeansOneHour && endLocal == startLocal)
-                endLocal = endLocal.AddHours(1);
-
-            return (startLocal, endLocal);
-        }
-    
-        /// <summary>
         /// 設定json檔裡面的數值
         /// </summary>
         /// <param name="startPicker"></param>
@@ -338,19 +296,14 @@ namespace FX5U_IOMonitor
 
             // 計算分母（該班別時間長度）
             var (sp, ep, button) = ResolvePickersByMode(shiftNo);
-            float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(sp, ep); //分母
-            // 避免除以 0
-            if (denom <= 0)
+           
+            float denom = _currentScope switch
             {
-                return;
-            }
-            denom = _currentScope switch
-            {
-                TimeScope.Today => denom,
-                TimeScope.Yesterday => denom,
-                TimeScope.ThisWeek => denom * 7,
-                TimeScope.LastWeek => denom * 7,
-                _ => denom // 預設情況不變
+                TimeScope.Today => 3600 * 24f,
+                TimeScope.Yesterday => 3600 * 24f,
+                TimeScope.ThisWeek => 3600 * 24f * 7,
+                TimeScope.LastWeek => 3600 * 24f * 7,
+                _ => 3600 * 24f // 預設情況不變
             };
 
             // 排版

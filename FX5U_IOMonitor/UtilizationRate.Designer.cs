@@ -79,7 +79,6 @@
             dateTimePicker_start1 = new DateTimePicker();
             dateTimePicker_end1 = new DateTimePicker();
             btn_setting = new Button();
-            lab_UtilizationRate = new Label();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -382,15 +381,6 @@
             btn_setting.UseVisualStyleBackColor = true;
             btn_setting.Click += btn_setting_Click;
             // 
-            // lab_UtilizationRate
-            // 
-            lab_UtilizationRate.AutoSize = true;
-            lab_UtilizationRate.Location = new Point(67, 25);
-            lab_UtilizationRate.Name = "lab_UtilizationRate";
-            lab_UtilizationRate.Size = new Size(43, 15);
-            lab_UtilizationRate.TabIndex = 69;
-            lab_UtilizationRate.Text = "稼動率";
-            // 
             // UtilizationRate
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -398,7 +388,6 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(800, 477);
-            Controls.Add(lab_UtilizationRate);
             Controls.Add(btn_lastweek);
             Controls.Add(btn_thisweek);
             Controls.Add(btn_yesterday);
@@ -447,7 +436,6 @@
         private Button btn_calculate2;
         private Button btn_calculate1;
         private Button btn_setting;
-        private Label lab_UtilizationRate;
     }
 }
 

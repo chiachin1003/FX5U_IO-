@@ -114,7 +114,7 @@ namespace FX5U_IOMonitor.panel_control
             foreach (var (paramName, langKey) in timeCardSourceList)
             {
                 string title = LanguageManager.Translate(langKey);
-                int seconds = DBfunction.Get_Machine_History_NumericValue(paramName) + DBfunction.Get_Machine_number(paramName);
+                int seconds = DBfunction.Get_Machine_History_NumericValue(machine_name, paramName) + DBfunction.Get_Machine_number(paramName);
                 string time = MonitorFunction.ConvertSecondsToDHMS(seconds);
 
                 var card = new MachineActiveCard();
@@ -145,7 +145,7 @@ namespace FX5U_IOMonitor.panel_control
             foreach (var (paramName, langKey) in countCardSourceList)
             {
                 string title = LanguageManager.Translate(langKey);
-                int count = DBfunction.Get_Machine_History_NumericValue(paramName);
+                int count = DBfunction.Get_Machine_History_NumericValue("Drill", paramName);
                 string display = count.ToString(); // 直接顯示次數
                 var card_count = new MachineActiveCard();
                 card_count.DisplayMode = CardDisplayMode.Count;
@@ -289,7 +289,7 @@ namespace FX5U_IOMonitor.panel_control
             {
                 if (!cardMap.ContainsKey(paramName)) continue;
 
-                int count = DBfunction.Get_Machine_History_NumericValue(paramName);
+                int count = DBfunction.Get_Machine_History_NumericValue("Drill",paramName);
                 var record_late = DBfunction.GetLatestHistoryRecordByName("Drill", paramName, history_Frequency);
                 var SecondLate = DBfunction.GetSecondLatestHistoryRecordByName("Drill", paramName, history_Frequency);
                 DateTime now = DateTime.UtcNow;

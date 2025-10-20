@@ -143,7 +143,6 @@
             // lab_TotalEstimated
             // 
             lab_TotalEstimated.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_TotalEstimated.AutoSize = true;
             lab_TotalEstimated.BackColor = SystemColors.ButtonHighlight;
             lab_TotalEstimated.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             lab_TotalEstimated.Location = new Point(27, 418);
@@ -156,7 +155,6 @@
             // lab_TotalActual
             // 
             lab_TotalActual.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_TotalActual.AutoSize = true;
             lab_TotalActual.BackColor = SystemColors.ButtonHighlight;
             lab_TotalActual.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             lab_TotalActual.Location = new Point(247, 418);
@@ -169,7 +167,6 @@
             // lab_CompletionRate
             // 
             lab_CompletionRate.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_CompletionRate.AutoSize = true;
             lab_CompletionRate.BackColor = SystemColors.ButtonHighlight;
             lab_CompletionRate.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold);
             lab_CompletionRate.Location = new Point(514, 418);
@@ -218,7 +215,6 @@
             // lab_Total
             // 
             lab_Total.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Total.AutoSize = true;
             lab_Total.BackColor = SystemColors.ButtonHighlight;
             lab_Total.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Total.Location = new Point(27, 370);
@@ -231,7 +227,6 @@
             // lab_Completed
             // 
             lab_Completed.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Completed.AutoSize = true;
             lab_Completed.BackColor = SystemColors.ButtonHighlight;
             lab_Completed.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Completed.Location = new Point(189, 370);
@@ -244,12 +239,11 @@
             // lab_Uncompleted
             // 
             lab_Uncompleted.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lab_Uncompleted.AutoSize = true;
             lab_Uncompleted.BackColor = SystemColors.ButtonHighlight;
             lab_Uncompleted.Font = new Font("Microsoft JhengHei UI", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 136);
             lab_Uncompleted.Location = new Point(395, 370);
             lab_Uncompleted.Name = "lab_Uncompleted";
-            lab_Uncompleted.Size = new Size(124, 24);
+            lab_Uncompleted.Size = new Size(140, 24);
             lab_Uncompleted.TabIndex = 80;
             lab_Uncompleted.Text = "未完成支數：";
             lab_Uncompleted.TextAlign = ContentAlignment.MiddleCenter;

@@ -1910,16 +1910,7 @@ namespace FX5U_IOMonitor.Models
                 return result;
             }
         }
-        public static int Get_Machine_History_NumericValue(string Machineprameter_name)
-        {
-            using (var context = new ApplicationDB())
-            {
-                var name = context.MachineParameters.FirstOrDefault(a => a.Name == Machineprameter_name).History_NumericValue;
-                return name ?? 0;
-
-            }
-
-        }
+       
         
         public static int Get_Machine_History_NumericValue(string machine_name, string Machineprameter_name)
         {

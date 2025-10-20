@@ -162,6 +162,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 {
                     sql = Regex.Replace(sql, @"(?<=\s|,)(\d{1,2}:\d{2}:\d{2})(?=[,\s\)])", "INTERVAL '$1'");
                     //MessageBox.Show($"[{tableName}]\r\n{sql}");
+                    sql = sql.Replace("{", "{{").Replace("}", "}}");
 
                     await local.Database.ExecuteSqlRawAsync(sql);
                 }
@@ -547,15 +548,24 @@ namespace FX5U_IOMonitor.DatabaseProvider
             if (entities == null || !entities.Any()) return string.Empty;
 
             var type = typeof(T);
-            var keyProp = type.GetProperty("Id");
+            //var keyProp = type.GetProperty("Id");
+            // 自動偵測主鍵
+            var keyProp = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .FirstOrDefault(p =>
+                    string.Equals(p.Name, "Id", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(p.Name, $"{type.Name}Id", StringComparison.OrdinalIgnoreCase) ||
+                    p.Name.EndsWith("id", StringComparison.OrdinalIgnoreCase) ||
+                    p.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.KeyAttribute), true).Any()
+                );
             if (keyProp == null) throw new Exception("Entity must have an Id property for update");
 
             var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p =>
-                    !Attribute.IsDefined(p, typeof(NotMappedAttribute)) &&
-                    !ignoreProperties.Contains(p.Name, StringComparer.OrdinalIgnoreCase) &&
-                    p.Name != "Id")
-                .ToList();
+                        .Where(p =>
+                                !Attribute.IsDefined(p, typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute)) &&
+                                !ignoreProperties.Contains(p.Name, StringComparer.OrdinalIgnoreCase) &&
+                                p.Name != keyProp.Name &&
+                                IsSimpleType(p.PropertyType))  // ✅ 過濾掉集合或複雜型別
+                            .ToList();
 
             var allColumns = new List<PropertyInfo> { keyProp! };
             allColumns.AddRange(props);
@@ -593,7 +603,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
             sb.AppendLine(string.Join(",\n", valueLines));
 
             sb.AppendLine($") AS v ({string.Join(", ", allColumns.Select(p => $"\"{p.Name}\""))})");
-            sb.AppendLine("WHERE t.\"Id\" = v.\"Id\";");
+            sb.AppendLine($"WHERE t.\"{keyProp.Name}\" = v.\"{keyProp.Name}\";");
 
             return sb.ToString();
         }
@@ -602,6 +612,19 @@ namespace FX5U_IOMonitor.DatabaseProvider
         private static string Escape(string? input)
         {
             return (input ?? "").Replace("'", "''"); // SQL escape 單引號
+        }
+        private static bool IsSimpleType(Type type)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
+            return type.IsPrimitive ||
+                   type.IsEnum ||
+                   type == typeof(string) ||
+                   type == typeof(decimal) ||
+                   type == typeof(DateTime) ||
+                   type == typeof(DateTimeOffset) ||
+                   type == typeof(TimeSpan) ||
+                   type == typeof(Guid);
         }
     }
 

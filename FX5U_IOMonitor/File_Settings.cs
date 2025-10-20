@@ -103,30 +103,16 @@ namespace FX5U_IOMonitor.Resources
                     {
                         lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
                         lab_cloudstatus.ForeColor = Color.Gray;
-                        if (Cloud_context == null)
-                        {
-                            lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
-                            lab_cloudstatus.ForeColor = Color.Red;
-                        }
-                        else
-                        {
-                            var Language = await TableSync.SyncFromLocalToCloud<Language>(Local_context, Cloud_context, "Language");
-                            TableSync.LogSyncResult("", Language);
-                            // ✅ 檢查是否真的有更新成功
-                            if (Language.Added > 0 || Language.Updated > 0)
-                            {
-                                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
-                                Properties.Settings.Default.Save();
-                                lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
-                                lab_cloudstatus.ForeColor = Color.Green;
-                            }
-                            else
-                            {
-                                lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadFailed");
-                                lab_cloudstatus.ForeColor = Color.Orange;
-                            }
+                        var Language = await TableSyncAPI.SyncFromLocalToCloudNew<Language>(
+                            Local_context,
+                            "Language",
+                            keySelector: m => m.Id,
+                            changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                            ignoreProperties: new[] {""}
+                        );
+                        lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
+                        lab_cloudstatus.ForeColor = Color.Green;
 
-                        }
 
                     }
                     catch (Exception ex)
@@ -145,19 +131,25 @@ namespace FX5U_IOMonitor.Resources
                     Filter = "CSV 檔案 (*.csv)|*.csv",
                     Title = $"選擇要匯入的 {tableName} CSV 檔案"
                 };
-
+                lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
+                lab_cloudstatus.ForeColor = Color.Gray;
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                     return;
                 try
                 {
+                   
                     Csv2Db.Initialization_MachineprameterFromCSV(openFileDialog.FileName);
-                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
-                    lab_cloudstatus.ForeColor = Color.Gray;
-                    var prameter = await TableSync.SyncFromLocalToCloud<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
-                    Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
-                    Properties.Settings.Default.Save();
+
+                    var Parametersage = await TableSyncAPI.SyncFromLocalToCloudNew<MachineParameter>(
+                            Local_context,
+                            "MachineParameters",
+                            keySelector: m => m.Id,
+                            changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                            ignoreProperties: new[] { "" }
+                        );
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUploadSuccess");
                     lab_cloudstatus.ForeColor = Color.Green;
+                   
 
                 }
                 catch (Exception ex)
@@ -180,20 +172,39 @@ namespace FX5U_IOMonitor.Resources
                     switch (tableName)
                     {
                         case "Blade_brand_TPI":
-                            var Blade_brand_TPI = await TableSync.SyncFromLocalToCloud<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
-                            TableSync.LogSyncResult("", Blade_brand_TPI);
-
+                           
+                            var Blade_brand_TPI = await TableSyncAPI.SyncFromLocalToCloudNew<Blade_brand_TPI>(
+                            Local_context,
+                            "Blade_brand_TPI",
+                            keySelector: m => m.Id,
+                            changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                            ignoreProperties: new[] { "" });
                             break;
                         case "Blade_brand":
-                            var Blade_brand = await TableSync.SyncFromLocalToCloud<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
-                            TableSync.LogSyncResult("", Blade_brand);
+                            var Blade_brand = await TableSyncAPI.SyncFromLocalToCloudNew<Blade_brand>(
+                              Local_context,
+                              "Blade_brand",
+                              keySelector: m => m.Id,
+                              changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                              ignoreProperties: new[] { "" });
                             break;
 
                         case "alarm":
-                            var alarm = await TableSync.SyncFromLocalToCloud<Alarm>(Local_context, Cloud_context, "alarm", "IPC_table");
-                            var AlarmTranslation = await TableSync.SyncFromLocalToCloud<AlarmTranslation>(Local_context, Cloud_context, "AlarmTranslation", "AlarmId", "Id");
-                            TableSync.LogSyncResult("", alarm);
-                            TableSync.LogSyncResult("", AlarmTranslation);
+
+                            var alarm = await TableSyncAPI.SyncFromLocalToCloudNew<Alarm>(
+                             Local_context,
+                             "alarm",
+                             keySelector: m => m.IPC_table,
+                             changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                             ignoreProperties: new[] { "AlarmTranslation", "AlarmId", "Id" });
+
+                            var AlarmTranslation = await TableSyncAPI.SyncFromLocalToCloudNew<AlarmTranslation>(
+                            Local_context,
+                            "AlarmTranslation",
+                            keySelector: m => m.Id,
+                            changeDetector: (a, b) => a.Id != b.Id,
+                            ignoreProperties: new[] { "AlarmTranslation", "AlarmId", "Id" });
+                           
                             break;
                         default:
                             throw new NotSupportedException($"未支援的 tableName: {tableName}");
@@ -214,7 +225,7 @@ namespace FX5U_IOMonitor.Resources
 
         private async void btn_cloud_Click(object sender, EventArgs e)
         {
-            using var Cloud_context = new CloudDbContext();
+
             using var Local_context = new ApplicationDB();
             lab_cloudstatus.Text = "";
             string? tableName = ComboBoxHelper.GetSelectedValue<string>(comb_datatable);
@@ -228,105 +239,98 @@ namespace FX5U_IOMonitor.Resources
             {
                 lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloading");
                 lab_cloudstatus.ForeColor = Color.Gray;
-                if (Cloud_context == null)
+             
+                switch (tableName)
                 {
-                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadFailed");
-                    lab_cloudstatus.ForeColor = Color.Red;
-                }
-                else
-                {
-                    if (Cloud_context == null)
-                    {
-                        throw new Exception("Cloud context 為 null");
-                    }
-                    switch (tableName)
-                    {
-                        case "Language":
-                            using (var local1 = new ApplicationDB())
-                            {
-                                var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Language>(
-                                    local1,
-                                    "Language",
-                                    keySelector: m => m.Key,
-                                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                                    ignoreProperties: new[] { "" }
-                                );
-                            }
-                            //var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
-                            //TableSync.LogSyncResult("", Language);
+                    case "Language":
+                        using (var local1 = new ApplicationDB())
+                        {
+                            var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Language>(
+                                local1,
+                                "Language",
+                                keySelector: m => m.Key,
+                                changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                                ignoreProperties: new[] { "" }
+                            );
+                        }
+                        //var Language = await TableSync.SyncFromCloudToLocal<Language>(Local_context, Cloud_context, tableName);
+                        //TableSync.LogSyncResult("", Language);
 
-                            break;
+                        break;
 
-                        case "Blade_brand_TPI":
-                            using (var local1 = new ApplicationDB())
-                            {
-                                var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Blade_brand_TPI>(
-                                    local1,
-                                    "Blade_brand_TPI",
-                                    keySelector: m => m.blade_TPI_id,
-                                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                                    ignoreProperties: new[] { "" }
-                                );
-                            }
-                            //var Blade_brand_TPI = await TableSync.SyncFromCloudToLocal<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
-                            //TableSync.LogSyncResult("", Blade_brand_TPI);
+                    case "Blade_brand_TPI":
+                        using (var local1 = new ApplicationDB())
+                        {
+                            var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Blade_brand_TPI>(
+                                local1,
+                                "Blade_brand_TPI",
+                                keySelector: m => m.blade_TPI_id,
+                                changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                                ignoreProperties: new[] { "" }
+                            );
+                        }
+                        //var Blade_brand_TPI = await TableSync.SyncFromCloudToLocal<Blade_brand_TPI>(Local_context, Cloud_context, "Blade_brand_TPI");
+                        //TableSync.LogSyncResult("", Blade_brand_TPI);
 
-                            break;
-                        case "Blade_brand":
-                            using (var local1 = new ApplicationDB())
-                            {
-                                var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Blade_brand>(
-                                    local1,
-                                    "Blade_brand",
-                                    keySelector: m => m.Id,
-                                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                                    ignoreProperties: new[] { "" }
-                                );
-                            }
-                            //var Blade_brand = await TableSync.SyncFromCloudToLocal<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
-                            //TableSync.LogSyncResult("", Blade_brand);
+                        break;
+                    case "Blade_brand":
+                        using (var local1 = new ApplicationDB())
+                        {
+                            var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Blade_brand>(
+                                local1,
+                                "Blade_brand",
+                                keySelector: m => m.Id,
+                                changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                                ignoreProperties: new[] { "" }
+                            );
+                        }
+                        //var Blade_brand = await TableSync.SyncFromCloudToLocal<Blade_brand>(Local_context, Cloud_context, "Blade_brand");
+                        //TableSync.LogSyncResult("", Blade_brand);
 
-                            break;
+                        break;
 
 
-                        case "alarm":
-                            using (var local1 = new ApplicationDB())
-                            {
-                                var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Alarm>(
-                                    local1,
-                                    "alarm",
-                                    keySelector: m => m.Id,
-                                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                                    ignoreProperties: new[] { "" }
-                                );
-                            }
+                    case "alarm":
+                        using (var local1 = new ApplicationDB())
+                        {
                            
-                            break;
-                        case "MachineParameters":
-                            using (var local1 = new ApplicationDB())
-                            {
-                                var Order = await TableSyncAPI.SyncFromCloudToLocalNew<MachineParameter>(
-                                    local1,
-                                    "MachineParameter",
-                                    keySelector: m => m.Id,
-                                    changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
-                                    ignoreProperties: new[] { "" }
-                                );
-                            }
+                            var Order = await TableSyncAPI.SyncFromCloudToLocalNew<Alarm>(
+                                local1,
+                                "alarm",
+                                keySelector: m => m.Id,
+                                changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                                ignoreProperties: new[] { "Translations", "AlarmHistories" }
+                            );
+                            
+                        }
+                      
 
-                            //var MachineParameters = await TableSync.SyncFromCloudToLocal<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
+                        break;
+                    case "MachineParameters":
+                        using (var local1 = new ApplicationDB())
+                        {
+                            var Order = await TableSyncAPI.SyncFromCloudToLocalNew<MachineParameter>(
+                                local1,
+                                "MachineParameter",
+                                keySelector: m => m.Id,
+                                changeDetector: (a, b) => a.UpdatedAt != b.UpdatedAt,
+                                ignoreProperties: new[] { "" }
+                            );
+                        }
 
-                            break;
-                        default:
-                            throw new NotSupportedException($"未支援的 tableName: {tableName}");
+                        //var MachineParameters = await TableSync.SyncFromCloudToLocal<MachineParameter>(Local_context, Cloud_context, "MachineParameters");
 
-                    }
-                    Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
-                    Properties.Settings.Default.Save();
-                    lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadSuccess");
-                    lab_cloudstatus.ForeColor = Color.Green;
+                        break;
+                    default:
+                        throw new NotSupportedException($"未支援的 tableName: {tableName}");
 
                 }
+                Properties.Settings.Default.Last_cloudupdatetime = DateTime.Now;
+                Properties.Settings.Default.Save();
+                lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldDownloadSuccess");
+                lab_cloudstatus.ForeColor = Color.Green;
+
+                
 
             }
             catch (Exception ex)

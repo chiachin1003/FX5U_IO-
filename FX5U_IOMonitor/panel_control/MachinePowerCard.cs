@@ -96,13 +96,13 @@ namespace FX5U_IOMonitor.panel_control
 
             if (scheduleFrequency == ScheduleFrequency.Weekly || scheduleFrequency == ScheduleFrequency.Minutely)
             {
-                lblPrevMonthtitle = LanguageManager.Translate("DrillInfo_LastWeek_TotalCount");
-                lblThisMonthtitle = LanguageManager.Translate("DrillInfo_ThisWeek_TotalCount");
+                lblPrevMonthtitle = LanguageManager.Translate("Info_LastWeek_Total");
+                lblThisMonthtitle = LanguageManager.Translate("Info_ThisWeek_Total");
             }
             else if (scheduleFrequency == ScheduleFrequency.Monthly || scheduleFrequency == ScheduleFrequency.Daily)
             {
-                lblPrevMonthtitle = LanguageManager.Translate("DrillInfo_LastMonth_TotalCount");
-                lblThisMonthtitle = LanguageManager.Translate("DrillInfo_ThisMonth_TotalCount");
+                lblPrevMonthtitle = LanguageManager.Translate("Info_LastMonth_Total");
+                lblThisMonthtitle = LanguageManager.Translate("Info_ThisMonth_Total");
             }
 
 

@@ -691,7 +691,7 @@ namespace FX5U_IOMonitor.Models
                                                 });
 
                                                 //Debug.WriteLine($"⚠️ 變化：{name} {oldVal} ➜ {newVal}");
-                                                int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
+                                                int historyVal = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
 
                                                 DBfunction.Set_Machine_History_NumericValue(machine_name,name, historyVal + 1);
 
@@ -703,7 +703,7 @@ namespace FX5U_IOMonitor.Models
                                         {
                                             if (!timer_bit.ContainsKey(name))
                                             {
-                                                int historyVal = DBfunction.Get_Machine_History_NumericValue(name);
+                                                int historyVal = DBfunction.Get_Machine_History_NumericValue(machine_name, name);
                                                 timer_bit[name] = new MonitorFunction.RuntimebitTimer
                                                 {
                                                     HistoryValue = historyVal
