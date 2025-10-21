@@ -41,9 +41,12 @@ namespace FX5U_IOMonitor.Utilization
     }
     public class ShiftResult
     {
-        public string Machinename { get; set; }
+        public string Machinename { get; set; } = "";
         public int ShiftNo { get; set; }
+        public string ShiftName { get; set; } = "";
+        public DateTime Date { get; set; }     // 哪一天
         public float CuttingSeconds { get; set; }
+        public float UtilizationPercent { get; set; }
     }
 
 }

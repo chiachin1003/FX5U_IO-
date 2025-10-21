@@ -56,9 +56,9 @@
         private void InitializeComponent()
         {
             dateTime_start = new DateTimePicker();
-            label1 = new Label();
+            lab_Date = new Label();
             comb_class = new ComboBox();
-            label2 = new Label();
+            lab_Class = new Label();
             btn_today = new Button();
             btn_yesterday = new Button();
             btn_lastweek = new Button();
@@ -90,18 +90,18 @@
             dateTime_start.Size = new Size(179, 27);
             dateTime_start.TabIndex = 11;
             // 
-            // label1
+            // lab_Date
             // 
-            label1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            label1.AutoSize = true;
-            label1.BackColor = SystemColors.ButtonHighlight;
-            label1.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label1.Location = new Point(376, 258);
-            label1.Name = "label1";
-            label1.Size = new Size(117, 26);
-            label1.TabIndex = 59;
-            label1.Text = "選擇日期：";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Date.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_Date.AutoSize = true;
+            lab_Date.BackColor = SystemColors.ButtonHighlight;
+            lab_Date.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_Date.Location = new Point(376, 258);
+            lab_Date.Name = "lab_Date";
+            lab_Date.Size = new Size(117, 26);
+            lab_Date.TabIndex = 59;
+            lab_Date.Text = "選擇日期：";
+            lab_Date.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // comb_class
             // 
@@ -112,18 +112,18 @@
             comb_class.Size = new Size(179, 28);
             comb_class.TabIndex = 60;
             // 
-            // label2
+            // lab_Class
             // 
-            label2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            label2.AutoSize = true;
-            label2.BackColor = SystemColors.ButtonHighlight;
-            label2.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label2.Location = new Point(376, 356);
-            label2.Name = "label2";
-            label2.Size = new Size(75, 26);
-            label2.TabIndex = 61;
-            label2.Text = "班別：";
-            label2.TextAlign = ContentAlignment.MiddleCenter;
+            lab_Class.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_Class.AutoSize = true;
+            lab_Class.BackColor = SystemColors.ButtonHighlight;
+            lab_Class.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_Class.Location = new Point(376, 356);
+            lab_Class.Name = "lab_Class";
+            lab_Class.Size = new Size(75, 26);
+            lab_Class.TabIndex = 61;
+            lab_Class.Text = "班別：";
+            lab_Class.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // btn_today
             // 
@@ -265,6 +265,7 @@
             // 
             // btn_calculate3
             // 
+            btn_calculate3.BackColor = SystemColors.ButtonHighlight;
             btn_calculate3.Dock = DockStyle.Fill;
             btn_calculate3.FlatStyle = FlatStyle.Flat;
             btn_calculate3.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
@@ -273,7 +274,7 @@
             btn_calculate3.Size = new Size(61, 31);
             btn_calculate3.TabIndex = 49;
             btn_calculate3.Text = "3";
-            btn_calculate3.UseVisualStyleBackColor = true;
+            btn_calculate3.UseVisualStyleBackColor = false;
             btn_calculate3.Click += btn_calculate3_Click;
             // 
             // dateTimePicker_start3
@@ -300,6 +301,7 @@
             // 
             // btn_calculate2
             // 
+            btn_calculate2.BackColor = SystemColors.ButtonHighlight;
             btn_calculate2.Dock = DockStyle.Fill;
             btn_calculate2.FlatStyle = FlatStyle.Flat;
             btn_calculate2.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
@@ -308,7 +310,7 @@
             btn_calculate2.Size = new Size(61, 31);
             btn_calculate2.TabIndex = 46;
             btn_calculate2.Text = "2";
-            btn_calculate2.UseVisualStyleBackColor = true;
+            btn_calculate2.UseVisualStyleBackColor = false;
             btn_calculate2.Click += btn_calculate2_Click;
             // 
             // dateTimePicker_start2
@@ -335,6 +337,7 @@
             // 
             // btn_calculate1
             // 
+            btn_calculate1.BackColor = SystemColors.ButtonHighlight;
             btn_calculate1.Dock = DockStyle.Fill;
             btn_calculate1.FlatStyle = FlatStyle.Flat;
             btn_calculate1.Font = new Font("Microsoft JhengHei UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 136);
@@ -343,7 +346,7 @@
             btn_calculate1.Size = new Size(61, 31);
             btn_calculate1.TabIndex = 40;
             btn_calculate1.Text = "1";
-            btn_calculate1.UseVisualStyleBackColor = true;
+            btn_calculate1.UseVisualStyleBackColor = false;
             btn_calculate1.Click += btn_calculate1_Click;
             // 
             // dateTimePicker_start1
@@ -392,9 +395,9 @@
             Controls.Add(btn_thisweek);
             Controls.Add(btn_yesterday);
             Controls.Add(btn_today);
-            Controls.Add(label2);
+            Controls.Add(lab_Class);
             Controls.Add(comb_class);
-            Controls.Add(label1);
+            Controls.Add(lab_Date);
             Controls.Add(dateTime_start);
             Controls.Add(tableLayoutPanel1);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -413,9 +416,9 @@
 
         #endregion
         private DateTimePicker dateTime_start;
-        private Label label1;
+        private Label lab_Date;
         private ComboBox comb_class;
-        private Label label2;
+        private Label lab_Class;
         private Button btn_today;
         private Button btn_yesterday;
         private Button btn_lastweek;

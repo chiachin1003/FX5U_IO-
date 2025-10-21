@@ -559,6 +559,7 @@ namespace FX5U_IOMonitor.DatabaseProvider
                 );
             if (keyProp == null) throw new Exception("Entity must have an Id property for update");
 
+            // 過濾非主鍵欄位
             var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                         .Where(p =>
                                 !Attribute.IsDefined(p, typeof(System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute)) &&

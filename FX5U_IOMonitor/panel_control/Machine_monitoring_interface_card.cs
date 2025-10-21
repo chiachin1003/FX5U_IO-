@@ -114,7 +114,7 @@ namespace FX5U_IOMonitor.panel_control
             foreach (var (paramName, langKey) in timeCardSourceList)
             {
                 string title = LanguageManager.Translate(langKey);
-                int seconds = DBfunction.Get_Machine_History_NumericValue(machine_name, paramName) + DBfunction.Get_Machine_number(paramName);
+                int seconds = DBfunction.Get_Machine_History_NumericValue("Drill", paramName) + DBfunction.Get_Machine_number(paramName);
                 string time = MonitorFunction.ConvertSecondsToDHMS(seconds);
 
                 var card = new MachineActiveCard();

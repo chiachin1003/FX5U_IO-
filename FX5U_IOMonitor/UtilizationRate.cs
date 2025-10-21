@@ -7,12 +7,15 @@ using Org.BouncyCastle.Utilities;
 using SLMP;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.Json;
 using System.Threading;
+using System.Windows.Forms;
 using static FX5U_IOMonitor.Check_point;
 using static FX5U_IOMonitor.Connect_PLC;
 using static FX5U_IOMonitor.Models.MonitoringService;
 using static FX5U_IOMonitor.Scheduling.DailyTask_config;
+using static FX5U_IOMonitor.Utilization.UtilizationRateCalculate;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -32,6 +35,8 @@ namespace FX5U_IOMonitor
         // 放在 class UtilizationRate 內
         private readonly Dictionary<string, UtilizationPanel> _machinePanels = new();
         private List<Machine_number> _machineList;
+
+
         private enum TimeScope { Today, Yesterday, ThisWeek, LastWeek }
 
         public UtilizationRate()
@@ -54,7 +59,15 @@ namespace FX5U_IOMonitor
             this.Text = LanguageManager.Translate("UtilizationRate_Main");
             lab_start.Text = LanguageManager.Translate("UtilizationRate_StartTime");
             lab_end.Text = LanguageManager.Translate("UtilizationRate_EndTime");
-           
+            btn_yesterday.Text = LanguageManager.Translate("UtilizationRate_lab_yesterday");
+            btn_today.Text = LanguageManager.Translate("UtilizationRate_lab_today");
+            btn_thisweek.Text = LanguageManager.Translate("UtilizationRate_lab_thisweek");
+            btn_lastweek.Text = LanguageManager.Translate("UtilizationRate_lab_lastweek");
+            lab_Date.Text = LanguageManager.Translate("UtilizationRate_lab_Date");
+            lab_Class.Text = LanguageManager.Translate("UtilizationRate_lab_Class");
+            btn_setting.Text = LanguageManager.Translate("UtilizationRate_btn_setting");
+            Text_design.SafeAdjustFont(btn_setting, btn_setting.Text);
+
 
         }
 
@@ -64,15 +77,20 @@ namespace FX5U_IOMonitor
             // 讀取預設模式（1~4）
             int mode = Properties.Settings.Default.DefaultUtilizationRate;
             _machineList = DBfunction.GetMachineIndexes();
+            // 重新讀取班別設定
+            Workshift = UtilizationConfigLoader.LoadShifts("UtilizationShiftConfig.json").Shifts;
 
-            comb_class.DataSource = Workshift
-               .Where(s => s.Enabled)
-               .Select(s => new { s.ShiftNo, Display = $"第{s.ShiftNo}班 ({s.Start}-{s.End})" })
-               .ToList();
+            // 刷新下拉選單
+            RefreshShiftComboBox(comb_class, Workshift);
 
-            comb_class.DisplayMember = "Display";
-            comb_class.ValueMember = "ShiftNo";
-            comb_class.SelectedValue = 1; // 預設第一班
+            //comb_class.DataSource = Workshift
+            //   .Where(s => s.Enabled)
+            //   .Select(s => new { s.ShiftNo, Display = $"No. {s.ShiftNo} ({s.Start}-{s.End})" })
+            //   .ToList();
+
+            //comb_class.DisplayMember = "Display";
+            //comb_class.ValueMember = "ShiftNo";
+            //comb_class.SelectedValue = 1; // 預設第一班
 
             RenderAllMachines(TimeScope.Today);
         }
@@ -99,36 +117,23 @@ namespace FX5U_IOMonitor
         {
             Properties.Settings.Default.DefaultUtilizationRate = 2;
             Properties.Settings.Default.Save();
+
         }
 
         private void btn_calculate3_Click(object sender, EventArgs e)
         {
             Properties.Settings.Default.DefaultUtilizationRate = 3;
             Properties.Settings.Default.Save();
+
         }
+
 
         private void btn_calculate4_Click(object sender, EventArgs e)
         {
             SaveUtilizationPair(dateTimePicker_start4, dateTimePicker_end4, 4);
             Properties.Settings.Default.DefaultUtilizationRate = 4;
             Properties.Settings.Default.Save();
-            //    float denom = UtilizationRateCalculate.GetDurationSeconds_ByMinuteDiff_NoOvernight(dateTimePicker_start4, dateTimePicker_end4);
-            //    // 避免除以 0
-            //    if (denom <= 0)
-            //    {
-            //        lab_recordtime.Text = LanguageManager.Translate("UtilizationRate_lab_error");
-            //        return;
-            //    }
 
-            //var (startLocal, endLocal) = BuildStartEndLocal(dateTime_start, dateTimePicker_start4, dateTimePicker_end4,
-            //                                               allowOvernight: false, equalMeansOneHour: false);
-
-            //    // 再轉 UTC
-            //    var (utcStart, utcEnd) = UtilizationRateCalculate.ToUtcRange(startLocal, endLocal);
-            //    Drill_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Drill");
-            //    Sawing_UtilizationRate = UtilizationRateCalculate.Get_UtilizationRate(utcStart, utcEnd, "Sawing");
-            //    RenderUtilizationGauge(Drill_UtilizationRate, denom, ref _drillPanel, this, "drillPanel", new Point(60, 40), new Size(150, 150));
-            //    RenderUtilizationGauge(Sawing_UtilizationRate, denom, ref _sawingPanel, this, "sawingPanel", new Point(300, 40), new Size(150, 150));
 
         }
         /// <summary>
@@ -147,12 +152,24 @@ namespace FX5U_IOMonitor
                 ConfigurePicker(startPicker, shift.Start);
                 ConfigurePicker(endPicker, shift.End);
 
-                // 你也可以加上 Enabled 判斷 → 比如禁用 Picker
                 if (!shift.Enabled)
                 {
                     startPicker.Enabled = false;
                     endPicker.Enabled = false;
                     button.Enabled = false;
+
+                    button.BackColor = Color.LightGray;
+                    button.ForeColor = Color.DarkGray;
+                }
+                else 
+                {
+                    startPicker.Enabled = true;
+                    endPicker.Enabled = true;
+                    button.Enabled = true;
+
+                    // 🔹 啟用時綠色
+                    button.BackColor = Color.MediumSeaGreen;
+                    button.ForeColor = Color.White;
                 }
             }
 
@@ -289,7 +306,10 @@ namespace FX5U_IOMonitor
             
             int shiftNo = Convert.ToInt32(comb_class.SelectedValue); //選定當前班別
             var shift = Workshift.FirstOrDefault(s => s.ShiftNo == shiftNo);
-            if (shift == null) return;
+            if (shift == null)
+            {
+                shiftNo = 0;
+            }
 
             DateTime selectedDate = dateTime_start.Value.Date;
           
@@ -312,22 +332,44 @@ namespace FX5U_IOMonitor
             int perRow = Math.Max(1, (this.Width - 120) / spacingX);
             int i = 0;
             List<ShiftResult> results = new();
-
+            float cutting = 0;
             foreach (var machine in _machineList)
             {
                 string machineName = machine.Name;
-
-                results = _currentScope switch
+                if ( shiftNo == 0 )
                 {
-                    TimeScope.Today => UtilizationRateCalculate.GetTodayCutting(machineName, Workshift),
-                    TimeScope.Yesterday => UtilizationRateCalculate.GetYesterdayCutting(machineName, Workshift, selectedDate),
-                    TimeScope.ThisWeek => UtilizationRateCalculate.GetThisWeekCutting(machineName, Workshift),
-                    TimeScope.LastWeek => UtilizationRateCalculate.GetLastWeekCutting(machineName, Workshift, selectedDate),
-                    _ => new List<ShiftResult>() // 預設值，避免 null
-                };
+                    cutting = _currentScope switch
+                    {
+                        TimeScope.Today => UtilizationCalculator.GetDailyUtilization(machineName, selectedDate).RunSeconds,
+                        TimeScope.Yesterday => UtilizationCalculator.GetDailyUtilization(machineName, (selectedDate.AddDays(-1))).RunSeconds,
+                        TimeScope.ThisWeek => UtilizationCalculator.GetWeeklyUtilization(machineName, true).RunSeconds,
+                        TimeScope.LastWeek => UtilizationCalculator.GetWeeklyUtilization(machineName, false).RunSeconds,
+                        _ => UtilizationCalculator.GetDailyUtilization(machineName, selectedDate).RunSeconds // 預設值，避免 null
+                    };
+                }
+                else 
+                {
+                    results = _currentScope switch
+                    {
+                        TimeScope.Today when selectedDate.Date != DateTime.Now.Date
+                               => UtilizationRateCalculate.GetTodayCutting(machineName, Workshift, selectedDate),
+                        TimeScope.Today
+                               => UtilizationRateCalculate.GetTodayCutting(machineName, Workshift),
+                        TimeScope.Yesterday => UtilizationRateCalculate.GetYesterdayCutting(machineName, Workshift, selectedDate),
+                        // ✅ 本週但日期不在當前週 → 改走上週邏輯
+                        TimeScope.ThisWeek when !IsSameWeek(selectedDate, DateTime.Now)
+                            => UtilizationRateCalculate.GetThisWeekCutting(machineName, Workshift, selectedDate),
+                        // ✅ 正常本週
+                        TimeScope.ThisWeek
+                            => UtilizationRateCalculate.GetThisWeekCutting(machineName, Workshift),
+                        TimeScope.LastWeek => UtilizationRateCalculate.GetLastWeekCutting(machineName, Workshift, selectedDate),
+                        _ => new List<ShiftResult>() // 預設值，避免 null
+                    };
+                    cutting = results.FirstOrDefault(r => r.ShiftNo == shiftNo)?.CuttingSeconds ?? 0;
+
+                }
 
 
-                float cutting = results.FirstOrDefault(r => r.ShiftNo == shiftNo)?.CuttingSeconds ?? 0;
 
                 int col = i % perRow;
                 int row = i / perRow;
@@ -403,6 +445,44 @@ namespace FX5U_IOMonitor
             SaveUtilizationPair(dateTimePicker_start3, dateTimePicker_end3, 3);
             SaveUtilizationPair(dateTimePicker_start4, dateTimePicker_end4, 4);
 
+        }
+        private void RefreshShiftComboBox(System.Windows.Forms.ComboBox comb_class, List<UtilizationShiftConfig> Workshift)
+        {
+            // 建立資料來源，先加上「Total」選項
+            var data = new List<object>
+            {
+                new { ShiftNo = 0, Display = "Total (00:00 - 23:59)" } // ⬅️ 第一個固定項目
+            };
+
+            // 加入所有啟用的班別
+            data.AddRange(
+                Workshift
+                    .Where(s => s.Enabled)
+                    .Select(s => new
+                    {
+                        s.ShiftNo,
+                        Display = $"No. {s.ShiftNo} ({s.Start}-{s.End})"
+                    })
+                    .ToList()
+            );
+
+            // 設定 ComboBox 資料來源
+            comb_class.DataSource = data;
+            comb_class.DisplayMember = "Display";
+            comb_class.ValueMember = "ShiftNo";
+
+            // 預設選擇第一筆（Total）
+            comb_class.SelectedValue = 0;
+        }
+        private static bool IsSameWeek(DateTime date1, DateTime date2)
+        {
+            var culture = System.Globalization.CultureInfo.CurrentCulture;
+            var calendar = culture.Calendar;
+
+            var week1 = calendar.GetWeekOfYear(date1, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            var week2 = calendar.GetWeekOfYear(date2, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+
+            return week1 == week2 && date1.Year == date2.Year;
         }
     }
 }

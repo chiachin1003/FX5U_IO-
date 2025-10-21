@@ -215,9 +215,63 @@ namespace FX5U_IOMonitor.Utilization
         }
         //要加入防呆
        
-        public static List<ShiftResult> GetCuttingByRange(string machineName,List<UtilizationShiftConfig> shifts, DateTime startLocal,DateTime endLocal)
+        //public static List<ShiftResult> GetCuttingByRange(string machineName,List<UtilizationShiftConfig> shifts, DateTime startLocal,DateTime endLocal)
+        //{
+        //    if (string.IsNullOrWhiteSpace(machineName)) return new List<ShiftResult>();
+
+        //    var tz = GetTaipeiTimeZone();
+        //    var startUtc = TimeZoneInfo.ConvertTimeToUtc(startLocal, tz);
+        //    var endUtc = TimeZoneInfo.ConvertTimeToUtc(endLocal, tz);
+
+        //    using var db = new ApplicationDB();
+
+        //    var query = db.UtilizationStatusRecord
+        //        .AsNoTracking()
+        //       .Where(r => r.Machinename == machineName &&
+        //        r.StartTime >= startUtc &&
+        //        r.EndTime <= endUtc)
+        //        .ToList();
+
+        //    var results = new List<ShiftResult>();
+
+        //    foreach (var shift in shifts.Where(s => s.Enabled))
+        //    {
+        //        var shiftStartLocal = startLocal.Date.Add(TimeSpan.Parse(shift.Start));
+        //        var shiftEndLocal = startLocal.Date.Add(TimeSpan.Parse(shift.End));
+
+        //        if (shiftEndLocal <= shiftStartLocal)
+        //            shiftEndLocal = shiftEndLocal.AddDays(1);
+
+        //        var shiftStartUtc = TimeZoneInfo.ConvertTimeToUtc(shiftStartLocal, tz);
+        //        var shiftEndUtc = TimeZoneInfo.ConvertTimeToUtc(shiftEndLocal, tz);
+
+        //        float cuttingSeconds = 0;
+
+        //        foreach (var r in query)
+        //        {
+        //            var s = r.StartTime < shiftStartUtc ? shiftStartUtc : r.StartTime;
+        //            var e = (r.EndTime) > shiftEndUtc ? shiftEndUtc : (r.EndTime);
+
+        //            if (e > s && r.Status == 1)
+        //            {
+        //                cuttingSeconds += (float)(e - s).TotalSeconds;
+        //            }
+        //        }
+
+        //        results.Add(new ShiftResult
+        //        {
+        //            Machinename = machineName,
+        //            ShiftNo = shift.ShiftNo,
+        //            CuttingSeconds = cuttingSeconds
+        //        });
+        //    }
+
+        //    return results;
+        //}
+        public static List<ShiftResult> GetCuttingByRange(string machineName,List<UtilizationShiftConfig> shifts,DateTime startLocal,DateTime endLocal)
         {
-            if (string.IsNullOrWhiteSpace(machineName)) return new List<ShiftResult>();
+            if (string.IsNullOrWhiteSpace(machineName))
+                return new List<ShiftResult>();
 
             var tz = GetTaipeiTimeZone();
             var startUtc = TimeZoneInfo.ConvertTimeToUtc(startLocal, tz);
@@ -225,50 +279,72 @@ namespace FX5U_IOMonitor.Utilization
 
             using var db = new ApplicationDB();
 
+            // 撈出該區間所有紀錄（不限定班別，後面再分班統計）
             var query = db.UtilizationStatusRecord
                 .AsNoTracking()
-               .Where(r => r.Machinename == machineName &&
-                r.StartTime >= startUtc &&
-                r.EndTime <= endUtc)
+                .Where(r => r.Machinename == machineName &&
+                            r.EndTime > startUtc &&
+                            r.StartTime < endUtc)  // 修正成時間重疊即可
                 .ToList();
 
             var results = new List<ShiftResult>();
 
-            foreach (var shift in shifts.Where(s => s.Enabled))
+            // 🚩 取得區間內所有日期
+            for (DateTime d = startLocal.Date; d <= endLocal.Date; d = d.AddDays(1))
             {
-                var shiftStartLocal = startLocal.Date.Add(TimeSpan.Parse(shift.Start));
-                var shiftEndLocal = startLocal.Date.Add(TimeSpan.Parse(shift.End));
-
-                if (shiftEndLocal <= shiftStartLocal)
-                    shiftEndLocal = shiftEndLocal.AddDays(1);
-
-                var shiftStartUtc = TimeZoneInfo.ConvertTimeToUtc(shiftStartLocal, tz);
-                var shiftEndUtc = TimeZoneInfo.ConvertTimeToUtc(shiftEndLocal, tz);
-
-                float cuttingSeconds = 0;
-
-                foreach (var r in query)
+                foreach (var shift in shifts.Where(s => s.Enabled))
                 {
-                    var s = r.StartTime < shiftStartUtc ? shiftStartUtc : r.StartTime;
-                    var e = (r.EndTime) > shiftEndUtc ? shiftEndUtc : (r.EndTime);
+                    // 產生當天的班別起訖時間（Local）
+                    var shiftStartLocal = d.Add(TimeSpan.Parse(shift.Start));
+                    var shiftEndLocal = d.Add(TimeSpan.Parse(shift.End));
+                    if (shiftEndLocal <= shiftStartLocal)
+                        shiftEndLocal = shiftEndLocal.AddDays(1); // 跨日處理
 
-                    if (e > s && r.Status == 1)
+                    // 如果超出查詢區間，裁切到邊界
+                    if (shiftEndLocal <= startLocal || shiftStartLocal >= endLocal)
+                        continue;
+
+                    if (shiftStartLocal < startLocal)
+                        shiftStartLocal = startLocal;
+                    if (shiftEndLocal > endLocal)
+                        shiftEndLocal = endLocal;
+
+                    // 轉換為 UTC
+                    var shiftStartUtc = TimeZoneInfo.ConvertTimeToUtc(shiftStartLocal, tz);
+                    var shiftEndUtc = TimeZoneInfo.ConvertTimeToUtc(shiftEndLocal, tz);
+
+                    float cuttingSeconds = 0;
+
+                    // ⚙️ 統計此班別內的運轉秒數
+                    foreach (var r in query)
                     {
-                        cuttingSeconds += (float)(e - s).TotalSeconds;
-                    }
-                }
+                        if (r.Status != 1) continue;
 
-                results.Add(new ShiftResult
-                {
-                    Machinename = machineName,
-                    ShiftNo = shift.ShiftNo,
-                    CuttingSeconds = cuttingSeconds
-                });
+                        var s = r.StartTime < shiftStartUtc ? shiftStartUtc : r.StartTime;
+                        var e = r.EndTime > shiftEndUtc ? shiftEndUtc : r.EndTime;
+
+                        if (e > s)
+                            cuttingSeconds += (float)(e - s).TotalSeconds;
+                    }
+
+                    // 計算班別時長（秒）
+                    var totalSeconds = (float)(shiftEndUtc - shiftStartUtc).TotalSeconds;
+                    var utilization = totalSeconds > 0 ? (cuttingSeconds / totalSeconds) * 100f : 0;
+
+                    results.Add(new ShiftResult
+                    {
+                        Machinename = machineName,
+                        ShiftNo = shift.ShiftNo,
+                        Date = d,
+                        CuttingSeconds = cuttingSeconds,
+                        UtilizationPercent = (float)Math.Round(utilization, 2)
+                    });
+                }
             }
 
             return results;
         }
-
+       
         public static List<ShiftResult> GetTodayCutting(string machineName, List<UtilizationShiftConfig> shifts)
         {
             var tz = GetTaipeiTimeZone();
@@ -279,19 +355,20 @@ namespace FX5U_IOMonitor.Utilization
 
             return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
         }
+        public static List<ShiftResult> GetTodayCutting(string machineName, List<UtilizationShiftConfig> shifts, DateTime selectedDate)
+        {
+            var tz = GetTaipeiTimeZone();
+            var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
 
-        // 昨天
-        //public static List<ShiftResult> GetYesterdayCutting(string machineName, List<UtilizationShiftConfig> shifts)
-        //{
-        //    var tz = GetTaipeiTimeZone();
-        //    var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+            var targetDate = DateTime.SpecifyKind(selectedDate, DateTimeKind.Unspecified);
 
-        //    var startLocal = nowTpe.Date.AddDays(-1); // 昨天 00:00
-        //    var endLocal = nowTpe.Date;               // 今天 00:00
+            // 起始時間：指定日期的 00:00
+            var startLocal = targetDate ;
 
-        //    return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
-        //}
-
+            // 結束時間：指定日期的隔天 00:00（完整一天）
+            var endLocal = targetDate.AddDays(1);
+            return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
+        }
         // 本週（週一 00:00 ~ 今天現在）
         public static List<ShiftResult> GetThisWeekCutting(string machineName, List<UtilizationShiftConfig> shifts)
         {
@@ -304,22 +381,19 @@ namespace FX5U_IOMonitor.Utilization
 
             return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
         }
+        public static List<ShiftResult> GetThisWeekCutting(string machineName, List<UtilizationShiftConfig> shifts, DateTime selectedDate)
+        {
+            var tz = GetTaipeiTimeZone();
+            var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+            var targetDate = DateTime.SpecifyKind(selectedDate, DateTimeKind.Unspecified);
 
-        //// 上週（週一 00:00 ~ 週日 23:59:59）
-        //public static List<ShiftResult> GetLastWeekCutting(string machineName, List<UtilizationShiftConfig> shifts)
-        //{
-        //    var tz = GetTaipeiTimeZone();
-        //    var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
-
-        //    int diff = (int)nowTpe.DayOfWeek == 0 ? 6 : (int)nowTpe.DayOfWeek - 1;
-        //    var thisMonday = nowTpe.Date.AddDays(-diff);   // 本週一 00:00
-        //    var lastMonday = thisMonday.AddDays(-7);       // 上週一 00:00
-        //    var lastSundayEnd = thisMonday;                // 本週一 (上週的結束)
-
-        //    return GetCuttingByRange(machineName, shifts, lastMonday, lastSundayEnd);
-        //}
+            int diff = (int)targetDate.DayOfWeek == 0 ? 6 : (int)targetDate.DayOfWeek - 1; // 星期一=0, 星期日=6                                                          
+            var startLocal = targetDate.Date.AddDays(-diff); // 本週一 00:00
+            var endLocal = startLocal.AddDays(7).AddSeconds(-1);
 
 
+            return GetCuttingByRange(machineName, shifts, startLocal, endLocal);
+        }
 
         // 昨天
         public static List<ShiftResult> GetYesterdayCutting(string machineName, List<UtilizationShiftConfig> shifts, DateTime selectedDate)
