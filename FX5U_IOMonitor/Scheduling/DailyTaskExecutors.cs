@@ -479,36 +479,8 @@ namespace FX5U_IOMonitor.Scheduling
                         int currentValue = useDefaultZero ? 0
                             : DBfunction.
                             Get_Machine_History_NumericValue(param.Machine_Name, param.Name) + DBfunction.Get_Machine_number(param.Machine_Name, param.Name);
-                        //寫入紀錄
-                        db.UtilizationRate.Add(new Utilization_Record
-                        {
-                            MachineParameterId = param.Id,
-                            Machine_Name = param.Machine_Name,
-                            StartTime = roundedStartTime,
-                            EndTime = roundedEndTime,
-                            History_NumericValue = currentValue,
-                            Unit = "Metric",
-                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}"
-                        });
                     }
-                    if (param.Read_type == "word" && param.Read_view == 5)
-                    {
-                        int currentValue = useDefaultZero ? 0
-                            : DBfunction.Get_Machine_NowValue(param.Machine_Name, param.Name);
-                        int historyValue = useDefaultZero ? 0
-                            : DBfunction.Get_Machine_History_NumericValue(param.Machine_Name, param.Name);
-                        db.UtilizationRate.Add(new Utilization_Record
-                        {
-                            MachineParameterId = param.Id,
-                            Machine_Name = param.Machine_Name,
-                            StartTime = roundedStartTime,
-                            EndTime = roundedEndTime,
-                            History_NumericValue = ( currentValue + historyValue ),
-                            Unit = "Metric",
-                            PeriodTag = $"{roundedStartTime:yyyyMMdd_HHmm}"
-                        });
-
-                    }
+                   
                 }
 
                 await db.SaveChangesAsync();

@@ -72,7 +72,6 @@ namespace FX5U_IOMonitor.Resources
 
         private async void btn_update_Click(object sender, EventArgs e)
         {
-            using var Cloud_context = new CloudDbContext();
             using var Local_context = new ApplicationDB();
             lab_cloudstatus.Text = "";
             string? tableName = ComboBoxHelper.GetSelectedValue<string>(comb_datatable);
@@ -165,10 +164,7 @@ namespace FX5U_IOMonitor.Resources
                 {
                     lab_cloudstatus.Text = LanguageManager.Translate("File_Settings_Message_ClouldUpload");
                     lab_cloudstatus.ForeColor = Color.Gray;
-                    if (Cloud_context == null)
-                    {
-                        throw new Exception("Cloud context 為 null");
-                    }
+                   
                     switch (tableName)
                     {
                         case "Blade_brand_TPI":

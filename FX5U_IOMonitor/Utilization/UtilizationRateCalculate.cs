@@ -54,42 +54,6 @@ namespace FX5U_IOMonitor.Utilization
         
 
 
-        /// <summary>
-        /// 尋找上周最後一筆的稼動率紀錄
-        /// </summary>
-        /// <param name="machineName"></param>
-        /// <returns></returns>
-        public static int GetLastWeekLastValue(string machineName, bool mondayStart = true)
-        {
-            if (string.IsNullOrWhiteSpace(machineName)) return 0;
-
-            var tz = GetTaipeiTimeZone();
-            var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
-
-            // 取得「上週」的本地起訖（左閉右開）
-            var (wkLocalStart, wkLocalEnd) = GetLastWeekLocalRange(nowTpe, mondayStart);
-
-            // 轉成 UTC 查資料庫（你的 StartTime 存 UTC）
-            var wkUtcStart = TimeZoneInfo.ConvertTimeToUtc(wkLocalStart, tz);
-            var wkUtcEnd = TimeZoneInfo.ConvertTimeToUtc(wkLocalEnd, tz);
-
-            using var db = new ApplicationDB();
-
-            // 若同一 StartTime 可能多筆：先聚合再取最後一個時間點的總和值
-            var lastSum = db.UtilizationRate
-                .AsNoTracking()
-                .Where(r => r.Machine_Name == machineName &&
-                            r.StartTime >= wkUtcStart &&
-                            r.StartTime < wkUtcEnd)
-                .GroupBy(r => r.StartTime)
-                .Select(g => new { Time = g.Key, SumVal = (int?)g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
-                .OrderByDescending(x => x.Time)
-                .Select(x => x.SumVal)
-                .FirstOrDefault();
-
-            return lastSum; // 上週區間內「最後一筆」的值
-        }
-        /// <summary>
         /// 尋找昨日最後的稼動率總紀錄量
         /// </summary>
         /// <param name="machineName"></param>
@@ -147,72 +111,10 @@ namespace FX5U_IOMonitor.Utilization
             try { return TimeZoneInfo.FindSystemTimeZoneById("Taipei Standard Time"); }  // Windows
             catch { return TimeZoneInfo.FindSystemTimeZoneById("Asia/Taipei"); }         // Linux
         }
-        public static int Get_UtilizationRate(DateTime utcStart, DateTime utcEnd, string Machinename)
-        {
-            if (utcEnd <= utcStart)
-                throw new ArgumentException("utcEnd 必須大於 utcStart");
-            if (string.IsNullOrWhiteSpace(Machinename))
-                return 0;
-
-            using var db = new ApplicationDB();
-
-            // 只抓到需要的欄位
-            var q = db.UtilizationRate
-                .AsNoTracking()
-                .Where(r => r.StartTime >= utcStart &&
-                            r.StartTime < utcEnd &&
-                            r.Machine_Name == Machinename);
-
-            // 先「同一時間點」聚合相加，再取首尾
-            var firstSum = q.GroupBy(r => r.StartTime)
-                 .Select(g => new { Time = g.Key, SumVal = g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
-                 .OrderBy(x => x.Time)
-                 .Select(x => x.SumVal)
-                 .FirstOrDefault();
-            var lastSum = q.GroupBy(r => r.StartTime)
-                .Select(g => new { Time = g.Key, SumVal = g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
-                .OrderByDescending(x => x.Time)
-                .Select(x => x.SumVal)
-                .FirstOrDefault();
-
-            return lastSum - firstSum;
-
-        }
+    
 
 
-        /// <summary>
-        /// 取得指定機台的 currentValue（HistoryValue + NowValue）。
-        /// </summary>
-        public static int GetCurrentUtilization(string machineName)
-        {
-            if (string.IsNullOrWhiteSpace(machineName)) return 0;
-            using var db = new ApplicationDB();
-            if (machineName == "Drill")
-            {
-                int? val = db.MachineParameters
-                .AsNoTracking()
-                .Where(p => p.Name == "Drill_plc_usetime")
-                .Select(p => ((int?)p.History_NumericValue ?? 0) + ((int?)p.now_NumericValue ?? 0))
-                .SingleOrDefault();
-
-                //這裡理論上只有一筆，請幫我補上
-                return val ?? 0;
-
-            }
-            else
-            {
-                //這裡可能會搜尋到多筆，每一筆的History_NumericValue ?? 0)相加後再總和
-                int total = db.MachineParameters
-                 .AsNoTracking()
-                 .Where(p => p.Machine_Name == machineName &&
-                             p.Read_type == "word" && p.Read_view == 5)
-                 .Select(p => (p.History_NumericValue ?? 0) + (p.now_NumericValue ?? 0))
-                 .Sum(x => (int)x);
-
-                return total;
-
-            }
-        }
+       
         //要加入防呆
        
         //public static List<ShiftResult> GetCuttingByRange(string machineName,List<UtilizationShiftConfig> shifts, DateTime startLocal,DateTime endLocal)

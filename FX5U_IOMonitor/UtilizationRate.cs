@@ -369,8 +369,6 @@ namespace FX5U_IOMonitor
 
                 }
 
-
-
                 int col = i % perRow;
                 int row = i / perRow;
                 var location = new Point(x + col * spacingX, y + row * spacingY);
