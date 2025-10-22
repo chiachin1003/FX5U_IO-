@@ -133,8 +133,8 @@ namespace FX5U_IOMonitor.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("5e3yIPf5bcbSJh4ebTs45xAgRsCKj6oj9M8GsCIOMbp4Oadrv1YZpt7WsY1kqk4AXmz8nfGzC9tRH8Kvg" +
-            "mQWsXu0AXWh5BiMiJ6FU+YqeOi9duMvYv5yiLMAmlqxkFyvhT5ZwREsBVY/xuYIU05EyAdB04t89/1O/" +
+        [global::System.Configuration.DefaultSettingValueAttribute("WpbFYDIBinzTU96hCVd3xpD7/R9iLp/Hnc3x2hzHJw4WUX2oNmF5CZi0OLczDUoFL5GJ574uHkaeuRUPr" +
+            "jd9CyfUqArCCbwSm2jPPKxkWCwdFOlfvnXfVp2S5EaW/4j9xPAHwWOBiAOYD0v1SAV5xgdB04t89/1O/" +
             "w1cDnyilFU=")]
         public string LineAccessToken {
             get {

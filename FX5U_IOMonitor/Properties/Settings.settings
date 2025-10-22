@@ -30,7 +30,7 @@
       <Value Profile="(Default)">Metric</Value>
     </Setting>
     <Setting Name="LineAccessToken" Type="System.String" Scope="User">
-      <Value Profile="(Default)">5e3yIPf5bcbSJh4ebTs45xAgRsCKj6oj9M8GsCIOMbp4Oadrv1YZpt7WsY1kqk4AXmz8nfGzC9tRH8KvgmQWsXu0AXWh5BiMiJ6FU+YqeOi9duMvYv5yiLMAmlqxkFyvhT5ZwREsBVY/xuYIU05EyAdB04t89/1O/w1cDnyilFU=</Value>
+      <Value Profile="(Default)">WpbFYDIBinzTU96hCVd3xpD7/R9iLp/Hnc3x2hzHJw4WUX2oNmF5CZi0OLczDUoFL5GJ574uHkaeuRUPrjd9CyfUqArCCbwSm2jPPKxkWCwdFOlfvnXfVp2S5EaW/4j9xPAHwWOBiAOYD0v1SAV5xgdB04t89/1O/w1cDnyilFU=</Value>
     </Setting>
     <Setting Name="LineImagePath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

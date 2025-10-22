@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FX5U_IOMonitor.Data
 {
-    public class DisconnectRecord
+    public class DisconnectRecord :SyncableEntity
     {
         [Key]
         public int Id { get; set; }  

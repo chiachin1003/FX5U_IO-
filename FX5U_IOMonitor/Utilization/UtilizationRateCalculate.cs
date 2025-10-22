@@ -54,57 +54,7 @@ namespace FX5U_IOMonitor.Utilization
         
 
 
-        /// 尋找昨日最後的稼動率總紀錄量
-        /// </summary>
-        /// <param name="machineName"></param>
-        /// <returns></returns>
-        public static int GetYesterdayLastValue(string machineName)
-        {
-            if (string.IsNullOrWhiteSpace(machineName)) return 0;
-
-            var tz = GetTaipeiTimeZone();                       // 以台北日界線計算「昨天」
-            var nowTpe = TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
-            var yLocalStart = nowTpe.Date.AddDays(-1);          // 昨天 00:00 (台北)
-            var yLocalEnd = nowTpe.Date;                      // 今天 00:00 (台北)
-            var yUtcStart = TimeZoneInfo.ConvertTimeToUtc(yLocalStart, tz);
-            var yUtcEnd = TimeZoneInfo.ConvertTimeToUtc(yLocalEnd, tz);
-
-            using var db = new ApplicationDB();
-
-            // 若同一 StartTime 可能有多筆，先聚合（Sum），再取「最後一個時間點」的總和值
-            var lastSum = db.UtilizationRate
-                .AsNoTracking()
-                .Where(r => r.Machine_Name == machineName &&
-                            r.StartTime >= yUtcStart &&
-                            r.StartTime < yUtcEnd)
-                .GroupBy(r => r.StartTime)
-                .Select(g => new { Time = g.Key, SumVal = (int?)g.Sum(x => (int?)x.History_NumericValue) ?? 0 })
-                .OrderByDescending(x => x.Time)
-                .Select(x => x.SumVal)
-                .FirstOrDefault();
-
-            return lastSum;   // 就是「昨天的最後一筆（總和）」
-        }
-        private static (DateTime localStart, DateTime localEnd) GetLastWeekLocalRange(DateTime nowLocal, bool mondayStart)
-        {
-            if (mondayStart)
-            {
-                // 以週一為週首
-                int daysSinceMonday = ((int)nowLocal.DayOfWeek + 6) % 7; // Mon=0,...Sun=6
-                var thisWeekMon = nowLocal.Date.AddDays(-daysSinceMonday);
-                var lastWeekMon = thisWeekMon.AddDays(-7);
-                return (lastWeekMon, thisWeekMon);
-            }
-            else
-            {
-                // 以週日為週首
-                int daysSinceSunday = (int)nowLocal.DayOfWeek; // Sun=0,...Sat=6
-                var thisWeekSun = nowLocal.Date.AddDays(-daysSinceSunday);
-                var lastWeekSun = thisWeekSun.AddDays(-7);
-                return (lastWeekSun, thisWeekSun);
-            }
-        }
-
+      
 
         public static TimeZoneInfo GetTaipeiTimeZone()
         {

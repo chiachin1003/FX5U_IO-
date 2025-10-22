@@ -127,7 +127,7 @@ namespace FX5U_IOMonitor
             plcForm = new Connect_PLC(this);
             DisconnectEvents.FailureConnect += OnFailureConnect;
 
-            //_ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
+            _ = Connect_PLC.AutoConnectAllMachines(plcForm); //自動連線
 
             this.Shown += MainForm_Shown;
 

@@ -139,6 +139,8 @@
             lab_last_ratio1 = new Label();
             lab_lastweek1 = new Label();
             panel_Drill = new Panel();
+            btn_toggle = new Button();
+            lab_Db_update = new Label();
             tableLayoutPanel1 = new TableLayoutPanel();
             lab_today_ratio = new Label();
             lab_today = new Label();
@@ -148,7 +150,6 @@
             lab_thisweek = new Label();
             lab_last_ratio = new Label();
             lab_lastweek = new Label();
-            btn_toggle = new Button();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -938,6 +939,8 @@
             panel_Swing.BackgroundImage = Properties.Resources.Swaing;
             panel_Swing.BackgroundImageLayout = ImageLayout.Center;
             panel_Swing.BorderStyle = BorderStyle.FixedSingle;
+            panel_Swing.Controls.Add(btn_toggle);
+            panel_Swing.Controls.Add(lab_Db_update);
             panel_Swing.Controls.Add(tableLayoutPanel2);
             panel_Swing.Location = new Point(463, 12);
             panel_Swing.Name = "panel_Swing";
@@ -1083,6 +1086,24 @@
             panel_Drill.Size = new Size(385, 297);
             panel_Drill.TabIndex = 47;
             // 
+            // btn_toggle
+            // 
+            btn_toggle.FlatStyle = FlatStyle.Flat;
+            btn_toggle.Location = new Point(6, 8);
+            btn_toggle.Name = "btn_toggle";
+            btn_toggle.Size = new Size(21, 20);
+            btn_toggle.TabIndex = 56;
+            btn_toggle.UseVisualStyleBackColor = false;
+            btn_toggle.Click += btn_toggle_Click_1;
+            // 
+            // lab_Db_update
+            // 
+            lab_Db_update.AutoSize = true;
+            lab_Db_update.Location = new Point(34, 11);
+            lab_Db_update.Name = "lab_Db_update";
+            lab_Db_update.Size = new Size(0, 15);
+            lab_Db_update.TabIndex = 57;
+            // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
@@ -1207,15 +1228,6 @@
             lab_lastweek.Text = "上週:";
             lab_lastweek.TextAlign = ContentAlignment.MiddleLeft;
             // 
-            // btn_toggle
-            // 
-            btn_toggle.Location = new Point(854, 583);
-            btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(34, 31);
-            btn_toggle.TabIndex = 56;
-            btn_toggle.UseVisualStyleBackColor = false;
-            //btn_toggle.Click += btn_toggle_Click;
-            // 
             // Home_Page
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1223,7 +1235,6 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(956, 639);
-            Controls.Add(btn_toggle);
             Controls.Add(panel12);
             Controls.Add(panel11);
             Controls.Add(panel_Swing);
@@ -1266,6 +1277,7 @@
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
             panel_Swing.ResumeLayout(false);
+            panel_Swing.PerformLayout();
             tableLayoutPanel2.ResumeLayout(false);
             panel_Drill.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
@@ -1348,6 +1360,7 @@
         private Panel panel5;
         private Panel panel6;
         private Label lab_connectrecord1;
+        private Label lab_Db_update;
     }
 }
 

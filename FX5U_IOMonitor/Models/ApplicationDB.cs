@@ -39,7 +39,6 @@ namespace FX5U_IOMonitor.Models
 
         public DbSet<MachineIO> Machine_IO { get; set; }
         public DbSet<History> Histories { get; set; }
-        public DbSet<Utilization_Record> UtilizationRate { get; set; }
         public DbSet<UtilizationStatusRecord> UtilizationStatusRecord { get; set; }
         public DbSet<ServoDriveAlarm> ServoDriveAlarm { get; set; }
         public DbSet<ControlAlarm> ControlAlarm { get; set; }
@@ -148,7 +147,6 @@ namespace FX5U_IOMonitor.Models
         public DbSet<Alarm> alarm { get; set; }
         public DbSet<AlarmHistory> AlarmHistories { get; set; }
         public DbSet<MachineParameter> MachineParameters { get; set; }
-        public DbSet<Utilization_Record> UtilizationRate { get; set; }
 
         public DbSet<MachineParameterHistoryRecode> MachineParameterHistoryRecodes { get; set; }
         public DbSet<Blade_brand> Blade_brand { get; set; }

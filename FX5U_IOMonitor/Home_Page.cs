@@ -33,7 +33,6 @@ namespace FX5U_IOMonitor
         private Stopwatch stopwatch;
 
         // 同步功能呼叫變數
-        private static System.Timers.Timer? _syncTimer;
         private static readonly SemaphoreSlim _syncLock = new(1, 1);
         private static ApplicationDB? _SysLocal;
         private static CloudDbContext? _SysCloud;
@@ -457,6 +456,57 @@ namespace FX5U_IOMonitor
             }
         }
         private WeakReference<Button>? _statusBtnRef;
+        private bool _isSyncEnabled = false;
+        private System.Threading.Timer? _syncTimer;
+
+        private async void btn_toggle_Click_1(object sender, EventArgs e)
+        {
+            // 反轉狀態
+            _isSyncEnabled = !_isSyncEnabled;
+
+            if (_isSyncEnabled)
+            {
+                // 開啟同步
+                btn_toggle.BackColor = Color.Green;
+
+                _syncTimer = new System.Threading.Timer(async _ =>
+                {
+                    try
+                    {
+                        await TableSyncAPI.SyncLocalToCloudAllTables(_SysLocal, _SysCloud);
+                        // 安全地在 UI 執行緒中更新 Label
+                        if (lab_Db_update.InvokeRequired)
+                        {
+                            lab_Db_update.Invoke(() =>
+                            {
+                                lab_Db_update.Text = $"[{DateTime.Now}]";
+                            });
+                        }
+                        else
+                        {
+                            lab_Db_update.Text = $"[{DateTime.Now}]";
+                        }
+
+                        Console.WriteLine($"[{DateTime.Now}] 同步完成");
+                    }
+                    catch (Exception ex)
+                    {
+                        // 若同步失敗，可記錄或顯示錯誤訊息
+                        Console.WriteLine($"同步失敗：{ex.Message}");
+                    }
+                }, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); // 立即執行一次，之後每30秒重複
+            }
+            else
+            {
+                // 停止同步
+                _syncTimer?.Dispose();
+                _syncTimer = null;
+
+                // 關閉同步
+                btn_toggle.BackColor = Color.Red;
+            }
+
+        }
         private async void btn_toggle_Click(object sender, EventArgs e)
         {
 
@@ -777,7 +827,7 @@ namespace FX5U_IOMonitor
         }
 
         private UtilizationSummary ShowUtilizationRate(string machine)
-         {
+        {
             DateTime selectedDate = DateTime.Today; // 自動取今天日期
             var Today = UtilizationCalculator.GetDailyUtilization(machine, selectedDate);
 
@@ -806,7 +856,7 @@ namespace FX5U_IOMonitor
         {
             try
             {
-                
+
                 Drillutilization = ShowUtilizationRate("Drill");
                 Sawingutilization = ShowUtilizationRate("Sawing");
 

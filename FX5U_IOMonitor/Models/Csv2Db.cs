@@ -768,13 +768,13 @@ namespace FX5U_IOMonitor.Models
                 int addCount = 0;
                 foreach (var row in records)
                 {
-                    if (!existingIds.Contains(row.FrequencyAlarmID))
+                    if (!existingIds.Contains(row.Id))
                     {
                         var brand = new FrequencyConverAlarm
                         {
                             Id = row.Id,
                             FrequencyErrorDetail = row.FrequencyErrorDetail,
-                            FrequencyAlarmID = row.FrequencyAlarmID,
+                            FrequencyAlarmID = Convert.ToInt32(row.FrequencyAlarmID, 16),
                             FrequencyAlarmInfo = row.FrequencyAlarmInfo,
                             FrequencyStatus = row.FrequencyStatus,
                             FrequencySolution = row.FrequencySolution
@@ -799,7 +799,7 @@ namespace FX5U_IOMonitor.Models
         {
             public int Id { get; set; }
             public string FrequencyStatus { get; set; }
-            public int FrequencyAlarmID { get; set; }
+            public string FrequencyAlarmID { get; set; }
             public string FrequencyAlarmInfo { get; set; }
             public string FrequencyErrorDetail { get; set; }
             public string FrequencySolution { get; set; }

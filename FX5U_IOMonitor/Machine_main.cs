@@ -23,6 +23,7 @@ namespace FX5U_IOMonitor
 
         private string MachineType;                        //當前機台資料
         private List<string> matchedBtnTags;               //當前語系標籤
+        private bool _isShowingAlarm = false;
 
         private static Dictionary<string, Machine_main> _instances = new(); // 指定固定視窗
 
@@ -315,7 +316,7 @@ namespace FX5U_IOMonitor
         private void lab_partalarm_Click(object sender, EventArgs e)
         {
 
-            var existingContext = MachineHub.Get("Drill");
+            var existingContext = MachineHub.Get(MachineType);
             if (existingContext != null && existingContext.IsConnected)
             {
                 List<string> breakdown_part = DBfunction.Get_breakdown_part(MachineType);
@@ -348,10 +349,10 @@ namespace FX5U_IOMonitor
 
                     this.Invoke(() =>
                     {
-                        var hub = MachineHub.Get("Drill");
+                        var hub = MachineHub.Get(MachineType);
                         if (hub?.IsConnected == true)
                         {
-                            AlarmMonitorManager.EnsureRegistered("Drill", OnDrillAlarm);
+                            AlarmMonitorManager.EnsureRegistered(MachineType, OnDrillAlarm);
                         }
                     });
                 }
@@ -382,7 +383,9 @@ namespace FX5U_IOMonitor
                     string comment = DBfunction.Get_Comment_ByAddress(table, IOelement);
                     string possible = DBfunction.Get_Possible_ByAddress(e.Address);
                     string repair = DBfunction.Get_Repair_steps_ByAddress(e.Address);
-
+                    // 防止重複跳出訊息視窗
+                    if (_isShowingAlarm) return;
+                    _isShowingAlarm = true;
                     MessageBox.Show(
                         $"{LanguageManager.Translate("Alarm_Message_Error_Warning")}\n" +
                         $"{LanguageManager.Translate("Alarm_Message_Source")}：{table} | {LanguageManager.Translate("Alarm_Message_Error_Address")}：{e.Address}\n" +
@@ -395,10 +398,44 @@ namespace FX5U_IOMonitor
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );
+                    //Task.Run(() =>
+                    //{
+                    //    try
+                    //    {
+                    //        MessageBox.Show(
+                    //            $"{LanguageManager.Translate("Alarm_Message_Error_Warning")}\n" +
+                    //            $"{LanguageManager.Translate("Alarm_Message_Source")}：{table} | {LanguageManager.Translate("Alarm_Message_Error_Address")}：{e.Address}\n" +
+                    //            $"{LanguageManager.Translate("Alarm_Message_Error_Item")}：{Description}\n" +
+                    //            $"{LanguageManager.Translate("Alarm_Message_Error_Message")}：{error}\n" +
+                    //            $"{LanguageManager.Translate("Alarm_Message_Item_Comment")}：{comment}\n" +
+                    //            $"{LanguageManager.Translate("Alarm_Message_Possible_Cause")}：{possible}\n" +
+                    //            $"{LanguageManager.Translate("Alarm_Message_Repair_Steps")}：\n{repair}",
+                    //            LanguageManager.Translate("Alarm_Message_Error_Window_Title"),
+                    //            MessageBoxButtons.OK,
+                    //            MessageBoxIcon.Warning
+                    //        );
+                    //    }
+                    //    finally
+                    //    {
+                    //        _isShowingAlarm = false;
+                    //    }
+                    //});
                 }
                 else
                 {
                     MessageBox.Show(LanguageManager.Translate("Machine_main_AlarmMessage_MachineconnectError") + $"{des} ");
+                    
+                    // 同樣改成背景顯示，不阻塞主線程
+                    //Task.Run(() =>
+                    //{
+                    //    MessageBox.Show(
+                    //        LanguageManager.Translate("Machine_main_AlarmMessage_MachineconnectError") + $"{des} ",
+                    //        LanguageManager.Translate("Alarm_Message_Error_Window_Title"),
+                    //        MessageBoxButtons.OK,
+                    //        MessageBoxIcon.Warning
+                    //    );
+                    //});
+                    
                 }
             }
         }
