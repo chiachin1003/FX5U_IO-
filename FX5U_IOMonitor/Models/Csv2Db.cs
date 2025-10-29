@@ -743,6 +743,10 @@ namespace FX5U_IOMonitor.Models
             return "oct"; // 全部只含 0-7 的話視為八進位
         }
 
+        /// <summary>
+        /// 變頻器異常表新增
+        /// </summary>
+        /// <param name="csvPath"></param>
         public static void Initialization_FrequencyConverAlarmFromCSV(string csvPath)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -805,7 +809,10 @@ namespace FX5U_IOMonitor.Models
             public string FrequencySolution { get; set; }
 
         }
-
+        /// <summary>
+        /// 伺服控制器異常表提供
+        /// </summary>
+        /// <param name="csvPath"></param>
         public static void Initialization_ServoDriveAlarmFromCSV(string csvPath)
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -866,7 +873,75 @@ namespace FX5U_IOMonitor.Models
 
         }
 
+
+
+        /// <summary>
+        /// 控制軸異常表提供
+        /// </summary>
+        /// <param name="csvPath"></param>
+        public static void Initialization_Control_AlarmFromCSV(string csvPath)
+        {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Encoding = System.Text.Encoding.UTF8,
+                PrepareHeaderForMatch = args => args.Header.Trim(),
+                MissingFieldFound = null,
+                HeaderValidated = null
+            };
+
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, config);
+            try
+            {
+                var records = csv.GetRecords<ControlAlarmcsv>().ToList();
+
+                using var context = new ApplicationDB();
+
+                // 防呆：先查出已存在的品牌 ID
+                var existingIds = context.ControlAlarm.Select(b => b.Id).ToHashSet();
+
+                int addCount = 0;
+                foreach (var row in records)
+                {
+                    if (!existingIds.Contains(row.Id))
+                    {
+                        var Calarm = new ControlAlarm
+                        {
+                            Id = row.Id,
+                            ControlAlarmId = Convert.ToInt32(row.ControlAlarmId, 16),
+                            ControlAlarmInfo = row.ControlAlarmInfo,
+                            ControlErrorDetail = row.ControlErrorDetail,
+                            ControlSolution = row.ControlSolution
+                        };
+
+                        context.ControlAlarm.Add(Calarm);
+                        addCount++;
+                    }
+                }
+
+                context.SaveChanges();
+            }
+            catch (HeaderValidationException ex)
+            {
+                Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+        }
+        private class ControlAlarmcsv
+        {
+            public int Id { get; set; }
+            public required string ControlAlarmId { get; set; }
+            public required string ControlAlarmInfo { get; set; }
+            public required string ControlErrorDetail { get; set; }
+            public required string ControlSolution { get; set; }
+
+        }
     }
+
+
+
+
+}
 
     
 

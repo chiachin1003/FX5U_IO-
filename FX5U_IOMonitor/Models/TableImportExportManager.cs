@@ -522,7 +522,6 @@ namespace FX5U_IOMonitor.Models
             alarm.IPC_table = dict.TryGetValue("IPC_table", out var ipc) ? ipc?.ToString() ?? "" : "";
 
             alarm.Description = dict.TryGetValue("Description", out var desc) ? desc?.ToString() ?? "" : "";
-            //alarm.classTag = dict.TryGetValue("classTag", out var tag) ? tag?.ToString() ?? "" : "";
             alarm.classTag = dict.TryGetValue("ClassTag", out var tag) ? tag?.ToString() ?? "" : dict.TryGetValue("classTag", out tag) ? tag?.ToString() ?? ""
             : existing?.classTag ?? "";
             // --------------------------

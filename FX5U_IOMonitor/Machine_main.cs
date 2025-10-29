@@ -424,18 +424,6 @@ namespace FX5U_IOMonitor
                 else
                 {
                     MessageBox.Show(LanguageManager.Translate("Machine_main_AlarmMessage_MachineconnectError") + $"{des} ");
-                    
-                    // 同樣改成背景顯示，不阻塞主線程
-                    //Task.Run(() =>
-                    //{
-                    //    MessageBox.Show(
-                    //        LanguageManager.Translate("Machine_main_AlarmMessage_MachineconnectError") + $"{des} ",
-                    //        LanguageManager.Translate("Alarm_Message_Error_Window_Title"),
-                    //        MessageBoxButtons.OK,
-                    //        MessageBoxIcon.Warning
-                    //    );
-                    //});
-                    
                 }
             }
         }

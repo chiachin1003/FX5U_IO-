@@ -97,16 +97,26 @@ namespace FX5U_IOMonitor.Models
                         MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                    //J4的資料格式，未新增
-                    //try
-                    //{
-                    //    Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    //    return;
-                    //}
+                    //J4的資料格式
+                    try
+                    {
+                        Csv2Db.Initialization_Control_AlarmFromCSV("Control_J4.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    //變頻器的資料格式
+                    try
+                    {
+                        Csv2Db.Initialization_ServoDriveAlarmFromCSV("FrequenceAlarm.csv");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
 
             }
