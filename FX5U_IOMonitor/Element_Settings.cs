@@ -363,6 +363,7 @@ namespace FX5U_IOMonitor.Resources
         /// <summary>
         /// 添加單個機台元件並支援多語系
         /// </summary>
+       
         private static void AddMachineElement(ApplicationDB context, string targetMachine, MachineIO elementData, Dictionary<string, string> translations)
         {
             try
@@ -371,7 +372,7 @@ namespace FX5U_IOMonitor.Resources
                 var machine = context.Machine.FirstOrDefault(m => m.Name == targetMachine);
                 if (machine == null)
                 {
-                    machine = new Machine_number { Name = targetMachine, IP_address = "", Port = 0 ,MC_Type="MC3E"};
+                    machine = new Machine_number { Name = targetMachine, IP_address = "", Port = 0, MC_Type = "MC3E" };
                     context.Machine.Add(machine);
                     context.SaveChanges();
                 }
@@ -384,7 +385,7 @@ namespace FX5U_IOMonitor.Resources
                 {
                     Machine_name = targetMachine,
                     ClassTag = elementData.ClassTag?.Trim() ?? "未分類",
-                    Comment = translations.ContainsKey("zh-TW") ? translations["zh-TW"] : elementData.Comment?.Trim() ?? "",
+                    Comment = "",
                     Description = elementData.Description?.Trim() ?? "未設定",
                     IOType = elementData.IOType,
                     RelayType = elementData.RelayType,
@@ -405,6 +406,8 @@ namespace FX5U_IOMonitor.Resources
                 };
 
                 context.Machine_IO.Add(newIO);
+                newIO.SetComment((LanguageManager.Currentlanguge), elementData.Comment);
+                context.SaveChanges();
             }
             catch (Exception ex)
             {

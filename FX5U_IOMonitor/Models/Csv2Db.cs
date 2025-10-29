@@ -760,29 +760,67 @@ namespace FX5U_IOMonitor.Models
 
             using var reader = new StreamReader(csvPath);
             using var csv = new CsvReader(reader, config);
+
             try
             {
                 var records = csv.GetRecords<FrequencyConverAlarmcsv>().ToList();
 
                 using var context = new ApplicationDB();
 
-                // 防呆：先查出已存在的品牌 ID
-                var existingIds = context.FrequencyConverAlarm.Select(b => b.Id).ToHashSet();
+                // ✅ 讀取現有資料到字典中加速比對
+                var existingRecords = context.FrequencyConverAlarm.ToDictionary(x => x.Id, x => x);
 
                 int addCount = 0;
+                int updateCount = 0;
+
                 foreach (var row in records)
                 {
-                    if (!existingIds.Contains(row.Id))
+                    if (existingRecords.TryGetValue(row.Id, out var existing))
                     {
+                        // ✅ 更新現有資料
+                        bool isChanged = false;
+                        int newAlarmId = Convert.ToInt32(row.FrequencyAlarmID, 16);
+
+                        if (existing.FrequencyAlarmID != newAlarmId)
+                        {
+                            existing.FrequencyAlarmID = newAlarmId;
+                            isChanged = true;
+                        }
+                        if (existing.FrequencyAlarmInfo != row.FrequencyAlarmInfo)
+                        {
+                            existing.FrequencyAlarmInfo = row.FrequencyAlarmInfo;
+                            isChanged = true;
+                        }
+                        if (existing.FrequencyErrorDetail != row.FrequencyErrorDetail)
+                        {
+                            existing.FrequencyErrorDetail = row.FrequencyErrorDetail;
+                            isChanged = true;
+                        }
+                        if (existing.FrequencyStatus != row.FrequencyStatus)
+                        {
+                            existing.FrequencyStatus = row.FrequencyStatus;
+                            isChanged = true;
+                        }
+                        if (existing.FrequencySolution != row.FrequencySolution)
+                        {
+                            existing.FrequencySolution = row.FrequencySolution;
+                            isChanged = true;
+                        }
+
+                        if (isChanged)
+                            updateCount++;
+                    }
+                    else
+                    {
+                        // ✅ 新增新資料
                         var brand = new FrequencyConverAlarm
                         {
                             Id = row.Id,
-                            FrequencyErrorDetail = row.FrequencyErrorDetail,
                             FrequencyAlarmID = Convert.ToInt32(row.FrequencyAlarmID, 16),
                             FrequencyAlarmInfo = row.FrequencyAlarmInfo,
+                            FrequencyErrorDetail = row.FrequencyErrorDetail,
                             FrequencyStatus = row.FrequencyStatus,
                             FrequencySolution = row.FrequencySolution
-
                         };
 
                         context.FrequencyConverAlarm.Add(brand);
@@ -791,10 +829,15 @@ namespace FX5U_IOMonitor.Models
                 }
 
                 context.SaveChanges();
+                Console.WriteLine($"✅ 新增 {addCount} 筆，更新 {updateCount} 筆。");
             }
             catch (HeaderValidationException ex)
             {
                 Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ 匯入錯誤：" + ex.Message);
             }
         }
 
@@ -826,20 +869,54 @@ namespace FX5U_IOMonitor.Models
 
             using var reader = new StreamReader(csvPath);
             using var csv = new CsvReader(reader, config);
+
             try
             {
                 var records = csv.GetRecords<ServoDriveAlarmcsv>().ToList();
 
                 using var context = new ApplicationDB();
 
-                // 防呆：先查出已存在的品牌 ID
-                var existingIds = context.ServoDriveAlarm.Select(b => b.Id).ToHashSet();
+                // 先將所有資料取出到記憶體中以便比對
+                var existingRecords = context.ServoDriveAlarm.ToDictionary(x => x.Id, x => x);
 
-                int addCount = 0;
+                int addCount = 0, updateCount = 0;
+
                 foreach (var row in records)
                 {
-                    if (!existingIds.Contains(row.Id))
+                    if (existingRecords.TryGetValue(row.Id, out var existing))
                     {
+                        // ✅ 更新現有資料
+                        bool isChanged = false;
+
+                        int newAlarmId = Convert.ToInt32(row.ServoDriveAlarmId, 16);
+
+                        if (existing.ServoDriveAlarmId != newAlarmId)
+                        {
+                            existing.ServoDriveAlarmId = newAlarmId;
+                            isChanged = true;
+                        }
+                        if (existing.ServoDriveAlarmInfo != row.ServoDriveAlarmInfo)
+                        {
+                            existing.ServoDriveAlarmInfo = row.ServoDriveAlarmInfo;
+                            isChanged = true;
+                        }
+                        if (existing.ServoDriveErrorDetail != row.ServoDriveErrorDetail)
+                        {
+                            existing.ServoDriveErrorDetail = row.ServoDriveErrorDetail;
+                            isChanged = true;
+                        }
+                        if (existing.ServoDriveSolution != row.ServoDriveSolution)
+                        {
+                            existing.ServoDriveSolution = row.ServoDriveSolution;
+                            isChanged = true;
+                        }
+
+                        if (isChanged)
+                            updateCount++;
+                    }
+                    else
+                    {
+                        // ✅ 新增新資料
                         var Servoalarm = new ServoDriveAlarm
                         {
                             Id = row.Id,
@@ -855,13 +932,13 @@ namespace FX5U_IOMonitor.Models
                 }
 
                 context.SaveChanges();
+                Console.WriteLine($"✅ 新增 {addCount} 筆，更新 {updateCount} 筆。");
             }
             catch (HeaderValidationException ex)
             {
                 Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
             }
         }
-
 
         private class ServoDriveAlarmcsv
         {
@@ -892,20 +969,55 @@ namespace FX5U_IOMonitor.Models
 
             using var reader = new StreamReader(csvPath);
             using var csv = new CsvReader(reader, config);
+
             try
             {
                 var records = csv.GetRecords<ControlAlarmcsv>().ToList();
 
                 using var context = new ApplicationDB();
 
-                // 防呆：先查出已存在的品牌 ID
-                var existingIds = context.ControlAlarm.Select(b => b.Id).ToHashSet();
+                // 讀取現有資料並放入字典，加速查找
+                var existingRecords = context.ControlAlarm.ToDictionary(x => x.Id, x => x);
 
                 int addCount = 0;
+                int updateCount = 0;
+
                 foreach (var row in records)
                 {
-                    if (!existingIds.Contains(row.Id))
+                    if (existingRecords.TryGetValue(row.Id, out var existing))
                     {
+                        // ✅ 更新現有資料
+                        bool isChanged = false;
+
+                        int newAlarmId = Convert.ToInt32(row.ControlAlarmId, 16);
+
+                        if (existing.ControlAlarmId != newAlarmId)
+                        {
+                            existing.ControlAlarmId = newAlarmId;
+                            isChanged = true;
+                        }
+                        if (existing.ControlAlarmInfo != row.ControlAlarmInfo)
+                        {
+                            existing.ControlAlarmInfo = row.ControlAlarmInfo;
+                            isChanged = true;
+                        }
+                        if (existing.ControlErrorDetail != row.ControlErrorDetail)
+                        {
+                            existing.ControlErrorDetail = row.ControlErrorDetail;
+                            isChanged = true;
+                        }
+                        if (existing.ControlSolution != row.ControlSolution)
+                        {
+                            existing.ControlSolution = row.ControlSolution;
+                            isChanged = true;
+                        }
+
+                        if (isChanged)
+                            updateCount++;
+                    }
+                    else
+                    {
+                        // ✅ 新增新資料
                         var Calarm = new ControlAlarm
                         {
                             Id = row.Id,
@@ -921,10 +1033,15 @@ namespace FX5U_IOMonitor.Models
                 }
 
                 context.SaveChanges();
+                Console.WriteLine($"✅ 新增 {addCount} 筆，更新 {updateCount} 筆。");
             }
             catch (HeaderValidationException ex)
             {
                 Console.WriteLine("⚠️ CSV欄位不一致：" + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ 錯誤：" + ex.Message);
             }
         }
         private class ControlAlarmcsv

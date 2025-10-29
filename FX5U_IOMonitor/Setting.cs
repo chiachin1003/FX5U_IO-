@@ -22,6 +22,7 @@ namespace FX5U_IOMonitor
 
     public partial class Setting : Form
     {
+        
         public Setting()
         {
 
@@ -91,6 +92,8 @@ namespace FX5U_IOMonitor
                 btn_Alrm_Notify.Enabled = true;
                 btn_usersetting.Enabled = true;
                 btn_Mail_Manager.Enabled = true;
+                btn_settingalarmupdate.Visible = true;
+
 
             }
             else if (UserService<ApplicationDB>.CurrentRole == SD.Role_Operator)
@@ -99,6 +102,8 @@ namespace FX5U_IOMonitor
                 btn_Alrm_Notify.Enabled = true;
                 btn_usersetting.Enabled = false;
                 btn_Mail_Manager.Enabled = false;
+                btn_settingalarmupdate.Visible = false;
+
             }
             else if (UserService<ApplicationDB>.CurrentRole == SD.Role_User)
             {
@@ -106,6 +111,9 @@ namespace FX5U_IOMonitor
                 btn_Alrm_Notify.Enabled = false;
                 btn_usersetting.Enabled = false;
                 btn_Mail_Manager.Enabled = false;
+                btn_settingalarmupdate.Visible = false;
+
+
             }
         }
 
@@ -172,27 +180,6 @@ namespace FX5U_IOMonitor
             }
         }
 
-        private async void btn_alarm_Click(object sender, EventArgs e)
-        {
-            //try
-            //{
-            //    Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //    return;
-            //}
-            try
-            {
-                Csv2Db.Initialization_FrequencyConverAlarmFromCSV("FrequenceAlarm.csv");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-        }
 
         private void SwitchLanguage()
         {
@@ -234,6 +221,39 @@ namespace FX5U_IOMonitor
                 var result = form.ShowDialog(this);
             }
         }
+
+        private void btn_settingalarmupdate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Csv2Db.Initialization_ServoDriveAlarmFromCSV("ServoDrive.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            try
+            {
+                Csv2Db.Initialization_Control_AlarmFromCSV("Control_J4.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            try
+            {
+                Csv2Db.Initialization_FrequencyConverAlarmFromCSV("FrequenceAlarm.csv");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Machine parameter Inital Error：{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+        }
+
+      
     }
 
 

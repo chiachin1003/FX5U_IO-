@@ -41,7 +41,7 @@ namespace FX5U_IOMonitor
             button1 = new Button();
             button2 = new Button();
             btn_notify = new Button();
-            btn_alarm = new Button();
+            btn_settingalarmupdate = new Button();
             button3 = new Button();
             btn_unit = new Button();
             flowLayoutPanel1 = new FlowLayoutPanel();
@@ -160,15 +160,16 @@ namespace FX5U_IOMonitor
             btn_notify.UseVisualStyleBackColor = true;
             btn_notify.Click += btn_notify_Click;
             // 
-            // btn_alarm
+            // btn_settingalarmupdate
             // 
-            btn_alarm.Location = new Point(813, 348);
-            btn_alarm.Name = "btn_alarm";
-            btn_alarm.Size = new Size(79, 40);
-            btn_alarm.TabIndex = 17;
-            btn_alarm.Text = "更新參數表";
-            btn_alarm.UseVisualStyleBackColor = true;
-            btn_alarm.Click += btn_alarm_Click;
+            btn_settingalarmupdate.Location = new Point(813, 348);
+            btn_settingalarmupdate.Name = "btn_settingalarmupdate";
+            btn_settingalarmupdate.Size = new Size(79, 40);
+            btn_settingalarmupdate.TabIndex = 17;
+            btn_settingalarmupdate.Text = "更新外部\r\n元件異常表";
+            btn_settingalarmupdate.UseVisualStyleBackColor = true;
+            btn_settingalarmupdate.Click += btn_settingalarmupdate_Click;
+
             // 
             // button3
             // 
@@ -238,7 +239,7 @@ namespace FX5U_IOMonitor
             ClientSize = new Size(936, 664);
             Controls.Add(flowLayoutPanel1);
             Controls.Add(button3);
-            Controls.Add(btn_alarm);
+            Controls.Add(btn_settingalarmupdate);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(btn_emailtest);
@@ -263,7 +264,7 @@ namespace FX5U_IOMonitor
         private Button button1;
         private Button button2;
         private Button btn_notify;
-        private Button btn_alarm;
+        private Button btn_settingalarmupdate;
         private Button button3;
         private Button btn_unit;
         private FlowLayoutPanel flowLayoutPanel1;
