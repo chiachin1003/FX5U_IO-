@@ -216,8 +216,10 @@ namespace FX5U_IOMonitor.Login
                 // Handle errors if needed
                 foreach (var error in result.Errors)
                 {
+                   
                     Console.WriteLine(error.Description);
                 }
+                MessageBox.Show("Please confirm whether the password contains special symbols, English letters and numbers");
             }
         }
         /// <summary>

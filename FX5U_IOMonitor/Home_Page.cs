@@ -88,6 +88,7 @@ namespace FX5U_IOMonitor
         private void Main_Load(object sender, EventArgs e)
         {
 
+            StartUtilizationMonitor();
 
             reset_lab_connectText();
             _cts = new CancellationTokenSource();
@@ -168,15 +169,36 @@ namespace FX5U_IOMonitor
             lab_yellow.Text = DBfunction.Get_Yellow_number("Drill").ToString();
             lab_red.Text = DBfunction.Get_Red_number("Drill").ToString();
             lab_sum.Text = DBfunction.GetMachineRowCount("Drill").ToString();
-            lab_today_ratio.Text = Drillutilization.Today.ToString("F2") + "%";
-            lab_yesterday_ratio.Text = Drillutilization.Yesterday.ToString("F2") + "%";
-            lab_this_ratio.Text = Drillutilization.ThisWeek.ToString("F2") + "%";
-            lab_last_ratio.Text = Drillutilization.LastWeek.ToString("F2") + "%";
+            if (Drillutilization != null)
+            {
+                lab_today_ratio.Text = Drillutilization.Today.ToString("F2") + "%";
+                lab_yesterday_ratio.Text = Drillutilization.Yesterday.ToString("F2") + "%";
+                lab_this_ratio.Text = Drillutilization.ThisWeek.ToString("F2") + "%";
+                lab_last_ratio.Text = Drillutilization.LastWeek.ToString("F2") + "%";
+            }
+            else 
+            {
+                lab_today_ratio.Text = "0.00 %";
+                lab_yesterday_ratio.Text = "0.00 %";
+                lab_this_ratio.Text = "0.00 %";
+                lab_last_ratio.Text = "0.00 %";
+            }
 
-            lab_today_ratio1.Text = Sawingutilization.Today.ToString("F2") + "%";
-            lab_yesterday_ratio1.Text = Sawingutilization.Yesterday.ToString("F2") + "%";
-            lab_this_ratio1.Text = Sawingutilization.ThisWeek.ToString("F2") + "%";
-            lab_last_ratio1.Text = Sawingutilization.LastWeek.ToString("F2") + "%";
+            if (Sawingutilization != null)
+            {
+                lab_today_ratio1.Text = Sawingutilization.Today.ToString("F2") + "%";
+                lab_yesterday_ratio1.Text = Sawingutilization.Yesterday.ToString("F2") + "%";
+                lab_this_ratio1.Text = Sawingutilization.ThisWeek.ToString("F2") + "%";
+                lab_last_ratio1.Text = Sawingutilization.LastWeek.ToString("F2") + "%";
+            }
+            else
+            {
+                lab_today_ratio1.Text = "0.00 %";
+                lab_yesterday_ratio1.Text = "0.00 %";
+                lab_this_ratio1.Text = "0.00 %";
+                lab_last_ratio1.Text = "0.00 %";
+            }
+          
 
             lab_sum_swing.Text = DBfunction.GetMachineRowCount("Sawing").ToString();
             lab_red_swing.Text = DBfunction.Get_Red_number("Sawing").ToString();
@@ -613,7 +635,7 @@ namespace FX5U_IOMonitor
                 _SysCloud = new CloudDbContext();
                 _SysLocal = new ApplicationDB();
 
-                SetToggleConnecting();
+        //        SetToggleConnecting();
 
                 //control.Text = "Connecting";
                 //control.BackColor = Color.LightBlue;

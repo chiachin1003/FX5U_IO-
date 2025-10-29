@@ -305,7 +305,6 @@ namespace FX5U_IOMonitor
             lab_sum.Size = new Size(112, 59);
             lab_sum.TabIndex = 21;
             lab_sum.TextAlign = ContentAlignment.MiddleCenter;
-            lab_sum.Click += lab_sum_Click;
             // 
             // lab_connectOK
             // 

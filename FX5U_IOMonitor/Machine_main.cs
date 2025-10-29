@@ -373,7 +373,7 @@ namespace FX5U_IOMonitor
 
             if (e.NewValue == true && e.OldValue == false)
             {
-                string des = DBfunction.Get_Description_ByAddress(e.Address);
+                    string des = DBfunction.Get_Description_ByAddress(e.Address);
                 (string table, string Description) = DBfunction.Get_AlarmInfo_ByAddress(e.Address);
                 string IOelement = DBfunction.Get_Address_ByDecription(table, Description);
 
@@ -398,41 +398,17 @@ namespace FX5U_IOMonitor
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );
-                    //Task.Run(() =>
-                    //{
-                    //    try
-                    //    {
-                    //        MessageBox.Show(
-                    //            $"{LanguageManager.Translate("Alarm_Message_Error_Warning")}\n" +
-                    //            $"{LanguageManager.Translate("Alarm_Message_Source")}：{table} | {LanguageManager.Translate("Alarm_Message_Error_Address")}：{e.Address}\n" +
-                    //            $"{LanguageManager.Translate("Alarm_Message_Error_Item")}：{Description}\n" +
-                    //            $"{LanguageManager.Translate("Alarm_Message_Error_Message")}：{error}\n" +
-                    //            $"{LanguageManager.Translate("Alarm_Message_Item_Comment")}：{comment}\n" +
-                    //            $"{LanguageManager.Translate("Alarm_Message_Possible_Cause")}：{possible}\n" +
-                    //            $"{LanguageManager.Translate("Alarm_Message_Repair_Steps")}：\n{repair}",
-                    //            LanguageManager.Translate("Alarm_Message_Error_Window_Title"),
-                    //            MessageBoxButtons.OK,
-                    //            MessageBoxIcon.Warning
-                    //        );
-                    //    }
-                    //    finally
-                    //    {
-                    //        _isShowingAlarm = false;
-                    //    }
-                    //});
+                    _isShowingAlarm = false;
+
                 }
                 else
                 {
                     MessageBox.Show(LanguageManager.Translate("Machine_main_AlarmMessage_MachineconnectError") + $"{des} ");
+          
                 }
             }
         }
-        private void lab_sum_Click(object sender, EventArgs e)
-        {
-
-
-
-        }
+     
 
         private void SwitchLanguage()
         {
