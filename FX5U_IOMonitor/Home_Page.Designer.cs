@@ -129,6 +129,8 @@
             btn_Drill_Info = new Button();
             btn_machInfo = new Button();
             panel_Swing = new Panel();
+            btn_toggle = new Button();
+            lab_Db_update = new Label();
             tableLayoutPanel2 = new TableLayoutPanel();
             lab_today_ratio1 = new Label();
             lab_today1 = new Label();
@@ -139,8 +141,6 @@
             lab_last_ratio1 = new Label();
             lab_lastweek1 = new Label();
             panel_Drill = new Panel();
-            btn_toggle = new Button();
-            lab_Db_update = new Label();
             tableLayoutPanel1 = new TableLayoutPanel();
             lab_today_ratio = new Label();
             lab_today = new Label();
@@ -150,6 +150,7 @@
             lab_thisweek = new Label();
             lab_last_ratio = new Label();
             lab_lastweek = new Label();
+            lab_vision = new Label();
             panel12.SuspendLayout();
             panel3.SuspendLayout();
             tbPanel_Swing_sum.SuspendLayout();
@@ -947,6 +948,24 @@
             panel_Swing.Size = new Size(385, 297);
             panel_Swing.TabIndex = 51;
             // 
+            // btn_toggle
+            // 
+            btn_toggle.FlatStyle = FlatStyle.Flat;
+            btn_toggle.Location = new Point(6, 8);
+            btn_toggle.Name = "btn_toggle";
+            btn_toggle.Size = new Size(21, 20);
+            btn_toggle.TabIndex = 56;
+            btn_toggle.UseVisualStyleBackColor = false;
+            btn_toggle.Click += btn_toggle_Click_1;
+            // 
+            // lab_Db_update
+            // 
+            lab_Db_update.AutoSize = true;
+            lab_Db_update.Location = new Point(34, 11);
+            lab_Db_update.Name = "lab_Db_update";
+            lab_Db_update.Size = new Size(0, 15);
+            lab_Db_update.TabIndex = 57;
+            // 
             // tableLayoutPanel2
             // 
             tableLayoutPanel2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
@@ -1086,24 +1105,6 @@
             panel_Drill.Size = new Size(385, 297);
             panel_Drill.TabIndex = 47;
             // 
-            // btn_toggle
-            // 
-            btn_toggle.FlatStyle = FlatStyle.Flat;
-            btn_toggle.Location = new Point(6, 8);
-            btn_toggle.Name = "btn_toggle";
-            btn_toggle.Size = new Size(21, 20);
-            btn_toggle.TabIndex = 56;
-            btn_toggle.UseVisualStyleBackColor = false;
-            btn_toggle.Click += btn_toggle_Click_1;
-            // 
-            // lab_Db_update
-            // 
-            lab_Db_update.AutoSize = true;
-            lab_Db_update.Location = new Point(34, 11);
-            lab_Db_update.Name = "lab_Db_update";
-            lab_Db_update.Size = new Size(0, 15);
-            lab_Db_update.TabIndex = 57;
-            // 
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
@@ -1228,6 +1229,15 @@
             lab_lastweek.Text = "上週:";
             lab_lastweek.TextAlign = ContentAlignment.MiddleLeft;
             // 
+            // lab_vision
+            // 
+            lab_vision.AutoSize = true;
+            lab_vision.Location = new Point(47, 621);
+            lab_vision.Name = "lab_vision";
+            lab_vision.Size = new Size(42, 15);
+            lab_vision.TabIndex = 52;
+            lab_vision.Text = "V1.0.1";
+            // 
             // Home_Page
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1235,6 +1245,7 @@
             BackColor = SystemColors.ButtonHighlight;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(956, 639);
+            Controls.Add(lab_vision);
             Controls.Add(panel12);
             Controls.Add(panel11);
             Controls.Add(panel_Swing);
@@ -1282,6 +1293,7 @@
             panel_Drill.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -1361,6 +1373,7 @@
         private Panel panel6;
         private Label lab_connectrecord1;
         private Label lab_Db_update;
+        private Label lab_vision;
     }
 }
 
