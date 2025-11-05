@@ -133,12 +133,12 @@ namespace FX5U_IOMonitor
                 if (SecondLate == null)
                 {
                     int secondDelta = 0;
-                    powercard.SetData(title, val, unit, re, secondDelta, record_late.Delta, history_Frequency);
+                    powercard.SetData(title, val, unit, re, secondDelta * DBfunction.Get_Unit_transfer("Sawing", param), record_late.Delta * DBfunction.Get_Unit_transfer("Sawing", param), history_Frequency);
                 }
                 else
                 {
                     var secondDelta = SecondLate.Delta;
-                    powercard.SetData(title, val, unit, re, secondDelta, record_late.Delta, history_Frequency);
+                    powercard.SetData(title, val, unit, re, secondDelta * DBfunction.Get_Unit_transfer("Sawing", param), record_late.Delta * DBfunction.Get_Unit_transfer("Sawing", param), history_Frequency);
                 }
 
 
@@ -181,8 +181,8 @@ namespace FX5U_IOMonitor
                     val,
                     unit,
                     range,
-                    secondDelta,
-                    latestDelta,
+                    secondDelta * DBfunction.Get_Unit_transfer("Sawing", param),
+                    latestDelta * DBfunction.Get_Unit_transfer("Sawing", param),
                     history_Frequency
                 );
             }

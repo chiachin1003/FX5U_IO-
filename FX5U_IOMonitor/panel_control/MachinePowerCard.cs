@@ -116,6 +116,37 @@ namespace FX5U_IOMonitor.panel_control
             lblRecordTime.Text = LanguageManager.Translate("DrillInfo_RecordTime") + $"\n{recordTime}";
 
         }
+        public void SetData(string title, string value, string unit, string recordTime, double lastMonth, double thisMonth, ScheduleFrequency scheduleFrequency)
+        {
+            lblTitle.Text = title;
+            lblValue.Text = value;
+            lblUnit.Text = unit;
+            string lblPrevMonthtitle = "";
+            string lblThisMonthtitle = "";
 
+            if (scheduleFrequency == ScheduleFrequency.Weekly || scheduleFrequency == ScheduleFrequency.Minutely)
+            {
+                lblPrevMonthtitle = LanguageManager.Translate("Info_LastWeek_Total");
+                lblThisMonthtitle = LanguageManager.Translate("Info_ThisWeek_Total");
+            }
+            else if (scheduleFrequency == ScheduleFrequency.Monthly || scheduleFrequency == ScheduleFrequency.Daily)
+            {
+                lblPrevMonthtitle = LanguageManager.Translate("Info_LastMonth_Total");
+                lblThisMonthtitle = LanguageManager.Translate("Info_ThisMonth_Total");
+            }
+
+            // ✅ 格式化數值 (顯示兩位小數，可依需求改)
+            string lastMonthStr = lastMonth.ToString("0.##");
+            string thisMonthStr = thisMonth.ToString("0.##");
+
+            lblPrevMonth.Text = $"{lblPrevMonthtitle}{lastMonthStr}";
+            lblPrevMonth.ForeColor = Color.Black;
+
+            string arrowThis = thisMonth > lastMonth ? "↑" : (thisMonth < lastMonth ? "↓" : "—");
+            lblThisMonth.Text = $"{lblThisMonthtitle}{thisMonthStr} {arrowThis}";
+            lblThisMonth.ForeColor = thisMonth > lastMonth ? Color.Red : (thisMonth < lastMonth ? Color.Green : Color.Gray);
+
+            lblRecordTime.Text = LanguageManager.Translate("DrillInfo_RecordTime") + $"\n{recordTime}";
+        }
     }
 }

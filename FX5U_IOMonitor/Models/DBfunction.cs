@@ -215,11 +215,19 @@ namespace FX5U_IOMonitor.Models
 
                 if (latestRecord == null)
                     return null;
+                int currentValue = 0 ;
+                if (machineName == "Drill")
+                {
+                    // 目前機台狀態的數值
+                    currentValue = DBfunction.Get_Machine_History_NumericValue(machineName, paramName)
+                      + DBfunction.Get_Machine_number(machineName, paramName);
+                }
+                else 
+                {
+                    currentValue = DBfunction.Get_Machine_History_NumericValue(machineName, paramName);
+                }
 
-                // 目前機台狀態的數值
-                int currentValue = DBfunction.Get_Machine_History_NumericValue(machineName, paramName)
-                   + DBfunction.Get_Machine_number(machineName,paramName);
-              
+
                 int delta = currentValue - latestRecord.HistoryValue;
                 if (delta < 0) delta = 0; // 防止負值
                 

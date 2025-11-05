@@ -15,7 +15,7 @@ namespace FX5U_IOMonitor.Models
         public static string ConvertSecondsToDHMS(int totalSeconds)
         {
             //int days = totalSeconds / 86400;
-            int hours = (totalSeconds % 86400) / 3600;
+            int totalHours = totalSeconds / 3600;
             int minutes = (totalSeconds % 3600) / 60;
             int seconds = totalSeconds % 60;
             TimeSpan span = TimeSpan.FromSeconds(totalSeconds);
@@ -23,7 +23,7 @@ namespace FX5U_IOMonitor.Models
 
            
             //return $" {span.Hours:D2} : {span.Minutes:D2} : {span.Seconds:D2}   {note}";
-            return $" {span.Hours:D2} : {span.Minutes:D2} : {span.Seconds:D2}";
+            return $" {totalHours:D2} : {span.Minutes:D2} : {span.Seconds:D2}";
 
         }
 
