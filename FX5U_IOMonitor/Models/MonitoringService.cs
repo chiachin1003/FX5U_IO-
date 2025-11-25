@@ -152,6 +152,7 @@ namespace FX5U_IOMonitor.Models
             {
                 List<now_single> old_single = DBfunction.Get_Machine_current_single_all(machinname);
                 string format = DBfunction.Get_Element_baseType(machinname);
+                format = "oct";
                 var Drill = Calculate.AnalyzeIOSections(machinname, format);
                 string mcType = DBfunction.GetMachineType(machinname); // 判斷使用哪個
 
@@ -570,7 +571,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ 全域寫入例外（{machine_name}）：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
 
@@ -768,7 +769,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
                   
 
@@ -823,7 +824,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Word 監控錯誤：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
 
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
