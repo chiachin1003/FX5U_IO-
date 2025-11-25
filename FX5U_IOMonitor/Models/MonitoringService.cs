@@ -57,8 +57,8 @@ namespace FX5U_IOMonitor.Models
             // 宣告事件：通知程式「某個 IO 資料變了」
             public event EventHandler<IOUpdateEventArgs> IOUpdated; //實體元件事件(X輸入及Y輸出)
             public event EventHandler<IOUpdateEventArgs> alarm_event; //警告事件事件
-            public event EventHandler<IOUpdateEventArgs> machine_event;
-            public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed;
+            public event EventHandler<IOUpdateEventArgs> machine_event; //寫入元件歷史紀錄
+            public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed; 
 
             private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
             private readonly AlarmMappingConfig _alarmconfig;
@@ -152,6 +152,7 @@ namespace FX5U_IOMonitor.Models
             {
                 List<now_single> old_single = DBfunction.Get_Machine_current_single_all(machinname);
                 string format = DBfunction.Get_Element_baseType(machinname);
+                format = "oct";
                 var Drill = Calculate.AnalyzeIOSections(machinname, format);
                 string mcType = DBfunction.GetMachineType(machinname); // 判斷使用哪個
 
@@ -570,7 +571,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ 全域寫入例外（{machine_name}）：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
 
@@ -768,7 +769,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Bit 監控錯誤：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
                   
 
@@ -823,7 +824,7 @@ namespace FX5U_IOMonitor.Models
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"❌ Word 監控錯誤：{ex.Message}");
-                        ReportOneFailure();
+                        //ReportOneFailure();
                     }
 
                     await Task.Delay(500, token ?? CancellationToken.None); // 輪詢節流
