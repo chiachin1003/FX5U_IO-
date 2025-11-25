@@ -1,4 +1,5 @@
 ﻿using FX5U_IOMonitor.Config;
+using FX5U_IOMonitor.Models;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -15,23 +16,27 @@ namespace FX5U_IOMonitor.MitsubishiPlc_Monior
 
         public static DataTable GetDisconnectEvent(string machineName)
         {
+            string lang = LanguageManager.Currentlanguge;
+
+            // SQL 不再含中文，改用事件 Key
             string sql = @"
-            SELECT 
-                ""StartTime"" AS ""EventTime"",
-                '斷線' AS ""EventType""
-            FROM public.""DisconnectRecords""
-            WHERE ""ConnectOriginate"" = @machine
+                SELECT 
+                    ""StartTime"" AS ""EventTime"",
+                    'Connect_Disconnect' AS ""EventType""        -- 🔥 斷線事件
+                FROM public.""DisconnectRecords""
+                WHERE ""ConnectOriginate"" = @machine
 
-            UNION ALL
+                UNION ALL
 
-            SELECT 
-                ""EndTime"" AS ""EventTime"",
-                '重新連線' AS ""EventType""
-            FROM public.""DisconnectRecords""
-            WHERE ""ConnectOriginate"" = @machine
-                AND ""EndTime"" IS NOT NULL
+                SELECT 
+                    ""EndTime"" AS ""EventTime"",
+                    'Connect_Reconnect' AS ""EventType""           -- 🔥 重新連線事件
+                FROM public.""DisconnectRecords""
+                WHERE ""ConnectOriginate"" = @machine
+                    AND ""EndTime"" IS NOT NULL
 
-            ORDER BY ""EventTime"";";
+                ORDER BY ""EventTime"";
+            ";
 
             string connString =
                 $"Host={DbConfig.Local.IpAddress};Port={DbConfig.Local.Port};Database=element;Username={DbConfig.Local.UserName};Password={DbConfig.Local.Password}";
@@ -44,26 +49,32 @@ namespace FX5U_IOMonitor.MitsubishiPlc_Monior
             var raw = new DataTable();
             da.Fill(raw);
 
-            // 輸出表（只有兩欄，時間已是 24h 字串）
-            var dt = new DataTable();
-            dt.Columns.Add("時間", typeof(string));
-            dt.Columns.Add("機台狀態", typeof(string));
 
+            // DataTable 欄位名稱也改成可多語
+            //------------------------------------------------------------------
+            var dt = new DataTable();
+            dt.Columns.Add(LanguageManager.Translate("Connect_title_Time"), typeof(string));
+            dt.Columns.Add(LanguageManager.Translate("Connect_title_MachineStatus"), typeof(string));
+
+
+            //--------- 依事件 Key -> 語系表轉換
+            //------------------------------------------------------------------
             foreach (DataRow r in raw.Rows)
             {
+                string eventKey = r["EventType"]?.ToString() ?? "";
+                string eventText = LanguageManager.Translate(eventKey);       // 直接讀語系表
+
                 if (r["EventTime"] is DateTime t)
                 {
-                    // 若 DB 欄位是 timestamptz，Npgsql 通常給 Kind=Utc；timestamp without time zone 可能是 Unspecified
                     var local = (t.Kind == DateTimeKind.Unspecified)
                         ? DateTime.SpecifyKind(t, DateTimeKind.Utc).ToLocalTime()
                         : t.ToLocalTime();
 
-                    dt.Rows.Add(local.ToString("yyyy/MM/dd HH:mm:ss"), r["EventType"]?.ToString());
+                    dt.Rows.Add(local.ToString("yyyy/MM/dd HH:mm:ss"), eventText);
                 }
                 else
                 {
-                    // 非 DateTime 的保底處理
-                    dt.Rows.Add(r["EventTime"]?.ToString(), r["EventType"]?.ToString());
+                    dt.Rows.Add(r["EventTime"]?.ToString(), eventText);
                 }
             }
 

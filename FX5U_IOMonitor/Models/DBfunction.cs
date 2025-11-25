@@ -2503,7 +2503,39 @@ namespace FX5U_IOMonitor.Models
 
             return record != null ? record.EndTime.Value : DateTime.MinValue;
         }
+        public static AlarmMappingResult Get_AlarmDefaultByClassTag()
+        {
+            using (var context = new ApplicationDB())
+            {
+                // 取得資料表中第一筆 AlarmNotifyClass，若完全沒有資料就用 2
+                int notifyClass = context.alarm
+                    .OrderBy(a => a.Id)
+                    .Select(a => (int?)a.AlarmNotifyClass)
+                    .FirstOrDefault() ?? 2;
 
+                // 先試著找「同 ClassTag」的使用者
+                string? usersForClass = context.alarm
+                    .Where(a => a.AlarmNotifyClass == notifyClass)
+                    .Select(a => a.AlarmNotifyuser)
+                    .FirstOrDefault();
+
+                // 如果該 ClassTag 目前還沒有資料，就抓整張表第一筆使用者
+                if (string.IsNullOrEmpty(usersForClass))
+                {
+                    usersForClass = context.alarm
+                        .OrderBy(a => a.Id)
+                        .Select(a => a.AlarmNotifyuser)
+                        .FirstOrDefault()
+                        ?? SD.Admin_Account;   // 如果連一筆都沒有，就給 admin
+                }
+
+                return new AlarmMappingResult
+                {
+                    AlarmNotifyClass = notifyClass,
+                    AlarmNotifyuser = usersForClass
+                };
+            }
+        }
 
         public static async Task SaveStatusRecordAsync(string machineId, string address, int status, DateTime startTime, DateTime endTime)
         {
@@ -2606,28 +2638,53 @@ namespace FX5U_IOMonitor.Models
 
         public static ProjectSummary GetProjectSummary()
         {
-            using var context = new ApplicationDB();
-
-            // 1️⃣ 取出所有 projecttitle
-            var titles = context.Order
-                .Where(o => o.projecttitle != null && o.projecttitle != "")
-                .Select(o => o.projecttitle)
-                .Distinct()
-                .ToList();
-
-            // 2️⃣ 取得最新一筆的 projecttitle（依 orderid 或 createdat 決定排序依據）
-            var latest = context.Order
-                .OrderByDescending(o => o.orderid)
-                .Select(o => o.projecttitle)
-                .FirstOrDefault();
-
-            // 3️⃣ 組成結果物件
-            return new ProjectSummary
+            try
             {
-                LatestProject = latest,
-                DistinctCount = titles.Count,
-                ProjectList = titles
-            };
+                using var context = new ApplicationDB();
+                var hasData = context.Order.Any();
+                if (!hasData)
+                {
+                    return new ProjectSummary
+                    {
+                        LatestProject = null,
+                        DistinctCount = 0,
+                        ProjectList = new List<string>()
+                    };
+                }
+
+                // 1️⃣ 取出所有非空 projecttitle
+                var titles = context.Order
+                    .Where(o => !string.IsNullOrEmpty(o.projecttitle))
+                    .Select(o => o.projecttitle)
+                    .Distinct()
+                    .ToList();
+
+                // 2️⃣ 取得最新 projecttitle
+                var latest = context.Order
+                    .OrderByDescending(o => o.orderid) // 若要改用 CreatedAt 也可
+                    .Select(o => o.projecttitle)
+                    .FirstOrDefault();
+
+                // 3️⃣ 組回傳結果
+                return new ProjectSummary
+                {
+                    LatestProject = latest,
+                    DistinctCount = titles.Count,
+                    ProjectList = titles
+                };
+            }
+            catch (Exception ex)
+            {
+                // ❗ 你也可以在這裡做 log (寫檔案/Console/資料庫)
+                Console.WriteLine($"[Error] GetProjectSummary failed: {ex.Message}");
+
+                return new ProjectSummary
+                {
+                    LatestProject = null,
+                    DistinctCount = 0,
+                    ProjectList = new List<string>()
+                };
+            }
         }
         public static List<OrderDetailDisplay> GetOrderDetailsByProject(string projecttitle)
         {

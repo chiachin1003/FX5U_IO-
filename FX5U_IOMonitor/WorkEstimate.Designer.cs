@@ -55,7 +55,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
+            lab_project = new Label();
             dataGridView1 = new DataGridView();
             combo_project = new ComboBox();
             lab_CompletionRate_numb = new Label();
@@ -74,18 +74,18 @@
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
-            // label1
+            // lab_project
             // 
-            label1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            label1.AutoSize = true;
-            label1.BackColor = SystemColors.ButtonHighlight;
-            label1.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
-            label1.Location = new Point(30, 20);
-            label1.Name = "label1";
-            label1.Size = new Size(117, 26);
-            label1.TabIndex = 59;
-            label1.Text = "專案編號：";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
+            lab_project.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lab_project.AutoSize = true;
+            lab_project.BackColor = SystemColors.ButtonHighlight;
+            lab_project.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
+            lab_project.Location = new Point(30, 20);
+            lab_project.Name = "lab_project";
+            lab_project.Size = new Size(117, 26);
+            lab_project.TabIndex = 59;
+            lab_project.Text = "專案編號：";
+            lab_project.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // dataGridView1
             // 
@@ -99,9 +99,9 @@
             // 
             combo_project.Font = new Font("Microsoft JhengHei UI", 15.75F, FontStyle.Bold);
             combo_project.FormattingEnabled = true;
-            combo_project.Location = new Point(142, 17);
+            combo_project.Location = new Point(229, 17);
             combo_project.Name = "combo_project";
-            combo_project.Size = new Size(214, 34);
+            combo_project.Size = new Size(172, 34);
             combo_project.TabIndex = 71;
             // 
             // lab_CompletionRate_numb
@@ -274,7 +274,7 @@
             Controls.Add(lab_CompletionRate);
             Controls.Add(combo_project);
             Controls.Add(dataGridView1);
-            Controls.Add(label1);
+            Controls.Add(lab_project);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(4);
             MaximizeBox = false;
@@ -289,7 +289,7 @@
         }
 
         #endregion
-        private Label label1;
+        private Label lab_project;
         private DataGridView dataGridView1;
         private ComboBox combo_project;
         private Label lab_CompletionRate_numb;

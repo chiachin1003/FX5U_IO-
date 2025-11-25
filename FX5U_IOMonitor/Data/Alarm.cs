@@ -114,7 +114,11 @@ namespace FX5U_IOMonitor.Data
         public string ErrorDetail { get; set; } // 異常內容及原因
         public string Solution { get; set; }    // 處理方法
     }
-
+    public class AlarmMappingResult
+    {
+        public int AlarmNotifyClass { get; set; }
+        public string AlarmNotifyuser { get; set; } = "";
+    }
     public class AlarmMapping
     {
         public string? Type { get; set; }

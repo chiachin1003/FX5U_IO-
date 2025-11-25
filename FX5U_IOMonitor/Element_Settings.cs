@@ -3,6 +3,7 @@ using FX5U_IOMonitor.Data;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
+using FX5U_IOMonitor.panel_control;
 
 namespace FX5U_IOMonitor.Resources
 {
@@ -296,7 +297,12 @@ namespace FX5U_IOMonitor.Resources
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel4);
             ApplyAutoFontShrinkToTableLabels(tableLayoutPanel5);
             Text_design.SafeAdjustFont(lab_green, lab_green.Text);
-
+       
+            ComboBoxHelper.BindDisplayValueItems(comb_type, new[]
+              {
+                    (LanguageManager.Translate("Element_Settings_Electronic"), 0),
+                    (LanguageManager.Translate("Element_Settings_Mechanical"), 1)
+                });
 
 
         }

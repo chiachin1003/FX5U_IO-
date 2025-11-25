@@ -64,6 +64,7 @@ namespace FX5U_IOMonitor
             lab_TotalEstimated.Text = LanguageManager.Translate("WorkEstimate_lab_TotalEstimated");
             lab_TotalActual.Text = LanguageManager.Translate("WorkEstimate_lb_lab_TotalActual");
             lab_CompletionRate.Text = LanguageManager.Translate("WorkEstimate_lab_CompletionRate");
+            lab_project.Text = LanguageManager.Translate("WorkEstimate_lab_lab_project");
 
             Text_design.SafeAdjustFont(lab_Total, lab_Total.Text);
             Text_design.SafeAdjustFont(lab_Completed, lab_Completed.Text);

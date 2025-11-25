@@ -45,7 +45,7 @@ namespace FX5U_IO元件監控
             SwitchLanguage();
         }
 
-
+        string mode = "";
         private void btn_add_element_Click(object sender, EventArgs e)
         {
             dataGridView1.ClearSelection();
@@ -153,6 +153,7 @@ namespace FX5U_IO元件監控
 
         private void choose_event_SelectedIndexChanged(object sender, EventArgs e)
         {
+            mode = ComboBoxHelper.GetSelectedValue<string>(choose_event);
             if (choose_event.SelectedIndex == 0)
             {
                 lab_metricType.Visible = false;
@@ -179,8 +180,13 @@ namespace FX5U_IO元件監控
                 });
             ComboBoxHelper.BindDisplayValueItems(comb_record, new[]
                {
-                    ("週", "Weekly"),
-                    ("月", "Monthly")
+                    (LanguageManager.Translate("History_record_Weekly"), "Weekly"),
+                    (LanguageManager.Translate("History_record_Monthly"), "Monthly")
+                });
+            ComboBoxHelper.BindDisplayValueItems(choose_event, new[]
+              {
+                    (LanguageManager.Translate("History_record_btn_alarm"), 0),
+                    (LanguageManager.Translate("History_record_btn_Montion"), 1)
                 });
             ComboBoxHelper.BindDisplayValueItems(comb_name, new[]
             {
@@ -236,6 +242,7 @@ namespace FX5U_IO元件監控
             lab_unit.Text = LanguageManager.Translate("History_record_lab_unit");
             btn_search.Text = LanguageManager.Translate("History_record_btn_search");
             btn_exportCsv.Text = LanguageManager.Translate("History_record_btn_exportCsv");
+          
 
         }
 

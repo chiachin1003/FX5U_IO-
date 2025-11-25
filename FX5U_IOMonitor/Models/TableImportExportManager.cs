@@ -505,18 +505,28 @@ namespace FX5U_IOMonitor.Models
         public Alarm MapAlarmWithTranslations(dynamic row, Alarm? existing)
         {
             var dict = row as IDictionary<string, object>;
+            Alarm alarm;
 
-            var alarm = existing ?? new Alarm
-            { 
-                AlarmNotifyClass = 2,
-                AlarmNotifyuser = SD.Admin_Account,
-                Translations = new List<AlarmTranslation>(),
+            if (existing != null)
+            {
+                // ✅ 已存在 → 完全沿用，不動 Class / User
+                alarm = existing;
+            }
+            else
+            {
+                // ✅ 不存在 → 用資料表現有內容決定預設值
+                var info = DBfunction.Get_AlarmDefaultByClassTag();
 
-                // 預設空字串防止 null
-                Error = "",
-                Possible = "",
-                Repair_steps = ""
-            };
+                alarm = new Alarm
+                {
+                    AlarmNotifyClass = info.AlarmNotifyClass,          // 來自資料表第一筆或 2
+                    AlarmNotifyuser = info.AlarmNotifyuser,           // 來自同 ClassTag 或 admin
+                    Translations = new List<AlarmTranslation>(),
+                    Error = "",
+                    Possible = "",
+                    Repair_steps = ""
+                };
+            }
             alarm.SourceMachine = dict.TryGetValue("SourceMachine", out var sm) ? sm?.ToString() ?? "" : "";
             alarm.address = dict.TryGetValue("address", out var addr) ? addr?.ToString() ?? "" : "";
             alarm.IPC_table = dict.TryGetValue("IPC_table", out var ipc) ? ipc?.ToString() ?? "" : "";

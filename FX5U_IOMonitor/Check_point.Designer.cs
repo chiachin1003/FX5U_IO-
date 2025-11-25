@@ -323,7 +323,6 @@
             Margin = new Padding(4);
             Name = "Check_point";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "查核點指標";
             Load += Main_Load;
             panel1.ResumeLayout(false);
             tableLayoutPanel1.ResumeLayout(false);

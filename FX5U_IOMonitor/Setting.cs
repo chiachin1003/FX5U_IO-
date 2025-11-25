@@ -193,6 +193,7 @@ namespace FX5U_IOMonitor
             btn_unit.Text = LanguageManager.Translate("Unit_Setting_Setting");
             btn_UtilizationRate.Text = LanguageManager.Translate("UtilizationRate_Main");
             btn_WorkEstimate.Text = LanguageManager.Translate("WorkEstimate_Mainform");
+            btn_settingalarmupdate.Text = LanguageManager.Translate("Setting_btn_settingalarmupdate");
         }
 
         private void btn_unit_Click(object sender, EventArgs e)

@@ -122,7 +122,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_checkpoint
             // 
-            btn_checkpoint.Location = new Point(13, 343);
+            btn_checkpoint.Location = new Point(13, 433);
             btn_checkpoint.Name = "btn_checkpoint";
             btn_checkpoint.Size = new Size(124, 39);
             btn_checkpoint.TabIndex = 13;
@@ -162,14 +162,13 @@ namespace FX5U_IOMonitor
             // 
             // btn_settingalarmupdate
             // 
-            btn_settingalarmupdate.Location = new Point(813, 348);
+            btn_settingalarmupdate.Location = new Point(754, 348);
             btn_settingalarmupdate.Name = "btn_settingalarmupdate";
-            btn_settingalarmupdate.Size = new Size(79, 40);
+            btn_settingalarmupdate.Size = new Size(138, 40);
             btn_settingalarmupdate.TabIndex = 17;
-            btn_settingalarmupdate.Text = "更新外部\r\n元件異常表";
+            btn_settingalarmupdate.Text = "更新零組件異常表\r\n(如變頻器)";
             btn_settingalarmupdate.UseVisualStyleBackColor = true;
             btn_settingalarmupdate.Click += btn_settingalarmupdate_Click;
-
             // 
             // button3
             // 
@@ -202,9 +201,9 @@ namespace FX5U_IOMonitor
             flowLayoutPanel1.Controls.Add(btn_notify);
             flowLayoutPanel1.Controls.Add(btn_unit);
             flowLayoutPanel1.Controls.Add(btn_history);
-            flowLayoutPanel1.Controls.Add(btn_checkpoint);
             flowLayoutPanel1.Controls.Add(btn_UtilizationRate);
             flowLayoutPanel1.Controls.Add(btn_WorkEstimate);
+            flowLayoutPanel1.Controls.Add(btn_checkpoint);
             flowLayoutPanel1.Location = new Point(47, 39);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Padding = new Padding(10);
@@ -213,7 +212,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_UtilizationRate
             // 
-            btn_UtilizationRate.Location = new Point(13, 388);
+            btn_UtilizationRate.Location = new Point(13, 343);
             btn_UtilizationRate.Name = "btn_UtilizationRate";
             btn_UtilizationRate.Size = new Size(124, 39);
             btn_UtilizationRate.TabIndex = 21;
@@ -223,7 +222,7 @@ namespace FX5U_IOMonitor
             // 
             // btn_WorkEstimate
             // 
-            btn_WorkEstimate.Location = new Point(13, 433);
+            btn_WorkEstimate.Location = new Point(13, 388);
             btn_WorkEstimate.Name = "btn_WorkEstimate";
             btn_WorkEstimate.Size = new Size(124, 39);
             btn_WorkEstimate.TabIndex = 22;

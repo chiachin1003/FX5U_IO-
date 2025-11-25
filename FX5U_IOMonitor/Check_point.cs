@@ -76,9 +76,33 @@ namespace FX5U_IOMonitor
             InitializeComponent();
             this.Load += Main_Load;
 
+            SwitchLanguage();
+            LanguageManager.LanguageChanged += OnLanguageChanged;
+        }
+        private void OnLanguageChanged(string cultureName)
+        {
+            SwitchLanguage();
+        }
+        private void SwitchLanguage() 
+        {
+
+            lab_titleText.Text = LanguageManager.Translate("Check_point_lab_titleText");
+            lab_main.Text = LanguageManager.Translate("Check_point_lab_main");
+            lab_Drill_element.Text = LanguageManager.Translate("Check_point_lab_Drill_element");
+            lab_Drill_mail.Text = LanguageManager.Translate("Check_point_lab_Drill_mail");
+            lab_Sawing_element.Text = LanguageManager.Translate("Check_point_lab_Sawing_element");
+            lab_Sawing_main.Text = LanguageManager.Translate("Check_point_lab_Sawing_main");
+            lab_sawbrand.Text = LanguageManager.Translate("Check_point_lab_sawbrand");
+            lab_title.Text = LanguageManager.Translate("Check_point_lab_title");
+            lab_main_time.Text = LanguageManager.Translate("Check_point_lab_main_time");
+            lab_Drill_element_time.Text = LanguageManager.Translate("Check_point_lab_Drill_element_time");
+            lab_Drill_mail_time.Text = LanguageManager.Translate("Check_point_lab_Drill_mail_time");
+            lab_Sawing_element_time.Text = LanguageManager.Translate("Check_point_lab_Sawing_element_time");
+            lab_Sawing_main_time.Text = LanguageManager.Translate("Check_point_lab_Sawing_main_time");
+            lab_sawbrand_time.Text = LanguageManager.Translate("Check_point_lab_sawbrand_time");
+
 
         }
-
         private void Main_Load(object sender, EventArgs e)
         {
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
@@ -148,22 +172,22 @@ namespace FX5U_IOMonitor
             if (Drill?.IsConnected == true)
             {
                 int drillReadTime = int.TryParse(Drill.ConnectSummary.read_time, out var t1) ? (t1 == 0 ? 1 : t1) : 1;
-                lab_Drill_element_time.Text = $"當前監控總數更新時間：{(drillReadTime > 70 ? 70 : drillReadTime)}ms";
+                lab_Drill_element_time.Text = LanguageManager.Translate("Check_point_lab_main") +$"{(drillReadTime > 70 ? 70 : drillReadTime)}ms";
 
                 long drillMainElapsed = Checkpoint_time.GetElapsedMilliseconds("Drill_main");
                 lab_Drill_mail_time.Text = FormatElapsed(drillMainElapsed, 480, "480 ms");
             }
             else
             {
-                lab_Drill_element_time.Text = "未連接鑽床";
-                lab_Drill_mail_time.Text = "未連接鑽床";
+                lab_Drill_element_time.Text = LanguageManager.Translate("Check_point_lab_Drill_element_time"); 
+                lab_Drill_mail_time.Text = LanguageManager.Translate("Check_point_lab_Drill_mail_time");
             }
 
             // 鋸床狀態
             if (Saw?.IsConnected == true)
             {
                 int sawReadTime = int.TryParse(Saw.ConnectSummary.read_time, out var t2) ? (t2 == 0 ? 1 : t2) : 1;
-                lab_Sawing_element_time.Text = $"當前監控總數更新時間：{(sawReadTime > 70 ? 70 : sawReadTime)}ms";
+                lab_Sawing_element_time.Text = LanguageManager.Translate("Check_point_lab_main") + $"{(sawReadTime > 70 ? 70 : sawReadTime)}ms";
 
                 long sawBrandElapsed = Checkpoint_time.GetElapsedMilliseconds("Saw_brand");
                 lab_sawbrand_time.Text = FormatElapsed(sawBrandElapsed, 550, "220 ms");
@@ -173,9 +197,9 @@ namespace FX5U_IOMonitor
             }
             else
             {
-                lab_Sawing_element_time.Text = "未連接鋸床";
-                lab_Sawing_main_time.Text = "未連接鋸床";
-                lab_sawbrand_time.Text = "未連接鋸床";
+                lab_Sawing_element_time.Text = LanguageManager.Translate("Check_point_lab_Sawing_element_time");
+                lab_Sawing_main_time.Text = LanguageManager.Translate("Check_point_lab_Sawing_main_time");
+                lab_sawbrand_time.Text = LanguageManager.Translate("Check_point_lab_sawbrand_time");
             }
 
             // 主畫面顯示固定值

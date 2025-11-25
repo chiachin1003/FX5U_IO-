@@ -572,7 +572,7 @@ namespace FX5U_IOMonitor
                         {
                             "InverterError" => DBfunction.Get_FrequencyAlarm(e.AdditionalValue.Value, e.AlarmType),
                             "InverterWarning" => DBfunction.Get_FrequencyAlarm(e.AdditionalValue.Value, e.AlarmType),
-                            "Control" => DBfunction.Get_ControlAlarm(e.AdditionalValue.Value), //尚未建立
+                            "Control" => DBfunction.Get_ControlAlarm(e.AdditionalValue.Value), 
                             "ServoDrive" => DBfunction.Get_ServoDriveAlarm(e.AdditionalValue.Value),
                             _ => null
                         };

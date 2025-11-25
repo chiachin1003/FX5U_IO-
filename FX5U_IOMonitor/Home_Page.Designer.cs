@@ -1236,7 +1236,7 @@
             lab_vision.Name = "lab_vision";
             lab_vision.Size = new Size(42, 15);
             lab_vision.TabIndex = 52;
-            lab_vision.Text = "V1.0.2";
+            lab_vision.Text = "V1.0.3";
             // 
             // Home_Page
             // 

@@ -142,17 +142,19 @@ namespace FX5U_IOMonitor.Models
         }
         public static string oil_press_transfer(int code)
         {
-            return code switch
+            string key = code switch
             {
-                0 => "正常",
-                1 => "崩齒",
-                2 => "鋸帶斷裂",
-                3 => "歪斜",
-                4 => "工件表面粗糙",
-                5 => "更換鋸帶",
-                6 => "維修",
-                _ => "未知狀態"
+                0 => "OilPress_Normal",
+                1 => "OilPress_ChipBroken",
+                2 => "OilPress_BladeBroken",
+                3 => "OilPress_Deviate",
+                4 => "OilPress_RoughSurface",
+                5 => "OilPress_ReplaceBlade",
+                6 => "OilPress_Maintenance",
+                _ => "OilPress_Unknown"
             };
+
+            return LanguageManager.Translate(key);
         }
        
         public class RuntimebitTimer
