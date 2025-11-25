@@ -259,12 +259,114 @@ namespace FX5U_IOMonitor.Models
         }
 
 
+        //public static Panel CreateShowMainPanel(
+        // string address,
+        // string equipmentDescription,
+        // int maxLife,
+        // int currentUse,
+        // string comment,string equipmentStartTime)
+        //{
+        //    // 主 Panel
+        //    Panel mainPanel = new Panel
+        //    {
+        //        Dock = DockStyle.Fill,
+        //        //BackColor = Color.White,
+        //        Padding = new Padding(10)
+        //    };
+
+        //    int y = 20;
+
+        //    void AddLabel(string title, string value)
+        //    {
+        //        Label lbl = new Label
+        //        {
+        //            AutoSize = true,
+        //            //AutoSize = false, // 關掉 AutoSize 才能控制寬度
+        //            //Width = 400,      // ❗你可以依畫面需求調整寬度
+        //            Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+        //            Location = new Point(6, y),
+        //            Text = $"{title}{value}",
+        //            TextAlign = ContentAlignment.MiddleLeft
+        //        };
+        //        AdjustFontToFit(lbl);
+
+        //        mainPanel.Controls.Add(lbl);
+        //        y += 35;
+        //    }
+
+        //    //AddLabel("元件儲存器地址", address);
+        //    //AddLabel("更換料號　　　", equipmentDescription);
+        //    //AddLabel("預計可觸發次數", maxLife.ToString()+"次");
+        //    AddLabel(LanguageManager.Translate("ShowDetail_lb_address"),address);
+        //    AddLabel(LanguageManager.Translate("ShowDetail_lb_descript"),equipmentDescription);
+        //    AddLabel(LanguageManager.Translate("CreatPanel_lb_maxCount"),maxLife.ToString()+LanguageManager.Translate("CreatPanel_lb_Count"));
+        //    int remain = maxLife - currentUse;
+        //    // 加入可更新的 currentUse Label
+        //    Label lbl_useCount = new Label
+        //    {
+        //        Name = "lb_useCount",
+        //        AutoSize = true,
+        //        Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+        //        Location = new Point(6, y),
+        //        //Text=$"目前已觸發次數   ：{currentUse} 次"
+        //        Text = LanguageManager.TranslateFormat("ShowDetail_lb_useCount", currentUse)
+        //    };
+        //    mainPanel.Controls.Add(lbl_useCount);
+        //    y += 35;
+        //    Label lbl_remainCount = new Label
+        //    {
+        //        Name = "lb_remainCount",
+        //        AutoSize = true,
+        //        Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+        //        Location = new Point(6, y),
+        //        //Text = $"剩餘可使用次數   ：" + (maxLife - currentUse).ToString() + " 次"
+        //        Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remain)
+
+        //    }; 
+        //    mainPanel.Controls.Add(lbl_remainCount);
+        //    y += 35;
+
+        //    Label lbl_comment = new Label
+        //    {
+        //        Name = "lbl_comment",
+        //        AutoSize = true,
+        //        Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+        //        Location = new Point(6, y),
+        //        //Text = $"設備細節描述　   ："
+        //        Text = LanguageManager.Translate("ShowDetail_lb_Detail")
+        //    };
+
+        //    mainPanel.Controls.Add(lbl_comment);
+
+
+        //    Label lbl_comment_string = new Label
+        //    {
+        //        Name = "lbl_comment_string",
+        //        AutoSize = true,                                  // ✅ 自動展開高度
+        //        Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+        //        Location = new Point(175, y),
+        //        MaximumSize = new Size(300, 0),                   // ✅ 限制最大寬度（會自動換行）
+        //        Text =comment,
+        //        TextAlign = ContentAlignment.TopLeft,
+        //    };
+
+        //    mainPanel.Controls.Add(lbl_comment_string);
+        //    lbl_comment_string.BringToFront();
+
+        //    y += 125;
+
+        //    AddLabel(LanguageManager.Translate("ShowDetail_lb_StartTime"), equipmentStartTime);
+
+        //    return mainPanel;
+        //}
         public static Panel CreateShowMainPanel(
          string address,
          string equipmentDescription,
          int maxLife,
          int currentUse,
-         string comment,string equipmentStartTime)
+         string comment,
+         string TiggerTime,
+         string equipmentStartTime)
         {
             // 主 Panel
             Panel mainPanel = new Panel
@@ -297,9 +399,9 @@ namespace FX5U_IOMonitor.Models
             //AddLabel("元件儲存器地址", address);
             //AddLabel("更換料號　　　", equipmentDescription);
             //AddLabel("預計可觸發次數", maxLife.ToString()+"次");
-            AddLabel(LanguageManager.Translate("ShowDetail_lb_address"),address);
-            AddLabel(LanguageManager.Translate("ShowDetail_lb_descript"),equipmentDescription);
-            AddLabel(LanguageManager.Translate("CreatPanel_lb_maxCount"),maxLife.ToString()+LanguageManager.Translate("CreatPanel_lb_Count"));
+            AddLabel(LanguageManager.Translate("ShowDetail_lb_address"), address);
+            AddLabel(LanguageManager.Translate("ShowDetail_lb_descript"), equipmentDescription);
+            AddLabel(LanguageManager.Translate("CreatPanel_lb_maxCount"), maxLife.ToString() + LanguageManager.Translate("CreatPanel_lb_Count"));
             int remain = maxLife - currentUse;
             // 加入可更新的 currentUse Label
             Label lbl_useCount = new Label
@@ -322,7 +424,7 @@ namespace FX5U_IOMonitor.Models
                 //Text = $"剩餘可使用次數   ：" + (maxLife - currentUse).ToString() + " 次"
                 Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remain)
 
-            }; 
+            };
             mainPanel.Controls.Add(lbl_remainCount);
             y += 35;
 
@@ -338,6 +440,7 @@ namespace FX5U_IOMonitor.Models
 
             mainPanel.Controls.Add(lbl_comment);
 
+
             Label lbl_comment_string = new Label
             {
                 Name = "lbl_comment_string",
@@ -345,20 +448,44 @@ namespace FX5U_IOMonitor.Models
                 Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
                 Location = new Point(175, y),
                 MaximumSize = new Size(300, 0),                   // ✅ 限制最大寬度（會自動換行）
-                Text =comment,
+                Text = comment,
                 TextAlign = ContentAlignment.TopLeft,
             };
 
             mainPanel.Controls.Add(lbl_comment_string);
             lbl_comment_string.BringToFront();
 
-            y += 125;
+            y += 105;
+
+            Label lbl_Tigger = new Label
+            {
+                Name = "lbl_Tigger",
+                AutoSize = true,
+                Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                Location = new Point(6, y),
+                Text = LanguageManager.Translate("ShowDetail_lb_Tigger")
+            };
+
+            mainPanel.Controls.Add(lbl_Tigger);
+            Label Tiggertime = new Label
+            {
+                Name = "lbl_TiggerTime",
+                AutoSize = true,                                  
+                Font = new Font("Microsoft JhengHei", 15, FontStyle.Bold),
+                Location = new Point(168, y),
+                MaximumSize = new Size(300, 0),                  
+                Text = TiggerTime,
+                TextAlign = ContentAlignment.TopLeft,
+            };
+
+            mainPanel.Controls.Add(Tiggertime);
+            Tiggertime.BringToFront();
+            y += 30;
 
             AddLabel(LanguageManager.Translate("ShowDetail_lb_StartTime"), equipmentStartTime);
 
             return mainPanel;
         }
-     
 
         public static TableLayoutPanel CreateColorLegendPanel(string redText, string yellowText, string greenText)
         {

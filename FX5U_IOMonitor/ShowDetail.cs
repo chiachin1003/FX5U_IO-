@@ -27,6 +27,8 @@ namespace FX5U_IOMonitor
         private CancellationTokenSource? usageMonitorCts;
         private Label? lbl_useCount;
         private Label? lbl_remainCount;
+        private Label? lbl_UpdateTime;
+
         private readonly Action? onClosedCallback;
         private Panel usagePanel;
         string currentLang;
@@ -70,11 +72,14 @@ namespace FX5U_IOMonitor
                         DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
                         DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag),
+                        DBfunction.Get_MachineIO_TriggerTime(dbtable, equipmentTag),
                         StartTime
                     );
                     // 記得先抓 lbl_useCount 才能背景更新
                     lbl_useCount = usagePanel.Controls.Find("lb_useCount", true).FirstOrDefault() as Label;
                     lbl_remainCount = usagePanel.Controls.Find("lb_remainCount", true).FirstOrDefault() as Label;
+                    lbl_UpdateTime = usagePanel.Controls.Find("lbl_TiggerTime", true).FirstOrDefault() as Label;
+
                     panel_main.Controls.Add(usagePanel);
                     this.usagePanel = usagePanel;
                     // 啟動背景監聽（如果先前已存在就先取消）
@@ -145,7 +150,9 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_Decription_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
-                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), StartTime
+                DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag), 
+                DBfunction.Get_MachineIO_TriggerTime(dbtable, equipmentTag),
+                StartTime
             );
 
             // 更新元件使用次數 
@@ -182,11 +189,13 @@ namespace FX5U_IOMonitor
                 DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_use_ByAddress(dbtable, equipmentTag),
                 DBfunction.Get_Comment_ByAddress(dbtable, equipmentTag),
+                DBfunction.Get_MachineIO_TriggerTime(dbtable, equipmentTag),
                 StartTime
             );
             // 抓取 Label
             lbl_useCount = usagePanel.Controls.Find("lb_useCount", true).FirstOrDefault() as Label;
             lbl_remainCount = usagePanel.Controls.Find("lb_remainCount", true).FirstOrDefault() as Label;
+            lbl_UpdateTime = usagePanel.Controls.Find("lbl_Tigger", true).FirstOrDefault() as Label;
 
             panel_main.Controls.Add(usagePanel);
             StartUseMonitorLoop(usageMonitorCts.Token);
@@ -203,6 +212,8 @@ namespace FX5U_IOMonitor
                     {
                         int currentUse = DBfunction.Get_use_ByAddress(dbtable, equipmentTag);
                         int remainCount = (DBfunction.Get_MaxLife_ByAddress(dbtable, equipmentTag) - currentUse);
+                        string lbTigger = DBfunction.Get_MachineIO_TriggerTime(dbtable, equipmentTag) ;
+
                         if (lbl_useCount != null && lbl_useCount.IsHandleCreated && !lbl_useCount.IsDisposed)
                         {
                             if (lbl_useCount.InvokeRequired)
@@ -211,7 +222,7 @@ namespace FX5U_IOMonitor
                                 {
                                     lbl_useCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_useCount", currentUse);
                                     lbl_remainCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remainCount);
-
+                                    lbl_UpdateTime.Text = lbTigger;
                                     //lbl_useCount.Text = $"目前已觸發次數   ：{currentUse} 次";
                                     //lbl_remainCount.Text = $"剩餘可使用次數   ：{remainCount} 次";
 
@@ -222,7 +233,7 @@ namespace FX5U_IOMonitor
                         {
                             lbl_useCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_useCount", currentUse);
                             lbl_remainCount.Text = LanguageManager.TranslateFormat("ShowDetail_lb_remainCount", remainCount);
-
+                            lbl_UpdateTime.Text = lbTigger;
                             //lbl_useCount.Text = $"目前已觸發次數   ：{currentUse} 次";
                             //lbl_remainCount.Text = $"剩餘可使用次數   ：{remainCount} 次";
                         }

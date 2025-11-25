@@ -6,6 +6,7 @@ using FX5U_IOMonitor.Login;
 using FX5U_IOMonitor.Utilization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
@@ -748,6 +749,7 @@ namespace FX5U_IOMonitor.Models
                 if (machine != null)
                 {
                     machine.equipment_use = equipment_use;
+                    machine.CreatedAt = DateTime.UtcNow; //新增當前更新時間
                     context.SaveChanges();
                     Console.WriteLine($"已將 {address} 的說明欄位更新為：{equipment_use}");
                 }
@@ -853,6 +855,25 @@ namespace FX5U_IOMonitor.Models
         }
 
 
+        public static string Get_MachineIO_TriggerTime(string tablename, string address)
+        {
+            using (var context = new ApplicationDB())
+            {
+                var io = context.Machine_IO
+                    .FirstOrDefault(a => a.Machine_name == tablename && a.address == address);
+
+                if (io == null)
+                    return "";
+
+                DateTime dt = io.CreatedAt;
+
+                // 若是 UTC 才轉為 local
+                if (dt.Kind == DateTimeKind.Utc)
+                    dt = dt.ToLocalTime();
+
+                return dt.ToString("yyyy/M/d HH:mm:ss");
+            }
+        }
         /// <summary>
         ///  警告維護表用到的
         /// </summary>

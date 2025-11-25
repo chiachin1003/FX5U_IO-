@@ -57,8 +57,8 @@ namespace FX5U_IOMonitor.Models
             // 宣告事件：通知程式「某個 IO 資料變了」
             public event EventHandler<IOUpdateEventArgs> IOUpdated; //實體元件事件(X輸入及Y輸出)
             public event EventHandler<IOUpdateEventArgs> alarm_event; //警告事件事件
-            public event EventHandler<IOUpdateEventArgs> machine_event;
-            public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed;
+            public event EventHandler<IOUpdateEventArgs> machine_event; //寫入元件歷史紀錄
+            public event EventHandler<RULThresholdCrossedEventArgs>? RULThresholdCrossed; 
 
             private readonly Dictionary<string, string> _lastRULState = new();// 紀錄每個元件上次 Message 燈號狀態（green/yellow/red）
             private readonly AlarmMappingConfig _alarmconfig;
